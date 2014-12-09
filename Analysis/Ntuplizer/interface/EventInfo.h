@@ -1,12 +1,12 @@
-#ifndef Analysis_Ntuplizer_EventInfo_h
-#define Analysis_Ntuplizer_EventInfo_h 1
+#ifndef MssmHbbAnalysis_Ntuplizer_EventInfo_h
+#define MssmHbbAnalysis_Ntuplizer_EventInfo_h 1
 
 // -*- C++ -*-
 //
-// Package:    Analysis/Ntuplizer
+// Package:    MssmHbbAnalysis/Ntuplizer
 // Class:      EventInfo
 // 
-/**\class EventInfo EventInfo.cc Analysis/Ntuplizer/src/EventInfo.cc
+/**\class EventInfo EventInfo.cc MssmHbbAnalysis/Ntuplizer/src/EventInfo.cc
 
  Description: [one line class summary]
 
@@ -61,4 +61,4 @@ namespace mssmhbb {
    }
 }
 
-#endif  // Analysis_Ntuplizer_EventInfo_h
+#endif  // MssmHbbAnalysis_Ntuplizer_EventInfo_h

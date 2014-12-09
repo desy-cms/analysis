@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    Analysis/L1ExtraJetsMerger
+// Package:    MssmHbbAnalysis/L1ExtraJetsMerger
 // Class:      L1ExtraJetsMerger
 // 
-/**\class L1ExtraJetsMerger L1ExtraJetsMerger.cc Analysis/L1ExtraJetsMerger/plugins/L1ExtraJetsMerger.cc
+/**\class L1ExtraJetsMerger L1ExtraJetsMerger.cc MssmHbbAnalysis/L1ExtraJetsMerger/plugins/L1ExtraJetsMerger.cc
 
  Description: [one line class summary]
 

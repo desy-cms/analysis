@@ -7,7 +7,7 @@
 <use name="DataFormats/L1Trigger"/>
 <use name="DataFormats/JetReco"/>
 <use name="SimDataFormats/PileupSummaryInfo"/>
-<use name="Analysis/Ntuplizer"/>
+<use name="MssmHbbAnalysis/Ntuplizer"/>
 <use name="root"/>
 <use name="rootmath"/>
 <use name="boost" />

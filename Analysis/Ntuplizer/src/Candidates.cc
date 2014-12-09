@@ -1,4 +1,4 @@
-/**\class Candidates Candidates.cc Analysis/Ntuplizer/src/Candidates.cc
+/**\class Candidates Candidates.cc MssmHbbAnalysis/Ntuplizer/src/Candidates.cc
 
  Description: [one line class summary]
 
@@ -26,7 +26,7 @@
 
 #include "CommonTools/Utils/interface/PtComparator.h"
 
-#include "Analysis/Ntuplizer/interface/Candidates.h"
+#include "MssmHbbAnalysis/Ntuplizer/interface/Candidates.h"
 
 #include "TTree.h"
 

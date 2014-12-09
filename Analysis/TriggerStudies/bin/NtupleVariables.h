@@ -1,5 +1,5 @@
-#ifndef Analysis_Ntuplizer_bin_NtupleVariables_h
-#define Analysis_Ntuplizer_bin_NtupleVariables_h
+#ifndef MssmHbbAnalysis_Ntuplizer_bin_NtupleVariables_h
+#define MssmHbbAnalysis_Ntuplizer_bin_NtupleVariables_h
 
 // Variables declaration
 
