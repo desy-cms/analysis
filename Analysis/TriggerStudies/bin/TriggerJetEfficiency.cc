@@ -171,7 +171,8 @@ int main(int argc, char * argv[])
       if  ( fired )
       {
          // Match L2 with L1
-         int binCut = 2;
+         int etaBinCut = 2;
+         int phiBinCut = 3;
          if ( l2JetPtCut > 0. && l1JetPtCut > 0. )
          {
             int l2EtaBin = GetEtaBin(l2JetEta_[0]);
@@ -186,8 +187,8 @@ int main(int argc, char * argv[])
 //                std::cout << "    L1 " << l1EtaBin << ", " << l1PhiBin << std::endl;
                bool etaMatch = false;
                bool phiMatch = false;
-               if ( abs(l2EtaBin - l1EtaBin) <= binCut ) etaMatch = true;
-               if ( abs(l2PhiBin - l1PhiBin) <= binCut  || abs(l2PhiBin - l1PhiBin) >= 18-binCut ) phiMatch = true;
+               if ( abs(l2EtaBin - l1EtaBin) <= etaBinCut ) etaMatch = true;
+               if ( abs(l2PhiBin - l1PhiBin) <= phiBinCut  || abs(l2PhiBin - l1PhiBin) >= 18-phiBinCut ) phiMatch = true;
                if ( etaMatch && phiMatch )
                {
                   isL1L2Matched = true;
