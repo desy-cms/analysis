@@ -1,0 +1,14 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="CommonTools/Utils"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="DataFormats/L1Trigger"/>
+<use name="DataFormats/JetReco"/>
+<use name="SimDataFormats/PileupSummaryInfo"/>
+<use name="root"/>
+<use name="rootmath"/>
+<use name="boost" />
+<export>
+  <lib name="1"/>
+</export>
