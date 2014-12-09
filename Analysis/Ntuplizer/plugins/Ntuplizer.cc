@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    BsmHbbAnalysis/Ntuplizer
+// Package:    Analysis/Ntuplizer
 // Class:      Ntuplizer
 // 
-/**\class Ntuplizer Ntuplizer.cc BsmHbbAnalysis/Ntuplizer/plugins/Ntuplizer.cc
+/**\class Ntuplizer Ntuplizer.cc Analysis/Ntuplizer/plugins/Ntuplizer.cc
 
  Description: [one line class summary]
 
@@ -38,9 +38,9 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
-#include "MssmHbbAnalysis/Ntuplizer/interface/EventInfo.h"
-#include "MssmHbbAnalysis/Ntuplizer/interface/PileupInfo.h"
-#include "MssmHbbAnalysis/Ntuplizer/interface/Candidates.h"
+#include "Analysis/Ntuplizer/interface/EventInfo.h"
+#include "Analysis/Ntuplizer/interface/PileupInfo.h"
+#include "Analysis/Ntuplizer/interface/Candidates.h"
 
 #include "DataFormats/Common/interface/OwnVector.h"
 

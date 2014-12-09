@@ -1,12 +1,12 @@
-#ifndef MssmHbbAnalysis_Ntuplizer_PileupInfo_h
-#define MssmHbbAnalysis_Ntuplizer_PileupInfo_h 1
+#ifndef Analysis_Ntuplizer_PileupInfo_h
+#define Analysis_Ntuplizer_PileupInfo_h 1
 
 // -*- C++ -*-
 //
-// Package:    MssmHbbAnalysis/Ntuplizer
+// Package:    Analysis/Ntuplizer
 // Class:      PileupInfo
 // 
-/**\class PileupInfo PileupInfo.cc MssmHbbAnalysis/Ntuplizer/src/PileupInfo.cc
+/**\class PileupInfo PileupInfo.cc Analysis/Ntuplizer/src/PileupInfo.cc
 
  Description: [one line class summary]
 
@@ -59,4 +59,4 @@ namespace mssmhbb {
    }   
 }
 
-#endif  // MssmHbbAnalysis_Ntuplizer_PileupInfo_h
+#endif  // Analysis_Ntuplizer_PileupInfo_h
