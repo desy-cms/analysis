@@ -18,5 +18,5 @@ git cms-addpkg MssmHbbAnalysis/TriggerStudies
 ## Get any modifications in the remote (= svn update)
 git pull cmssw-analysis
 ## Make local modifications and commit/push as usual
-git commit -m \u201ccomments\u201d <my file> 
+git commit -m  comments  < file>
 git push
