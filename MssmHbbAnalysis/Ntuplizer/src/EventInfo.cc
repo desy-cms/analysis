@@ -53,7 +53,7 @@ EventInfo::~EventInfo()
 //
 
 // ------------ method called for each event  ------------
-void EventInfo::fill(const edm::Event& event)
+void EventInfo::Fill(const edm::Event& event)
 {
    using namespace edm;
    
@@ -69,7 +69,7 @@ void EventInfo::fill(const edm::Event& event)
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void EventInfo::branches()
+void EventInfo::Branches()
 {
    
    // event output info

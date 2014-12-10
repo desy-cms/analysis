@@ -41,8 +41,8 @@ namespace mssmhbb {
             EventInfo();
             EventInfo(TTree*);
            ~EventInfo();
-            void fill(const edm::Event&);
-            void branches();
+            void Fill(const edm::Event&);
+            void Branches();
       
          private:
             // ----------member data ---------------------------
