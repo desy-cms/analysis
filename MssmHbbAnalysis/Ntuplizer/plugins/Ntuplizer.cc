@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    BsmHbbAnalysis/Ntuplizer
+// Package:    MssmHbbAnalysis/Ntuplizer
 // Class:      Ntuplizer
 // 
-/**\class Ntuplizer Ntuplizer.cc BsmHbbAnalysis/Ntuplizer/plugins/Ntuplizer.cc
+/**\class Ntuplizer Ntuplizer.cc MssmHbbAnalysis/Ntuplizer/plugins/Ntuplizer.cc
 
  Description: [one line class summary]
 
