@@ -50,6 +50,8 @@ namespace mssmhbb {
             void Fill(const edm::Event&);
             void Fill();
             void Kinematics();
+            void MinPt(const float&);
+            void MaxEta(const float&);
             static const int maxCandidates = 100;
       
          protected:

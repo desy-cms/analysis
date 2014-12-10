@@ -110,6 +110,18 @@ void Candidates<T>::Kinematics()
 
 }
 
+template <typename T>
+void Candidates<T>::MinPt(const float& minPt)
+{
+   minPt_ = minPt;
+}
+
+template <typename T>
+void Candidates<T>::MaxEta(const float& maxEta)
+{
+   maxEta_ = maxEta;
+}
+
 
 template <typename T>
 void Candidates<T>::Fill()
