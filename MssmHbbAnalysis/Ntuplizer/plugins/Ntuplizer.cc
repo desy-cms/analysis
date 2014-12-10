@@ -144,10 +144,10 @@ void Ntuplizer::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
    using namespace edm;
    
    // Event info
-   eventinfo_ -> fill(event);
+   eventinfo_ -> Fill(event);
    
    if ( do_pileupinfo_ )
-      pileupinfo_ -> fill(event);
+      pileupinfo_ -> Fill(event);
 
    if ( do_mc_ )
    {
@@ -159,7 +159,7 @@ void Ntuplizer::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
    {
       for ( size_t i = 0; i < l1jets_collections_.size() ; ++i )
       {
-         l1jets_collections_[i]  -> fill(event);
+         l1jets_collections_[i]  -> Fill(event);
       }
    }
    
@@ -168,7 +168,7 @@ void Ntuplizer::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
    {
       for ( size_t i = 0; i < calojets_collections_.size() ; ++i )
       {
-         calojets_collections_[i]  -> fill(event);
+         calojets_collections_[i]  -> Fill(event);
       }
    }
 
@@ -189,7 +189,7 @@ Ntuplizer::beginJob()
    std::string name = "EventInfo";
    trees_[name] = fs->make<TTree>(name.c_str(),name.c_str());
    eventinfo_ = pEventInfo (new EventInfo(trees_[name]));
-   eventinfo_ -> branches();
+   eventinfo_ -> Branches();
   
    // Input tags trees
    for ( strings::iterator inputTag = inputTags_.begin(); inputTag != inputTags_.end() ; ++inputTag )
@@ -211,7 +211,7 @@ Ntuplizer::beginJob()
          {
             do_pileupinfo_ = true;
             pileupinfo_ = pPileupInfo( new PileupInfo((*collection), trees_[name]) );
-            pileupinfo_ -> branches();
+            pileupinfo_ -> Branches();
          }
          // L1 Jets
          if ( (*inputTag) == "L1ExtraJets" )
@@ -221,7 +221,7 @@ Ntuplizer::beginJob()
             std::string l1name = name + "Jets";
             trees_[name]->SetNameTitle(l1name.c_str(),l1name.c_str());
             l1jets_collections_.push_back( pL1JetCandidates( new L1JetCandidates((*collection), trees_[name]) ));
-            l1jets_collections_.back() -> branches();
+            l1jets_collections_.back() -> Branches();
          }
          
          // Calo Jets
@@ -229,7 +229,7 @@ Ntuplizer::beginJob()
          {
             do_calojets_ = true;
             calojets_collections_.push_back( pCaloJetCandidates( new CaloJetCandidates((*collection), trees_[name]) ));
-            calojets_collections_.back() -> branches();
+            calojets_collections_.back() -> Branches();
          }
       }
    }
