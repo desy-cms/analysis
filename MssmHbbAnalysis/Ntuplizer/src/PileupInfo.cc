@@ -52,7 +52,7 @@ PileupInfo::~PileupInfo()
 //
 
 // ------------ method called for each event  ------------
-void PileupInfo::pileupInfo(const edm::Event& event)
+void PileupInfo::ReadFromEvent(const edm::Event& event)
 {
    using namespace edm;
    
@@ -76,19 +76,19 @@ void PileupInfo::pileupInfo(const edm::Event& event)
 }
 
 
-void PileupInfo::fill()
+void PileupInfo::Fill()
 {
    tree_->Fill();
 }
 
-void PileupInfo::fill(const edm::Event& event)
+void PileupInfo::Fill(const edm::Event& event)
 {
-   pileupInfo(event);
-   fill();
+   ReadFromEvent(event);
+   Fill();
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void PileupInfo::branches()
+void PileupInfo::Branches()
 {
    tree_->Branch("nTruePileup",  &this->n_true_pu_, "nTruePileup/F");
    tree_->Branch("nPileup",  &this->n_pu_, "nPileup/F");

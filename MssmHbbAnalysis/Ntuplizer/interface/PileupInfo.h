@@ -40,10 +40,10 @@ namespace mssmhbb {
             PileupInfo();
             PileupInfo(const edm::InputTag&, TTree*);
            ~PileupInfo();
-            void pileupInfo(const edm::Event&);
-            void branches();
-            void fill(const edm::Event&);
-            void fill();
+            void ReadFromEvent(const edm::Event&);
+            void Branches();
+            void Fill(const edm::Event&);
+            void Fill();
             static const int maxParticles = 1000;
       
          protected:
