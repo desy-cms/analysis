@@ -48,7 +48,8 @@ Candidates<T>::Candidates()
 }
 
 template <typename T>
-Candidates<T>::Candidates(const edm::InputTag& tag, TTree* tree)
+Candidates<T>::Candidates(const edm::InputTag& tag, TTree* tree, float minPt, float maxEta) :
+      minPt_(minPt), maxEta_(maxEta)
 {
    this->input_collection_ = tag;
    this->tree_ = tree;
@@ -73,7 +74,7 @@ Candidates<T>::~Candidates()
 
 // ------------ method called for each event  ------------
 template <typename T>
-void Candidates<T>::candidates(const edm::Event& event)
+void Candidates<T>::ReadFromEvent(const edm::Event& event)
 {
    using namespace edm;
    
@@ -84,47 +85,49 @@ void Candidates<T>::candidates(const edm::Event& event)
 }
 
 template <typename T>
-void Candidates<T>::kinematics()
+void Candidates<T>::Kinematics()
 {
    using namespace edm;
    
    int n = 0;
    for ( size_t i = 0 ; i < candidates_.size(); ++i )
    {
-      if ( n < maxCandidates )
-      {
-         this->pt_[n] = candidates_[i].pt();
-         this->eta_[n]= candidates_[i].eta();
-         this->phi_[n]= candidates_[i].phi();
-         this->px_[n] = candidates_[i].px();
-         this->py_[n] = candidates_[i].py();
-         this->pz_[n] = candidates_[i].pz();
-         this->e_[n]  = candidates_[i].energy();
-         ++n;
-      }
-      this->n_ = n;
-
+      if ( n >= maxCandidates ) break;
+      
+      if ( this->pt_[n] < minPt_ || fabs (this->eta_[n]) > maxEta_ ) continue;
+      
+      this->pt_[n] = candidates_[i].pt();
+      this->eta_[n]= candidates_[i].eta();
+      this->phi_[n]= candidates_[i].phi();
+      this->px_[n] = candidates_[i].px();
+      this->py_[n] = candidates_[i].py();
+      this->pz_[n] = candidates_[i].pz();
+      this->e_[n]  = candidates_[i].energy();
+      ++n;
+      
    }
+   this->n_ = n;
+
 }
 
 
 template <typename T>
-void Candidates<T>::fill()
+void Candidates<T>::Fill()
 {
    tree_->Fill();
 }
 
 template <typename T>
-void Candidates<T>::fill(const edm::Event& event)
+void Candidates<T>::Fill(const edm::Event& event)
 {
-   this->candidates(event);
-   if ( do_kinematics_ ) this->kinematics();
-   this->fill();
+   this->ReadFromEvent(event);
+   if ( do_kinematics_ ) this->Kinematics();
+   this->Fill();
 }
 
 // ------------ method called once each job just before starting event loop  ------------
 template <typename T>
-void Candidates<T>::branches()
+void Candidates<T>::Branches()
 {
    
    // kinematics output info

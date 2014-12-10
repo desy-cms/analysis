@@ -43,14 +43,14 @@ namespace mssmhbb {
       class Candidates {
          public:
             Candidates();
-            Candidates(const edm::InputTag&, TTree*);
+            Candidates(const edm::InputTag&, TTree*, float minPt = 20., float minEta = 10.);
            ~Candidates();
-            void candidates(const edm::Event&);
-            void branches();
-            void fill(const edm::Event&);
-            void fill();
-            void kinematics();
-            static const int maxCandidates = 1000;
+            void ReadFromEvent(const edm::Event&);
+            void Branches();
+            void Fill(const edm::Event&);
+            void Fill();
+            void Kinematics();
+            static const int maxCandidates = 100;
       
          protected:
             // ----------member data ---------------------------
@@ -75,6 +75,9 @@ namespace mssmhbb {
             bool is_l1jet_;
             bool is_calojet_;
             bool do_kinematics_;
+            
+            float minPt_;
+            float maxEta_;
    
             
       };
