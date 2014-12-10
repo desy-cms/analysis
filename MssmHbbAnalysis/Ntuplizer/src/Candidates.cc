@@ -24,6 +24,9 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+
 #include "CommonTools/Utils/interface/PtComparator.h"
 
 #include "MssmHbbAnalysis/Ntuplizer/interface/Candidates.h"
@@ -56,7 +59,8 @@ Candidates<T>::Candidates(const edm::InputTag& tag, TTree* tree, float minPt, fl
    
    is_l1jet_   = std::is_same<T,l1extra::L1JetParticle>::value;
    is_calojet_ = std::is_same<T,reco::CaloJet>::value;
-   do_kinematics_ = ( is_l1jet_ || is_calojet_ );
+   is_pfjet_ = std::is_same<T,reco::PFJet>::value;
+   do_kinematics_ = ( is_l1jet_ || is_calojet_ || is_pfjet_ );
    
 }
 
@@ -94,7 +98,7 @@ void Candidates<T>::Kinematics()
    {
       if ( n >= maxCandidates ) break;
       
-      if ( this->pt_[n] < minPt_ || fabs (this->eta_[n]) > maxEta_ ) continue;
+      if ( candidates_[i].pt() < minPt_ || fabs (candidates_[i].eta()) > maxEta_ ) continue;
       
       this->pt_[n] = candidates_[i].pt();
       this->eta_[n]= candidates_[i].eta();
@@ -159,3 +163,4 @@ void Candidates<T>::Branches()
 // Need to declare all possible template classes here
 template class Candidates<l1extra::L1JetParticle>;
 template class Candidates<reco::CaloJet>;
+template class Candidates<reco::PFJet>;
