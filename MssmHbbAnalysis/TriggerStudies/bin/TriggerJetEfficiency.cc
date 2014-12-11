@@ -171,23 +171,24 @@ int main(int argc, char * argv[])
       if  ( fired )
       {
          // Match L2 with L1
-         int binCut = 2;
+         int etaBinCut = 2;
+         int phiBinCut = 3;
          if ( l2JetPtCut > 0. && l1JetPtCut > 0. )
          {
             int l2EtaBin = GetEtaBin(l2JetEta_[0]);
             int l2PhiBin = GetPhiBin(l2JetPhi_[0]);
-            std::cout << "L2 " << l2JetPt_[0] << ", " << l2JetEta_[0] << ", " << l2JetPhi_[0] << std::endl;
-            std::cout << "L2 " << l2EtaBin << ", " << l2PhiBin << std::endl;
+//             std::cout << "L2 " << l2JetPt_[0] << ", " << l2JetEta_[0] << ", " << l2JetPhi_[0] << std::endl;
+//             std::cout << "L2 " << l2EtaBin << ", " << l2PhiBin << std::endl;
             for ( int j1 = 0 ; j1 < nL1Obj ; ++j1 )
             {
                int l1EtaBin = GetEtaBin(l1JetEta_[iL1[j1]]);
                int l1PhiBin = GetPhiBin(l1JetPhi_[iL1[j1]]);
-               std::cout << "    L1 " << l1JetPt_[iL1[j1]] << ", " << l1JetEta_[iL1[j1]] << ", " << l1JetPhi_[iL1[j1]] << std::endl;
-               std::cout << "    L1 " << l1EtaBin << ", " << l1PhiBin << std::endl;
+//                std::cout << "    L1 " << l1JetPt_[iL1[j1]] << ", " << l1JetEta_[iL1[j1]] << ", " << l1JetPhi_[iL1[j1]] << std::endl;
+//                std::cout << "    L1 " << l1EtaBin << ", " << l1PhiBin << std::endl;
                bool etaMatch = false;
                bool phiMatch = false;
-               if ( abs(l2EtaBin - l1EtaBin) <= binCut ) etaMatch = true;
-               if ( abs(l2PhiBin - l1PhiBin) <= binCut  || abs(l2PhiBin - l1PhiBin) >= 18-binCut ) phiMatch = true;
+               if ( abs(l2EtaBin - l1EtaBin) <= etaBinCut ) etaMatch = true;
+               if ( abs(l2PhiBin - l1PhiBin) <= phiBinCut  || abs(l2PhiBin - l1PhiBin) >= 18-phiBinCut ) phiMatch = true;
                if ( etaMatch && phiMatch )
                {
                   isL1L2Matched = true;
@@ -197,9 +198,9 @@ int main(int argc, char * argv[])
          }
       }
       
-      if ( fired && ! isL1L2Matched )
-         std::cout << "IS NOT MATCHED!!! ###################################################" << std::endl;
-      std::cout << "--------------------------------------------------------------------" << std::endl;
+//       if ( fired && ! isL1L2Matched )
+//          std::cout << "IS NOT MATCHED!!! ###################################################" << std::endl;
+//       std::cout << "--------------------------------------------------------------------" << std::endl;
       
       // Fill histograms
       if ( fired && l2Fired && isL1L2Matched )
