@@ -269,7 +269,7 @@ void SetParameters()
    // L1 jet
    ncut[0] = 1;
    ptcut[0] = 84.;
-   etacut[0] = 5.0;
+   etacut[0] = 3.0;
    // L2 calo jet
    ncut[1] = 1;
    ptcut[1] = 20.;
