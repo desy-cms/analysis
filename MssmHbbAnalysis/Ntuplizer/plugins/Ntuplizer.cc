@@ -41,6 +41,8 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 
+#include "DataFormats/PatCandidates/interface/Jet.h"
+
 #include "MssmHbbAnalysis/Ntuplizer/interface/EventInfo.h"
 #include "MssmHbbAnalysis/Ntuplizer/interface/PileupInfo.h"
 #include "MssmHbbAnalysis/Ntuplizer/interface/Candidates.h"
@@ -60,6 +62,7 @@ typedef mssmhbb::ntuple::PileupInfo PileupInfo;
 typedef mssmhbb::ntuple::Candidates<l1extra::L1JetParticle> L1JetCandidates;
 typedef mssmhbb::ntuple::Candidates<reco::CaloJet> CaloJetCandidates;
 typedef mssmhbb::ntuple::Candidates<reco::PFJet> PFJetCandidates;
+typedef mssmhbb::ntuple::Candidates<pat::Jet> PatJetCandidates;
 
 // Alias to the pointers to the above classes
 typedef std::unique_ptr<EventInfo> pEventInfo;
@@ -67,6 +70,7 @@ typedef std::unique_ptr<PileupInfo> pPileupInfo;
 typedef std::unique_ptr<L1JetCandidates> pL1JetCandidates;
 typedef std::unique_ptr<CaloJetCandidates> pCaloJetCandidates;
 typedef std::unique_ptr<PFJetCandidates> pPFJetCandidates;
+typedef std::unique_ptr<PatJetCandidates> pPatJetCandidates;
 
 //
 // class declaration
@@ -97,6 +101,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       bool do_l1jets_;
       bool do_calojets_;
       bool do_pfjets_;
+      bool do_patjets_;
       bool do_pileupinfo_;
       std::vector< std::string > inputTags_;
       
@@ -110,6 +115,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       std::vector<pL1JetCandidates> l1jets_collections_;
       std::vector<pCaloJetCandidates> calojets_collections_;
       std::vector<pPFJetCandidates> pfjets_collections_;
+      std::vector<pPatJetCandidates> patjets_collections_;
       
 };
 
@@ -190,6 +196,15 @@ void Ntuplizer::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
          pfjets_collections_[i]  -> Fill(event);
       }
    }
+
+      // Pat jets (pat)
+   if ( do_patjets_ )
+   {
+      for ( size_t i = 0; i < patjets_collections_.size() ; ++i )
+      {
+         patjets_collections_[i]  -> Fill(event);
+      }
+   }
 }
 
 
@@ -200,7 +215,8 @@ Ntuplizer::beginJob()
    do_pileupinfo_ = false;
    do_l1jets_     = false;
    do_calojets_   = false;
-   do_pfjets_   = false;
+   do_pfjets_     = false;
+   do_patjets_    = false;
    
    edm::Service<TFileService> fs;
    
@@ -256,6 +272,13 @@ Ntuplizer::beginJob()
             do_pfjets_ = true;
             pfjets_collections_.push_back( pPFJetCandidates( new PFJetCandidates((*collection), trees_[name]) ));
             pfjets_collections_.back() -> Branches();
+         }
+         // Pat Jets
+         if ( (*inputTag) == "PatJets" )
+         {
+            do_patjets_ = true;
+            patjets_collections_.push_back( pPatJetCandidates( new PatJetCandidates((*collection), trees_[name]) ));
+            patjets_collections_.back() -> Branches();
          }
       }
    }

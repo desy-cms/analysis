@@ -5,6 +5,7 @@
 <use name="FWCore/ServiceRegistry"/>
 <use name="DataFormats/L1Trigger"/>
 <use name="DataFormats/JetReco"/>
+<use name="DataFormats/PatCandidates"/>
 <use name="SimDataFormats/PileupSummaryInfo"/>
 <use name="root"/>
 <use name="rootmath"/>

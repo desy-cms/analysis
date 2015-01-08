@@ -27,6 +27,8 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 
+#include "DataFormats/PatCandidates/interface/Jet.h"
+
 #include "CommonTools/Utils/interface/PtComparator.h"
 
 #include "MssmHbbAnalysis/Ntuplizer/interface/Candidates.h"
@@ -59,8 +61,10 @@ Candidates<T>::Candidates(const edm::InputTag& tag, TTree* tree, float minPt, fl
    
    is_l1jet_   = std::is_same<T,l1extra::L1JetParticle>::value;
    is_calojet_ = std::is_same<T,reco::CaloJet>::value;
-   is_pfjet_ = std::is_same<T,reco::PFJet>::value;
-   do_kinematics_ = ( is_l1jet_ || is_calojet_ || is_pfjet_ );
+   is_pfjet_   = std::is_same<T,reco::PFJet>::value;
+   is_patjet_  = std::is_same<T,pat::Jet>::value;
+   
+   do_kinematics_ = ( is_l1jet_ || is_calojet_ || is_pfjet_ || is_patjet_ );
    
 }
 
@@ -164,3 +168,4 @@ void Candidates<T>::Branches()
 template class Candidates<l1extra::L1JetParticle>;
 template class Candidates<reco::CaloJet>;
 template class Candidates<reco::PFJet>;
+template class Candidates<pat::Jet>;
