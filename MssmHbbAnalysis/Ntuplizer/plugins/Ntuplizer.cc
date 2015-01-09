@@ -63,6 +63,7 @@ typedef mssmhbb::ntuple::Candidates<l1extra::L1JetParticle> L1JetCandidates;
 typedef mssmhbb::ntuple::Candidates<reco::CaloJet> CaloJetCandidates;
 typedef mssmhbb::ntuple::Candidates<reco::PFJet> PFJetCandidates;
 typedef mssmhbb::ntuple::Candidates<pat::Jet> PatJetCandidates;
+typedef mssmhbb::ntuple::Candidates<reco::GenJet> GenJetCandidates;
 
 // Alias to the pointers to the above classes
 typedef std::unique_ptr<EventInfo> pEventInfo;
@@ -71,6 +72,7 @@ typedef std::unique_ptr<L1JetCandidates> pL1JetCandidates;
 typedef std::unique_ptr<CaloJetCandidates> pCaloJetCandidates;
 typedef std::unique_ptr<PFJetCandidates> pPFJetCandidates;
 typedef std::unique_ptr<PatJetCandidates> pPatJetCandidates;
+typedef std::unique_ptr<GenJetCandidates> pGenJetCandidates;
 
 //
 // class declaration
@@ -102,6 +104,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       bool do_calojets_;
       bool do_pfjets_;
       bool do_patjets_;
+      bool do_genjets_;
       bool do_pileupinfo_;
       std::vector< std::string > inputTags_;
       
@@ -116,6 +119,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       std::vector<pCaloJetCandidates> calojets_collections_;
       std::vector<pPFJetCandidates> pfjets_collections_;
       std::vector<pPatJetCandidates> patjets_collections_;
+      std::vector<pGenJetCandidates> genjets_collections_;
       
 };
 
@@ -205,6 +209,15 @@ void Ntuplizer::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
          patjets_collections_[i]  -> Fill(event);
       }
    }
+   
+      // Gen jets (reco)
+   if ( do_genjets_ )
+   {
+      for ( size_t i = 0; i < genjets_collections_.size() ; ++i )
+      {
+         genjets_collections_[i]  -> Fill(event);
+      }
+   }
 }
 
 
@@ -217,6 +230,7 @@ Ntuplizer::beginJob()
    do_calojets_   = false;
    do_pfjets_     = false;
    do_patjets_    = false;
+   do_genjets_    = false;
    
    edm::Service<TFileService> fs;
    
@@ -279,6 +293,13 @@ Ntuplizer::beginJob()
             do_patjets_ = true;
             patjets_collections_.push_back( pPatJetCandidates( new PatJetCandidates((*collection), trees_[name]) ));
             patjets_collections_.back() -> Branches();
+         }
+         // Gen Jets
+         if ( (*inputTag) == "GenJets" )
+         {
+            do_genjets_ = true;
+            genjets_collections_.push_back( pGenJetCandidates( new GenJetCandidates((*collection), trees_[name]) ));
+            genjets_collections_.back() -> Branches();
          }
       }
    }

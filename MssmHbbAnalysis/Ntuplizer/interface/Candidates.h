@@ -78,6 +78,7 @@ namespace mssmhbb {
             bool is_calojet_;
             bool is_pfjet_;
             bool is_patjet_;
+            bool is_genjet_;
             bool do_kinematics_;
             
             float minPt_;
