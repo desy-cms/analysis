@@ -146,7 +146,6 @@ L1ExtraJetsMerger::produce(edm::Event& event, const edm::EventSetup& setup)
    NumericSafeGreaterByPt<l1extra::L1JetParticle> compJetsPt;
    std::sort (l1jets -> begin(), l1jets -> end(), compJetsPt);
 
-   std::cout << l1jets->size() << ", " << counter << ", " << sum << std::endl;
    event.put(l1jets,"Merged");
    
 }
