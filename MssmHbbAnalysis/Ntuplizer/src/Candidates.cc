@@ -68,7 +68,6 @@ Candidates<T>::Candidates(const edm::InputTag& tag, TTree* tree, float minPt, fl
    is_genjet_  = std::is_same<T,reco::GenJet>::value;
    
    do_kinematics_ = ( is_l1jet_ || is_calojet_ || is_pfjet_ || is_patjet_ || is_genjet_ );
-   
 }
 
 template <typename T>
