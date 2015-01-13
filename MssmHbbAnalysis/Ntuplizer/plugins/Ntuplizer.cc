@@ -43,6 +43,8 @@
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
+#include "DataFormats/JetReco/interface/GenJet.h"
+
 #include "MssmHbbAnalysis/Ntuplizer/interface/EventInfo.h"
 #include "MssmHbbAnalysis/Ntuplizer/interface/PileupInfo.h"
 #include "MssmHbbAnalysis/Ntuplizer/interface/Candidates.h"
