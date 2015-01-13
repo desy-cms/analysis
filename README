@@ -1,17 +1,18 @@
-Developments for CMSSW_7_2_X
+Developments for CMSSW_7_3_X
 
 Some instructions to work with CMSSW (lines starting with ## are comments)
 
+setenv SCRAM_ARCH slc6_amd64_gcc491
 ## Create a CMSSW project
-scram p CMSSW CMSSW_7_2_2_patch2
-cd CMSSW_7_2_2_patch2/src
+scram p CMSSW CMSSW_7_3_0
+cd CMSSW_7_3_0/src
 cmsenv
 ## Initialise cmssw git (this will suppress the checking out of files, need to do explicitly)
 git cms-init
 ## add my standalone remote repository and fetch the branches
 git remote add cmssw-analysis git@github.com:robervalwalsh/cmssw-analysis.git
 git fetch cmssw-analysis
-git checkout cmssw72X
+git checkout cmssw73X
 ## Add packages (use the git cms command)
 git cms-addpkg MssmHbbAnalysis/Ntuplizer
 git cms-addpkg MssmHbbAnalysis/TriggerStudies
