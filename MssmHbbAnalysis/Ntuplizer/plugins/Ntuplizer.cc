@@ -21,6 +21,8 @@
 #include <memory>
 
 // user include files
+#include "DataFormats/Provenance/interface/Provenance.h"
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
@@ -48,6 +50,7 @@
 #include "MssmHbbAnalysis/Ntuplizer/interface/EventInfo.h"
 #include "MssmHbbAnalysis/Ntuplizer/interface/PileupInfo.h"
 #include "MssmHbbAnalysis/Ntuplizer/interface/Candidates.h"
+#include "MssmHbbAnalysis/Ntuplizer/interface/JetsTags.h"
 
 #include "DataFormats/Common/interface/OwnVector.h"
 
@@ -66,6 +69,7 @@ typedef mssmhbb::ntuple::Candidates<reco::CaloJet> CaloJetCandidates;
 typedef mssmhbb::ntuple::Candidates<reco::PFJet> PFJetCandidates;
 typedef mssmhbb::ntuple::Candidates<pat::Jet> PatJetCandidates;
 typedef mssmhbb::ntuple::Candidates<reco::GenJet> GenJetCandidates;
+typedef mssmhbb::ntuple::JetsTags JetsTags;
 
 // Alias to the pointers to the above classes
 typedef std::unique_ptr<EventInfo> pEventInfo;
@@ -75,6 +79,7 @@ typedef std::unique_ptr<CaloJetCandidates> pCaloJetCandidates;
 typedef std::unique_ptr<PFJetCandidates> pPFJetCandidates;
 typedef std::unique_ptr<PatJetCandidates> pPatJetCandidates;
 typedef std::unique_ptr<GenJetCandidates> pGenJetCandidates;
+typedef std::unique_ptr<JetsTags> pJetsTags;
 
 //
 // class declaration
@@ -107,6 +112,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       bool do_pfjets_;
       bool do_patjets_;
       bool do_genjets_;
+      bool do_jetstags_;
       bool do_pileupinfo_;
       std::vector< std::string > inputTags_;
       
@@ -122,6 +128,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       std::vector<pPFJetCandidates> pfjets_collections_;
       std::vector<pPatJetCandidates> patjets_collections_;
       std::vector<pGenJetCandidates> genjets_collections_;
+      std::vector<pJetsTags> jetstags_collections_;
       
 };
 
@@ -165,6 +172,16 @@ void Ntuplizer::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 {
    using namespace edm;
    
+//    typedef std::vector<Provenance const*> Provenances;
+//    Provenances provenances;
+//    event.getAllProvenance(provenances);
+//    
+//    for(Provenances::iterator itProv = provenances.begin(), itProvEnd = provenances.end();
+//                              itProv != itProvEnd;
+//                            ++itProv) {
+//       std::cout << (*itProv)->moduleLabel() << std::endl;
+//                            }
+//    
    // Event info
    eventinfo_ -> Fill(event);
    
@@ -220,6 +237,15 @@ void Ntuplizer::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
          genjets_collections_[i]  -> Fill(event);
       }
    }
+      // jets tags
+   if ( do_jetstags_ )
+   {
+      for ( size_t i = 0; i < jetstags_collections_.size() ; ++i )
+      {
+         jetstags_collections_[i]  -> Fill(event);
+      }
+   }
+   
 }
 
 
@@ -233,6 +259,7 @@ Ntuplizer::beginJob()
    do_pfjets_     = false;
    do_patjets_    = false;
    do_genjets_    = false;
+   do_jetstags_   = false;
    
    edm::Service<TFileService> fs;
    
@@ -302,6 +329,13 @@ Ntuplizer::beginJob()
             do_genjets_ = true;
             genjets_collections_.push_back( pGenJetCandidates( new GenJetCandidates((*collection), trees_[name]) ));
             genjets_collections_.back() -> Branches();
+         }
+         // Jets Tags
+         if ( (*inputTag) == "JetsTags" )
+         {
+            do_jetstags_ = true;
+            jetstags_collections_.push_back( pJetsTags( new JetsTags((*collection), trees_[name]) ));
+            jetstags_collections_.back() -> Branches();
          }
       }
    }
