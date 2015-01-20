@@ -20,6 +20,7 @@
  
 #include "MssmHbbAnalysis/Ntuplizer/interface/EventInfo.h"
 
+
 //
 // class declaration
 //
@@ -33,11 +34,22 @@ using namespace mssmhbb::ntuple;
 EventInfo::EventInfo()
 {
    // default constructor
+   do_trigger_ = false;
 }
 
 EventInfo::EventInfo(TTree* tree)
 {
    tree_ = tree;
+   do_trigger_ = false;
+   
+}
+
+EventInfo::EventInfo(const edm::InputTag& tag, TTree* tree, const std::vector<std::string>& paths)
+{
+   input_collection_ = tag;
+   tree_ = tree;
+   paths_ = paths;
+   do_trigger_ = true;
    
 }
 
@@ -64,6 +76,27 @@ void EventInfo::Fill(const edm::Event& event)
    orbit_ = evt.orbitNumber();
    bx_    = evt.bunchCrossing();
    
+   if ( do_trigger_ )
+   {
+      Handle<TriggerResults> handler;
+      event.getByLabel(input_collection_, handler);
+      const TriggerResults & triggers = *(handler.product());
+      
+//      bool fltrAccepted = false;
+      
+      for ( size_t j = 0 ; j < hlt_config_.size() ; ++j )
+      {
+         for (std::vector<std::string>::iterator p = paths_.begin() ; p != paths_.end(); ++p)
+         {
+            bool found_path = ( hlt_config_.triggerName(j).find(*p) == 0 );
+            if ( found_path )
+            {
+//               if ( HLTRFltr.accept(j) ) fltrAccepted = true;
+            }
+         }
+      }
+   }
+   
    tree_ -> Fill();
    
 }
@@ -78,4 +111,16 @@ void EventInfo::Branches()
    tree_->Branch("lumisection" , &lumi_ , "lumisection/I");
    tree_->Branch("bx"   , &bx_   , "bx/I");
    tree_->Branch("orbit", &orbit_, "orbit/I");
+   if ( do_trigger_ )
+   {
+      for (size_t i = 0; i < paths_.size() ; ++i )
+         tree_->Branch(paths_[i].c_str(), &trigger_, (paths_[i]+"/O").c_str());
+   }
+}
+
+void EventInfo::LumiBlock(edm::LuminosityBlock const & lumi, edm::EventSetup const& setup)
+{
+   bool changed;
+   hlt_config_.init(lumi.getRun(), setup, input_collection_.process(), changed);
+
 }

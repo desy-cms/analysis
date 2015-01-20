@@ -24,9 +24,12 @@
 // 
 // user include files
 #include "FWCore/Framework/interface/Event.h"
-// 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
- 
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+
 #include "TTree.h"
 
 //
@@ -40,9 +43,11 @@ namespace mssmhbb {
          public:
             EventInfo();
             EventInfo(TTree*);
+            EventInfo(const edm::InputTag&, TTree*, const std::vector<std::string> &);
            ~EventInfo();
             void Fill(const edm::Event&);
             void Branches();
+            void LumiBlock(edm::LuminosityBlock const & , edm::EventSetup const& );
       
          private:
             // ----------member data ---------------------------
@@ -53,7 +58,12 @@ namespace mssmhbb {
             int lumi_;
             int bx_;
             int orbit_;
+            int trigger_;
             
+            bool do_trigger_;
+            edm::InputTag input_collection_;
+            HLTConfigProvider hlt_config_;
+            std::vector<std::string> paths_;
             
             TTree * tree_;
             
