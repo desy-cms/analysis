@@ -100,7 +100,7 @@ class Ntuplizer : public edm::EDAnalyzer {
 
       //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
       //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-      //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+      virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
       //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
       // ----------member data ---------------------------
@@ -114,6 +114,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       bool do_genjets_;
       bool do_jetstags_;
       bool do_pileupinfo_;
+      bool do_trigger_;
       std::vector< std::string > inputTags_;
       
       std::map<std::string, TTree*> trees_; // using pointers instead of smart pointers, could not Fill() with smart pointer???
@@ -253,23 +254,39 @@ void Ntuplizer::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 void 
 Ntuplizer::beginJob()
 {
-   do_pileupinfo_ = false;
-   do_l1jets_     = false;
-   do_calojets_   = false;
-   do_pfjets_     = false;
-   do_patjets_    = false;
-   do_genjets_    = false;
-   do_jetstags_   = false;
+   do_pileupinfo_ = config_.exists("PileupInfo");
+   do_l1jets_     = config_.exists("L1ExtraJets");
+   do_calojets_   = config_.exists("CaloJets");
+   do_pfjets_     = config_.exists("PFJets");
+   do_patjets_    = config_.exists("PatJets");
+   do_genjets_    = config_.exists("GenJets");
+   do_jetstags_   = config_.exists("JetsTags");
+   do_trigger_    = config_.exists("TriggerResults") && config_.exists("TriggerPaths");
+   
    
    edm::Service<TFileService> fs;
    
+   // Metadata 
+   std::string name = "Metadata";
+   
+   
    // Event info tree
-   std::string name = "EventInfo";
+   name = "EventInfo";
    trees_[name] = fs->make<TTree>(name.c_str(),name.c_str());
-   eventinfo_ = pEventInfo (new EventInfo(trees_[name]));
+   if ( do_trigger_ )
+   {
+      edm::InputTag trigger_collection = config_.getParameter<edm::InputTag>("TriggerResults");
+      std::vector< std::string> trigger_paths = config_.getParameter< std::vector< std::string> >("TriggerPaths");
+      eventinfo_ = pEventInfo (new EventInfo(trigger_collection, trees_[name], trigger_paths));
+   }
+   else
+   {
+      eventinfo_ = pEventInfo (new EventInfo(trees_[name]));
+   }
    eventinfo_ -> Branches();
   
-   // Input tags trees
+   
+   // Input tags 
    for ( strings::iterator inputTag = inputTags_.begin(); inputTag != inputTags_.end() ; ++inputTag )
    {
       InputTags collections = config_.getParameter<InputTags>((*inputTag));
@@ -287,14 +304,12 @@ Ntuplizer::beginJob()
          // Pileup Info
          if ( (*inputTag) == "PileupInfo" )
          {
-            do_pileupinfo_ = true;
             pileupinfo_ = pPileupInfo( new PileupInfo((*collection), trees_[name]) );
             pileupinfo_ -> Branches();
          }
          // L1 Jets
          if ( (*inputTag) == "L1ExtraJets" )
          {
-            do_l1jets_ = true;
             // renaming tree for L1 jest as there is no explicit indication those are L1 jets objects
             std::string l1name = name + "Jets";
             trees_[name]->SetNameTitle(l1name.c_str(),l1name.c_str());
@@ -305,35 +320,30 @@ Ntuplizer::beginJob()
          // Calo Jets
          if ( (*inputTag) == "CaloJets" )
          {
-            do_calojets_ = true;
             calojets_collections_.push_back( pCaloJetCandidates( new CaloJetCandidates((*collection), trees_[name]) ));
             calojets_collections_.back() -> Branches();
          }
          // PF Jets
          if ( (*inputTag) == "PFJets" )
          {
-            do_pfjets_ = true;
             pfjets_collections_.push_back( pPFJetCandidates( new PFJetCandidates((*collection), trees_[name]) ));
             pfjets_collections_.back() -> Branches();
          }
          // Pat Jets
          if ( (*inputTag) == "PatJets" )
          {
-            do_patjets_ = true;
             patjets_collections_.push_back( pPatJetCandidates( new PatJetCandidates((*collection), trees_[name]) ));
             patjets_collections_.back() -> Branches();
          }
          // Gen Jets
          if ( (*inputTag) == "GenJets" )
          {
-            do_genjets_ = true;
             genjets_collections_.push_back( pGenJetCandidates( new GenJetCandidates((*collection), trees_[name]) ));
             genjets_collections_.back() -> Branches();
          }
          // Jets Tags
          if ( (*inputTag) == "JetsTags" )
          {
-            do_jetstags_ = true;
             jetstags_collections_.push_back( pJetsTags( new JetsTags((*collection), trees_[name]) ));
             jetstags_collections_.back() -> Branches();
          }
@@ -372,12 +382,15 @@ Ntuplizer::endRun(edm::Run const&, edm::EventSetup const&)
 */
 
 // ------------ method called when starting to processes a luminosity block  ------------
-/*
-void 
-Ntuplizer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+
+void  Ntuplizer::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup)
 {
+   if ( do_trigger_ )
+   {
+      eventinfo_ -> LumiBlock(lumi,setup);
+   }
 }
-*/
+
 
 // ------------ method called when ending the processing of a luminosity block  ------------
 /*

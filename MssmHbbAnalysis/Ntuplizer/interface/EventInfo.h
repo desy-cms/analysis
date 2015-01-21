@@ -58,12 +58,13 @@ namespace mssmhbb {
             int lumi_;
             int bx_;
             int orbit_;
-            int trigger_;
             
             bool do_trigger_;
             edm::InputTag input_collection_;
             HLTConfigProvider hlt_config_;
             std::vector<std::string> paths_;
+            int n_;
+            bool accept_[32];
             
             TTree * tree_;
             

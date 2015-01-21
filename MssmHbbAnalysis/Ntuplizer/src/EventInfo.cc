@@ -78,20 +78,22 @@ void EventInfo::Fill(const edm::Event& event)
    
    if ( do_trigger_ )
    {
+      // reset trigger accepts
+      for (size_t i = 0; i < paths_.size() ; ++i )
+         accept_[i] = false;
+
       Handle<TriggerResults> handler;
       event.getByLabel(input_collection_, handler);
       const TriggerResults & triggers = *(handler.product());
       
-//      bool fltrAccepted = false;
-      
       for ( size_t j = 0 ; j < hlt_config_.size() ; ++j )
       {
-         for (std::vector<std::string>::iterator p = paths_.begin() ; p != paths_.end(); ++p)
+         for (size_t i = 0; i < paths_.size() ; ++i )
          {
-            bool found_path = ( hlt_config_.triggerName(j).find(*p) == 0 );
-            if ( found_path )
+            if ( hlt_config_.triggerName(j).find(paths_[i]) == 0 && triggers.accept(j) )
             {
-//               if ( HLTRFltr.accept(j) ) fltrAccepted = true;
+               accept_[i] = true;
+               break;
             }
          }
       }
@@ -114,7 +116,9 @@ void EventInfo::Branches()
    if ( do_trigger_ )
    {
       for (size_t i = 0; i < paths_.size() ; ++i )
-         tree_->Branch(paths_[i].c_str(), &trigger_, (paths_[i]+"/O").c_str());
+      {
+         tree_->Branch(paths_[i].c_str(), &accept_[i], (paths_[i]+"/O").c_str());
+      }
    }
 }
 
