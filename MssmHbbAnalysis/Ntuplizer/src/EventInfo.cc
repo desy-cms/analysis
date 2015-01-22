@@ -34,23 +34,11 @@ using namespace mssmhbb::ntuple;
 EventInfo::EventInfo()
 {
    // default constructor
-   do_trigger_ = false;
 }
 
 EventInfo::EventInfo(TTree* tree)
 {
    tree_ = tree;
-   do_trigger_ = false;
-   
-}
-
-EventInfo::EventInfo(const edm::InputTag& tag, TTree* tree, const std::vector<std::string>& paths)
-{
-   input_collection_ = tag;
-   tree_ = tree;
-   paths_ = paths;
-   do_trigger_ = true;
-   
 }
 
 EventInfo::~EventInfo()
@@ -70,36 +58,16 @@ void EventInfo::Fill(const edm::Event& event)
    using namespace edm;
    
    const edm::EventAuxiliary evt = event.eventAuxiliary();
+   
    event_ = evt.event();
    run_   = evt.run();
    lumi_  = evt.luminosityBlock();
    orbit_ = evt.orbitNumber();
    bx_    = evt.bunchCrossing();
    
-   if ( do_trigger_ )
-   {
-      // reset trigger accepts
-      for (size_t i = 0; i < paths_.size() ; ++i )
-         accept_[i] = false;
-
-      Handle<TriggerResults> handler;
-      event.getByLabel(input_collection_, handler);
-      const TriggerResults & triggers = *(handler.product());
-      
-      for ( size_t j = 0 ; j < hlt_config_.size() ; ++j )
-      {
-         for (size_t i = 0; i < paths_.size() ; ++i )
-         {
-            if ( hlt_config_.triggerName(j).find(paths_[i]) == 0 && triggers.accept(j) )
-            {
-               accept_[i] = true;
-               break;
-            }
-         }
-      }
-   }
    
    tree_ -> Fill();
+
    
 }
 
@@ -113,18 +81,5 @@ void EventInfo::Branches()
    tree_->Branch("lumisection" , &lumi_ , "lumisection/I");
    tree_->Branch("bx"   , &bx_   , "bx/I");
    tree_->Branch("orbit", &orbit_, "orbit/I");
-   if ( do_trigger_ )
-   {
-      for (size_t i = 0; i < paths_.size() ; ++i )
-      {
-         tree_->Branch(paths_[i].c_str(), &accept_[i], (paths_[i]+"/O").c_str());
-      }
-   }
 }
 
-void EventInfo::LumiBlock(edm::LuminosityBlock const & lumi, edm::EventSetup const& setup)
-{
-   bool changed;
-   hlt_config_.init(lumi.getRun(), setup, input_collection_.process(), changed);
-
-}

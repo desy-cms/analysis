@@ -43,11 +43,9 @@ namespace mssmhbb {
          public:
             EventInfo();
             EventInfo(TTree*);
-            EventInfo(const edm::InputTag&, TTree*, const std::vector<std::string> &);
            ~EventInfo();
             void Fill(const edm::Event&);
             void Branches();
-            void LumiBlock(edm::LuminosityBlock const & , edm::EventSetup const& );
       
          private:
             // ----------member data ---------------------------
@@ -58,13 +56,6 @@ namespace mssmhbb {
             int lumi_;
             int bx_;
             int orbit_;
-            
-            bool do_trigger_;
-            edm::InputTag input_collection_;
-            HLTConfigProvider hlt_config_;
-            std::vector<std::string> paths_;
-            int n_;
-            bool accept_[32];
             
             TTree * tree_;
             
