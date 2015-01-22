@@ -51,6 +51,7 @@
 #include "MssmHbbAnalysis/Ntuplizer/interface/PileupInfo.h"
 #include "MssmHbbAnalysis/Ntuplizer/interface/Candidates.h"
 #include "MssmHbbAnalysis/Ntuplizer/interface/JetsTags.h"
+#include "MssmHbbAnalysis/Ntuplizer/interface/TriggerAccepts.h"
 
 #include "DataFormats/Common/interface/OwnVector.h"
 
@@ -70,6 +71,7 @@ typedef mssmhbb::ntuple::Candidates<reco::PFJet> PFJetCandidates;
 typedef mssmhbb::ntuple::Candidates<pat::Jet> PatJetCandidates;
 typedef mssmhbb::ntuple::Candidates<reco::GenJet> GenJetCandidates;
 typedef mssmhbb::ntuple::JetsTags JetsTags;
+typedef mssmhbb::ntuple::TriggerAccepts TriggerAccepts;
 
 // Alias to the pointers to the above classes
 typedef std::unique_ptr<EventInfo> pEventInfo;
@@ -80,6 +82,7 @@ typedef std::unique_ptr<PFJetCandidates> pPFJetCandidates;
 typedef std::unique_ptr<PatJetCandidates> pPatJetCandidates;
 typedef std::unique_ptr<GenJetCandidates> pGenJetCandidates;
 typedef std::unique_ptr<JetsTags> pJetsTags;
+typedef std::unique_ptr<TriggerAccepts> pTriggerAccepts;
 
 //
 // class declaration
@@ -114,7 +117,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       bool do_genjets_;
       bool do_jetstags_;
       bool do_pileupinfo_;
-      bool do_trigger_;
+      bool do_triggeraccepts_;
       std::vector< std::string > inputTags_;
       
       std::map<std::string, TTree*> trees_; // using pointers instead of smart pointers, could not Fill() with smart pointer???
@@ -130,6 +133,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       std::vector<pPatJetCandidates> patjets_collections_;
       std::vector<pGenJetCandidates> genjets_collections_;
       std::vector<pJetsTags> jetstags_collections_;
+      std::vector<pTriggerAccepts> triggeraccepts_collections_;
       
 };
 
@@ -246,6 +250,14 @@ void Ntuplizer::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
          jetstags_collections_[i]  -> Fill(event);
       }
    }
+      // trigger accecpts
+   if ( do_triggeraccepts_ )
+   {
+      for ( size_t i = 0; i < triggeraccepts_collections_.size() ; ++i )
+      {
+         triggeraccepts_collections_[i]  -> Fill(event);
+      }
+   }
    
 }
 
@@ -254,14 +266,14 @@ void Ntuplizer::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 void 
 Ntuplizer::beginJob()
 {
-   do_pileupinfo_ = config_.exists("PileupInfo");
-   do_l1jets_     = config_.exists("L1ExtraJets");
-   do_calojets_   = config_.exists("CaloJets");
-   do_pfjets_     = config_.exists("PFJets");
-   do_patjets_    = config_.exists("PatJets");
-   do_genjets_    = config_.exists("GenJets");
-   do_jetstags_   = config_.exists("JetsTags");
-   do_trigger_    = config_.exists("TriggerResults") && config_.exists("TriggerPaths");
+   do_pileupinfo_     = config_.exists("PileupInfo");
+   do_l1jets_         = config_.exists("L1ExtraJets");
+   do_calojets_       = config_.exists("CaloJets");
+   do_pfjets_         = config_.exists("PFJets");
+   do_patjets_        = config_.exists("PatJets");
+   do_genjets_        = config_.exists("GenJets");
+   do_jetstags_       = config_.exists("JetsTags");
+   do_triggeraccepts_ = config_.exists("TriggerResults") && config_.exists("TriggerPaths");
    
    
    edm::Service<TFileService> fs;
@@ -273,19 +285,9 @@ Ntuplizer::beginJob()
    // Event info tree
    name = "EventInfo";
    trees_[name] = fs->make<TTree>(name.c_str(),name.c_str());
-   if ( do_trigger_ )
-   {
-      edm::InputTag trigger_collection = config_.getParameter<edm::InputTag>("TriggerResults");
-      std::vector< std::string> trigger_paths = config_.getParameter< std::vector< std::string> >("TriggerPaths");
-      eventinfo_ = pEventInfo (new EventInfo(trigger_collection, trees_[name], trigger_paths));
-   }
-   else
-   {
-      eventinfo_ = pEventInfo (new EventInfo(trees_[name]));
-   }
+   eventinfo_ = pEventInfo (new EventInfo(trees_[name]));
    eventinfo_ -> Branches();
   
-   
    // Input tags 
    for ( strings::iterator inputTag = inputTags_.begin(); inputTag != inputTags_.end() ; ++inputTag )
    {
@@ -297,6 +299,9 @@ Ntuplizer::beginJob()
          name  = label;
          if ( (*collection).instance() != "" && collections.size() > 1 )
             name += "_" + (*collection).instance();
+         if ( do_triggeraccepts_ && (*inputTag) == "TriggerResults" )
+            name  += "_" + (*collection).process();
+         
          
          // Initialise trees
          trees_[name] = fs->make<TTree>(name.c_str(),name.c_str());
@@ -347,6 +352,14 @@ Ntuplizer::beginJob()
             jetstags_collections_.push_back( pJetsTags( new JetsTags((*collection), trees_[name]) ));
             jetstags_collections_.back() -> Branches();
          }
+         // Trigger Accepts
+         if ( do_triggeraccepts_ && (*inputTag) == "TriggerResults" )
+         {
+            // TriggerResults collections names differ by the process, so add it to the name
+            std::vector< std::string> trigger_paths = config_.getParameter< std::vector< std::string> >("TriggerPaths");
+            triggeraccepts_collections_.push_back( pTriggerAccepts( new TriggerAccepts((*collection), trees_[name], trigger_paths) ));
+            triggeraccepts_collections_.back() -> Branches();
+         }
       }
    }
    
@@ -355,6 +368,8 @@ Ntuplizer::beginJob()
    {
       // MC-only stuff
    }
+
+
    
 }
 
@@ -385,9 +400,13 @@ Ntuplizer::endRun(edm::Run const&, edm::EventSetup const&)
 
 void  Ntuplizer::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup)
 {
-   if ( do_trigger_ )
+   // Initialize HLTConfig every lumi block
+   if ( do_triggeraccepts_ )
    {
-      eventinfo_ -> LumiBlock(lumi,setup);
+      for ( size_t i = 0; i < triggeraccepts_collections_.size() ; ++i )
+      {
+         triggeraccepts_collections_[i]  -> LumiBlock(lumi,setup);
+      }
    }
 }
 
