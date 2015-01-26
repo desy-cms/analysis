@@ -3,7 +3,7 @@
 
 // Variables declaration
 
-static const int maxCands_ = 1000;
+static const int maxCands_ = 100;
 
 int run_;
 int lumi_;
@@ -17,6 +17,7 @@ float jetPt_ [4][maxCands_] ;
 float jetE_  [4][maxCands_] ;
 float jetEta_[4][maxCands_] ;
 float jetPhi_[4][maxCands_] ;
+float jetBtag_[4][maxCands_] ;
 
 #endif
 
