@@ -50,16 +50,16 @@ int main(int argc, char * argv[])
    TH2::SetDefaultSumw2();
    
    // Histograms
-   TH1F * h_BtagRef = new TH1F("h_BtagRef","", 100, 0, 10.);
-   TH1F * h_BtagNom = new TH1F("h_BtagNom","", 100, 0, 10.);
+   TH1F * h_BtagRef = new TH1F("h_BtagRef","", 100, 0, 3.);
+   TH1F * h_BtagNom = new TH1F("h_BtagNom","", 100, 0, 3.);
    
    // TTree chains and friendship?
    TChain * chainEvent    = new TChain("TriggerStudies/EventInfo");
    TChain * chainJets[4];
-   chainJets[0]  = new TChain("TriggerStudies/hltL3CombinedSecondaryVertexBJetTags"); // dummy
-   chainJets[1]  = new TChain("TriggerStudies/hltL3CombinedSecondaryVertexBJetTags"); // dummy
+//   chainJets[0]  = new TChain("TriggerStudies/hltL3CombinedSecondaryVertexBJetTags"); // dummy
+//   chainJets[1]  = new TChain("TriggerStudies/hltL3CombinedSecondaryVertexBJetTags"); // dummy
    chainJets[2]  = new TChain("TriggerStudies/hltL3CombinedSecondaryVertexBJetTags");
-   chainJets[3]  = new TChain("TriggerStudies/hltL3CombinedSecondaryVertexBJetTags");
+   chainJets[3]  = new TChain("TriggerStudies/hltL3CombinedSecondaryVertexBJetTagsCopy");
    
    // Input files
    std::string inputList = "rootFileList.txt";
@@ -72,7 +72,7 @@ int main(int argc, char * argv[])
    chainEvent->SetBranchAddress( "lumisection" , &lumi_ );
    chainEvent->SetBranchAddress( "event"       , &event_ );
    
-   for ( int l = 0 ; l < 4 ; ++l )
+   for ( int l = 2 ; l < 4 ; ++l )
    {
       // Don't forget that the trees must be friends!!!
       chainEvent -> AddFriend(chainJets[l]);
@@ -87,7 +87,7 @@ int main(int argc, char * argv[])
    
    // The highest level, ie the level with respect to which the efficiency will be evaluated
    int highestLevel = -1;
-   for ( int i = 0 ; i < 4 ; ++i )
+   for ( int i = 2 ; i < 4 ; ++i )
       if ( ncut[i] > 0 ) highestLevel = i;
    
    
@@ -111,7 +111,7 @@ int main(int argc, char * argv[])
       std::vector<float> jettags[4];
             
       // trigger emulators
-      for ( int l = 0 ; l < 4 ; ++l )
+      for ( int l = 2 ; l < 4 ; ++l )
       {
          jets[l].clear();
          jettags[l].clear();
@@ -128,7 +128,6 @@ int main(int argc, char * argv[])
                }
             }
             fired[l] = int(jets[l].size()) >= ncut[l];
-
          }      
       }
       // The efficiency is wrt highestLevel, therefore the event must pass the highestLevel selection
@@ -136,7 +135,7 @@ int main(int argc, char * argv[])
       
       // check if the chain fired
       bool chainFired = true;
-      for ( int l = 0 ; l < 4 ; ++l )
+      for ( int l = 2 ; l < 4 ; ++l )
          chainFired = chainFired && fired[l];
       
       // Matching between the objects at different levels; the top level only the first object will be probed
@@ -210,7 +209,7 @@ void SetParameters()
    ncut[2] = 1;
    ptcut[2] = 20.;
    etacut[2] = 2.4;
-   btagcut[2] = 0.8;
+   btagcut[2] = 1-exp(-0.678);
    // offline btagging
    ncut[3] = 1;
    ptcut[3] = 20.;
