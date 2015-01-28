@@ -35,7 +35,7 @@ $OTHERCHANGES
 
 if isCrabJob:
     print "using crab specified filename"
-    ofile = "OUTPUTFILE"
+    ofile = "Producers.root"
 
 if ofile == "":   # output file name must be given
     raise Exception("["+myname+"] Output file not given")
