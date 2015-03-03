@@ -56,12 +56,12 @@ int main(int argc, char * argv[])
    TH1F * h_JetPtNom = new TH1F("h_JetPtNom","", 48, 0, 240.);
    
    // TTree chains and friendship?
-   TChain * chainEvent    = new TChain("TriggerObjects/EventInfo");
+   TChain * chainEvent    = new TChain("TriggerStudies/EventInfo");
    TChain * chainJets[4];
-   chainJets[0]  = new TChain("TriggerObjects/hltL1extraParticles_MergedJets");
-   chainJets[1]  = new TChain("TriggerObjects/hltAK4CaloJetsCorrectedIDPassed");
-   chainJets[2]  = new TChain("TriggerObjects/hltAK4PFJets");
-   chainJets[3]  = new TChain("TriggerObjects/hltAK4PFJetsCorrected");
+   chainJets[0]  = new TChain("TriggerStudies/hltL1extraParticles_MergedJets");
+   chainJets[1]  = new TChain("TriggerStudies/hltAK4CaloJetsCorrectedIDPassed");
+   chainJets[2]  = new TChain("TriggerStudies/hltAK4PFJets");
+   chainJets[3]  = new TChain("TriggerStudies/hltAK4PFJetsCorrected");
    
    // Input files
    std::string inputList = "rootFileList.txt";
@@ -73,12 +73,20 @@ int main(int argc, char * argv[])
    chainEvent->SetBranchAddress( "run"         , &run_ );
    chainEvent->SetBranchAddress( "lumisection" , &lumi_ );
    chainEvent->SetBranchAddress( "event"       , &event_ );
+   TObjArray * branches = chainEvent->GetListOfBranches();
+   for ( int i = 0 ; i < branches->GetEntries() ; ++i )
+      std::cout << branches->At(i)->GetName() << std::endl;
    
    for ( int l = 0 ; l < 4 ; ++l )
    {
       // Don't forget that the trees must be friends!!!
       chainEvent -> AddFriend(chainJets[l]);
       chainJets[l]->AddFileInfoList((TCollection*) fc.GetList());
+      std::cout << "Chain name = " << chainJets[l]->GetName() << std::endl;
+      branches = chainJets[l]->GetListOfBranches();
+      for ( int i = 0 ; i < branches->GetEntries() ; ++i )
+         std::cout << branches->At(i)->GetName() << std::endl;
+      std::cout << "---" << std::endl;
       chainJets[l]->SetBranchAddress( "n"   , &jetN_  [l]);
       chainJets[l]->SetBranchAddress( "pt"  ,  jetPt_ [l]);
       chainJets[l]->SetBranchAddress( "eta" ,  jetEta_[l]);
