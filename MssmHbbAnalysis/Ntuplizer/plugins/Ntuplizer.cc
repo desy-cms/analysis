@@ -47,6 +47,9 @@
 
 #include "DataFormats/JetReco/interface/GenJet.h"
 
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+
 #include "MssmHbbAnalysis/Ntuplizer/interface/EventInfo.h"
 #include "MssmHbbAnalysis/Ntuplizer/interface/PileupInfo.h"
 #include "MssmHbbAnalysis/Ntuplizer/interface/Candidates.h"
@@ -70,6 +73,7 @@ typedef mssmhbb::ntuple::Candidates<reco::CaloJet> CaloJetCandidates;
 typedef mssmhbb::ntuple::Candidates<reco::PFJet> PFJetCandidates;
 typedef mssmhbb::ntuple::Candidates<pat::Jet> PatJetCandidates;
 typedef mssmhbb::ntuple::Candidates<reco::GenJet> GenJetCandidates;
+typedef mssmhbb::ntuple::Candidates<reco::GenParticle> GenParticleCandidates;
 typedef mssmhbb::ntuple::JetsTags JetsTags;
 typedef mssmhbb::ntuple::TriggerAccepts TriggerAccepts;
 
@@ -81,6 +85,7 @@ typedef std::unique_ptr<CaloJetCandidates> pCaloJetCandidates;
 typedef std::unique_ptr<PFJetCandidates> pPFJetCandidates;
 typedef std::unique_ptr<PatJetCandidates> pPatJetCandidates;
 typedef std::unique_ptr<GenJetCandidates> pGenJetCandidates;
+typedef std::unique_ptr<GenParticleCandidates> pGenParticleCandidates;
 typedef std::unique_ptr<JetsTags> pJetsTags;
 typedef std::unique_ptr<TriggerAccepts> pTriggerAccepts;
 
@@ -115,6 +120,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       bool do_pfjets_;
       bool do_patjets_;
       bool do_genjets_;
+      bool do_genparticles_;
       bool do_jetstags_;
       bool do_pileupinfo_;
       bool do_triggeraccepts_;
@@ -132,6 +138,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       std::vector<pPFJetCandidates> pfjets_collections_;
       std::vector<pPatJetCandidates> patjets_collections_;
       std::vector<pGenJetCandidates> genjets_collections_;
+      std::vector<pGenParticleCandidates> genparticles_collections_;
       std::vector<pJetsTags> jetstags_collections_;
       std::vector<pTriggerAccepts> triggeraccepts_collections_;
       
@@ -242,6 +249,14 @@ void Ntuplizer::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
          genjets_collections_[i]  -> Fill(event);
       }
    }
+      // Gen particles (reco)
+   if ( do_genparticles_ )
+   {
+      for ( size_t i = 0; i < genparticles_collections_.size() ; ++i )
+      {
+         genparticles_collections_[i]  -> Fill(event);
+      }
+   }
       // jets tags
    if ( do_jetstags_ )
    {
@@ -272,6 +287,7 @@ Ntuplizer::beginJob()
    do_pfjets_         = config_.exists("PFJets");
    do_patjets_        = config_.exists("PatJets");
    do_genjets_        = config_.exists("GenJets");
+   do_genparticles_   = config_.exists("GenParticles");
    do_jetstags_       = config_.exists("JetsTags");
    do_triggeraccepts_ = config_.exists("TriggerResults") && config_.exists("TriggerPaths");
    
@@ -345,6 +361,12 @@ Ntuplizer::beginJob()
          {
             genjets_collections_.push_back( pGenJetCandidates( new GenJetCandidates((*collection), trees_[name]) ));
             genjets_collections_.back() -> Branches();
+         }
+         // Gen Particles
+         if ( (*inputTag) == "GenParticless" )
+         {
+            genparticles_collections_.push_back( pGenParticleCandidates( new GenParticleCandidates((*collection), trees_[name]) ));
+            genparticles_collections_.back() -> Branches();
          }
          // Jets Tags
          if ( (*inputTag) == "JetsTags" )

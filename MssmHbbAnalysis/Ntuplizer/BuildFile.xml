@@ -3,6 +3,7 @@
 <use name="CommonTools/UtilAlgos"/>
 <use name="CommonTools/Utils"/>
 <use name="FWCore/ServiceRegistry"/>
+<use name="DataFormats/HepMCCandidate"/>
 <use name="DataFormats/L1Trigger"/>
 <use name="DataFormats/JetReco"/>
 <use name="DataFormats/PatCandidates"/>
