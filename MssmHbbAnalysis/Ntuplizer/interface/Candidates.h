@@ -71,6 +71,9 @@ namespace mssmhbb {
             float pz_[maxCandidates];
             float e_[maxCandidates];
             
+            int pdg_[maxCandidates];
+            int status_[maxCandidates];
+            
             TTree * tree_;
             
          private:
@@ -79,7 +82,9 @@ namespace mssmhbb {
             bool is_pfjet_;
             bool is_patjet_;
             bool is_genjet_;
+            bool is_genparticle_;
             bool do_kinematics_;
+            bool do_generator_;
             
             float minPt_;
             float maxEta_;
