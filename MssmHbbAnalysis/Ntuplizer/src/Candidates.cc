@@ -17,7 +17,10 @@
 #include "FWCore/Framework/interface/Event.h"
 // 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
- 
+
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 
@@ -73,6 +76,8 @@ Candidates<T>::Candidates(const edm::InputTag& tag, TTree* tree, float minPt, fl
    
    do_kinematics_ = ( is_l1jet_ || is_calojet_ || is_pfjet_ || is_patjet_ || is_genjet_ || is_genparticle_ );
    do_generator_  = ( do_kinematics_ && is_genparticle_ );
+   
+   higgs_pdg_ = 36;
 }
 
 template <typename T>
@@ -103,13 +108,35 @@ template <typename T>
 void Candidates<T>::Kinematics()
 {
    using namespace edm;
-   
+
    int n = 0;
    for ( size_t i = 0 ; i < candidates_.size(); ++i )
    {
       if ( n >= maxCandidates ) break;
       
-      if ( candidates_[i].pt() < minPt_ || fabs (candidates_[i].eta()) > maxEta_ ) continue;
+      if ( do_generator_ )
+      {
+         int pdg    = candidates_[i].pdgId();
+         int status = candidates_[i].status();
+         
+         if ( status == 3 )
+         {
+            this->pdg_[n]   = pdg;
+            this->status_[n]= status;
+            const reco::Candidate * mother = candidates_[i].mother(0);
+            this->higgs_dau_[n] = false;
+            if ( mother != NULL )  // initial protons are orphans
+            {
+               if ( mother->pdgId() == higgs_pdg_ )
+                  this->higgs_dau_[n] = true;
+            }
+         }
+         else
+            continue;
+      }
+      
+      if ( !do_generator_ )
+         if ( candidates_[i].pt() < minPt_ || fabs (candidates_[i].eta()) > maxEta_ ) continue;
       
       this->pt_[n] = candidates_[i].pt();
       this->eta_[n]= candidates_[i].eta();
@@ -118,17 +145,6 @@ void Candidates<T>::Kinematics()
       this->py_[n] = candidates_[i].py();
       this->pz_[n] = candidates_[i].pz();
       this->e_[n]  = candidates_[i].energy();
-      
-      if ( do_generator_ )
-      {
-         int pdg    = candidates_[i].pdgId();
-         int status = candidates_[i].status();
-         if ( status == 3 )
-         {
-            this->pdg_[n]   = pdg;
-            this->status_[n]= status;
-         }
-      }
       
       ++n;
       
@@ -184,6 +200,7 @@ void Candidates<T>::Branches()
       {
          tree_->Branch("pdg",   this->pdg_,   "pdg[n]/I");
          tree_->Branch("status",this->status_,"status[n]/I");
+         tree_->Branch("higgs_dau",this->higgs_dau_,"higgs_dau[n]/O");
 
       }
    }

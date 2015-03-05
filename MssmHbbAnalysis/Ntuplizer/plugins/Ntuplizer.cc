@@ -363,7 +363,7 @@ Ntuplizer::beginJob()
             genjets_collections_.back() -> Branches();
          }
          // Gen Particles
-         if ( (*inputTag) == "GenParticless" )
+         if ( (*inputTag) == "GenParticles" )
          {
             genparticles_collections_.push_back( pGenParticleCandidates( new GenParticleCandidates((*collection), trees_[name]) ));
             genparticles_collections_.back() -> Branches();

@@ -73,6 +73,7 @@ namespace mssmhbb {
             
             int pdg_[maxCandidates];
             int status_[maxCandidates];
+            bool higgs_dau_[maxCandidates];
             
             TTree * tree_;
             
@@ -88,6 +89,8 @@ namespace mssmhbb {
             
             float minPt_;
             float maxEta_;
+            
+            int higgs_pdg_;
    
             
       };
