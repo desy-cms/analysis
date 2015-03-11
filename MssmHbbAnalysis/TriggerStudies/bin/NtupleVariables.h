@@ -22,6 +22,7 @@ int orbit_;
 int   jetN_  [4] ;
 float jetPt_ [4][maxCands_] ;
 float jetE_  [4][maxCands_] ;
+float jetEt_ [4][maxCands_] ;
 float jetEta_[4][maxCands_] ;
 float jetPhi_[4][maxCands_] ;
 float jetBtag_[4][maxCands_] ;
