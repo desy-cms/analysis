@@ -145,6 +145,7 @@ void Candidates<T>::Kinematics()
       this->py_[n] = candidates_[i].py();
       this->pz_[n] = candidates_[i].pz();
       this->e_[n]  = candidates_[i].energy();
+      this->et_[n]  = candidates_[i].et();
       
       ++n;
       
@@ -196,6 +197,7 @@ void Candidates<T>::Branches()
       tree_->Branch("py", this->py_, "py[n]/F");
       tree_->Branch("pz", this->pz_, "pz[n]/F");
       tree_->Branch("e",  this->e_,  "e[n]/F");
+      tree_->Branch("et",  this->et_,  "et[n]/F");
       if ( do_generator_ )
       {
          tree_->Branch("pdg",   this->pdg_,   "pdg[n]/I");

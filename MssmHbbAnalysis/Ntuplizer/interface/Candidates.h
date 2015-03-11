@@ -70,6 +70,7 @@ namespace mssmhbb {
             float py_[maxCandidates];
             float pz_[maxCandidates];
             float e_[maxCandidates];
+            float et_[maxCandidates];
             
             int pdg_[maxCandidates];
             int status_[maxCandidates];
