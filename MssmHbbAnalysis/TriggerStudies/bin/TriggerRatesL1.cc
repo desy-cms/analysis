@@ -39,8 +39,8 @@ int main(int argc, char * argv[])
    // Histograms
    
    // TTree chains and friendship?
-   TChain * chainEvent   = new TChain("TriggerStudies/EventInfo");
-   TChain * chainL1Jets  = new TChain("TriggerStudies/hltL1extraParticles_MergedJets");
+   TChain * chainEvent   = new TChain("L1TriggerStudies/EventInfo");
+   TChain * chainL1Jets  = new TChain("L1TriggerStudies/hltL1extraJetParticles_MergedJets");
    
    // Friendship
    chainEvent -> AddFriend(chainL1Jets);
@@ -65,89 +65,129 @@ int main(int argc, char * argv[])
    chainL1Jets->SetBranchAddress( "eta" ,  jetEta_[0]);
    chainL1Jets->SetBranchAddress( "phi" ,  jetPhi_[0]);
    chainL1Jets->SetBranchAddress( "e"   ,  jetE_  [0]);
-   chainL1Jets->SetBranchAddress( "et"  ,  jetEt_ [0]);
-   
    
 //    
    // Number of loop events
    int nentries = chainEvent->GetEntries();
    std::cout << nentries << std::endl;
    
-   int c_l1pteta = 0;
-   int c_l1deta = 0;
-   int c_l1dr = 0;
-   int c_l1detadr = 0;
+   float l1EtaBin[12] = { 0. , 0.348, 0.696, 1.044, 1.392, 1.74, 2.172, 3., 3.5, 4., 4.5, 5.  }; 
+
+   
+   std::vector<float> ptcut;
+   std::vector<float> etacut;
+   std::vector<int>   detacut;
+   
+   int ncut = 2;
+   
+   ptcut.push_back(84.);
+   ptcut.push_back(88.);
+   ptcut.push_back(92.);
+   ptcut.push_back(96.);
+   ptcut.push_back(100.);
+   
+   etacut.push_back(l1EtaBin[7]);
+   etacut.push_back(l1EtaBin[6]);
+   etacut.push_back(l1EtaBin[5]);
+   
+   detacut.push_back(6);
+   detacut.push_back(5);
+   detacut.push_back(4);
+   
+   std::vector<int> c_l1pteta;
+   c_l1pteta.resize(ptcut.size()*etacut.size(),0);
+   std::cout << "size = " << c_l1pteta.size() << std::endl;
+   std::vector<int> c_l1deta;
+   c_l1deta.resize(ptcut.size()*etacut.size()*detacut.size(),0);
+   
+   int ipteta = 0;
+   int iptetadeta = 0;
+      
+   
    for ( int i = 0 ; i < nentries ; ++i )
    {
-      if ( i%10000 == 0 ) std::cout << "Processed  " << i << "  events" << "\xd";
+//      if ( i%10000 == 0 ) std::cout << "Processed  " << i << "  events" << "\xd";
       
       chainEvent->GetEntry(i);
       
-      // selected jets
-      std::vector<TLorentzVector> jets;
-      jets.clear();
       
-      // event fired
-      bool l1pteta = false;
-      bool l1deta = false;
-      bool l1dr = false;
-      
-      float ptcut = 84;
-      float etacut = 2.172;
-      int ncut = 2;
-      
-      for ( int j = 0 ; j < jetN_[0] ; ++j )
+      // define which pt cut
+      for ( size_t ipt = 0; ipt < ptcut.size(); ++ipt )
       {
-         if ( jetPt_[0][j] >= ptcut && fabs(jetEta_[0][j]) <= etacut  )
+         // define which eta cut
+         for ( size_t ieta = 0; ieta < etacut.size(); ++ieta )
          {
-            TLorentzVector jet;
-            jet.SetPtEtaPhiE(jetPt_[0][j], jetEta_[0][j], jetPhi_[0][j], jetE_[0][j]); 
-            jets.push_back(jet);
-         }
-      }
-      
-      // min number of jets required
-      l1pteta = int(jets.size()) >= ncut;
-      
-      if (!l1pteta) continue;
-      
-      int dRCut[2] = {1,1};
-      int dEtaBinCut = 4;
-      
-      // delta_eta and delta_R
-      for ( size_t j1 = 0 ; j1 < jets.size()-1 ; ++j1 )
-      {
-         TLorentzVector jet1 = jets[j1];
-         int j1EtaBin = GetEtaBin(jet1.Eta());
-         int j1PhiBin = GetPhiBin(jet1.Phi());
-         for ( size_t j2 = j1+1 ; j2 < jets.size() ; ++j2 )
-         {
-            TLorentzVector jet2 = jets[j2];
-            int j2EtaBin = GetEtaBin(jet2.Eta());
-            int j2PhiBin = GetPhiBin(jet2.Phi());
-            // delta_Eta cut
-            if ( abs(j1EtaBin - j2EtaBin) <= dEtaBinCut ) l1deta = true;
-            // delta_R cut
-            if (( abs(j1EtaBin - j2EtaBin) > dRCut[0] ) &&
-               ( abs(j1PhiBin - j2PhiBin) > dRCut[1]  && abs(j1PhiBin - j2PhiBin) < 18-dRCut[1] )) l1dr = true;
-         }
-      }
-      
-      if ( l1pteta )
-      {
-         ++c_l1pteta;
-         if ( l1deta ) ++c_l1deta;
-         if ( l1dr ) ++c_l1dr;
-         if ( l1deta && l1dr ) ++c_l1detadr;
-      }
-      
+            ipteta = ieta + ipt*etacut.size();
+            bool l1pteta = false;
+            
+            // selected jets
+            std::vector<TLorentzVector> jets;
+            jets.clear();
+            
+            for ( int j = 0 ; j < jetN_[0] ; ++j )
+            {
+               if ( jetPt_[0][j] >= ptcut[ipt] && fabs(jetEta_[0][j]) <= etacut[ieta]  )
+               {
+                  TLorentzVector jet;
+                  jet.SetPtEtaPhiE(jetPt_[0][j], jetEta_[0][j], jetPhi_[0][j], jetE_[0][j]); 
+                  jets.push_back(jet);
+               }
+            }
+            // min number of jets required
+            l1pteta = int(jets.size()) >= ncut;
+            if (!l1pteta) continue;
+            
+            // count events fired
+            ++c_l1pteta[ipteta];
+            
+            for ( size_t ideta = 0; ideta < detacut.size(); ++ideta)
+            {
+               iptetadeta = ideta + ipteta*detacut.size();
+               int dEtaBinCut = detacut[ideta];
+               bool l1deta = false;
+            
+               // delta_eta and delta_R
+               for ( size_t j1 = 0 ; j1 < jets.size()-1 ; ++j1 )
+               {
+                  TLorentzVector jet1 = jets[j1];
+                  int j1EtaBin = GetEtaBin(jet1.Eta());
+         //         int j1PhiBin = GetPhiBin(jet1.Phi());
+                  for ( size_t j2 = j1+1 ; j2 < jets.size() ; ++j2 )
+                  {
+                     TLorentzVector jet2 = jets[j2];
+                     int j2EtaBin = GetEtaBin(jet2.Eta());
+         //            int j2PhiBin = GetPhiBin(jet2.Phi());
+                     // delta_Eta cut
+                     if ( abs(j1EtaBin - j2EtaBin) <= dEtaBinCut ) l1deta = true;
+                  }
+               }
+//               std::cout << ipteta << "  " << iptetadeta << std::endl;
+               if ( l1deta ) ++c_l1deta[iptetadeta];
+            } // detacut loop
+            
+         } // etacut loop
          
+      } // ptcut loop
+      
+   } // events loop
+            
+   // print for each set of cuts
+   // define which pt cut
+   for ( size_t ipt = 0; ipt < ptcut.size(); ++ipt )
+   {
+      // define which eta cut
+      for ( size_t ieta = 0; ieta < etacut.size(); ++ieta )
+      {
+         ipteta = ieta + ipt*etacut.size();
+         std::cout << "Number of events fired pt>= " << ptcut[ipt] << ", |eta| <= " << etacut[ieta] << ": " << c_l1pteta[ipteta] <<std::endl;
+         for ( size_t ideta = 0; ideta < detacut.size(); ++ideta)
+         {
+            iptetadeta = ideta + ipteta*detacut.size();
+            std::cout << "Number of events fired pt>= " << ptcut[ipt] << ", |eta| <= " << etacut[ieta] << ", dEta <= " << detacut[ideta] << " bins: " << c_l1deta[iptetadeta] <<std::endl;
+         }
+      }
    }
-   
-   std::cout << "Number of events fired pt-eta cuts: " << c_l1pteta <<std::endl;
-   std::cout << "Number of events fired pt-eta cuts and delta_eta cut: " << c_l1deta <<std::endl;
-   std::cout << "Number of events fired pt-eta cuts and delta_r cut: " << c_l1dr <<std::endl;
-   std::cout << "Number of events fired pt-eta cuts and delta_eta and delta_r cuts: " << c_l1detadr <<std::endl;
+            
    
     
 //    
