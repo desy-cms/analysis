@@ -175,15 +175,16 @@ int main(int argc, char * argv[])
    // define which pt cut
    for ( size_t ipt = 0; ipt < ptcut.size(); ++ipt )
    {
+      std::cout << "pt>= " << ptcut[ipt] << std::endl;
       // define which eta cut
       for ( size_t ieta = 0; ieta < etacut.size(); ++ieta )
       {
          ipteta = ieta + ipt*etacut.size();
-         std::cout << "Number of events fired pt>= " << ptcut[ipt] << ", |eta| <= " << etacut[ieta] << ": " << c_l1pteta[ipteta] <<std::endl;
+         std::cout << "    |eta| <= " << etacut[ieta] << ": " << c_l1pteta[ipteta] <<std::endl;
          for ( size_t ideta = 0; ideta < detacut.size(); ++ideta)
          {
             iptetadeta = ideta + ipteta*detacut.size();
-            std::cout << "Number of events fired pt>= " << ptcut[ipt] << ", |eta| <= " << etacut[ieta] << ", dEta <= " << detacut[ideta] << " bins: " << c_l1deta[iptetadeta] <<std::endl;
+            std::cout << "        dEta <= " << detacut[ideta] << " bins: " << c_l1deta[iptetadeta] <<std::endl;
          }
       }
    }
