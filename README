@@ -1,5 +1,5 @@
 
 Cloning. Not for developments(?)
 
-git clone -b mssmhbb git@github.com:robervalwalsh/cmssw-analysis.git
+git clone -b mssmhbb git@github.com:robervalwalsh/cmssw-analysis.git MSSMHbbAnalysis
 
