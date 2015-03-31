@@ -15,11 +15,18 @@ git merge mssmhbb
 ## Add packages (use the git cms command)
 git cms-addpkg MssmHbbAnalysis/Ntuplizer
 git cms-addpkg MssmHbbAnalysis/TriggerStudies
-## The modifications will be common to mssmhbb and cmssw branches.
+
+
+
+## The modifications will not be common to mssmhbb and cmssw branches.
 ## Move to branch mssmhbb to commit changes.
 git checkout mssmhbb
 ## Get any modifications in the remote (= svn update)
-git pull cmssw-analysis
+git pull cmssw-analysis mssmhbb
 ## Make local modifications and commit/push as usual
 git commit -m  comments  < file>
 git push
+
+## Go back to working branch and pull the latest commits
+git checkout from-CMSSW_7_3_0
+git pull cmssw-analysis mssmhbb
