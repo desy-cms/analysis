@@ -298,11 +298,14 @@ for moduleName in process.producerNames().split():
         productsToKeep.add(moduleName)
     
 productsToKeep = cleanList(productsToKeep,process.filterNames().split())
-
+                                                    
 process.output.outputCommands=cms.untracked.vstring("drop *","keep *_TriggerResults_*_*",
                                                     "keep *_hltTriggerSummaryAOD_*_*",
                                                     "keep *_hltSelector*_*_*",
-                                                    "keep *_*GenJet*_*_*")
+                                                    "keep *_*GenJet*_*_*",
+                                                    "keep GenEventInfoProduct_generator_*_*",
+                                                    "keep recoGenParticles_genParticles_*_*",
+                                                    )
                                                     
 for product in productsToKeep:
     process.output.outputCommands.append("keep *_"+product+"_*_*")
