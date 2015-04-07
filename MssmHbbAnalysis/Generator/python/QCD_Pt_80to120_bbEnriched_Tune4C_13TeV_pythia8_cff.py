@@ -32,17 +32,11 @@ configurationMetadata = cms.untracked.PSet(
 
 bbFilter = cms.EDFilter("MCParticlePairFilter",
                         Status = cms.untracked.vint32(2,2),
-                        MinDeltaPhi = cms.untracked.double(0.0),
-                        MaxDeltaPhi = cms.untracked.double(500),
                         MinPt = cms.untracked.vdouble(40.0, 20.0),
-                        MinP = cms.untracked.vdouble(40.0, 20.0),
                         MaxEta = cms.untracked.vdouble(2.5, 2.5),
                         MinEta = cms.untracked.vdouble(-2.5, -2.5),
-                        ParticleCharge = cms.untracked.int32(0),
-                        MaxInvMass = cms.untracked.double(8000.0),
-                        MinInvMass = cms.untracked.double(0.0),
                         ParticleID1 = cms.untracked.vint32(-5, 5),
                         ParticleID2 = cms.untracked.vint32(-5, 5)
                        )  
 
-ProductionFilterSequence = cms.Sequence(generator*bbfilter)
+ProductionFilterSequence = cms.Sequence(generator*bbFilter)
