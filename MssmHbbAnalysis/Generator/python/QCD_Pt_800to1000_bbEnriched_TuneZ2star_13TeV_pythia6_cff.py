@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Generator.PythiaUEZ2starSettings_cfi import *
 
 generator = cms.EDFilter("Pythia6GeneratorFilter",
-    crossSection = cms.untracked.double(2.211e07),
+    crossSection = cms.untracked.double(2.825e01),
     pythiaHepMCVerbosity = cms.untracked.bool(False),
     maxEventsToPrint = cms.untracked.int32(0),
     pythiaPylistVerbosity = cms.untracked.int32(0),
@@ -25,8 +25,8 @@ generator = cms.EDFilter("Pythia6GeneratorFilter",
     PythiaParameters = cms.PSet(
         pythiaUESettingsBlock,
         processParameters = cms.vstring('MSEL=1               ! QCD hight pT processes', 
-	    'CKIN(3)=50.      ! minimum pt hat for hard interactions',
-	    'CKIN(4)=80.      ! maximum pt hat for hard interactions'),
+	    'CKIN(3)=800.      ! minimum pt hat for hard interactions',
+	    'CKIN(4)=1000.     ! maximum pt hat for hard interactions'),
         # This is a vector of ParameterSet names to be read, in this order
         parameterSets = cms.vstring('pythiaUESettings', 
             'processParameters')
@@ -36,8 +36,8 @@ generator = cms.EDFilter("Pythia6GeneratorFilter",
 
 configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.2 $'),
-    name = cms.untracked.string('$Source: /afs/cern.ch/work/r/rwalsh/cms/cmssw/scratch/CMSSW_7_4_0/src/MssmHbbAnalysis/Generator/python/QCD_Pt_50to80_bbEnriched_TuneZ2star_13TeV_pythia6_cff.py,v $'),
-    annotation = cms.untracked.string('bb-enriched QCD Pt [50,80] at 13 TeV')
+    name = cms.untracked.string('$Source: /afs/cern.ch/work/r/rwalsh/cms/cmssw/scratch/CMSSW_7_4_0/src/MssmHbbAnalysis/Generator/python/QCD_Pt_800to1000_bbEnriched_TuneZ2star_13TeV_pythia6_cff.py,v $'),
+    annotation = cms.untracked.string('bb-enriched QCD Pt [800,1000] at 13 TeV')
 )
 
 bbFilter = cms.EDFilter("MCParticlePairFilter",
