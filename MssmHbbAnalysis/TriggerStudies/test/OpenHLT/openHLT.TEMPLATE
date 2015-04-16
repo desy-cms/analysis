@@ -328,6 +328,7 @@ process.output.outputCommands=cms.untracked.vstring("drop *","keep *_TriggerResu
                                                     "keep *_*GenJet*_*_*",
                                                     "keep GenEventInfoProduct_generator_*_*",
                                                     "keep recoGenParticles_genParticles_*_*",
+                                                    "keep *_hltVertices*_*_*",
                                                     )
                                                     
 for product in productsToKeep:
