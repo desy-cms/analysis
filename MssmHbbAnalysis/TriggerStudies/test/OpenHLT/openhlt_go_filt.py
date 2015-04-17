@@ -19,33 +19,34 @@ outputSummary=True
 hltProcName="HLT3"
 
 #process.load("setup_cff")
-from hlt_run2_mssmhbb_scratch_V11_cfg import *    # module name is chosen by the user and injected here by openHLT.py
+from hlt_run2_mssmhbb_scratch_V47_OnlineBTag_cfg import *    # module name is chosen by the user and injected here by openHLT.py
 
 #-- Command line options -> configuration code injection and script configuration code -------
-interpreter=sys.argv.pop(0)
-myname=sys.argv.pop(0)
+#interpreter=sys.argv.pop(0)
+#myname=sys.argv.pop(0)
 
 #####################################################################################
 # configuration options injected by openHLT.py, as requested by the user
 verbose=False 
-isCrabJob=False  
+isCrabJob=True  
 runProducers=False 
 runOpen=False 
 ifiles=['Producers.root'] 
 ofile="Filters.root" 
-maxNrEvents=100
+maxNrEvents=10
 
 # other code injected by openHLT.py (if any), as requested by the user
 # add additional code below
 
 #####################################################################################
 
-if isCrabJob:
-    print "using crab specified filename"
-    ofile = "Producers.root"
+#if isCrabJob:
+#    print "using crab specified filename"
+#    ofile = "Filters.root"
 
 if ofile == "":   # output file name must be given
-    raise Exception("["+myname+"] Output file not given")
+    raise Exception("Output file not given")
+#    raise Exception("["+myname+"] Output file not given")
 
 if runProducers:
         print "** Will run producers **"
@@ -176,6 +177,21 @@ if 'MessageLogger' in process.__dict__:
 prodWhiteList=set()
 prodWhiteList.add("hltFastPVJetTracksAssociator")
 prodWhiteList.add("hltCombinedSecondaryVertex")
+prodWhiteList.add("hltCombinedSecondaryVertexV2")
+# re-run the HLTBtagCSVSequencePF
+prodWhiteList.add("hltVerticesPFSelector")
+prodWhiteList.add("hltVerticesPFFilter")
+prodWhiteList.add("hltPFJetForBtagSelector")
+prodWhiteList.add("hltPFJetForBtag")
+prodWhiteList.add("hltBLifetimeAssociatorPF")
+prodWhiteList.add("hltBLifetimeTagInfosPF")
+prodWhiteList.add("hltInclusiveVertexFinderPF")
+prodWhiteList.add("hltInclusiveSecondaryVerticesPF")
+prodWhiteList.add("hltTrackVertexArbitratorPF")
+prodWhiteList.add("hltInclusiveMergedVerticesPF")
+prodWhiteList.add("hltSecondaryVertexTagInfosPF")
+prodWhiteList.add("hltCombinedSecondaryVertexBJetTagsPF")
+
 
 # This small loop is adding the producers that
 # needs to be re-run for Btagging and Tau paths
@@ -187,6 +203,14 @@ for moduleName in process.producerNames().split():
         prodWhiteList.add(moduleName)
     for paraName in prod.parameters_():
         para = prod.getParameter(paraName)
+        # replace input filters by a producer (only in producer mode)
+        if runProducers==True:
+            if moduleName == "hltBLifetimeTagInfosPF":
+                if paraName == "primaryVertex":
+                    para.setValue("hltVerticesPF")
+            if moduleName == "hltInclusiveVertexFinderPF" or moduleName == "hltTrackVertexArbitratorPF":
+               if paraName == "primaryVertices":
+                   para.setValue("hltVerticesPF")
         if type(para).__name__=="VInputTag":
             if paraName == "tagInfos":
                 prodWhiteList=prodWhiteList.union(para.value())
@@ -312,6 +336,7 @@ process.output.outputCommands=cms.untracked.vstring("drop *","keep *_TriggerResu
                                                     "keep *_*GenJet*_*_*",
                                                     "keep GenEventInfoProduct_generator_*_*",
                                                     "keep recoGenParticles_genParticles_*_*",
+                                                    "keep *_hltVertices*_*_*",
                                                     )
                                                     
 for product in productsToKeep:
