@@ -1,3 +1,23 @@
 python path_maker.py -i hlt_v20.py -o hlt_v20_csv0p8.py -p HLT_DoubleJet100Eta2p6_DoubleCSV0p5_v1 -c "hltDoubleCSV0p5.MinTag = cms.double(0.8)" -r "Changed_CSV0p8"
 python path_maker.py -i hlt_v20_csv0p8.py -o hlt_v20_csv0p8_eta1p7.py -p HLT_DoubleJet100Eta2p6_DoubleCSV0p5_v1 -c "hltSingleCentralJet100Eta2p6.MaxEta = cms.double(1.7)" "hltDoubleCentralJet100Eta2p6.MaxEta = cms.double(1.7)" "hltDoublePFCentralJet100Eta2p6LooseID.MaxEta = cms.double(1.7)" "hltSinglePFCentralJet100Eta2p6LooseID.MaxEta = cms.double(1.7)" -r "Changed_Eta1p7"
 python path_maker.py -i hlt_v20_csv0p8_eta1p7.py -o hlt_v20_csv0p8_and_eta1p7.py -p HLT_DoubleJet100Eta2p6_DoubleCSV0p5_Changed_Eta1p7_v1 -c "hltDoubleCSV0p5.MinTag = cms.double(0.8)" -r "and_CSV0p8"
+
+
+
+
+
+python path_maker.py -i hlt_run2_mssmhbb_scratch_V47_cfg.py \
+-o hlt_run2_mssmhbb_scratch_V47_OnlineBTag_cfg.py \
+-p HLT_PFJet_BTagCSV_v1 \
+-c \
+"hltCSVL3.MinJets  = cms.int32(1)" \
+"hltCSVL3.MinTag   = cms.double(0.63)" \
+"hltCSVPF.MinJets  = cms.int32(1)" \
+"hltCSVPF.MinTag   = cms.double(0.)" \
+"hltCaloJet.MinN   = cms.int32(1)" \
+"hltCaloJet.MinPt  = cms.double(30.0)" \
+"hltCaloJet.MaxEta = cms.double(2.4)" \
+"hltPFJet.MinN     = cms.int32(1)" \
+"hltPFJet.MinPt    = cms.double(30.0)" \
+"hltPFJet.MaxEta   = cms.double(2.4)" \
+-r "Changed_OnlineBTag"
