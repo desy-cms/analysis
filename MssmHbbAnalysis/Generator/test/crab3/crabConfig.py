@@ -2,9 +2,9 @@ from WMCore.Configuration import Configuration
 config = Configuration()
 config.section_('General')
 config.General.transferOutputs = True
-PTHATRANGE = '80to120'
+PTHATRANGE = '470to600'
 DATASET  = 'QCD_Pt_'+PTHATRANGE+'_bbEnriched_TuneZ2star_13TeV_pythia6'
-DATANAME = 'MCRUN2_74_V7-GEN-SIM-v1'
+DATANAME = 'MCRUN2_74_V7-GEN-SIM-v2'
 config.General.requestName = DATASET+'_'+DATANAME
 
 config.section_('JobType')
@@ -16,7 +16,7 @@ config.section_('Data')
 config.Data.primaryDataset = DATASET
 config.Data.publishDBS = 'phys03'
 config.Data.publication = True
-config.Data.unitsPerJob = 25000
+config.Data.unitsPerJob = 5000
 NJOBS = 250  # This is not a configuration parameter, but an auxiliary variable used in the next line.
 config.Data.totalUnits = config.Data.unitsPerJob * NJOBS
 config.Data.splitting = 'EventBased'
