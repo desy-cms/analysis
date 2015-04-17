@@ -21,8 +21,8 @@ hltProcName="HLT3"
 from $HLTFILE import *    # module name is chosen by the user and injected here by openHLT.py
 
 #-- Command line options -> configuration code injection and script configuration code -------
-interpreter=sys.argv.pop(0)
-myname=sys.argv.pop(0)
+#interpreter=sys.argv.pop(0)
+#myname=sys.argv.pop(0)
 
 #####################################################################################
 # configuration options injected by openHLT.py, as requested by the user
@@ -33,12 +33,13 @@ $OTHERCHANGES
 
 #####################################################################################
 
-if isCrabJob:
-    print "using crab specified filename"
-    ofile = "Producers.root"
+#if isCrabJob:
+#    print "using crab specified filename"
+#    ofile = "Producers.root"
 
 if ofile == "":   # output file name must be given
-    raise Exception("["+myname+"] Output file not given")
+    raise Exception("Output file not given")
+#    raise Exception("["+myname+"] Output file not given")
 
 if runProducers:
         print "** Will run producers **"
