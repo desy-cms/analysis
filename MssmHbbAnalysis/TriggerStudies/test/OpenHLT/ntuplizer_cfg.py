@@ -23,6 +23,16 @@ process.TFileService = cms.Service("TFileService",
 	fileName = cms.string('tests.root')
 )
 
+# trigger filter
+process.triggerResultsFilter = cms.EDFilter('TriggerResultsFilter',
+   hltResults = cms.InputTag("TriggerResults","","HLT3PB"), # HLT results - set to empty to ignore HLT
+   l1tResults = cms.InputTag(""), # L1 GT results - set to empty to ignore L1
+   l1tIgnoreMask = cms.bool(False), # use L1 mask
+   l1techIgnorePrescales = cms.bool(False), # read L1 technical bits from PSB#9, bypassing the prescales
+   daqPartitions = cms.uint32(0x01), # used by the definition of the L1 mask
+   throw = cms.bool(False), # throw exception on unknown trigger names
+   triggerConditions = cms.vstring( 'HLT_PFJet_BTagCSV_Changed_OnlineBTag_v1' )
+)
 # need some understanding before using; number of jets do not macth the sum.
 process.hltL1extraParticles = cms.EDProducer("L1ExtraJetsMerger",
     L1ExtraJets = cms.VInputTag(cms.InputTag("hltL1extraParticles","Tau","HLT3"),cms.InputTag("hltL1extraParticles","Central","HLT3"),cms.InputTag("hltL1extraParticles","Forward","HLT3")),
@@ -42,7 +52,7 @@ process.TriggerStudies = cms.EDAnalyzer("Ntuplizer",
 #    PileupInfo = cms.VInputTag(cms.InputTag("addPileupInfo")),
 )
 
-process.p = cms.Path(process.hltL1extraParticles*process.TriggerStudies)
+process.p = cms.Path(process.triggerResultsFilter*process.hltL1extraParticles*process.TriggerStudies)
 #process.p = cms.Path(process.TriggerStudies)
 
 readFiles = cms.untracked.vstring()
