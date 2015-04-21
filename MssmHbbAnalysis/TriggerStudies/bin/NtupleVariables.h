@@ -27,6 +27,18 @@ float jetEta_[4][maxCands_] ;
 float jetPhi_[4][maxCands_] ;
 float jetBtag_[4][maxCands_] ;
 
+// vertices
+int   pvN_[4];
+float pvX_[4][maxCands_];
+float pvY_[4][maxCands_];
+float pvZ_[4][maxCands_];
+float pvXe_[4][maxCands_];
+float pvYe_[4][maxCands_];
+float pvZe_[4][maxCands_];
+bool  pvFake_[4][maxCands_];
+float pvChi2_[4][maxCands_];
+float pvNdof_[4][maxCands_];
+float pvRho_[4][maxCands_];
 
 // trigger accepts
 // bool * trgAccepts_;
