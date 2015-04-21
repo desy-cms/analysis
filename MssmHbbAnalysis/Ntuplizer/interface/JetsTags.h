@@ -30,8 +30,6 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "MssmHbbAnalysis/Ntuplizer/interface/JetsTags.h"
-
 #include "TTree.h"
 
 //
