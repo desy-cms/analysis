@@ -55,6 +55,7 @@
 #include "MssmHbbAnalysis/Ntuplizer/interface/Candidates.h"
 #include "MssmHbbAnalysis/Ntuplizer/interface/JetsTags.h"
 #include "MssmHbbAnalysis/Ntuplizer/interface/TriggerAccepts.h"
+#include "MssmHbbAnalysis/Ntuplizer/interface/PrimaryVertices.h"
 
 #include "DataFormats/Common/interface/OwnVector.h"
 
@@ -76,6 +77,7 @@ typedef mssmhbb::ntuple::Candidates<reco::GenJet> GenJetCandidates;
 typedef mssmhbb::ntuple::Candidates<reco::GenParticle> GenParticleCandidates;
 typedef mssmhbb::ntuple::JetsTags JetsTags;
 typedef mssmhbb::ntuple::TriggerAccepts TriggerAccepts;
+typedef mssmhbb::ntuple::PrimaryVertices PrimaryVertices;
 
 // Alias to the pointers to the above classes
 typedef std::unique_ptr<EventInfo> pEventInfo;
@@ -88,6 +90,7 @@ typedef std::unique_ptr<GenJetCandidates> pGenJetCandidates;
 typedef std::unique_ptr<GenParticleCandidates> pGenParticleCandidates;
 typedef std::unique_ptr<JetsTags> pJetsTags;
 typedef std::unique_ptr<TriggerAccepts> pTriggerAccepts;
+typedef std::unique_ptr<PrimaryVertices> pPrimaryVertices;
 
 //
 // class declaration
@@ -124,6 +127,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       bool do_jetstags_;
       bool do_pileupinfo_;
       bool do_triggeraccepts_;
+      bool do_primaryvertices_;
       std::vector< std::string > inputTags_;
       
       std::map<std::string, TTree*> trees_; // using pointers instead of smart pointers, could not Fill() with smart pointer???
@@ -140,6 +144,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       std::vector<pGenJetCandidates> genjets_collections_;
       std::vector<pGenParticleCandidates> genparticles_collections_;
       std::vector<pJetsTags> jetstags_collections_;
+      std::vector<pPrimaryVertices> primaryvertices_collections_;
       std::vector<pTriggerAccepts> triggeraccepts_collections_;
       
 };
@@ -273,6 +278,14 @@ void Ntuplizer::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
          triggeraccepts_collections_[i]  -> Fill(event);
       }
    }
+      // primary vertices
+   if ( do_primaryvertices_ )
+   {
+      for ( size_t i = 0; i < primaryvertices_collections_.size() ; ++i )
+      {
+         primaryvertices_collections_[i]  -> Fill(event);
+      }
+   }
    
 }
 
@@ -290,6 +303,7 @@ Ntuplizer::beginJob()
    do_genparticles_   = config_.exists("GenParticles");
    do_jetstags_       = config_.exists("JetsTags");
    do_triggeraccepts_ = config_.exists("TriggerResults") && config_.exists("TriggerPaths");
+   do_primaryvertices_  = config_.exists("PrimaryVertices");
    
    
    edm::Service<TFileService> fs;
@@ -381,6 +395,12 @@ Ntuplizer::beginJob()
             std::vector< std::string> trigger_paths = config_.getParameter< std::vector< std::string> >("TriggerPaths");
             triggeraccepts_collections_.push_back( pTriggerAccepts( new TriggerAccepts((*collection), trees_[name], trigger_paths) ));
             triggeraccepts_collections_.back() -> Branches();
+         }
+         // Primary Vertices
+         if ( (*inputTag) == "PrimaryVertices" )
+         {
+            primaryvertices_collections_.push_back( pPrimaryVertices( new PrimaryVertices((*collection), trees_[name]) ));
+            primaryvertices_collections_.back() -> Branches();
          }
       }
    }
