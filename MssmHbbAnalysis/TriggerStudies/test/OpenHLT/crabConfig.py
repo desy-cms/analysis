@@ -3,7 +3,8 @@ config = Configuration()
 config.section_('General')
 config.General.transferOutputs = True
 DATASET  = 'SUSYBBHToBB_M-300_13TeV'
-DATANAME = 'OpenHLT-740-hlt_run2_mssmhbb_scratch_V47-Filt-v2'
+#DATASET  = 'QCD_Pt-50to80_TSG'
+DATANAME = 'OpenHLT-740-hlt_run2_mssmhbb_scratch_V47-Prod-v2-Filt-v3'
 config.General.requestName = DATASET+'_'+DATANAME
 
 config.section_('JobType')
@@ -17,12 +18,12 @@ config.JobType.outputFiles = ['Filters.root']
 
 config.section_('Data')
 #config.Data.inputDataset = '/SUSYBBHToBB_M-300_13TeV-pythia6-tauola/yechen-SUSYBBHToBB_M-300_13TeV-pythia6-tauola-RAWSIM-ave_40_bx_25ns-d065fd20afeab0487c05d89037cc39c1/USER'
-config.Data.inputDataset = '/SUSYBBHToBB_M-300_13TeV-pythia6-tauola/rwalsh-OpenHLT-740-hlt_run2_mssmhbb_scratch_V47-Prod-v1-4a506ec4fefd912077c1330a00458e1d/USER'
+config.Data.inputDataset = '/SUSYBBHToBB_M-300_13TeV-pythia6-tauola/rwalsh-OpenHLT-740-hlt_run2_mssmhbb_scratch_V47-Prod-v2-dcc3d7f9b2103fc5465c7cc1bc6f6474/USER'
 config.Data.inputDBS = 'phys03'
 config.Data.publication = True
 config.Data.publishDBS = 'phys03'
 config.Data.publishDataName = DATANAME
-#config.Data.unitsPerJob = 4
+#config.Data.unitsPerJob = 2
 config.Data.unitsPerJob = 1
 #config.Data.totalUnits = 250
 config.Data.splitting = 'FileBased'

@@ -39,7 +39,7 @@ python path_maker.py -i hlt_run2_mssmhbb_scratch_V47_cfg1.py \
 -r "Changed_CSVL3_0p54"
 
 python path_maker.py -i hlt_run2_mssmhbb_scratch_V47_cfg2.py \
--o hlt_run2_mssmhbb_scratch_V47_OnlineBTag_cfg.py \
+-o hlt_run2_mssmhbb_scratch_V47_cfg3.py \
 -p HLT_PFJet_BTagCSV_v1 \
 -c \
 "hltCSVL3.MinJets  = cms.int32(1)" \
@@ -53,4 +53,20 @@ python path_maker.py -i hlt_run2_mssmhbb_scratch_V47_cfg2.py \
 "hltPFJet.MinPt    = cms.double(30.0)" \
 "hltPFJet.MaxEta   = cms.double(2.4)" \
 -r "Changed_CSVL3_0p41"
+
+python path_maker.py -i hlt_run2_mssmhbb_scratch_V47_cfg3.py \
+-o hlt_run2_mssmhbb_scratch_V47_OnlineBTag_cfg.py \
+-p HLT_PFJet_BTagCSV_v1 \
+-c \
+"hltCSVL3.MinJets  = cms.int32(1)" \
+"hltCSVL3.MinTag   = cms.double(0.)" \
+"hltCSVPF.MinJets  = cms.int32(1)" \
+"hltCSVPF.MinTag   = cms.double(0.)" \
+"hltCaloJet.MinN   = cms.int32(1)" \
+"hltCaloJet.MinPt  = cms.double(30.0)" \
+"hltCaloJet.MaxEta = cms.double(2.4)" \
+"hltPFJet.MinN     = cms.int32(1)" \
+"hltPFJet.MinPt    = cms.double(30.0)" \
+"hltPFJet.MaxEta   = cms.double(2.4)" \
+-r "Changed_CSVL3_0p0"
 
