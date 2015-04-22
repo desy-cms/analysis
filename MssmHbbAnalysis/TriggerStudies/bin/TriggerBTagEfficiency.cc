@@ -50,8 +50,8 @@ int main(int argc, char * argv[])
    TH2::SetDefaultSumw2();
    
    // Histograms
-   TH1F * h_BtagLogRef = new TH1F("h_BtagLogRef","", 50, 0, 1.);
-   TH1F * h_BtagLogNom = new TH1F("h_BtagLogNom","", 50, 0, 1.);
+   TH1F * h_BtagLogRef = new TH1F("h_BtagLogRef","", 200, 0, 20.);
+   TH1F * h_BtagLogNom = new TH1F("h_BtagLogNom","", 200, 0, 20.);
    TH2F * h_BtagCaloPF = new TH2F("h_BtagCaloPF","", 100, 0., 1., 100, 0., 1.);
    
    // TTree chains and friendship?
@@ -101,8 +101,6 @@ int main(int argc, char * argv[])
       // The trigger objects after online selection, ie all objects that pass the selection
       std::vector<TLorentzVector> jets[2];
       std::vector<float> jettags[2];
-      bool fired;    
-      
        
       // trigger emulator
       for ( int l = 0 ; l < 2 ; ++l )
@@ -111,7 +109,7 @@ int main(int argc, char * argv[])
          jettags[l].clear();
          for ( int j = 0 ; j < jetN_[l] ; ++j )
          {
-            if ( jetPt_[l][j] >= ptcut[l] && fabs(jetEta_[l][j]) <= etacut[l] && jetBtag_[l][j] >= btagcut[l] )
+            if ( jetPt_[l][j] >= ptcut[l] && fabs(jetEta_[l][j]) <= etacut[l] )
             {
                TLorentzVector jet;
                jet.SetPtEtaPhiE(jetPt_[l][j], jetEta_[l][j], jetPhi_[l][j], jetE_[l][j]); 
@@ -122,37 +120,83 @@ int main(int argc, char * argv[])
          }
       }
       
-      // trigger fired
-      fired = (int(jets[0].size()) >= ncut[0]); 
+      // must pass kinematic selection
+      if ( jets[0].size() < 1 ||  jets[1].size() < 1 ) continue;
       
-      // muss pass offline selection
-      if ( jets[1].size() < 1 ) continue;
+      // matching
+      std::vector<TLorentzVector> jetsM[2];
+      std::vector<float> jettagsM[2];
       
-      // highest b-tag offline jet
-      int j1 = -1;
-      float maxtag = -999999;
-      for ( size_t j = 0; j < jets[1].size(); ++j )
+      for ( size_t j1 = 0 ; j1 < jets[1].size(); ++j1 )
       {
-         if ( jettags[1].at(j) > maxtag )
+         TLorentzVector jet1 = jets[1].at(j1);
+         float btag1 = jettags[1].at(j1);
+         for ( size_t j0 = 0 ; j0 < jets[0].size(); ++j0 )
          {
-            maxtag = jettags[1].at(j);
-            j1 = j;
+            TLorentzVector jet0 = jets[0].at(j0);
+            float btag0 = jettags[0].at(j0);
+            float dRcut = 0.3;
+            float deltaR = jet1.DeltaR(jet0);
+            // only matched jets
+            if ( deltaR < dRcut )
+            {
+               jetsM[0].push_back(jet0);
+               jetsM[1].push_back(jet1); 
+               jettagsM[0].push_back(btag0);
+               jettagsM[1].push_back(btag1);
+               h_BtagCaloPF -> Fill(btag0,btag1);
+               break;
+            }
          }
       }
-      h_BtagLogRef -> Fill(jettags[1].at(j1));
       
-      // highest b-tag online jet
-      int j0 = -1;
-      maxtag = -999999;
-      for ( size_t j = 0; j < jets[0].size(); ++j )
+      // must pass kinematic selection and matching (sizes are the same)
+      if ( jetsM[0].size() < 1 ||  jetsM[1].size() < 1 ) continue;
+      
+      //  trigger efficiency
+      for ( size_t j = 0 ; j < jetsM[1].size(); ++j )
       {
-         if ( jettags[0].at(j) > maxtag )
+         TLorentzVector jet1 = jetsM[1].at(j);
+         float btag1log = -log(1-jettagsM[1].at(j));
+         if ( btag1log < 0.1 ) continue;
+         h_BtagLogRef -> Fill(btag1log);
+         TLorentzVector jet0 = jetsM[0].at(j);
+         float btag0 = jettagsM[0].at(j);
+         if ( btag0 > btagcut[0] )  // trigger cut
          {
-            maxtag = jettags[0].at(j);
-            j0 = j;
+            h_BtagLogNom -> Fill(btag1log);
          }
+         
       }
       
+      
+      
+      
+//       // highest b-tag offline jet
+//       int j1 = -1;
+//       float maxtag = -999999;
+//       for ( size_t j = 0; j < jets[1].size(); ++j )
+//       {
+//          if ( jettags[1].at(j) > maxtag )
+//          {
+//             maxtag = jettags[1].at(j);
+//             j1 = j;
+//          }
+//       }
+//       h_BtagLogRef -> Fill(jettags[1].at(j1));
+//       
+//       // highest b-tag online jet
+//       int j0 = -1;
+//       maxtag = -999999;
+//       for ( size_t j = 0; j < jets[0].size(); ++j )
+//       {
+//          if ( jettags[0].at(j) > maxtag )
+//          {
+//             maxtag = jettags[0].at(j);
+//             j0 = j;
+//          }
+//       }
+//       
 //       // Matching jets
 //       float dRcut = 0.5;
 //       bool match = false;
@@ -170,10 +214,10 @@ int main(int argc, char * argv[])
 //          }
 //       }
       
-      if ( j0 >= 0 && j1 >= 0 ) 
-      h_BtagCaloPF -> Fill(jettags[0].at(j0),jettags[1].at(j1));
-      
-
+//       if ( j0 >= 0 && j1 >= 0 ) 
+//       h_BtagCaloPF -> Fill(jettags[0].at(j0),jettags[1].at(j1));
+//       
+// 
 
 //       for ( int l = highestLevel-1; l >= 0 ; --l )
 //       {
@@ -197,9 +241,9 @@ int main(int argc, char * argv[])
 //       }
       
       
-      if ( fired )
-         h_BtagLogNom -> Fill(jettags[1].at(j1));
-      
+//       if ( fired )
+//          h_BtagLogNom -> Fill(jettags[1].at(j1));
+//       
 //       
       
             
@@ -239,12 +283,12 @@ void SetParameters()
    // These are ARBITRARY levels!!!
    // online btagging
    ncut[0] = 1;
-   ptcut[0] = 80.;
+   ptcut[0] = 30.;
    etacut[0] = 2.4;
-   btagcut[0] = 0.;
+   btagcut[0] = 0.63;
    // offline btagging
    ncut[1] = 1;
-   ptcut[1] = 80.;
+   ptcut[1] = 30.;
    etacut[1] = 2.4;
    btagcut[1] = 0.;
    

@@ -38,8 +38,8 @@ int main(int argc, char * argv[])
    
    // Histograms
    TH2F * h_Z_L3vsPF = new TH2F("h_Z_L3vsPF","", 1000, -10., 10., 1000, -10., 10.);
-   TH2F * h_X_L3vsPF = new TH2F("h_X_L3vsPF","", 100, -1., 1., 100, -1., 1.);
-   TH2F * h_Y_L3vsPF = new TH2F("h_Y_L3vsPF","", 100, -1., 1., 100, -1., 1.);
+   TH2F * h_X_L3vsPF = new TH2F("h_X_L3vsPF","", 100, 0.23, 0.26, 100, 0.23, 0.26);
+   TH2F * h_Y_L3vsPF = new TH2F("h_Y_L3vsPF","", 100, 0.38, 0.41, 100, 0.38, 0.41);
    
    // TTree chains and friendship?
    TChain * chainEvent    = new TChain("TriggerStudies/EventInfo");
@@ -88,12 +88,12 @@ int main(int argc, char * argv[])
       if ( i%10000 == 0 ) std::cout << "Processed  " << i << "  events" << "\xd";
       
       chainEvent->GetEntry(i);
-      if ( ! pvFake_[0][0] )
-      {
+//      if ( ! pvFake_[0][0] )
+//      {
          h_Z_L3vsPF -> Fill(pvZ_[0][0],pvZ_[1][0]);
          h_X_L3vsPF -> Fill(pvX_[0][0],pvX_[1][0]);
          h_Y_L3vsPF -> Fill(pvY_[0][0],pvY_[1][0]);
-      }
+//      }
     
    }
    
