@@ -29,6 +29,7 @@ void SetParameters();
 
 int ncut[2];
 float ptcut[2];
+float ptmax[2];
 float etacut[2];
 float btagcut[2];
 
@@ -109,7 +110,7 @@ int main(int argc, char * argv[])
          jettags[l].clear();
          for ( int j = 0 ; j < jetN_[l] ; ++j )
          {
-            if ( jetPt_[l][j] >= ptcut[l] && fabs(jetEta_[l][j]) <= etacut[l] )
+            if ( jetPt_[l][j] >= ptcut[l] && jetPt_[l][j] < ptmax[l] && fabs(jetEta_[l][j]) <= etacut[l] )
             {
                TLorentzVector jet;
                jet.SetPtEtaPhiE(jetPt_[l][j], jetEta_[l][j], jetPhi_[l][j], jetE_[l][j]); 
@@ -284,11 +285,13 @@ void SetParameters()
    // online btagging
    ncut[0] = 1;
    ptcut[0] = 30.;
+   ptmax[0] = 100000.;
    etacut[0] = 2.4;
    btagcut[0] = 0.63;
    // offline btagging
    ncut[1] = 1;
    ptcut[1] = 30.;
+   ptmax[1] = 100000.;
    etacut[1] = 2.4;
    btagcut[1] = 0.;
    
