@@ -16,7 +16,7 @@ git merge mssmhbb
 git cms-addpkg MssmHbbAnalysis/Ntuplizer
 git cms-addpkg MssmHbbAnalysis/TriggerStudies
 git cms-addpkg MssmHbbAnalysis/Generator
-
+git cms-addpkg MssmHbbAnalysis/MonteCarloStudies
 
 ## The modifications will not be common to mssmhbb and cmssw branches.
 ## Move to branch mssmhbb to commit changes.
