@@ -41,9 +41,11 @@ int main(int argc, char * argv[])
    TH1F * h_PtJet[4];
    // Histograms
    for ( int i = 0 ; i < 4 ; ++i )
-      h_PtJet[i] = new TH1F(Form("h_PtJet_%i",i),"", 200, 0, 1000.);
-   TH1F * h_MassJet01 = new TH1F("h_MassJet01","", 200, 0, 1000.);
-   TH2F * h_Jet0Jet1_Pt = new TH2F("h_Jet0Jet1_Pt","", 200, 0, 1000., 200, 0, 1000.);
+      h_PtJet[i] = new TH1F(Form("h_PtJet_%i",i),"", 80, 0, 400.);
+   TH1F * h_MassDijet = new TH1F("h_MassDijet","", 200, 0, 1000.);
+   TH1F * h_PtDijet = new TH1F("h_PtDijet","", 80, 0, 400.);
+   TH2F * h_Jet0Jet1_Pt = new TH2F("h_Jet0Jet1_Pt","", 80, 0, 400., 80, 0, 400.);
+   TH2F * h_Jet1Dijet_Pt = new TH2F("h_Jet1dijet_Pt","", 80, 0, 400., 80, 0, 400.);
    
    // TTree chains and friendship?
    TChain * chainEvent = new TChain("MonteCarloStudies/EventInfo");
@@ -101,24 +103,28 @@ int main(int argc, char * argv[])
       
       if ( jets.size() < 3 || ! ok ) continue;
       
-      if ( jets[1].Pt() > 0 && jets[0].Pt() > 0)
+      TLorentzVector dijet = jets[0] + jets[1];
+      if ( jets[1].Pt() > 0 && jets[0].Pt() > 0 )
       {
          h_PtJet[0] -> Fill(jets[0].Pt());
          h_PtJet[1] -> Fill(jets[1].Pt());
          h_Jet0Jet1_Pt -> Fill(jets[0].Pt(),jets[1].Pt());
-         TLorentzVector higgs = jets[0] + jets[1];
-         h_MassJet01 -> Fill(higgs.M());
+         h_MassDijet -> Fill(dijet.M());
+         h_PtDijet -> Fill(dijet.Pt());
+         h_Jet1Dijet_Pt -> Fill(jets[1].Pt(),dijet.Pt());
       }
       
    }
    
    
-   outFilename = "genjets_m300_noptcut";
+   outFilename = "genjets_m600_noptcut_hpt0";
    TFile * outFile = new TFile(outFilename+".root","RECREATE");
    h_PtJet[0]      -> Write();
    h_PtJet[1]      -> Write();
    h_Jet0Jet1_Pt   -> Write();
-   h_MassJet01     -> Write();
+   h_MassDijet     -> Write();
+   h_PtDijet       -> Write();
+   h_Jet1Dijet_Pt  -> Write();
    outFile -> Close();
     
     
