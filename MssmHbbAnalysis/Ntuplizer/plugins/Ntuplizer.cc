@@ -147,6 +147,9 @@ class Ntuplizer : public edm::EDAnalyzer {
       std::vector<pPrimaryVertices> primaryvertices_collections_;
       std::vector<pTriggerAccepts> triggeraccepts_collections_;
       
+      // metadata
+      double xsection_;
+      
 };
 
 //
@@ -310,7 +313,13 @@ Ntuplizer::beginJob()
    
    // Metadata 
    std::string name = "Metadata";
-   
+   trees_[name] = fs -> make<TTree>(name.c_str(),name.c_str());
+   trees_[name] -> Branch("xsection", &xsection_, "xsection/D");
+   if ( config_.exists("CrossSection") )
+      xsection_ = config_.getParameter<double>("CrossSection");
+   else
+      xsection_ = 1.0;
+   trees_[name] -> Fill();
    
    // Event info tree
    name = "EventInfo";
