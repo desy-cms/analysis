@@ -18,6 +18,8 @@ int event_;
 int bx_;
 int orbit_;
 
+double xsection_;
+
 // jets
 int   jetN_  [4] ;
 float jetPt_ [4][maxCands_] ;
