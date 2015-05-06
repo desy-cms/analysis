@@ -104,7 +104,8 @@ int main(int argc, char * argv[])
       if ( jets.size() < 3 || ! ok ) continue;
       
       TLorentzVector dijet = jets[0] + jets[1];
-      if ( jets[1].Pt() > 0 && jets[0].Pt() > 0 )
+      
+      if ( jets[1].Pt() > 100. && jets[0].Pt() > 0. )
       {
          h_PtJet[0] -> Fill(jets[0].Pt());
          h_PtJet[1] -> Fill(jets[1].Pt());
@@ -117,7 +118,7 @@ int main(int argc, char * argv[])
    }
    
    
-   outFilename = "genjets_m600_noptcut_hpt0";
+   outFilename = "genjets_m300_j0_j100_j20";
    TFile * outFile = new TFile(outFilename+".root","RECREATE");
    h_PtJet[0]      -> Write();
    h_PtJet[1]      -> Write();
