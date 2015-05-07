@@ -60,14 +60,13 @@ int main(int argc, char * argv[])
    TChain * chainJets  = new TChain("MonteCarloStudies/ak4GenJets");
    
    // Input files
-   std::string inputList = "rootFileList.txt"; // must be only one file!!!
+   std::string inputList = "rootFileList.txt"; 
    ifstream inputFile (inputList.c_str());
    std::string filename;
    getline (inputFile,filename);
-   filename = boost::filesystem::basename(filename);
-   std::string subfilename = filename.erase(0,filename.find("_")+1);
-   subfilename = subfilename.substr(0, subfilename.find("_"));
-   
+   boost::filesystem::path path(filename.c_str());
+//   filename = boost::filesystem::basename(filename);
+   std::string subfilename = path.parent_path().filename().native();
    
    cout << "List of input files: " << inputList << endl;
    TFileCollection fc("dum","",inputList.c_str());
@@ -142,10 +141,10 @@ int main(int argc, char * argv[])
       float dEta01 = fabs(jets[0].Eta() - jets[1].Eta());
       
       TLorentzVector dijet = jets[0] + jets[1];
-      if ( !(      jets[0].Pt()   > 140.) )  continue;
-      if ( !( fabs(jets[0].Eta()) < 1.6 ) )  continue;
+      if ( !(      jets[0].Pt()   > 100.) )  continue;
+      if ( !( fabs(jets[0].Eta()) < 2.4 ) )  continue;
       if ( !(      jets[1].Pt()   > 100.) )  continue;
-      if ( !( fabs(jets[1].Eta()) < 1.6 ) )  continue;
+      if ( !( fabs(jets[1].Eta()) < 2.4 ) )  continue;
       if ( !(      jets[2].Pt()   > 30. ) )  continue;
       if ( !( fabs(jets[2].Eta()) < 2.4 ) )  continue;
       
@@ -162,7 +161,8 @@ int main(int argc, char * argv[])
    }
    
    
-   outFilename = "genjets_"+subfilename+".jpt140_jpt100_jpt30_jeta1p6_jeta1p6_jeta2p4";
+//   outFilename = "genjets_"+subfilename+".jpt100_jpt100_jpt30_jeta2p4_jeta2p4_jeta2p4";
+   outFilename = "genjets_jpt100_jpt100_jpt30_jeta2p4_jeta2p4_jeta2p4";
    TFile * outFile = new TFile(outFilename+".root","RECREATE");
    // scale to luminosity; write to file
    for ( size_t j = 0 ; j < 4 ; ++j )
