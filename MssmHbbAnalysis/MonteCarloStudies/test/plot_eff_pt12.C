@@ -1,0 +1,82 @@
+void plot_eff_pt12()
+{
+   TFile * f[4];
+   TString selection = "jpt100_jpt100_jpt30_jeta2p4_jeta2p4_jeta2p4";
+   TString m[3] = {"m300", "m600", "m1100"};
+   
+   for ( int i = 0; i < 3 ; ++i )
+      f[i] = new TFile("signal/"+m[i]+"/genjets_"+selection+".root");
+   f[3] = new TFile("background/hadd_genjets_"+selection+".root");
+   
+   TH2F * h_pt[4];
+   
+   int color[4] = {2,6,4,1};
+   
+   for ( int i = 0; i < 4; ++i )
+   {
+      h_pt[i]  = (TH2F*) f[i] -> Get("h_Jet0Jet1_Pt");
+      h_pt[i]  -> SetName(Form("h_Jet0Jet1_Pt_%i",i));
+   }
+   
+   float ptcut[30];
+   float eff[30];
+   
+   TGraph * g[4];
+   
+   float minpt = 100.;
+   float maxpt = 140.;
+   
+   int j = 0;
+   for ( int i = 0; i < 4; ++i )
+   {
+      j = 0;
+      for ( int bin = 1; bin < h_pt[i]->GetNbinsX(); ++bin )
+      {
+         float ptx = h_pt[i] -> GetXaxis() -> GetBinLowEdge(bin);
+         float pty = h_pt[i] -> GetYaxis() -> GetBinLowEdge(bin);
+         if ( ptx < minpt || pty < minpt)  continue;
+         if ( ptx > maxpt || pty > maxpt)  continue;
+         ptcut[j] = ptx;
+         float integral = h_pt[i]->Integral(1,h_pt[i]->GetNbinsX(),1,h_pt[i]->GetNbinsY());
+         eff[j] =  h_pt[i]->Integral(bin,h_pt[i]->GetNbinsX(),bin,h_pt[i]->GetNbinsY())/integral;
+         ++j;
+      }
+      g[i] = new TGraph(j,ptcut,eff);
+      g[i] -> SetLineWidth(2);
+      g[i] -> SetLineColor(color[i]);
+   }
+   
+   
+   TCanvas * c1 = new TCanvas("c1","",600,700);
+//   c1 -> DrawFrame(100,0.5,150,1.1);
+   c1->SetGrid();
+   
+   g[0] -> SetTitle(selection);
+   g[0] -> GetXaxis() -> SetTitle("pt_1,2 cut (GeV)");
+   g[0] -> GetYaxis() -> SetTitle("efficiency");
+   g[0] -> GetYaxis() -> SetRangeUser(0.,1.1);
+   g[0] -> Draw("APC");
+   g[1] -> Draw("PC");
+   g[2] -> Draw("PC");
+   g[3] -> Draw("PC");
+   
+   TLegend * leg = new TLegend(0.15,0.15,0.35,0.35);
+//   leg->SetHeader("The Legend Title");
+   leg->AddEntry(g[0],m[0],"l");
+   leg->AddEntry(g[1],m[1],"l");
+   leg->AddEntry(g[2],m[2],"l");
+   leg->AddEntry(g[3],"QCD","l");
+   leg->Draw();
+   
+   int mp = 0;
+   double * ys = g[mp]->GetY();
+   double * xs = g[mp]->GetX();
+   double * yb = g[mp+3]->GetY();
+   for ( int i = 0; i<j; ++i )
+   {
+      cout << xs[i] <<", "<< ys[i]/TMath::Sqrt(yb[i]) << " ,  " << ys[i] << " ,   " << yb[i] << endl;
+   }
+   
+   c1 -> SaveAs("figs/j12ptcut_eff-"+selection+".png");
+//    
+}

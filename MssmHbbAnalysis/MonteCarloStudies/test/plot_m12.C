@@ -1,8 +1,8 @@
-void plot_eff()
+void plot_m12()
 {
    gStyle->SetOptStat(0);
    
-   int type = 0;
+   int type = 1;
    
    float mw[3] = {300.,500.,700.};
    float dmw[3] = {60.,120., 300.};
@@ -24,7 +24,7 @@ void plot_eff()
       TString selection[3];
       selection[0] = "jpt100_jpt100_jpt30_jeta2p4_jeta2p4_jeta2p4";
       selection[1] = "jpt100_jpt100_jpt30_jeta1p7_jeta1p7_jeta2p4";
-      selection[2] = "jpt100_jpt100_jpt30_jeta1p7_jeta1p7_jeta2p4_deta1p4";
+      selection[2] = "jpt100_jpt100_jpt30_jeta2p4_jeta2p4_jeta2p4_deta1p4";
       
       TFile * f[3];
       TH1F * h_m12[3];
@@ -105,8 +105,7 @@ void plot_eff()
          }
    //      cout << m12min << "   " << m12max << endl;
    //      cout << bin0 << "   " << bin1 << endl;
-         float eff =  h_m12[2]->Integral(bin0,bin1)/h_m12[0]->Integral(bin0,bin1);
-//         eff = h_m12[2]->Integral()/h_m12[0]->Integral();
+         float eff =  h_m12[1]->Integral(bin0,bin1)/h_m12[0]->Integral(bin0,bin1);
          cout << "Efficiency (" << mw[i] << " +- " << dmw[i] << ") = " << eff << endl;
       }
       
