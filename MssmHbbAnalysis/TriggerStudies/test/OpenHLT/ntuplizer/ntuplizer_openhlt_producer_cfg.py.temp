@@ -1,0 +1,79 @@
+import FWCore.ParameterSet.Config as cms
+
+process = cms.Process("Demo")
+
+process.load("FWCore.MessageService.MessageLogger_cfi")
+
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag as customiseGlobalTag
+process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = 'MCRUN2_72_V3A',conditions='TrackerAlignmentExtendedError_2011Realistic_v1_mc,TrackerAlignmentErrorExtendedRcd,frontier://FrontierProd/CMS_CONDITIONS+MuonDTAPEObjectsExtended_v0_mc,DTAlignmentErrorExtendedRcd,frontier://FrontierProd/CMS_CONDITIONS+MuonCSCAPEObjectsExtended_v0_mc,CSCAlignmentErrorExtendedRcd,frontier://FrontierProd/CMS_CONDITIONS+EcalSamplesCorrelation_mc,EcalSamplesCorrelationRcd,frontier://FrontierProd/CMS_CONDITIONS+EcalPulseShapes_mc,EcalPulseShapesRcd,frontier://FrontierProd/CMS_CONDITIONS+EcalPulseCovariances_mc,EcalPulseCovariancesRcd,frontier://FrontierProd/CMS_CONDITIONS')
+process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_CONDITIONS'
+process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
+for pset in process.GlobalTag.toGet.value():
+    pset.connect = pset.connect.value().replace('frontier://FrontierProd/', 'frontier://FrontierProd/')
+# fix for multi-run processing
+process.GlobalTag.RefreshEachRun = cms.untracked.bool( False )
+process.GlobalTag.ReconnectEachRun = cms.untracked.bool( False )
+
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+
+## TFileService
+process.TFileService = cms.Service("TFileService",
+	fileName = cms.string('ntuple_openhlt_producer.root')
+)
+
+# GenJets
+process.load('RecoJets/Configuration/GenJetParticles_cff')
+process.load('RecoJets/JetProducers/ak4GenJets_cfi')
+#process.GenJets = cms.Path(process.genJetParticles+process.ak4GenJets)
+
+# need some understanding before using; number of jets do not macth the sum.
+process.hltL1extraParticles = cms.EDProducer("L1ExtraJetsMerger",
+    L1ExtraJets = cms.VInputTag(cms.InputTag("hltL1extraParticles","Tau","HLT3"),cms.InputTag("hltL1extraParticles","Central","HLT3"),cms.InputTag("hltL1extraParticles","Forward","HLT3")),
+)   
+
+process.TriggerStudies = cms.EDAnalyzer("Ntuplizer",
+    MonteCarlo      = cms.bool(True),
+    CrossSection    = cms.double(1),
+    L1ExtraJets     = cms.VInputTag(cms.InputTag("hltL1extraParticles","Merged","Demo"),
+                                    cms.InputTag("hltL1extraParticles","Central","HLT3"),
+                                    cms.InputTag("hltL1extraParticles","Tau","HLT3"),
+                                    cms.InputTag("hltL1extraParticles","Forward","HLT3")),
+    CaloJets        = cms.VInputTag(cms.InputTag("hltAK4CaloJets"),
+                                    cms.InputTag("hltAK4CaloJetsCorrected"),
+                                    cms.InputTag("hltAK4CaloJetsCorrectedIDPassed"),
+                                    cms.InputTag("hltAK4CaloJetsIDPassed")),
+    PFJets          = cms.VInputTag(cms.InputTag("hltAK4PFJets"),
+                                    cms.InputTag("hltAK4PFJetsCorrected"),
+                                    cms.InputTag("hltAK4PFJetsCorrectedLooseID")),
+    JetsTags        = cms.VInputTag(cms.InputTag("hltCombinedSecondaryVertexBJetTagsCalo","","HLT3"),
+                                    cms.InputTag("hltCombinedSecondaryVertexBJetTagsPF","","HLT3")),
+    GenJets         = cms.VInputTag(cms.InputTag("ak4GenJets")),
+    PrimaryVertices = cms.VInputTag(cms.InputTag("hltVerticesPF","","HLT3"),
+                                    cms.InputTag("hltVerticesPF","WithBS","HLT3"),
+                                    cms.InputTag("hltVerticesPFSelector","","HLT3"),
+                                    cms.InputTag("hltVerticesPFFilter","","HLT3"),
+                                    cms.InputTag("hltVerticesL3","","HLT3"),
+                                    cms.InputTag("hltVerticesL3","WithBS","HLT3")),
+    TriggerResults  = cms.VInputTag(cms.InputTag("TriggerResults","","HLT3")),
+    TriggerPaths    = cms.vstring( "HLT_ZeroBias_v1",
+                                   "HLT_PFJet_BTagCSV_v1")
+#    PileupInfo = cms.VInputTag(cms.InputTag("addPileupInfo")),
+)
+
+process.p = cms.Path(process.genJetParticles*process.ak4GenJets*process.hltL1extraParticles*process.TriggerStudies)
+#process.p = cms.Path(process.triggerResultsFilter*process.hltL1extraParticles*process.TriggerStudies)
+#process.p = cms.Path(process.TriggerStudies)
+
+readFiles = cms.untracked.vstring()
+secFiles = cms.untracked.vstring() 
+process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
+readFiles.extend( [
+       '/store/user/rwalsh/SUSYBBHToBB_M-300_13TeV-pythia6-tauola/OpenHLT-740-hlt_run2_mssmhbb_scratch_V47-Prod-v1/150416_150406/0000/Producers_1.root',
+#       '/store/mc/RunIIWinter15GS/SUSYGluGluToBBHToBB_M-300_TuneCUETP8M1_13TeV-pythia8/GEN-SIM/MCRUN2_71_V1-v1/70000/02047FDB-15E9-E411-8708-0025907B50FE.root',
+] );
+
+
+secFiles.extend( [
+               ] )
+
