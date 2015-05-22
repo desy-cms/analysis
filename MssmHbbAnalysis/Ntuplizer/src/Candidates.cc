@@ -75,7 +75,7 @@ Candidates<T>::Candidates(const edm::InputTag& tag, TTree* tree, float minPt, fl
    is_genparticle_  = std::is_same<T,reco::GenParticle>::value;
    
    do_kinematics_ = ( is_l1jet_ || is_calojet_ || is_pfjet_ || is_patjet_ || is_genjet_ || is_genparticle_ );
-   do_generator_  = ( do_kinematics_ && is_genparticle_ );
+   do_generator_  = ( is_genparticle_ );
    
    higgs_pdg_ = 36;
 }
@@ -119,20 +119,16 @@ void Candidates<T>::Kinematics()
          int pdg    = candidates_[i].pdgId();
          int status = candidates_[i].status();
          
-         if ( status == 3 )
+         this->pdg_[n]   = pdg;
+         this->status_[n]= status;
+         const reco::Candidate * mother = candidates_[i].mother(0);
+         this->higgs_dau_[n] = false;
+         if ( mother != NULL )  // initial protons are orphans
          {
-            this->pdg_[n]   = pdg;
-            this->status_[n]= status;
-            const reco::Candidate * mother = candidates_[i].mother(0);
-            this->higgs_dau_[n] = false;
-            if ( mother != NULL )  // initial protons are orphans
-            {
-               if ( mother->pdgId() == higgs_pdg_ )
-                  this->higgs_dau_[n] = true;
-            }
+            if ( mother->pdgId() == higgs_pdg_ )
+               this->higgs_dau_[n] = true;
          }
-         else
-            continue;
+         
       }
       
       if ( !do_generator_ )
