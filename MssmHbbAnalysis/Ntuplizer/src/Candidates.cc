@@ -129,6 +129,8 @@ void Candidates<T>::Kinematics()
                this->higgs_dau_[n] = true;
          }
          
+         if ( !(abs(pdg) <= 6 || (abs(pdg) >= 11 && abs(pdg) <= 16) || pdg == 36 || this->higgs_dau_[n] ) ) continue; 
+         
       }
       
       if ( !do_generator_ )
