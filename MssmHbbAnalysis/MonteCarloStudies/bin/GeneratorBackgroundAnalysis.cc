@@ -73,7 +73,7 @@ int main(int argc, char * argv[])
    // Histograms
    for ( int i = 0 ; i < 4 ; ++i )
    {
-      h_PtJet[i]  = new TH1F(Form("h_PtJet_%i",i), "", 800, 0, 4000.);
+      h_PtJet[i]  = new TH1F(Form("h_PtJet_%i",i), "", 1000, 0, 1000.);
       h_EtaJet[i] = new TH1F(Form("h_EtaJet_%i",i),"", 60, -3, 3.);
    }
    TH1F * h_dEta01    = new TH1F("h_dEta01","", 60, 0., 6.);
@@ -83,7 +83,7 @@ int main(int argc, char * argv[])
    TH1F * h_dR12      = new TH1F("h_R12","", 60, 0., 6.);
    TH1F * h_dR02      = new TH1F("h_R02","", 60, 0., 6.);
    TH1F * h_MassJet01 = new TH1F("h_MassJet01","", 800, 0, 4000.);
-   TH2F * h_Jet0Jet1_Pt  = new TH2F("h_Jet0Jet1_Pt","", 800, 0, 4000., 800, 0, 4000.);
+   TH2F * h_Jet0Jet1_Pt  = new TH2F("h_Jet0Jet1_Pt","", 1000, 0, 1000., 1000, 0, 1000.);
    TH2F * h_Jet0Jet1_Eta = new TH2F("h_Jet0Jet1_Eta","", 30, 0, 3, 30, 0, 3);
    
    
