@@ -2,7 +2,7 @@ void plot_eff_pt1_mw()
 {
    TFile * fs[3];
    TFile * fb[3];
-   TString selection = "jpt100_jpt100_jpt30_jeta2p4_jeta2p4_jeta2p4";
+   TString selection = "jpt180_jpt180_jpt30_jeta2p4_jeta2p4_jeta2p4";
    TString m[3] = {"m300", "m600", "m1100"};
    
    float mw[3] = {300.,500.,700.};
@@ -38,8 +38,8 @@ void plot_eff_pt1_mw()
    
    TGraph * g[6];
    
-   float minpt = 100.;
-   float maxpt = 165.;
+   float minpt = 180.;
+   float maxpt = 300.;
    
    int j = 0;
    

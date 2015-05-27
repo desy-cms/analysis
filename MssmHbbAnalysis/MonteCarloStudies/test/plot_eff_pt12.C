@@ -1,7 +1,7 @@
 void plot_eff_pt12()
 {
    TFile * f[4];
-   TString selection = "jpt100_jpt100_jpt30_jeta2p4_jeta2p4_jeta2p4";
+   TString selection = "jpt180_jpt180_jpt30_jeta2p4_jeta2p4_jeta2p4";
    TString m[3] = {"m300", "m600", "m1100"};
    
    for ( int i = 0; i < 3 ; ++i )
@@ -23,8 +23,8 @@ void plot_eff_pt12()
    
    TGraph * g[4];
    
-   float minpt = 100.;
-   float maxpt = 140.;
+   float minpt = 180.;
+   float maxpt = 300.;
    
    int j = 0;
    for ( int i = 0; i < 4; ++i )

@@ -39,7 +39,7 @@ void plot_eff_pt12_mw()
    TGraph * g[6];
    
    float minpt = 100.;
-   float maxpt = 140.;
+   float maxpt = 300.;
    
    int j = 0;
    
@@ -114,7 +114,7 @@ void plot_eff_pt12_mw()
    }
    
    gsob[0] -> SetTitle(selection);
-   gsob[0] -> GetYaxis() -> SetRangeUser(0.5,1.25);
+   gsob[0] -> GetYaxis() -> SetRangeUser(0.5,2.5);
    gsob[0] -> GetYaxis() -> SetTitle("S/#sqrt{B} (S/B)");
    gsob[0] -> GetXaxis() -> SetTitle("pT_1,2 cut (GeV)");
 
