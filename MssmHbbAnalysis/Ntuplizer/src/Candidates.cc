@@ -41,6 +41,8 @@
 
 #include "MssmHbbAnalysis/Ntuplizer/interface/Candidates.h"
 
+#include "DataFormats/PatCandidates/interface/Jet.h"
+
 #include "TTree.h"
 
 
@@ -136,14 +138,19 @@ void Candidates<T>::Kinematics()
       if ( !do_generator_ )
          if ( candidates_[i].pt() < minPt_ || fabs (candidates_[i].eta()) > maxEta_ ) continue;
       
-      this->pt_[n] = candidates_[i].pt();
-      this->eta_[n]= candidates_[i].eta();
-      this->phi_[n]= candidates_[i].phi();
-      this->px_[n] = candidates_[i].px();
-      this->py_[n] = candidates_[i].py();
-      this->pz_[n] = candidates_[i].pz();
-      this->e_[n]  = candidates_[i].energy();
+      this->pt_[n]  = candidates_[i].pt();
+      this->eta_[n] = candidates_[i].eta();
+      this->phi_[n] = candidates_[i].phi();
+      this->px_[n]  = candidates_[i].px();
+      this->py_[n]  = candidates_[i].py();
+      this->pz_[n]  = candidates_[i].pz();
+      this->e_[n]   = candidates_[i].energy();
       this->et_[n]  = candidates_[i].et();
+      
+      if ( is_patjet_ )
+      {
+         this->btag_[n]  = candidates_[i].bDiscriminator("combinedInclusiveSecondaryVertexV2BJetTags");
+      }
       
       ++n;
       
@@ -203,6 +210,10 @@ void Candidates<T>::Branches()
          tree_->Branch("higgs_dau",this->higgs_dau_,"higgs_dau[n]/O");
 
       }
+      if ( is_patjet_ )
+      {
+         tree_->Branch("btag",   this->btag_,   "btag[n]/I");
+      }
    }
    
 }
@@ -214,3 +225,4 @@ template class Candidates<reco::PFJet>;
 template class Candidates<pat::Jet>;
 template class Candidates<reco::GenJet>;
 template class Candidates<reco::GenParticle>;
+template class Candidates<pat::Jet>;
