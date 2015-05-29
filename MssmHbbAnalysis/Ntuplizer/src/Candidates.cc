@@ -41,8 +41,6 @@
 
 #include "MssmHbbAnalysis/Ntuplizer/interface/Candidates.h"
 
-#include "DataFormats/PatCandidates/interface/Jet.h"
-
 #include "TTree.h"
 
 
@@ -63,7 +61,7 @@ Candidates<T>::Candidates()
 }
 
 template <typename T>
-Candidates<T>::Candidates(const edm::InputTag& tag, TTree* tree, float minPt, float maxEta) :
+Candidates<T>::Candidates(const edm::InputTag& tag, TTree* tree, const bool & mc, float minPt, float maxEta) :
       minPt_(minPt), maxEta_(maxEta)
 {
    this->input_collection_ = tag;
@@ -75,9 +73,10 @@ Candidates<T>::Candidates(const edm::InputTag& tag, TTree* tree, float minPt, fl
    is_patjet_       = std::is_same<T,pat::Jet>::value;
    is_genjet_       = std::is_same<T,reco::GenJet>::value;
    is_genparticle_  = std::is_same<T,reco::GenParticle>::value;
+   is_mc_           = mc;
    
    do_kinematics_ = ( is_l1jet_ || is_calojet_ || is_pfjet_ || is_patjet_ || is_genjet_ || is_genparticle_ );
-   do_generator_  = ( is_genparticle_ );
+   do_generator_  = ( is_mc_ && is_genparticle_ );
    
    higgs_pdg_ = 36;
 }
@@ -149,7 +148,12 @@ void Candidates<T>::Kinematics()
       
       if ( is_patjet_ )
       {
-         this->btag_[n]  = candidates_[i].bDiscriminator("combinedInclusiveSecondaryVertexV2BJetTags");
+         pat::Jet * jet = dynamic_cast<pat::Jet*> (&candidates_[i]);
+         this->btag_[n]  = jet->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");
+         if ( is_mc_ )
+         {
+            this->flavour_[n]  = jet->partonFlavour();
+         }
       }
       
       ++n;
@@ -202,7 +206,7 @@ void Candidates<T>::Branches()
       tree_->Branch("py", this->py_, "py[n]/F");
       tree_->Branch("pz", this->pz_, "pz[n]/F");
       tree_->Branch("e",  this->e_,  "e[n]/F");
-      tree_->Branch("et",  this->et_,  "et[n]/F");
+      tree_->Branch("et", this->et_, "et[n]/F");
       if ( do_generator_ )
       {
          tree_->Branch("pdg",   this->pdg_,   "pdg[n]/I");
@@ -212,7 +216,11 @@ void Candidates<T>::Branches()
       }
       if ( is_patjet_ )
       {
-         tree_->Branch("btag",   this->btag_,   "btag[n]/I");
+         tree_->Branch("btag",   this->btag_,   "btag[n]/F");
+         if ( is_mc_ )
+         {
+            tree_->Branch("flavour",   this->flavour_,   "flavour[n]/I");
+         }
       }
    }
    
@@ -225,4 +233,3 @@ template class Candidates<reco::PFJet>;
 template class Candidates<pat::Jet>;
 template class Candidates<reco::GenJet>;
 template class Candidates<reco::GenParticle>;
-template class Candidates<pat::Jet>;

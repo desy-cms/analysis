@@ -117,7 +117,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       // ----------member data ---------------------------
       edm::ParameterSet config_;
       
-      bool do_mc_;
+      bool is_mc_;
       bool do_l1jets_;
       bool do_calojets_;
       bool do_pfjets_;
@@ -166,7 +166,7 @@ class Ntuplizer : public edm::EDAnalyzer {
 Ntuplizer::Ntuplizer(const edm::ParameterSet& config) //:   // initialization of ntuple classes
 {
    //now do what ever initialization is needed
-   do_mc_     = config.getParameter<bool> ("MonteCarlo");
+   is_mc_     = config.getParameter<bool> ("MonteCarlo");
    inputTags_ = config.getParameterNamesForType<InputTags>();
    
    config_  = config;
@@ -208,7 +208,7 @@ void Ntuplizer::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
    if ( do_pileupinfo_ )
       pileupinfo_ -> Fill(event);
 
-   if ( do_mc_ )
+   if ( is_mc_ )
    {
       // MC only stuff
    }
@@ -297,15 +297,15 @@ void Ntuplizer::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 void 
 Ntuplizer::beginJob()
 {
-   do_pileupinfo_     = config_.exists("PileupInfo");
-   do_l1jets_         = config_.exists("L1ExtraJets");
-   do_calojets_       = config_.exists("CaloJets");
-   do_pfjets_         = config_.exists("PFJets");
-   do_patjets_        = config_.exists("PatJets");
-   do_genjets_        = config_.exists("GenJets");
-   do_genparticles_   = config_.exists("GenParticles");
-   do_jetstags_       = config_.exists("JetsTags");
-   do_triggeraccepts_ = config_.exists("TriggerResults") && config_.exists("TriggerPaths");
+   do_pileupinfo_       = config_.exists("PileupInfo");
+   do_l1jets_           = config_.exists("L1ExtraJets");
+   do_calojets_         = config_.exists("CaloJets");
+   do_pfjets_           = config_.exists("PFJets");
+   do_patjets_          = config_.exists("PatJets");
+   do_genjets_          = config_.exists("GenJets");
+   do_genparticles_     = config_.exists("GenParticles");
+   do_jetstags_         = config_.exists("JetsTags");
+   do_triggeraccepts_   = config_.exists("TriggerResults") && config_.exists("TriggerPaths");
    do_primaryvertices_  = config_.exists("PrimaryVertices");
    
    
@@ -357,38 +357,38 @@ Ntuplizer::beginJob()
             // renaming tree for L1 jest as there is no explicit indication those are L1 jets objects
             std::string l1name = name + "Jets";
             trees_[name]->SetNameTitle(l1name.c_str(),l1name.c_str());
-            l1jets_collections_.push_back( pL1JetCandidates( new L1JetCandidates((*collection), trees_[name]) ));
+            l1jets_collections_.push_back( pL1JetCandidates( new L1JetCandidates((*collection), trees_[name], is_mc_ ) ));
             l1jets_collections_.back() -> Branches();
          }
          
          // Calo Jets
          if ( (*inputTag) == "CaloJets" )
          {
-            calojets_collections_.push_back( pCaloJetCandidates( new CaloJetCandidates((*collection), trees_[name]) ));
+            calojets_collections_.push_back( pCaloJetCandidates( new CaloJetCandidates((*collection), trees_[name], is_mc_ ) ));
             calojets_collections_.back() -> Branches();
          }
          // PF Jets
          if ( (*inputTag) == "PFJets" )
          {
-            pfjets_collections_.push_back( pPFJetCandidates( new PFJetCandidates((*collection), trees_[name]) ));
+            pfjets_collections_.push_back( pPFJetCandidates( new PFJetCandidates((*collection), trees_[name], is_mc_ ) ));
             pfjets_collections_.back() -> Branches();
          }
          // Pat Jets
          if ( (*inputTag) == "PatJets" )
          {
-            patjets_collections_.push_back( pPatJetCandidates( new PatJetCandidates((*collection), trees_[name]) ));
+            patjets_collections_.push_back( pPatJetCandidates( new PatJetCandidates((*collection), trees_[name], is_mc_ ) ));
             patjets_collections_.back() -> Branches();
          }
          // Gen Jets
          if ( (*inputTag) == "GenJets" )
          {
-            genjets_collections_.push_back( pGenJetCandidates( new GenJetCandidates((*collection), trees_[name]) ));
+            genjets_collections_.push_back( pGenJetCandidates( new GenJetCandidates((*collection), trees_[name], is_mc_ ) ));
             genjets_collections_.back() -> Branches();
          }
          // Gen Particles
          if ( (*inputTag) == "GenParticles" )
          {
-            genparticles_collections_.push_back( pGenParticleCandidates( new GenParticleCandidates((*collection), trees_[name]) ));
+            genparticles_collections_.push_back( pGenParticleCandidates( new GenParticleCandidates((*collection), trees_[name], is_mc_ ) ));
             genparticles_collections_.back() -> Branches();
          }
          // Jets Tags
@@ -415,7 +415,7 @@ Ntuplizer::beginJob()
    }
    
    // MC
-   if ( do_mc_ )
+   if ( is_mc_ )
    {
       // MC-only stuff
    }
