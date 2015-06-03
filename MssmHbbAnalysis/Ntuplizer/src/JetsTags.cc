@@ -44,10 +44,10 @@ JetsTags::JetsTags()
    // default constructor
 }
 
-JetsTags::JetsTags(const edm::InputTag& tag, TTree* tree, float minPt, float maxEta) :
+JetsTags::JetsTags(const edm::InputTag& btag, TTree* tree, float minPt, float maxEta) :
       minPt_(minPt), maxEta_(maxEta)
 {
-   input_collection_ = tag;
+   input_collection_ = btag;
    tree_ = tree;
    
 }
@@ -105,7 +105,7 @@ void JetsTags::Tags()
       if ( n >= maxCandidates ) break;
       
       RefToBase<reco::Jet> jet = candidates_[i].first;
-      float tag = candidates_[i].second;
+      float btag = candidates_[i].second;
       
       if ( jet -> pt() < minPt_ || fabs (jet -> eta()) > maxEta_ ) continue;
       
@@ -113,7 +113,7 @@ void JetsTags::Tags()
       this->eta_[n]= jet -> eta();
       this->phi_[n]= jet -> phi();
       this->e_[n]  = jet -> energy();
-      this->tag_[n]= tag;
+      this->btag_[n]= btag;
       ++n;
       
    }
@@ -153,6 +153,6 @@ void JetsTags::Branches()
    tree_->Branch("eta",this->eta_,"eta[n]/F");
    tree_->Branch("phi",this->phi_,"phi[n]/F");
    tree_->Branch("e",  this->e_,  "e[n]/F");
-   tree_->Branch("tag",this->tag_,"tag[n]/F");
+   tree_->Branch("btag",this->btag_,"btag[n]/F");
    
 }

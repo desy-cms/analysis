@@ -68,7 +68,7 @@ namespace mssmhbb {
             float e_[maxCandidates];
             
             // Tag
-            float tag_[maxCandidates];
+            float btag_[maxCandidates];
             
             TTree * tree_;
             
