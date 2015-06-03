@@ -27,6 +27,7 @@ float jetEta_[4][maxCands_] ;
 float jetPhi_[4][maxCands_] ;
 int   jetBtagN_[4] ;
 float jetBtag_ [4][maxCands_] ;
+int jetFlavour_ [4][maxCands_] ;
 
 // vertices
 int   pvN_[4];

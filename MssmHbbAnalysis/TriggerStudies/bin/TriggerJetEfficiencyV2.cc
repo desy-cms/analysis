@@ -61,10 +61,10 @@ int main(int argc, char * argv[])
    // TTree chains and friendship?
    TChain * chainEvent    = new TChain("TriggerStudies/EventInfo");
    TChain * chainJets[4];
-   chainJets[0]  = new TChain("TriggerStudies/hltL1extraParticles_MergedJets");
+   chainJets[0]  = new TChain("TriggerStudies/hltL1extraParticles_CentralJets");
    chainJets[1]  = new TChain("TriggerStudies/hltAK4CaloJetsCorrectedIDPassed");
    chainJets[2]  = new TChain("TriggerStudies/hltAK4PFJetsCorrectedLooseID");
-   chainJets[3]  = new TChain("TriggerStudies/ak4GenJets");
+   chainJets[3]  = new TChain("TriggerStudies/slimmedJetsPuppi");
    
    // Input files
    std::string inputList = "rootFileList.txt";
@@ -286,22 +286,25 @@ void SetParameters()
       
    // L1 jet
    ncut[0] = 1;
-   ptcut[0] = 100.;
-   etacut[0] = 3.0;
+   ptcut[0] = 84.;
+   etacut[0] = 2.6;
    // L2 calo jet
    ncut[1] = 1;
-   ptcut[1] = 100.;
+   ptcut[1] = 84.;
    etacut[1] = 2.6;
    // L3 PF jets
    ncut[2] = 1;
-   ptcut[2] = 20.;
-   etacut[2] = 2.5;
+   ptcut[2] = 100.;
+   etacut[2] = 2.6;
    // Offline jets
-   ncut[3] = 0;
-   ptcut[3] = 20.;
-   etacut[3] = 2.4;
+   ncut[3] = 1;
+   ptcut[3] = 40.;
+   etacut[3] = 2.6;
    
-   outFilename = "trigger_jet_efficiencies_qcd_L1Jet100_L2Jet100_L1L2wrtL3";
+//   outFilename = "trigger_jet_efficiencies_relvar_ttbar13_L1Jet84_L1wrtL2";
+//   outFilename = "trigger_jet_efficiencies_relvar_ttbar13_L1Jet84_l2Jet84_L1L2wrtL3";
+   outFilename = "trigger_jet_efficiencies_relvar_ttbar13_L1Jet84_L2Jet84_L3Jet100_L1L2L3wrtOff";
+//   outFilename = "trigger_jet_efficiencies_relvar_ttbar13_Off100_OffwrtGen";
    
    nEvents     = -1;
    run         = "ABCD";

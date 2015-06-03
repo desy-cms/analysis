@@ -1,1 +1,1 @@
-output.root
+/afs/desy.de/user/w/walsh/data/analysis/mssmhbb/openhlt/relval/ttbar13/pu25ns_mcrun2_74_v9/ntuple_openhlt_producer_jets.root

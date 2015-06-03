@@ -27,11 +27,11 @@ using namespace std;
 
 void SetParameters();
 
-int ncut[2];
-float ptcut[2];
-float ptmax[2];
-float etacut[2];
-float btagcut[2];
+int ncut[4];
+float ptcut[4];
+float ptmax[4];
+float etacut[4];
+float btagcut[4];
 
 int    nEvents    ;
 string run        ;
@@ -51,16 +51,35 @@ int main(int argc, char * argv[])
    TH2::SetDefaultSumw2();
    
    // Histograms
-   TH1F * h_BtagLogRef = new TH1F("h_BtagLogRef","", 200, 0, 20.);
-   TH1F * h_BtagLogNom = new TH1F("h_BtagLogNom","", 200, 0, 20.);
-   TH2F * h_BtagCaloPF = new TH2F("h_BtagCaloPF","", 100, 0., 1., 100, 0., 1.);
+  TH1F * h_BtagLogRef = new TH1F("h_BtagLogRef","", 10, 0, 10.);
+  TH1F * h_BtagLogNom = new TH1F("h_BtagLogNom","", 10, 0, 10.);
+   
+   
+//    const int nbins = 100.;
+//    float xbins[nbins];
+//    float lox = 0.;
+//    float hix = 1.;
+//    
+//    for ( int i = 0 ; i < nbins ; ++i )
+//    {
+//       xbins[i] = lox + (hix-lox)*i/nbins;
+//       std::cout << xbins[i] << "  ";
+//       xbins[i] = -log(1.- xbins[i]);
+//       std::cout << xbins[i] << std::endl;
+//    }
+//    TH1F * h_BtagLogRef = new TH1F("h_BtagLogRef","", nbins-1,xbins);
+//    TH1F * h_BtagLogNom = (TH1F*) h_BtagLogRef -> Clone("h_BtagLogNom");
+   
+   
+//   TH2F * h_BtagCaloPF = new TH2F("h_BtagCaloPF","", 100, 0., 1., 100, 0., 1.);
    
    // TTree chains and friendship?
    TChain * chainEvent    = new TChain("TriggerStudies/EventInfo");
-   TChain * chainJets[2];
+   TChain * chainJets[4];
 
    chainJets[0]  = new TChain("TriggerStudies/hltCombinedSecondaryVertexBJetTagsCalo");
    chainJets[1]  = new TChain("TriggerStudies/hltCombinedSecondaryVertexBJetTagsPF");
+   chainJets[2]  = new TChain("TriggerStudies/slimmedJetsPuppi");
    
    // Input files
    std::string inputList = "rootFileList.txt";
@@ -73,8 +92,18 @@ int main(int argc, char * argv[])
    chainEvent->SetBranchAddress( "lumisection" , &lumi_ );
    chainEvent->SetBranchAddress( "event"       , &event_ );
    
-   for ( int l = 0 ; l < 2 ; ++l )
+   std::vector<int> levels;
+   levels.clear();
+   // The highest level, ie the level with respect to which the efficiency will be evaluated
+   int highestLevel = -1;
+   for ( int i = 0 ; i < 4 ; ++i )
+      if ( ncut[i] > 0 ) levels.push_back(i);
+   highestLevel = levels.back();
+   
+   
+   for ( size_t il = 0 ; il < levels.size() ; ++il )
    {
+      int l = levels[il];
       // Don't forget that the trees must be friends!!!
       chainEvent -> AddFriend(chainJets[l]);
       chainJets[l]->AddFileInfoList((TCollection*) fc.GetList());
@@ -83,11 +112,11 @@ int main(int argc, char * argv[])
       chainJets[l]->SetBranchAddress( "eta" ,  jetEta_ [l]);
       chainJets[l]->SetBranchAddress( "phi" ,  jetPhi_ [l]);
       chainJets[l]->SetBranchAddress( "e"   ,  jetE_   [l]);
-      chainJets[l]->SetBranchAddress( "tag" ,  jetBtag_[l]);
-  }
-   
-   // The highest level, ie the level with respect to which the efficiency will be evaluated
-//   int highestLevel = 1;
+      chainJets[l]->SetBranchAddress( "btag",  jetBtag_[l]);
+      if ( l == 2 )
+         chainJets[l]->SetBranchAddress( "flavour",  jetFlavour_[l]);
+   }
+  
    
    // Number of loop events
    int nentries = chainEvent->GetEntries();
@@ -100,175 +129,132 @@ int main(int argc, char * argv[])
       chainEvent->GetEntry(i);
       
       // The trigger objects after online selection, ie all objects that pass the selection
-      std::vector<TLorentzVector> jets[2];
-      std::vector<float> jettags[2];
+      std::vector<TLorentzVector> jets[3];
+      std::vector<float> jettags[3];
        
-      // trigger emulator
-      for ( int l = 0 ; l < 2 ; ++l )
+      std::bitset<4> fired;
+      fired.set();  // set all bits to true
+      
+      bool kinPass = true;
+      // trigger emulators
+      for ( size_t il = 0 ; il < levels.size() ; ++il )
       {
+         int l = levels[il];
          jets[l].clear();
          jettags[l].clear();
          for ( int j = 0 ; j < jetN_[l] ; ++j )
          {
             if ( jetPt_[l][j] >= ptcut[l] && jetPt_[l][j] < ptmax[l] && fabs(jetEta_[l][j]) <= etacut[l] )
             {
+//               if ( l == highestLevel )
+//               {
+//                  if ( abs(jetFlavour_[l][j]) == 5 || abs(jetFlavour_[l][j]) == 4 ) continue; 
+//               }
                TLorentzVector jet;
                jet.SetPtEtaPhiE(jetPt_[l][j], jetEta_[l][j], jetPhi_[l][j], jetE_[l][j]); 
                jets[l].push_back(jet);
-//               jettags[l].push_back(-log(1-jetBtag_[l][j]));
                jettags[l].push_back(jetBtag_[l][j]);
             }
          }
+//         fired[l] = int(jets[l].size()) >= ncut[l];
+         kinPass = ( kinPass && jets[l].size() > 0 );
+      }
+      bool topology = true;
+      // highest level jets, if more than one jet, must be separated
+      for ( size_t j1 = 0 ; j1 < jets[highestLevel].size(); ++j1 )
+      {
+         TLorentzVector jet1 = jets[highestLevel].at(j1);
+         for ( size_t j2 = 0 ; j2 < jets[highestLevel].size(); ++j2 )
+         {
+            if ( j2 <= j1 ) continue;
+            TLorentzVector jet2 = jets[highestLevel].at(j2);
+            topology = ( topology && jet1.DeltaR(jet2) > 1. );
+         }
       }
       
-      // must pass kinematic selection
-      if ( jets[0].size() < 1 ||  jets[1].size() < 1 ) continue;
+      // must pass kinematic selection at all levels
+      if ( ! ( kinPass && topology ) ) continue;
       
       // matching
-      std::vector<TLorentzVector> jetsM[2];
-      std::vector<float> jettagsM[2];
+      std::vector<TLorentzVector> jetsM[4];
+      std::vector<float> jettagsM[4];
+      int index[4];
+      std::bitset<4> match;
+      match.set();
       
-      for ( size_t j1 = 0 ; j1 < jets[1].size(); ++j1 )
+      // highest level jets to be matched with lower level jets
+      for ( size_t j = 0 ; j < jets[highestLevel].size(); ++j )
       {
-         TLorentzVector jet1 = jets[1].at(j1);
-         float btag1 = jettags[1].at(j1);
-         for ( size_t j0 = 0 ; j0 < jets[0].size(); ++j0 )
+         TLorentzVector jet = jets[highestLevel].at(j);
+         float btag = jettags[highestLevel].at(j);
+         for ( size_t il = 0 ; il < levels.size() ; ++il )
          {
-            TLorentzVector jet0 = jets[0].at(j0);
-            float btag0 = jettags[0].at(j0);
-            float dRcut = 0.3;
-            float deltaR = jet1.DeltaR(jet0);
-            // only matched jets
-            if ( deltaR < dRcut )
+            int l = levels[il];
+            if ( l == highestLevel ) continue;  // highest level not to be matched with itself
+            for ( size_t jl = 0 ; jl < jets[l].size(); ++jl )
             {
-               jetsM[0].push_back(jet0);
-               jetsM[1].push_back(jet1); 
-               jettagsM[0].push_back(btag0);
-               jettagsM[1].push_back(btag1);
-               h_BtagCaloPF -> Fill(btag0,btag1);
-               break;
+               TLorentzVector jetl = jets[l].at(jl);
+               if ( jet.DeltaR(jetl) < 0.5 )
+               {
+                  index[l] = jl;
+                  match[l] = true;
+                  break;
+               }
+               else
+                  match[l] = false;
+            }
+         }
+         if ( match.all() )
+         {
+            jetsM[highestLevel].push_back(jet);
+            jettagsM[highestLevel].push_back(btag);
+            for ( size_t il = 0 ; il < levels.size() ; ++il )
+            {
+               int l = levels[il];
+               if ( l == highestLevel ) continue;  // highest level not to be matched with itself
+               jetsM[l].push_back(jets[l].at(index[l]));
+               jettagsM[l].push_back(jettags[l].at(index[l]));
+               
             }
          }
       }
       
-      // must pass kinematic selection and matching (sizes are the same)
-      if ( jetsM[0].size() < 1 ||  jetsM[1].size() < 1 ) continue;
+      if ( jetsM[highestLevel].size() < 1 ) continue;
+      
       
       //  trigger efficiency
-      for ( size_t j = 0 ; j < jetsM[1].size(); ++j )
+      for ( size_t j = 0 ; j < jetsM[highestLevel].size(); ++j )
       {
-         TLorentzVector jet1 = jetsM[1].at(j);
-         float btag1log = -log(1-jettagsM[1].at(j));
-         if ( btag1log < 0.1 ) continue;
-         h_BtagLogRef -> Fill(btag1log);
-         TLorentzVector jet0 = jetsM[0].at(j);
-         float btag0 = jettagsM[0].at(j);
-         if ( btag0 > btagcut[0] )  // trigger cut
-         {
-            h_BtagLogNom -> Fill(btag1log);
-         }
+         TLorentzVector jet = jetsM[highestLevel].at(j);
+         float btag = jettagsM[highestLevel].at(j);
+         if ( btag < btagcut[highestLevel] ) continue;
+         float btaglog = -log(1-btag);
+         h_BtagLogRef -> Fill(btaglog);
          
-      }
-      
-      
-      
-      
-//       // highest b-tag offline jet
-//       int j1 = -1;
-//       float maxtag = -999999;
-//       for ( size_t j = 0; j < jets[1].size(); ++j )
-//       {
-//          if ( jettags[1].at(j) > maxtag )
-//          {
-//             maxtag = jettags[1].at(j);
-//             j1 = j;
-//          }
-//       }
-//       h_BtagLogRef -> Fill(jettags[1].at(j1));
-//       
-//       // highest b-tag online jet
-//       int j0 = -1;
-//       maxtag = -999999;
-//       for ( size_t j = 0; j < jets[0].size(); ++j )
-//       {
-//          if ( jettags[0].at(j) > maxtag )
-//          {
-//             maxtag = jettags[0].at(j);
-//             j0 = j;
-//          }
-//       }
-//       
-//       // Matching jets
-//       float dRcut = 0.5;
-//       bool match = false;
-//       TLorentzVector jet1 = jets[1].at(j1);
-//       h_BtagLogRef -> Fill(jettags[1].at(j1));
-//       for ( size_t j0 = 0; j0 < jets[0].size(); ++j0 )
-//       {
-//          TLorentzVector jet0 = jets[0].at(j0);
-//          float deltaR = jet1.DeltaR(jet0);
-//          if ( deltaR < dRcut )
-//          {
-//             h_BtagCaloPF -> Fill(jettags[0].at(j0),jettags[1].at(j1));
-//             match = true;
-//             break;
-//          }
-//       }
-      
-//       if ( j0 >= 0 && j1 >= 0 ) 
-//       h_BtagCaloPF -> Fill(jettags[0].at(j0),jettags[1].at(j1));
-//       
-// 
+         bool btagPass = true;
+         for ( size_t il = 0 ; il < levels.size() ; ++il )
+         {
+            int l = levels[il];
+            if ( l == highestLevel ) continue;  // highest level not to be matched with itself
+            float btagl = jettagsM[l].at(j);
+            btagPass = ( btagPass && btagl > btagcut[l] );
+       }
+       if ( btagPass ) h_BtagLogNom -> Fill(btaglog);
 
-//       for ( int l = highestLevel-1; l >= 0 ; --l )
-//       {
-//          if ( ncut[l] <= 0 ) continue; 
-//          
-//          // Match first leading non L1 jets, then the matched with lower level jets
-//          for ( int j = 0 ; j < int(jets[l].size()) ; ++j )
-//          {
-//             float deltaR = probejet.DeltaR(jets[l].at(j));
-//             if ( deltaR < dRcut ) // Not necessarily the closest but a match
-//             {
-//                match[l] = true;
-//                probejet = jets[l].at(j);
-//                break; // go to the next level with the matched jet as the probe jet
-//             }
-//             else
-//             {
-//                match[l] = false;
-//             }
-//          }
-//       }
+     }
       
-      
-//       if ( fired )
-//          h_BtagLogNom -> Fill(jettags[1].at(j1));
-//       
-//       
-      
-            
-     // Fill histograms
-//     if ( chainFired && match.all() )
-//      {
-//         h_BtagLogNom -> Fill(jettags[highestLevel].at(0));
-//      }
-//      
-//      h_BtagLogRef -> Fill(jettags[highestLevel].at(0));
-
-     
    }
    
    TH1F * h_fraction = (TH1F*) h_BtagLogRef->Clone("h_fraction");
    h_fraction -> Divide(h_BtagLogNom);
    
    TGraphAsymmErrors * g_BtagEff = new TGraphAsymmErrors( h_BtagLogNom, h_BtagLogRef, "cl=0.683 b(1,1) mode" );
-   TString outFilename = "histograms";
+   TString outFilename = "histograms_Calo0p4_PF";
    TFile * outFile = new TFile(outFilename+".root","RECREATE");
    h_BtagLogRef      -> Write();
    h_BtagLogNom      -> Write();
    h_fraction -> Write();
-   h_BtagCaloPF      -> Write();
+//   h_BtagCaloPF      -> Write();
    g_BtagEff      -> Write();
    outFile -> Close();
     
@@ -287,13 +273,25 @@ void SetParameters()
    ptcut[0] = 30.;
    ptmax[0] = 100000.;
    etacut[0] = 2.4;
-   btagcut[0] = 0.63;
-   // offline btagging
+   btagcut[0] = 0.4;
+   // online btagging
    ncut[1] = 1;
    ptcut[1] = 30.;
    ptmax[1] = 100000.;
    etacut[1] = 2.4;
    btagcut[1] = 0.;
+   // offline btagging
+   ncut[2] = 0;
+   ptcut[2] = 30.;
+   ptmax[2] = 100000.;
+   etacut[2] = 2.4;
+   btagcut[2] = 0.;
+   // special
+   ncut[3] = 0;
+   ptcut[3] = 30.;
+   ptmax[3] = 100000.;
+   etacut[3] = 2.4;
+   btagcut[3] = 0.;
    
    
    nEvents     = -1;
