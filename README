@@ -15,7 +15,7 @@ git merge mssmhbb
 ## Add packages (use the git cms command)
 git cms-addpkg MssmHbbAnalysis/Ntuplizer
 git cms-addpkg MssmHbbAnalysis/TriggerStudies
-git cms-addpkg MssmHbbAnalysis/Generator
+git cms-addpkg MssmHbbAnalysis/MonteCarloProduction
 git cms-addpkg MssmHbbAnalysis/MonteCarloStudies
 
 ## The modifications will not be common to mssmhbb and cmssw branches.
