@@ -39,7 +39,7 @@ config.Data.inputDataset = INPUT[BIN]
 config.Data.publication = False
 config.Data.unitsPerJob = -1
 config.Data.splitting = 'FileBased'
-config.Data.outLFN = '/store/user/rwalsh/Analysis/MSSMHbbRunII/MINIAODSIM'
+config.Data.outLFNDirBase = '/store/user/rwalsh/Analysis/MSSMHbbRunII/MINIAODSIM'
 
 config.section_('User')
 config.User.voGroup = 'dcms'
