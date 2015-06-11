@@ -55,6 +55,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 
 #include "MssmHbbAnalysis/Ntuplizer/interface/EventInfo.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 #include "MssmHbbAnalysis/Ntuplizer/interface/PileupInfo.h"
 #include "MssmHbbAnalysis/Ntuplizer/interface/Candidates.h"
 #include "MssmHbbAnalysis/Ntuplizer/interface/JetsTags.h"
@@ -121,7 +122,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       virtual void endJob() override;
 
       //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-      //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+      virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
       virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
       virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
@@ -374,7 +375,7 @@ Ntuplizer::beginJob()
    trees_[name] -> Branch("genFilterEfficiency", &genFilterEfficiency_, "genFilterEfficiency/D");
    if ( do_genfilter_ )  genFilterInfo_  = config_.getParameter<edm::InputTag> ("GenFilterInfo");
    
-   xsection_ = 1.0;
+   xsection_ = -1.0;
    
    nEventsTotal_     = 0;
    nEventsFiltered_  = 0;
@@ -384,10 +385,8 @@ Ntuplizer::beginJob()
    nGenEventsFiltered_  = 0;
    genFilterEfficiency_ = 1.;
    
-   
    if ( config_.exists("CrossSection") )
       xsection_ = config_.getParameter<double>("CrossSection");
-//   trees_[name] -> Fill();
    
    // Event info tree
    name = "EventInfo";
@@ -528,12 +527,17 @@ Ntuplizer::beginRun(edm::Run const&, edm::EventSetup const&)
 */
 
 // ------------ method called when ending the processing of a run  ------------
-/*
+
 void 
-Ntuplizer::endRun(edm::Run const&, edm::EventSetup const&)
+Ntuplizer::endRun(edm::Run const& run, edm::EventSetup const& setup)
 {
+   if ( xsection_ < 0. )
+   {
+      edm::Handle<GenRunInfoProduct> genRunInfo;
+      run.getByLabel( "generator", genRunInfo );
+      xsection_ = genRunInfo->internalXSec().value();
+   }
 }
-*/
 
 // ------------ method called when starting to processes a luminosity block  ------------
 
