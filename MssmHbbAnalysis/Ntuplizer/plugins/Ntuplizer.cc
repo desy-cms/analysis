@@ -37,6 +37,9 @@
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 
+#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
+
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
@@ -44,6 +47,7 @@
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
 
 #include "DataFormats/JetReco/interface/GenJet.h"
 
@@ -59,6 +63,9 @@
 
 #include "DataFormats/Common/interface/OwnVector.h"
 
+#include "DataFormats/Common/interface/MergeableCounter.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
+
 #include <TH1.h>
 #include <TFile.h>
 #include <TTree.h>
@@ -70,9 +77,11 @@ typedef std::vector<std::string> strings;
 typedef mssmhbb::ntuple::EventInfo EventInfo;
 typedef mssmhbb::ntuple::PileupInfo PileupInfo;
 typedef mssmhbb::ntuple::Candidates<l1extra::L1JetParticle> L1JetCandidates;
+typedef mssmhbb::ntuple::Candidates<l1extra::L1MuonParticle> L1MuonCandidates;
 typedef mssmhbb::ntuple::Candidates<reco::CaloJet> CaloJetCandidates;
 typedef mssmhbb::ntuple::Candidates<reco::PFJet> PFJetCandidates;
 typedef mssmhbb::ntuple::Candidates<pat::Jet> PatJetCandidates;
+typedef mssmhbb::ntuple::Candidates<pat::Muon> PatMuonCandidates;
 typedef mssmhbb::ntuple::Candidates<reco::GenJet> GenJetCandidates;
 typedef mssmhbb::ntuple::Candidates<reco::GenParticle> GenParticleCandidates;
 typedef mssmhbb::ntuple::JetsTags JetsTags;
@@ -83,9 +92,11 @@ typedef mssmhbb::ntuple::PrimaryVertices PrimaryVertices;
 typedef std::unique_ptr<EventInfo> pEventInfo;
 typedef std::unique_ptr<PileupInfo> pPileupInfo;
 typedef std::unique_ptr<L1JetCandidates> pL1JetCandidates;
+typedef std::unique_ptr<L1MuonCandidates> pL1MuonCandidates;
 typedef std::unique_ptr<CaloJetCandidates> pCaloJetCandidates;
 typedef std::unique_ptr<PFJetCandidates> pPFJetCandidates;
 typedef std::unique_ptr<PatJetCandidates> pPatJetCandidates;
+typedef std::unique_ptr<PatMuonCandidates> pPatMuonCandidates;
 typedef std::unique_ptr<GenJetCandidates> pGenJetCandidates;
 typedef std::unique_ptr<GenParticleCandidates> pGenParticleCandidates;
 typedef std::unique_ptr<JetsTags> pJetsTags;
@@ -112,23 +123,29 @@ class Ntuplizer : public edm::EDAnalyzer {
       //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
       //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
       virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-      //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+      virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
       // ----------member data ---------------------------
       edm::ParameterSet config_;
       
       bool is_mc_;
       bool do_l1jets_;
+      bool do_l1muons_;
       bool do_calojets_;
       bool do_pfjets_;
       bool do_patjets_;
+      bool do_patmuons_;
       bool do_genjets_;
       bool do_genparticles_;
       bool do_jetstags_;
       bool do_pileupinfo_;
       bool do_triggeraccepts_;
       bool do_primaryvertices_;
+      bool do_eventfilter_;
+      bool do_genfilter_;
       std::vector< std::string > inputTags_;
+      
+      edm::InputTag genFilterInfo_;
       
       std::map<std::string, TTree*> trees_; // using pointers instead of smart pointers, could not Fill() with smart pointer???
 
@@ -138,9 +155,11 @@ class Ntuplizer : public edm::EDAnalyzer {
       
       // Collections for the ntuples
       std::vector<pL1JetCandidates> l1jets_collections_;
+      std::vector<pL1MuonCandidates> l1muons_collections_;
       std::vector<pCaloJetCandidates> calojets_collections_;
       std::vector<pPFJetCandidates> pfjets_collections_;
       std::vector<pPatJetCandidates> patjets_collections_;
+      std::vector<pPatMuonCandidates> patmuons_collections_;
       std::vector<pGenJetCandidates> genjets_collections_;
       std::vector<pGenParticleCandidates> genparticles_collections_;
       std::vector<pJetsTags> jetstags_collections_;
@@ -149,6 +168,13 @@ class Ntuplizer : public edm::EDAnalyzer {
       
       // metadata
       double xsection_;
+      unsigned int nEventsTotal_;
+      unsigned int nEventsFiltered_;
+      double filterEfficiency_;
+      
+      unsigned int nGenEventsTotal_;
+      unsigned int nGenEventsFiltered_;
+      double genFilterEfficiency_;
       
 };
 
@@ -222,6 +248,15 @@ void Ntuplizer::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       }
    }
    
+   // L1 muons
+   if ( do_l1muons_ )
+   {
+      for ( size_t i = 0; i < l1muons_collections_.size() ; ++i )
+      {
+         l1muons_collections_[i]  -> Fill(event);
+      }
+   }
+   
    // Calo jets (reco)
    if ( do_calojets_ )
    {
@@ -246,6 +281,15 @@ void Ntuplizer::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       for ( size_t i = 0; i < patjets_collections_.size() ; ++i )
       {
          patjets_collections_[i]  -> Fill(event);
+      }
+   }
+   
+      // Pat muon (pat)
+   if ( do_patmuons_ )
+   {
+      for ( size_t i = 0; i < patmuons_collections_.size() ; ++i )
+      {
+         patmuons_collections_[i]  -> Fill(event);
       }
    }
    
@@ -299,14 +343,18 @@ Ntuplizer::beginJob()
 {
    do_pileupinfo_       = config_.exists("PileupInfo");
    do_l1jets_           = config_.exists("L1ExtraJets");
+   do_l1muons_          = config_.exists("L1ExtraMuons");
    do_calojets_         = config_.exists("CaloJets");
    do_pfjets_           = config_.exists("PFJets");
    do_patjets_          = config_.exists("PatJets");
+   do_patmuons_         = config_.exists("PatMuons");
    do_genjets_          = config_.exists("GenJets");
    do_genparticles_     = config_.exists("GenParticles");
    do_jetstags_         = config_.exists("JetsTags");
    do_triggeraccepts_   = config_.exists("TriggerResults") && config_.exists("TriggerPaths");
    do_primaryvertices_  = config_.exists("PrimaryVertices");
+   do_eventfilter_      = config_.exists("EventCounters");
+   do_genfilter_        = config_.exists("GenFilterInfo");
    
    
    edm::Service<TFileService> fs;
@@ -314,12 +362,32 @@ Ntuplizer::beginJob()
    // Metadata 
    std::string name = "Metadata";
    trees_[name] = fs -> make<TTree>(name.c_str(),name.c_str());
-   trees_[name] -> Branch("xsection", &xsection_, "xsection/D");
+   // cross section
+   trees_[name] -> Branch("xsection"        , &xsection_        , "xsection/D");
+   // event filter
+   trees_[name] -> Branch("nEventsTotal"    , &nEventsTotal_    , "nEventsTotal/i");
+   trees_[name] -> Branch("nEventsFiltered" , &nEventsFiltered_ , "nEventsFiltered/i");
+   trees_[name] -> Branch("filterEfficiency", &filterEfficiency_, "filterEfficiency/D");
+   // generator filter
+   trees_[name] -> Branch("nGenEventsTotal"    , &nGenEventsTotal_    , "nGenEventsTotal/i");
+   trees_[name] -> Branch("nGenEventsFiltered" , &nGenEventsFiltered_ , "nGenEventsFiltered/i");
+   trees_[name] -> Branch("genFilterEfficiency", &genFilterEfficiency_, "genFilterEfficiency/D");
+   if ( do_genfilter_ )  genFilterInfo_  = config_.getParameter<edm::InputTag> ("GenFilterInfo");
+   
+   xsection_ = 1.0;
+   
+   nEventsTotal_     = 0;
+   nEventsFiltered_  = 0;
+   filterEfficiency_ = 1.;
+   
+   nGenEventsTotal_     = 0;
+   nGenEventsFiltered_  = 0;
+   genFilterEfficiency_ = 1.;
+   
+   
    if ( config_.exists("CrossSection") )
       xsection_ = config_.getParameter<double>("CrossSection");
-   else
-      xsection_ = 1.0;
-   trees_[name] -> Fill();
+//   trees_[name] -> Fill();
    
    // Event info tree
    name = "EventInfo";
@@ -357,38 +425,54 @@ Ntuplizer::beginJob()
             // renaming tree for L1 jest as there is no explicit indication those are L1 jets objects
             std::string l1name = name + "Jets";
             trees_[name]->SetNameTitle(l1name.c_str(),l1name.c_str());
-            l1jets_collections_.push_back( pL1JetCandidates( new L1JetCandidates((*collection), trees_[name], is_mc_ ) ));
+            l1jets_collections_.push_back( pL1JetCandidates( new L1JetCandidates((*collection), trees_[name], is_mc_, 5. ) ));
             l1jets_collections_.back() -> Branches();
+         }
+         
+         // L1 Muons
+         if ( (*inputTag) == "L1ExtraMuons" )
+         {
+            // renaming tree for L1 muons as there is no explicit indication those are L1 muon objects
+            std::string l1name = name + "Muons";
+            trees_[name]->SetNameTitle(l1name.c_str(),l1name.c_str());
+            l1muons_collections_.push_back( pL1MuonCandidates( new L1MuonCandidates((*collection), trees_[name], is_mc_, 0. ) ));
+            l1muons_collections_.back() -> Branches();
          }
          
          // Calo Jets
          if ( (*inputTag) == "CaloJets" )
          {
-            calojets_collections_.push_back( pCaloJetCandidates( new CaloJetCandidates((*collection), trees_[name], is_mc_ ) ));
+            calojets_collections_.push_back( pCaloJetCandidates( new CaloJetCandidates((*collection), trees_[name], is_mc_, 10. ) ));
             calojets_collections_.back() -> Branches();
          }
          // PF Jets
          if ( (*inputTag) == "PFJets" )
          {
-            pfjets_collections_.push_back( pPFJetCandidates( new PFJetCandidates((*collection), trees_[name], is_mc_ ) ));
+            pfjets_collections_.push_back( pPFJetCandidates( new PFJetCandidates((*collection), trees_[name], is_mc_, 10. ) ));
             pfjets_collections_.back() -> Branches();
          }
          // Pat Jets
          if ( (*inputTag) == "PatJets" )
          {
-            patjets_collections_.push_back( pPatJetCandidates( new PatJetCandidates((*collection), trees_[name], is_mc_ ) ));
+            patjets_collections_.push_back( pPatJetCandidates( new PatJetCandidates((*collection), trees_[name], is_mc_, 20. ) ));
             patjets_collections_.back() -> Branches();
+         }
+         // Pat Muons
+         if ( (*inputTag) == "PatMuons" )
+         {
+            patmuons_collections_.push_back( pPatMuonCandidates( new PatMuonCandidates((*collection), trees_[name], is_mc_, 1. ) ));
+            patmuons_collections_.back() -> Branches();
          }
          // Gen Jets
          if ( (*inputTag) == "GenJets" )
          {
-            genjets_collections_.push_back( pGenJetCandidates( new GenJetCandidates((*collection), trees_[name], is_mc_ ) ));
+            genjets_collections_.push_back( pGenJetCandidates( new GenJetCandidates((*collection), trees_[name], is_mc_, 10. ) ));
             genjets_collections_.back() -> Branches();
          }
          // Gen Particles
          if ( (*inputTag) == "GenParticles" )
          {
-            genparticles_collections_.push_back( pGenParticleCandidates( new GenParticleCandidates((*collection), trees_[name], is_mc_ ) ));
+            genparticles_collections_.push_back( pGenParticleCandidates( new GenParticleCandidates((*collection), trees_[name], is_mc_, 0. ) ));
             genparticles_collections_.back() -> Branches();
          }
          // Jets Tags
@@ -429,6 +513,10 @@ void
 Ntuplizer::endJob() 
 {
    
+   filterEfficiency_    = nEventsTotal_ > 0    ? (double) nEventsFiltered_ / (double) nEventsTotal_ : 1;
+   genFilterEfficiency_ = nGenEventsTotal_ > 0 ? (double) nGenEventsFiltered_ / (double) nGenEventsTotal_ : 1;
+   
+   trees_["Metadata"] -> Fill();
 }
 
 // ------------ method called when starting to processes a run  ------------
@@ -463,12 +551,33 @@ void  Ntuplizer::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::Eve
 
 
 // ------------ method called when ending the processing of a luminosity block  ------------
-/*
+
 void 
-Ntuplizer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+Ntuplizer::endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup)
 {
+   if ( do_eventfilter_ )
+   {
+      edm::Handle <edm::MergeableCounter> nEventsTotalCounter;
+      lumi.getByLabel("nEventsTotal",nEventsTotalCounter);
+      nEventsTotal_ += nEventsTotalCounter -> value;
+      
+      edm::Handle <edm::MergeableCounter> nEventsFilteredCounter;
+      lumi.getByLabel("nEventsFiltered",nEventsFilteredCounter);
+      nEventsFiltered_ += nEventsFilteredCounter -> value;
+   }
+   
+   if ( do_genfilter_ )
+   {
+      edm::Handle<GenFilterInfo> genFilter;
+      lumi.getByLabel(genFilterInfo_, genFilter);
+       
+      nGenEventsTotal_    += genFilter->sumWeights();
+      nGenEventsFiltered_ += genFilter->sumPassWeights();
+   }
+   
+   
 }
-*/
+
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void

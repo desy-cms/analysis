@@ -24,6 +24,9 @@
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 
+#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
+
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
@@ -31,6 +34,7 @@
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
 
 #include "DataFormats/JetReco/interface/GenJet.h"
 
@@ -68,14 +72,16 @@ Candidates<T>::Candidates(const edm::InputTag& tag, TTree* tree, const bool & mc
    this->tree_ = tree;
    
    is_l1jet_        = std::is_same<T,l1extra::L1JetParticle>::value;
+   is_l1muon_       = std::is_same<T,l1extra::L1MuonParticle>::value;
    is_calojet_      = std::is_same<T,reco::CaloJet>::value;
    is_pfjet_        = std::is_same<T,reco::PFJet>::value;
    is_patjet_       = std::is_same<T,pat::Jet>::value;
+   is_patmuon_      = std::is_same<T,pat::Muon>::value;
    is_genjet_       = std::is_same<T,reco::GenJet>::value;
    is_genparticle_  = std::is_same<T,reco::GenParticle>::value;
    is_mc_           = mc;
    
-   do_kinematics_ = ( is_l1jet_ || is_calojet_ || is_pfjet_ || is_patjet_ || is_genjet_ || is_genparticle_ );
+   do_kinematics_ = ( is_l1jet_ || is_l1muon_ || is_calojet_ || is_pfjet_ || is_patjet_ || is_patmuon_ || is_genjet_ || is_genparticle_ );
    do_generator_  = ( is_mc_ && is_genparticle_ );
    
    higgs_pdg_ = 36;
@@ -145,6 +151,7 @@ void Candidates<T>::Kinematics()
       this->pz_[n]  = candidates_[i].pz();
       this->e_[n]   = candidates_[i].energy();
       this->et_[n]  = candidates_[i].et();
+      this->q_[n]   = candidates_[i].charge();
       
       if ( is_patjet_ )
       {
@@ -207,6 +214,7 @@ void Candidates<T>::Branches()
       tree_->Branch("pz", this->pz_, "pz[n]/F");
       tree_->Branch("e",  this->e_,  "e[n]/F");
       tree_->Branch("et", this->et_, "et[n]/F");
+      tree_->Branch("q",  this->q_,  "q[n]/I");
       if ( do_generator_ )
       {
          tree_->Branch("pdg",   this->pdg_,   "pdg[n]/I");
@@ -228,8 +236,10 @@ void Candidates<T>::Branches()
 
 // Need to declare all possible template classes here
 template class Candidates<l1extra::L1JetParticle>;
+template class Candidates<l1extra::L1MuonParticle>;
 template class Candidates<reco::CaloJet>;
 template class Candidates<reco::PFJet>;
 template class Candidates<pat::Jet>;
+template class Candidates<pat::Muon>;
 template class Candidates<reco::GenJet>;
 template class Candidates<reco::GenParticle>;

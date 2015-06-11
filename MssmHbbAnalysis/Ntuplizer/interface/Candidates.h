@@ -43,7 +43,7 @@ namespace mssmhbb {
       class Candidates {
          public:
             Candidates();
-            Candidates(const edm::InputTag&, TTree*, const bool &, float minPt = 20., float minEta = 10.);
+            Candidates(const edm::InputTag&, TTree*, const bool &, float minPt = 0., float minEta = 10.);
            ~Candidates();
             void ReadFromEvent(const edm::Event&);
             void Branches();
@@ -71,6 +71,7 @@ namespace mssmhbb {
             float pz_[maxCandidates];
             float e_[maxCandidates];
             float et_[maxCandidates];
+            int   q_[maxCandidates];
             
             float btag_[maxCandidates];
             int   flavour_[maxCandidates];
@@ -83,9 +84,11 @@ namespace mssmhbb {
             
          private:
             bool is_l1jet_;
+            bool is_l1muon_;
             bool is_calojet_;
             bool is_pfjet_;
             bool is_patjet_;
+            bool is_patmuon_;
             bool is_genjet_;
             bool is_genparticle_;
             bool is_mc_;
