@@ -83,3 +83,9 @@ void EventInfo::Branches()
    tree_->Branch("orbit", &orbit_, "orbit/I");
 }
 
+void EventInfo::Init()
+{
+   
+   Branches();
+}
+

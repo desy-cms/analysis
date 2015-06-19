@@ -145,6 +145,9 @@ class Ntuplizer : public edm::EDAnalyzer {
       bool do_eventfilter_;
       bool do_genfilter_;
       std::vector< std::string > inputTags_;
+      std::vector< std::string > btagAlgos_;
+      std::vector< std::string > btagAlgosAlias_;
+      
       
       edm::InputTag genFilterInfo_;
       
@@ -357,7 +360,6 @@ Ntuplizer::beginJob()
    do_eventfilter_      = config_.exists("EventCounters");
    do_genfilter_        = config_.exists("GenFilterInfo");
    
-   
    edm::Service<TFileService> fs;
    
    // Metadata 
@@ -373,6 +375,8 @@ Ntuplizer::beginJob()
    trees_[name] -> Branch("nGenEventsTotal"    , &nGenEventsTotal_    , "nGenEventsTotal/i");
    trees_[name] -> Branch("nGenEventsFiltered" , &nGenEventsFiltered_ , "nGenEventsFiltered/i");
    trees_[name] -> Branch("genFilterEfficiency", &genFilterEfficiency_, "genFilterEfficiency/D");
+   
+   
    if ( do_genfilter_ )  genFilterInfo_  = config_.getParameter<edm::InputTag> ("GenFilterInfo");
    
    xsection_ = -1.0;
@@ -388,11 +392,46 @@ Ntuplizer::beginJob()
    if ( config_.exists("CrossSection") )
       xsection_ = config_.getParameter<double>("CrossSection");
    
+   // Btagging algorithms
+   // Will set one default
+   btagAlgos_.clear();
+   btagAlgosAlias_.clear();
+   btagAlgos_.push_back("pfCombinedInclusiveSecondaryVertexV2BJetTags");
+   btagAlgosAlias_.push_back("btag_csvivf");
+   if ( config_.exists("BTagAlgorithmsAlias") )
+   {
+      btagAlgosAlias_.clear();
+      btagAlgosAlias_ = config_.getParameter< std::vector<std::string> >("BTagAlgorithmsAlias");
+   }
+   if ( config_.exists("BTagAlgorithms") )
+   {
+      btagAlgos_.clear();
+      btagAlgos_ = config_.getParameter< std::vector<std::string> >("BTagAlgorithms");
+   }
+   if ( btagAlgos_.size() != btagAlgosAlias_.size() )
+   {
+      // if user put the wrong number of alias, then use the algo name as alias
+      btagAlgosAlias_.clear();
+      for ( auto& it : btagAlgos_ )
+         btagAlgosAlias_.push_back(it);
+   }   
+   
+   // Definitions
+   name = "Definitions";
+   trees_[name] = fs -> make<TTree>(name.c_str(),name.c_str());
+   // btag algorihtms
+   for ( size_t i = 0; i < btagAlgos_.size() ; ++i )
+   {
+      trees_[name] ->Branch(btagAlgosAlias_[i].c_str(),(void*)btagAlgos_[i].c_str(),"string/C",1024);
+   }
+   trees_[name] -> Fill();
+
+   
    // Event info tree
    name = "EventInfo";
    trees_[name] = fs->make<TTree>(name.c_str(),name.c_str());
    eventinfo_ = pEventInfo (new EventInfo(trees_[name]));
-   eventinfo_ -> Branches();
+   eventinfo_ -> Init();
   
    // Input tags 
    for ( strings::iterator inputTag = inputTags_.begin(); inputTag != inputTags_.end() ; ++inputTag )
@@ -424,8 +463,8 @@ Ntuplizer::beginJob()
             // renaming tree for L1 jest as there is no explicit indication those are L1 jets objects
             std::string l1name = name + "Jets";
             trees_[name]->SetNameTitle(l1name.c_str(),l1name.c_str());
-            l1jets_collections_.push_back( pL1JetCandidates( new L1JetCandidates((*collection), trees_[name], is_mc_, 5. ) ));
-            l1jets_collections_.back() -> Branches();
+            l1jets_collections_.push_back( pL1JetCandidates( new L1JetCandidates((*collection), trees_[name], is_mc_, 5.,5. ) ));
+            l1jets_collections_.back() -> Init();
          }
          
          // L1 Muons
@@ -434,46 +473,46 @@ Ntuplizer::beginJob()
             // renaming tree for L1 muons as there is no explicit indication those are L1 muon objects
             std::string l1name = name + "Muons";
             trees_[name]->SetNameTitle(l1name.c_str(),l1name.c_str());
-            l1muons_collections_.push_back( pL1MuonCandidates( new L1MuonCandidates((*collection), trees_[name], is_mc_, 0. ) ));
-            l1muons_collections_.back() -> Branches();
+            l1muons_collections_.push_back( pL1MuonCandidates( new L1MuonCandidates((*collection), trees_[name], is_mc_, 0.,2.5 ) ));
+            l1muons_collections_.back() -> Init();
          }
          
          // Calo Jets
          if ( (*inputTag) == "CaloJets" )
          {
-            calojets_collections_.push_back( pCaloJetCandidates( new CaloJetCandidates((*collection), trees_[name], is_mc_, 10. ) ));
-            calojets_collections_.back() -> Branches();
+            calojets_collections_.push_back( pCaloJetCandidates( new CaloJetCandidates((*collection), trees_[name], is_mc_, 10.,5. ) ));
+            calojets_collections_.back() -> Init();
          }
          // PF Jets
          if ( (*inputTag) == "PFJets" )
          {
-            pfjets_collections_.push_back( pPFJetCandidates( new PFJetCandidates((*collection), trees_[name], is_mc_, 10. ) ));
-            pfjets_collections_.back() -> Branches();
+            pfjets_collections_.push_back( pPFJetCandidates( new PFJetCandidates((*collection), trees_[name], is_mc_, 10.,5. ) ));
+            pfjets_collections_.back() -> Init();
          }
          // Pat Jets
          if ( (*inputTag) == "PatJets" )
          {
-            patjets_collections_.push_back( pPatJetCandidates( new PatJetCandidates((*collection), trees_[name], is_mc_, 20. ) ));
-            patjets_collections_.back() -> Branches();
+            patjets_collections_.push_back( pPatJetCandidates( new PatJetCandidates((*collection), trees_[name], is_mc_, 10, 5. ) ));
+            patjets_collections_.back() -> Init(btagAlgos_, btagAlgosAlias_);
          }
          // Pat Muons
          if ( (*inputTag) == "PatMuons" )
          {
-            patmuons_collections_.push_back( pPatMuonCandidates( new PatMuonCandidates((*collection), trees_[name], is_mc_, 1. ) ));
-            patmuons_collections_.back() -> Branches();
+            patmuons_collections_.push_back( pPatMuonCandidates( new PatMuonCandidates((*collection), trees_[name], is_mc_ ,5., 2.5) ));
+            patmuons_collections_.back() -> Init();
          }
          // Gen Jets
          if ( (*inputTag) == "GenJets" )
          {
-            genjets_collections_.push_back( pGenJetCandidates( new GenJetCandidates((*collection), trees_[name], is_mc_, 10. ) ));
-            genjets_collections_.back() -> Branches();
+            genjets_collections_.push_back( pGenJetCandidates( new GenJetCandidates((*collection), trees_[name], is_mc_, 10., 5. ) ));
+            genjets_collections_.back() -> Init();
          }
          // Gen Particles
          if ( (*inputTag) == "GenParticles" )
          {
-            genparticles_collections_.push_back( pGenParticleCandidates( new GenParticleCandidates((*collection), trees_[name], is_mc_, 0. ) ));
-            genparticles_collections_.back() -> Branches();
-         }
+            genparticles_collections_.push_back( pGenParticleCandidates( new GenParticleCandidates((*collection), trees_[name], is_mc_ ) ));
+            genparticles_collections_.back() -> Init();
+        }
          // Jets Tags
          if ( (*inputTag) == "JetsTags" )
          {
@@ -511,11 +550,11 @@ Ntuplizer::beginJob()
 void 
 Ntuplizer::endJob() 
 {
-   
    filterEfficiency_    = nEventsTotal_ > 0    ? (double) nEventsFiltered_ / (double) nEventsTotal_ : 1;
    genFilterEfficiency_ = nGenEventsTotal_ > 0 ? (double) nGenEventsFiltered_ / (double) nGenEventsTotal_ : 1;
-   
+ 
    trees_["Metadata"] -> Fill();
+     
 }
 
 // ------------ method called when starting to processes a run  ------------

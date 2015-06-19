@@ -15,7 +15,7 @@ for pset in process.GlobalTag.toGet.value():
 process.GlobalTag.RefreshEachRun = cms.untracked.bool( False )
 process.GlobalTag.ReconnectEachRun = cms.untracked.bool( False )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 ## TFileService
 process.TFileService = cms.Service("TFileService",
@@ -40,6 +40,32 @@ process.MonteCarloStudies = cms.EDAnalyzer("Ntuplizer",
     											"HLT_BTagMu_DiJet110_Mu5_v1",
     											"HLT_BTagMu_Jet300_Mu5_v1",
                                    ),
+    BTagAlgorithms = cms.vstring   (
+                                    "pfCombinedInclusiveSecondaryVertexV2BJetTags",
+                                    "combinedSecondaryVertexBJetTags",
+                                    "pfJetBProbabilityBJetTags",
+                                    "pfJetProbabilityBJetTags",
+                                    "pfTrackCountingHighPurBJetTags",
+                                    "pfTrackCountingHighEffBJetTags",
+                                    "pfSimpleSecondaryVertexHighEffBJetTags",
+                                    "pfSimpleSecondaryVertexHighPurBJetTags",
+                                    "pfCombinedSecondaryVertexV2BJetTags",
+                                    "pfCombinedSecondaryVertexSoftLeptonBJetTags",
+                                    "pfCombinedMVABJetTags",
+                                   ),
+    BTagAlgorithmsAlias = cms.vstring   (
+                                         "btag_csvivf",
+                                         "btag_csv",
+                                         "btag_jetbprob",
+                                         "btag_jetprob",
+                                         "btag_tchp",
+                                         "btag_tche",
+                                         "btag_svhe",
+                                         "btag_svhp",
+                                         "btag_csvv2",
+                                         "btag_csvlep",
+                                         "btag_csvmva",
+                                        ),
 )
 
 process.p = cms.Path(process.MonteCarloStudies)

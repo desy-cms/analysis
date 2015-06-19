@@ -65,7 +65,7 @@ Candidates<T>::Candidates()
 }
 
 template <typename T>
-Candidates<T>::Candidates(const edm::InputTag& tag, TTree* tree, const bool & mc, float minPt, float maxEta) :
+Candidates<T>::Candidates(const edm::InputTag& tag, TTree* tree, const bool & mc, float minPt, float maxEta ) :
       minPt_(minPt), maxEta_(maxEta)
 {
    this->input_collection_ = tag;
@@ -85,6 +85,7 @@ Candidates<T>::Candidates(const edm::InputTag& tag, TTree* tree, const bool & mc
    do_generator_  = ( is_mc_ && is_genparticle_ );
    
    higgs_pdg_ = 36;
+   
 }
 
 template <typename T>
@@ -140,8 +141,11 @@ void Candidates<T>::Kinematics()
          
       }
       
-      if ( !do_generator_ )
-         if ( candidates_[i].pt() < minPt_ || fabs (candidates_[i].eta()) > maxEta_ ) continue;
+//      if ( !do_generator_ )
+//         if ( candidates_[i].pt() < minPt_ || fabs (candidates_[i].eta()) > maxEta_ ) continue;
+      
+      if ( minPt_  >= 0. && candidates_[i].pt()  < minPt_  ) continue;
+      if ( maxEta_ >= 0. && candidates_[i].eta() > maxEta_ ) continue;
       
       this->pt_[n]  = candidates_[i].pt();
       this->eta_[n] = candidates_[i].eta();
@@ -156,7 +160,11 @@ void Candidates<T>::Kinematics()
       if ( is_patjet_ )
       {
          pat::Jet * jet = dynamic_cast<pat::Jet*> (&candidates_[i]);
-         this->btag_[n]  = jet->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");
+         for ( size_t it = 0 ; it < btagAlgos_.size() ;  ++it )
+         {
+            if ( it >= 15 ) break;
+            this->btag_[it][n]  = jet->bDiscriminator(btagAlgos_[it]);
+         }
          if ( is_mc_ )
          {
             this->flavour_[n]  = jet->partonFlavour();
@@ -198,10 +206,10 @@ void Candidates<T>::Fill(const edm::Event& event)
 }
 
 // ------------ method called once each job just before starting event loop  ------------
+
 template <typename T>
 void Candidates<T>::Branches()
 {
-   
    // kinematics output info
    if ( do_kinematics_ )
    {
@@ -224,7 +232,14 @@ void Candidates<T>::Branches()
       }
       if ( is_patjet_ )
       {
-         tree_->Branch("btag",   this->btag_,   "btag[n]/F");
+//         for ( auto& it : btagAlgosAlias_ )
+         for ( size_t it = 0 ; it < btagAlgos_.size() ;  ++it )
+         {
+            if ( it >= 15 ) break;
+            std::string alias = btagAlgosAlias_[it];
+            std::string aliasv = alias + "[n]/F";
+            tree_->Branch(alias.c_str(),   this->btag_[it], aliasv.c_str());
+         }
          if ( is_mc_ )
          {
             tree_->Branch("flavour",   this->flavour_,   "flavour[n]/I");
@@ -233,6 +248,17 @@ void Candidates<T>::Branches()
    }
    
 }
+
+template <typename T>
+void Candidates<T>::Init( const std::vector<std::string> & btagAlgos, const std::vector<std::string> & btagAlgosAlias )
+{
+   btagAlgos_ = btagAlgos;
+   btagAlgosAlias_ = btagAlgosAlias;
+   Branches();
+   
+}
+
+
 
 // Need to declare all possible template classes here
 template class Candidates<l1extra::L1JetParticle>;

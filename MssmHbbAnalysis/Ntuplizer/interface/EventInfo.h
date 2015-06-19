@@ -46,6 +46,7 @@ namespace mssmhbb {
            ~EventInfo();
             void Fill(const edm::Event&);
             void Branches();
+            void Init();
       
          private:
             // ----------member data ---------------------------

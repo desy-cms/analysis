@@ -43,15 +43,17 @@ namespace mssmhbb {
       class Candidates {
          public:
             Candidates();
-            Candidates(const edm::InputTag&, TTree*, const bool &, float minPt = 0., float minEta = 10.);
+            Candidates(const edm::InputTag&, TTree*, const bool &, float minPt = -1., float maxEta = -1.);
            ~Candidates();
             void ReadFromEvent(const edm::Event&);
+            void BTagAlgorithms(const std::vector<std::string> &, const std::vector<std::string> &);
+            void Init(const std::vector<std::string> &btagAlgos = std::vector<std::string>(), const std::vector<std::string> & btagAlgosAlias = std::vector<std::string>()	);
             void Branches();
             void Fill(const edm::Event&);
             void Fill();
             void Kinematics();
-            void MinPt(const float&);
-            void MaxEta(const float&);
+            void MinPt(const float& minPt = -1.);
+            void MaxEta(const float& maxEta = -1.);
             static const int maxCandidates = 100;
       
          protected:
@@ -73,7 +75,7 @@ namespace mssmhbb {
             float et_[maxCandidates];
             int   q_[maxCandidates];
             
-            float btag_[maxCandidates];
+            float btag_[15][maxCandidates];
             int   flavour_[maxCandidates];
             
             int pdg_[maxCandidates];
@@ -97,7 +99,9 @@ namespace mssmhbb {
             
             float minPt_;
             float maxEta_;
-            
+            std::vector<std::string>  btagAlgos_;
+            std::vector<std::string>  btagAlgosAlias_;
+                      
             int higgs_pdg_;
    
             
