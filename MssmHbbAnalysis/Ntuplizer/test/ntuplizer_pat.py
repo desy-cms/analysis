@@ -69,6 +69,16 @@ process.MonteCarloStudies = cms.EDAnalyzer("Ntuplizer",
                                          "btag_csvlep",
                                          "btag_csvmva",
                                         ),
+    TriggerObjectStandAlone  = cms.InputTag("selectedPatTrigger","","PAT"),
+    TriggerObjectLabels    = cms.vstring  (
+    											"hltSinglePFJet40",
+    											"hltSinglePFJet60",
+    											"hltSinglePFJet80",
+    											"hltSingleCaloJet10",
+    											"hltSingleCaloJet40",
+    											"hltL1sL1SingleMu5",
+    											"hltL1sMu5",
+                                   ),
 )
 
 process.p = cms.Path(process.MonteCarloStudies)
