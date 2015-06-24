@@ -43,6 +43,8 @@
 
 #include "CommonTools/Utils/interface/PtComparator.h"
 
+#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
+
 #include "MssmHbbAnalysis/Ntuplizer/interface/Candidates.h"
 
 #include "TTree.h"
@@ -55,6 +57,12 @@
 using namespace mssmhbb;
 using namespace mssmhbb::ntuple;
 
+// member functions specialization - needed to be declared in the same namespace as the class
+namespace mssmhbb {
+   namespace ntuple {
+      template <> void Candidates<pat::TriggerObject>::ReadFromEvent(const edm::Event& event);
+ }
+}   
 //
 // constructors and destructor
 //
@@ -79,9 +87,11 @@ Candidates<T>::Candidates(const edm::InputTag& tag, TTree* tree, const bool & mc
    is_patmuon_      = std::is_same<T,pat::Muon>::value;
    is_genjet_       = std::is_same<T,reco::GenJet>::value;
    is_genparticle_  = std::is_same<T,reco::GenParticle>::value;
+   is_trigobject_   = std::is_same<T,pat::TriggerObject>::value;
    is_mc_           = mc;
    
-   do_kinematics_ = ( is_l1jet_ || is_l1muon_ || is_calojet_ || is_pfjet_ || is_patjet_ || is_patmuon_ || is_genjet_ || is_genparticle_ );
+//   do_kinematics_ = ( is_l1jet_ || is_l1muon_ || is_calojet_ || is_pfjet_ || is_patjet_ || is_patmuon_ || is_genjet_ || is_genparticle_ );
+   do_kinematics_ = true;
    do_generator_  = ( is_mc_ && is_genparticle_ );
    
    higgs_pdg_ = 36;
@@ -105,11 +115,38 @@ template <typename T>
 void Candidates<T>::ReadFromEvent(const edm::Event& event)
 {
    using namespace edm;
-   
-   // Particles
+
+   // Candidates
+   candidates_.clear();
    edm::Handle<std::vector<T> > handler;
    event.getByLabel(this->input_collection_, handler);
    candidates_ = *(handler.product());
+}
+
+// Specialization for trigger objects
+template <>
+void Candidates<pat::TriggerObject>::ReadFromEvent(const edm::Event& event)
+{
+   using namespace edm;
+   
+   candidates_.clear();
+   // The stand alone collection
+   edm::Handle<pat::TriggerObjectStandAloneCollection> handler;
+   event.getByLabel(this->input_collection_, handler);
+   
+   const std::string label = tree_ -> GetName(); // using the label to name the tree
+   for ( auto ito : *handler )
+   {
+//      const std::vector< std::string > & filterLabels = ito.filterLabels();
+//      for ( auto & l : filterLabels )
+//         std::cout << l << std::endl;
+      if ( ito.filter(label) )
+         candidates_.push_back(ito.triggerObject());
+   }
+   
+   // Sort the objects by pt
+   NumericSafeGreaterByPt<pat::TriggerObject> triggerObjectGreaterByPt;
+   std::sort (candidates_.begin(), candidates_.end(),triggerObjectGreaterByPt);
 }
 
 template <typename T>
@@ -258,8 +295,6 @@ void Candidates<T>::Init( const std::vector<std::string> & btagAlgos, const std:
    
 }
 
-
-
 // Need to declare all possible template classes here
 template class Candidates<l1extra::L1JetParticle>;
 template class Candidates<l1extra::L1MuonParticle>;
@@ -269,3 +304,4 @@ template class Candidates<pat::Jet>;
 template class Candidates<pat::Muon>;
 template class Candidates<reco::GenJet>;
 template class Candidates<reco::GenParticle>;
+template class Candidates<pat::TriggerObject>;

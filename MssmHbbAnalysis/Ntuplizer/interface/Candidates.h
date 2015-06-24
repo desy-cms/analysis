@@ -93,6 +93,7 @@ namespace mssmhbb {
             bool is_patmuon_;
             bool is_genjet_;
             bool is_genparticle_;
+            bool is_trigobject_;
             bool is_mc_;
             bool do_kinematics_;
             bool do_generator_;
@@ -101,12 +102,15 @@ namespace mssmhbb {
             float maxEta_;
             std::vector<std::string>  btagAlgos_;
             std::vector<std::string>  btagAlgosAlias_;
+            
+            std::vector<std::string>  filterLabels_;
                       
             int higgs_pdg_;
    
             
       };
-   
+      // for the function specialisation - can also be done in .cc (keeping this comment for reference)
+//      template <> int Candidates<pat::TriggerObject>::ReadFromEvent(const edm::Event& event);
    }
 }
 
