@@ -25,6 +25,7 @@ process.TFileService = cms.Service("TFileService",
 # Ntuplizer
 process.MonteCarloStudies = cms.EDAnalyzer("Ntuplizer",
     MonteCarlo      = cms.bool(True),
+    UseFullName     = cms.bool(True),
     CrossSection    = cms.double(3.0001143e06),
     GenFilterInfo   = cms.InputTag("genFilterEfficiencyProducer","","SIM"),
     GenJets         = cms.VInputTag(cms.InputTag("slimmedGenJets","","PAT")),

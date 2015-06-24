@@ -132,6 +132,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       edm::ParameterSet config_;
       
       bool is_mc_;
+      bool use_full_name_;
       bool do_l1jets_;
       bool do_l1muons_;
       bool do_calojets_;
@@ -204,7 +205,8 @@ class Ntuplizer : public edm::EDAnalyzer {
 Ntuplizer::Ntuplizer(const edm::ParameterSet& config) //:   // initialization of ntuple classes
 {
    //now do what ever initialization is needed
-   is_mc_        = config.getParameter<bool> ("MonteCarlo");
+   is_mc_         = config.getParameter<bool> ("MonteCarlo");
+   use_full_name_ = false;
    inputTagsVec_ = config.getParameterNamesForType<InputTags>();
    inputTags_    = config.getParameterNamesForType<edm::InputTag>();
    
@@ -374,6 +376,10 @@ Ntuplizer::beginJob()
    do_genfilter_        = config_.exists("GenFilterInfo");
    do_triggerobjects_   = config_.exists("TriggerObjectStandAlone") &&  config_.exists("TriggerObjectLabels");
    
+   if ( config_.exists("UseFullName") )
+      use_full_name_ = config_.getParameter<bool> ("UseFullName");
+
+   
    edm::Service<TFileService> fs;
    
    // Metadata 
@@ -452,15 +458,16 @@ Ntuplizer::beginJob()
       {
          // Names for the trees, from inputs
          std::string label = collection.label();
-         name  = label;
+         name = label;
          if ( collection.instance() != "" && collections.size() > 1 )
             name += "_" + collection.instance();
-         if ( do_triggeraccepts_ && inputTag == "TriggerResults" )
-            name  += "_" + collection.process();
+         if ( use_full_name_ )
+            name  = collection.label() + "_" + collection.instance() + "_" + collection.process();
          
          
          // Initialise trees
-         trees_[name] = fs->make<TTree>(name.c_str(),name.c_str());
+         if ( inputTag != "L1ExtraJets" && inputTag != "L1ExtraMuons" )
+            trees_[name] = fs->make<TTree>(name.c_str(),name.c_str());
          
          // Pileup Info
          if ( inputTag == "PileupInfo" )
@@ -468,12 +475,15 @@ Ntuplizer::beginJob()
             pileupinfo_ = pPileupInfo( new PileupInfo(collection, trees_[name]) );
             pileupinfo_ -> Branches();
          }
+         
          // L1 Jets
          if ( inputTag == "L1ExtraJets" )
          {
             // renaming tree for L1 jest as there is no explicit indication those are L1 jets objects
-            std::string l1name = name + "Jets";
-            trees_[name]->SetNameTitle(l1name.c_str(),l1name.c_str());
+            name  = collection.label() + "Jets_" + collection.instance();
+            if ( use_full_name_ )
+               name  += "_" + collection.process();
+            trees_[name] = fs->make<TTree>(name.c_str(),name.c_str());
             l1jets_collections_.push_back( pL1JetCandidates( new L1JetCandidates(collection, trees_[name], is_mc_, 5.,5. ) ));
             l1jets_collections_.back() -> Init();
          }
@@ -482,8 +492,12 @@ Ntuplizer::beginJob()
          if ( inputTag == "L1ExtraMuons" )
          {
             // renaming tree for L1 muons as there is no explicit indication those are L1 muon objects
-            std::string l1name = name + "Muons";
-            trees_[name]->SetNameTitle(l1name.c_str(),l1name.c_str());
+            name  = collection.label() + "Muons";
+            if ( collection.instance() != "" )
+               name  = collection.label() + "Muons_" + collection.instance();
+            if ( use_full_name_ )
+               name  = collection.label() + "Muons_" + collection.instance() + "_" + collection.process();
+            trees_[name] = fs->make<TTree>(name.c_str(),name.c_str());
             l1muons_collections_.push_back( pL1MuonCandidates( new L1MuonCandidates(collection, trees_[name], is_mc_, 0.,2.5 ) ));
             l1muons_collections_.back() -> Init();
          }
@@ -548,6 +562,7 @@ Ntuplizer::beginJob()
       }
    }
       
+   
    // InputTag (single)
    
    for ( auto & inputTag : inputTags_ )
@@ -564,7 +579,10 @@ Ntuplizer::beginJob()
       {
          triggerObjectLabels_.clear();
          triggerObjectLabels_ = config_.getParameter< std::vector<std::string> >("TriggerObjectLabels");
-         TFileDirectory triggerObjectsDir = fs -> mkdir(inputTag);
+         std::string dir = label;
+         if ( use_full_name_ )
+            dir += "_" + collection.instance() + "_" +collection.process();
+         TFileDirectory triggerObjectsDir = fs -> mkdir(dir);
    
          for ( auto & triggerObjectLabel : triggerObjectLabels_ )
          {
