@@ -206,7 +206,7 @@ Ntuplizer::Ntuplizer(const edm::ParameterSet& config) //:   // initialization of
 {
    //now do what ever initialization is needed
    is_mc_         = config.getParameter<bool> ("MonteCarlo");
-   use_full_name_ = false;
+   use_full_name_ = true;
    inputTagsVec_ = config.getParameterNamesForType<InputTags>();
    inputTags_    = config.getParameterNamesForType<edm::InputTag>();
    
