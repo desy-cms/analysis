@@ -67,6 +67,8 @@
 #include "DataFormats/Common/interface/MergeableCounter.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
 
+#include "MssmHbbAnalysis/Ntuplizer/interface/FilterEfficiency.h"
+
 #include <TH1.h>
 #include <TFile.h>
 #include <TTree.h>
@@ -90,6 +92,10 @@ typedef mssmhbb::ntuple::JetsTags JetsTags;
 typedef mssmhbb::ntuple::TriggerAccepts TriggerAccepts;
 typedef mssmhbb::ntuple::PrimaryVertices PrimaryVertices;
 
+typedef mssmhbb::ntuple::FilterEfficiency<GenFilterInfo> GeneratorFilterEfficiency;
+typedef mssmhbb::ntuple::FilterEfficiency<edm::MergeableCounter> EventFilterEfficiency;
+
+
 // Alias to the pointers to the above classes
 typedef std::unique_ptr<EventInfo> pEventInfo;
 typedef std::unique_ptr<PileupInfo> pPileupInfo;
@@ -105,6 +111,9 @@ typedef std::unique_ptr<TriggerObjectCandidates> pTriggerObjectCandidates;
 typedef std::unique_ptr<JetsTags> pJetsTags;
 typedef std::unique_ptr<TriggerAccepts> pTriggerAccepts;
 typedef std::unique_ptr<PrimaryVertices> pPrimaryVertices;
+
+typedef std::unique_ptr<GeneratorFilterEfficiency> pGeneratorFilterEfficiency;
+typedef std::unique_ptr<EventFilterEfficiency> pEventFilterEfficiency;
 
 //
 // class declaration
@@ -156,8 +165,9 @@ class Ntuplizer : public edm::EDAnalyzer {
       
       
       edm::InputTag genFilterInfo_;
+      InputTags eventCounters_;
       
-      std::map<std::string, TTree*> trees_; // using pointers instead of smart pointers, could not Fill() with smart pointer???
+      std::map<std::string, TTree*> tree_; // using pointers instead of smart pointers, could not Fill() with smart pointer???
 
       // Ntuple stuff
       pEventInfo eventinfo_;
@@ -177,17 +187,17 @@ class Ntuplizer : public edm::EDAnalyzer {
       std::vector<pTriggerAccepts> triggeraccepts_collections_;
       std::vector<pTriggerObjectCandidates> triggerobjects_collections_;
       
+      pGeneratorFilterEfficiency genfilter_collection_;
+      pEventFilterEfficiency eventfilter_collection_;
+      
+      
       // Collections for the ntuples (single)
       
       // metadata
       double xsection_;
-      unsigned int nEventsTotal_;
-      unsigned int nEventsFiltered_;
-      double filterEfficiency_;
       
-      unsigned int nGenEventsTotal_;
-      unsigned int nGenEventsFiltered_;
-      double genFilterEfficiency_;
+      mssmhbb::ntuple::FilterResults eventFilterResults_;
+      mssmhbb::ntuple::FilterResults genFilterResults_;
       
 };
 
@@ -372,7 +382,7 @@ Ntuplizer::beginJob()
    do_jetstags_         = config_.exists("JetsTags");
    do_triggeraccepts_   = config_.exists("TriggerResults") && config_.exists("TriggerPaths");
    do_primaryvertices_  = config_.exists("PrimaryVertices");
-   do_eventfilter_      = config_.exists("EventCounters");
+   do_eventfilter_      = config_.exists("EventFilter");
    do_genfilter_        = config_.exists("GenFilterInfo");
    do_triggerobjects_   = config_.exists("TriggerObjectStandAlone") &&  config_.exists("TriggerObjectLabels");
    
@@ -384,27 +394,22 @@ Ntuplizer::beginJob()
    
    // Metadata 
    std::string name = "Metadata";
-   trees_[name] = fs -> make<TTree>(name.c_str(),name.c_str());
+   tree_[name] = fs -> make<TTree>(name.c_str(),name.c_str());
    // cross section
-   trees_[name] -> Branch("xsection"        , &xsection_        , "xsection/D");
+   tree_[name] -> Branch("xsection"        , &xsection_        , "xsection/D");
    // event filter
-   trees_[name] -> Branch("nEventsTotal"    , &nEventsTotal_    , "nEventsTotal/i");
-   trees_[name] -> Branch("nEventsFiltered" , &nEventsFiltered_ , "nEventsFiltered/i");
-   trees_[name] -> Branch("filterEfficiency", &filterEfficiency_, "filterEfficiency/D");
+   tree_[name] -> Branch("nEventsTotal"    , &eventFilterResults_.total     , "nEventsTotal/i");
+   tree_[name] -> Branch("nEventsFiltered" , &eventFilterResults_.filtered  , "nEventsFiltered/i");
+   tree_[name] -> Branch("filterEfficiency", &eventFilterResults_.efficiency, "filterEfficiency/D");
    // generator filter
-   trees_[name] -> Branch("nGenEventsTotal"    , &nGenEventsTotal_    , "nGenEventsTotal/i");
-   trees_[name] -> Branch("nGenEventsFiltered" , &nGenEventsFiltered_ , "nGenEventsFiltered/i");
-   trees_[name] -> Branch("genFilterEfficiency", &genFilterEfficiency_, "genFilterEfficiency/D");
+   tree_[name] -> Branch("nGenEventsTotal"    , &genFilterResults_.total     , "nGenEventsTotal/i");
+   tree_[name] -> Branch("nGenEventsFiltered" , &genFilterResults_.filtered  , "nGenEventsFiltered/i");
+   tree_[name] -> Branch("genFilterEfficiency", &genFilterResults_.efficiency, "genFilterEfficiency/D");
    
    xsection_ = -1.0;
    
-   nEventsTotal_     = 0;
-   nEventsFiltered_  = 0;
-   filterEfficiency_ = 1.;
-   
-   nGenEventsTotal_     = 0;
-   nGenEventsFiltered_  = 0;
-   genFilterEfficiency_ = 1.;
+   genFilterResults_  = {};
+   eventFilterResults_ = {};
    
    if ( config_.exists("CrossSection") )
       xsection_ = config_.getParameter<double>("CrossSection");
@@ -435,20 +440,21 @@ Ntuplizer::beginJob()
    
    // Definitions
    name = "Definitions";
-   trees_[name] = fs -> make<TTree>(name.c_str(),name.c_str());
+   tree_[name] = fs -> make<TTree>(name.c_str(),name.c_str());
    // btag algorihtms
    for ( size_t i = 0; i < btagAlgos_.size() ; ++i )
    {
-      trees_[name] ->Branch(btagAlgosAlias_[i].c_str(),(void*)btagAlgos_[i].c_str(),"string/C",1024);
+      tree_[name] ->Branch(btagAlgosAlias_[i].c_str(),(void*)btagAlgos_[i].c_str(),"string/C",1024);
    }
-   trees_[name] -> Fill();
+   tree_[name] -> Fill();
 
    
    // Event info tree
    name = "EventInfo";
-   trees_[name] = fs->make<TTree>(name.c_str(),name.c_str());
-   eventinfo_ = pEventInfo (new EventInfo(trees_[name]));
+   tree_[name] = fs->make<TTree>(name.c_str(),name.c_str());
+   eventinfo_ = pEventInfo (new EventInfo(tree_[name]));
    eventinfo_ -> Init();
+   
   
    // Input tags (vector)
    for ( auto & inputTag : inputTagsVec_ )
@@ -467,12 +473,12 @@ Ntuplizer::beginJob()
          
          // Initialise trees
          if ( inputTag != "L1ExtraJets" && inputTag != "L1ExtraMuons" )
-            trees_[name] = fs->make<TTree>(name.c_str(),name.c_str());
+            tree_[name] = fs->make<TTree>(name.c_str(),name.c_str());
          
          // Pileup Info
          if ( inputTag == "PileupInfo" )
          {
-            pileupinfo_ = pPileupInfo( new PileupInfo(collection, trees_[name]) );
+            pileupinfo_ = pPileupInfo( new PileupInfo(collection, tree_[name]) );
             pileupinfo_ -> Branches();
          }
          
@@ -483,8 +489,8 @@ Ntuplizer::beginJob()
             name  = collection.label() + "Jets_" + collection.instance();
             if ( use_full_name_ )
                name  += "_" + collection.process();
-            trees_[name] = fs->make<TTree>(name.c_str(),name.c_str());
-            l1jets_collections_.push_back( pL1JetCandidates( new L1JetCandidates(collection, trees_[name], is_mc_, 5.,5. ) ));
+            tree_[name] = fs->make<TTree>(name.c_str(),name.c_str());
+            l1jets_collections_.push_back( pL1JetCandidates( new L1JetCandidates(collection, tree_[name], is_mc_, 5.,5. ) ));
             l1jets_collections_.back() -> Init();
          }
          
@@ -497,51 +503,51 @@ Ntuplizer::beginJob()
                name  = collection.label() + "Muons_" + collection.instance();
             if ( use_full_name_ )
                name  = collection.label() + "Muons_" + collection.instance() + "_" + collection.process();
-            trees_[name] = fs->make<TTree>(name.c_str(),name.c_str());
-            l1muons_collections_.push_back( pL1MuonCandidates( new L1MuonCandidates(collection, trees_[name], is_mc_, 0.,2.5 ) ));
+            tree_[name] = fs->make<TTree>(name.c_str(),name.c_str());
+            l1muons_collections_.push_back( pL1MuonCandidates( new L1MuonCandidates(collection, tree_[name], is_mc_, 0.,2.5 ) ));
             l1muons_collections_.back() -> Init();
          }
          
          // Calo Jets
          if ( inputTag == "CaloJets" )
          {
-            calojets_collections_.push_back( pCaloJetCandidates( new CaloJetCandidates(collection, trees_[name], is_mc_, 10.,5. ) ));
+            calojets_collections_.push_back( pCaloJetCandidates( new CaloJetCandidates(collection, tree_[name], is_mc_, 10.,5. ) ));
             calojets_collections_.back() -> Init();
          }
          // PF Jets
          if ( inputTag == "PFJets" )
          {
-            pfjets_collections_.push_back( pPFJetCandidates( new PFJetCandidates(collection, trees_[name], is_mc_, 10.,5. ) ));
+            pfjets_collections_.push_back( pPFJetCandidates( new PFJetCandidates(collection, tree_[name], is_mc_, 10.,5. ) ));
             pfjets_collections_.back() -> Init();
          }
          // Pat Jets
          if ( inputTag == "PatJets" )
          {
-            patjets_collections_.push_back( pPatJetCandidates( new PatJetCandidates(collection, trees_[name], is_mc_, 10, 5. ) ));
+            patjets_collections_.push_back( pPatJetCandidates( new PatJetCandidates(collection, tree_[name], is_mc_, 10, 5. ) ));
             patjets_collections_.back() -> Init(btagAlgos_, btagAlgosAlias_);
          }
          // Pat Muons
          if ( inputTag == "PatMuons" )
          {
-            patmuons_collections_.push_back( pPatMuonCandidates( new PatMuonCandidates(collection, trees_[name], is_mc_ ,5., 2.5) ));
+            patmuons_collections_.push_back( pPatMuonCandidates( new PatMuonCandidates(collection, tree_[name], is_mc_ ,5., 2.5) ));
             patmuons_collections_.back() -> Init();
          }
          // Gen Jets
          if ( inputTag == "GenJets" )
          {
-            genjets_collections_.push_back( pGenJetCandidates( new GenJetCandidates(collection, trees_[name], is_mc_, 10., 5. ) ));
+            genjets_collections_.push_back( pGenJetCandidates( new GenJetCandidates(collection, tree_[name], is_mc_, 10., 5. ) ));
             genjets_collections_.back() -> Init();
          }
          // Gen Particles
          if ( inputTag == "GenParticles" )
          {
-            genparticles_collections_.push_back( pGenParticleCandidates( new GenParticleCandidates(collection, trees_[name], is_mc_ ) ));
+            genparticles_collections_.push_back( pGenParticleCandidates( new GenParticleCandidates(collection, tree_[name], is_mc_ ) ));
             genparticles_collections_.back() -> Init();
         }
          // Jets Tags
          if ( inputTag == "JetsTags" )
          {
-            jetstags_collections_.push_back( pJetsTags( new JetsTags(collection, trees_[name]) ));
+            jetstags_collections_.push_back( pJetsTags( new JetsTags(collection, tree_[name]) ));
             jetstags_collections_.back() -> Branches();
          }
          // Trigger Accepts
@@ -549,21 +555,34 @@ Ntuplizer::beginJob()
          {
             // TriggerResults collections names differ by the process, so add it to the name
             std::vector< std::string> trigger_paths = config_.getParameter< std::vector< std::string> >("TriggerPaths");
-            triggeraccepts_collections_.push_back( pTriggerAccepts( new TriggerAccepts(collection, trees_[name], trigger_paths) ));
+            triggeraccepts_collections_.push_back( pTriggerAccepts( new TriggerAccepts(collection, tree_[name], trigger_paths) ));
             triggeraccepts_collections_.back() -> Branches();
          }
          // Primary Vertices
          if ( inputTag == "PrimaryVertices" )
          {
-            primaryvertices_collections_.push_back( pPrimaryVertices( new PrimaryVertices(collection, trees_[name]) ));
+            primaryvertices_collections_.push_back( pPrimaryVertices( new PrimaryVertices(collection, tree_[name]) ));
             primaryvertices_collections_.back() -> Branches();
+         }
+         
+         // Event filter
+         if ( do_eventfilter_ && inputTag == "EventFilter" )
+         {
+            eventCounters_.push_back(collection);
+            if ( eventCounters_.size() > 1 )
+            {
+               std::cout << "Ntuplizer::BeginJob() - Warning: you gave more than two collections for the event filter calculation." << std::endl;
+               std::cout << "                                 Only the first two collections will be used." << std::endl;
+               eventfilter_collection_ = pEventFilterEfficiency( new EventFilterEfficiency(eventCounters_));
+               break;
+            }
          }
          
       }
    }
       
    
-   // InputTag (single)
+   // InputTag (single, i.e. not vector)
    
    for ( auto & inputTag : inputTags_ )
    {
@@ -572,7 +591,11 @@ Ntuplizer::beginJob()
          
       // Generator filter
       if ( do_genfilter_ && inputTag == "GenFilterInfo" )
+      {
          genFilterInfo_  = config_.getParameter<edm::InputTag> ("GenFilterInfo");
+         genfilter_collection_ = pGeneratorFilterEfficiency( new GeneratorFilterEfficiency({genFilterInfo_} ));
+      }
+
 
       // Trigger Objects
       if ( do_triggerobjects_ && inputTag == "TriggerObjectStandAlone"  )
@@ -587,8 +610,8 @@ Ntuplizer::beginJob()
          for ( auto & triggerObjectLabel : triggerObjectLabels_ )
          {
             name = triggerObjectLabel;
-            trees_[name] = triggerObjectsDir.make<TTree>(name.c_str(),name.c_str());
-            triggerobjects_collections_.push_back(pTriggerObjectCandidates( new TriggerObjectCandidates(collection, trees_[name], is_mc_ ) ));
+            tree_[name] = triggerObjectsDir.make<TTree>(name.c_str(),name.c_str());
+            triggerobjects_collections_.push_back(pTriggerObjectCandidates( new TriggerObjectCandidates(collection, tree_[name], is_mc_ ) ));
             triggerobjects_collections_.back() -> Init();
          }
       }
@@ -603,10 +626,12 @@ Ntuplizer::beginJob()
 void 
 Ntuplizer::endJob() 
 {
-   filterEfficiency_    = nEventsTotal_ > 0    ? (double) nEventsFiltered_ / (double) nEventsTotal_ : 1;
-   genFilterEfficiency_ = nGenEventsTotal_ > 0 ? (double) nGenEventsFiltered_ / (double) nGenEventsTotal_ : 1;
- 
-   trees_["Metadata"] -> Fill();
+   if ( do_genfilter_ )
+      genFilterResults_   = genfilter_collection_->Results();
+   if ( do_eventfilter_ )
+      eventFilterResults_ = eventfilter_collection_->Results();
+   
+   tree_["Metadata"] -> Fill();
      
 }
 
@@ -652,25 +677,10 @@ void
 Ntuplizer::endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup)
 {
    if ( do_eventfilter_ )
-   {
-      edm::Handle <edm::MergeableCounter> nEventsTotalCounter;
-      lumi.getByLabel("nEventsTotal",nEventsTotalCounter);
-      nEventsTotal_ += nEventsTotalCounter -> value;
-      
-      edm::Handle <edm::MergeableCounter> nEventsFilteredCounter;
-      lumi.getByLabel("nEventsFiltered",nEventsFilteredCounter);
-      nEventsFiltered_ += nEventsFilteredCounter -> value;
-   }
+      eventfilter_collection_ -> Increment(lumi);
    
    if ( do_genfilter_ )
-   {
-      edm::Handle<GenFilterInfo> genFilter;
-      lumi.getByLabel(genFilterInfo_, genFilter);
-       
-      nGenEventsTotal_    += genFilter->sumWeights();
-      nGenEventsFiltered_ += genFilter->sumPassWeights();
-   }
-   
+      genfilter_collection_ -> Increment(lumi);
    
 }
 
