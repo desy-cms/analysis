@@ -13,6 +13,9 @@
 
 // system include files
 // 
+
+#include <boost/core/demangle.hpp>
+
 // user include files
 #include "FWCore/Framework/interface/Event.h"
 // 
@@ -95,6 +98,8 @@ Candidates<T>::Candidates(const edm::InputTag& tag, TTree* tree, const bool & mc
    do_generator_  = ( is_mc_ && is_genparticle_ );
    
    higgs_pdg_ = 36;
+   
+   this->tree_->SetTitle(boost::core::demangle(typeid(T).name()).c_str());
    
 }
 
