@@ -99,7 +99,10 @@ Candidates<T>::Candidates(const edm::InputTag& tag, TTree* tree, const bool & mc
    
    higgs_pdg_ = 36;
    
-   this->tree_->SetTitle(boost::core::demangle(typeid(T).name()).c_str());
+   
+   std::string title = boost::core::demangle(typeid(T).name()) + " | " + this->tree_->GetTitle();
+   
+   this->tree_->SetTitle(title.c_str());
    
 }
 
@@ -139,7 +142,10 @@ void Candidates<pat::TriggerObject>::ReadFromEvent(const edm::Event& event)
    edm::Handle<pat::TriggerObjectStandAloneCollection> handler;
    event.getByLabel(this->input_collection_, handler);
    
-   const std::string label = tree_ -> GetName(); // using the label to name the tree
+   const std::string treename = tree_ -> GetName(); // using the label to name the tree
+   const std::string delimiter = "_";
+   std::string label = treename.substr(0, treename.find(delimiter));
+//   std::cout << "oioi   " << label << std::endl;
    for ( auto ito : *handler )
    {
 //      const std::vector< std::string > & filterLabels = ito.filterLabels();

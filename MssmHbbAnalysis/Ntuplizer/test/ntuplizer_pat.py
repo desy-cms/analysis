@@ -15,7 +15,7 @@ for pset in process.GlobalTag.toGet.value():
 process.GlobalTag.RefreshEachRun = cms.untracked.bool( False )
 process.GlobalTag.ReconnectEachRun = cms.untracked.bool( False )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
 ## TFileService
 process.TFileService = cms.Service("TFileService",
@@ -27,11 +27,13 @@ process.MonteCarloStudies = cms.EDAnalyzer("Ntuplizer",
     MonteCarlo      = cms.bool(True),
     CrossSection    = cms.double(3.0001143e06),
     GenFilterInfo   = cms.InputTag("genFilterEfficiencyProducer","","SIM"),
+    UseFullName     = cms.bool(True),
 #    EventFilter     = cms.VInputTag(cms.InputTag("nEventsTotal"),
 #                                    cms.InputTag("nEventsFiltered")),
     GenJets         = cms.VInputTag(cms.InputTag("slimmedGenJets","","PAT")),
     L1ExtraJets     = cms.VInputTag(cms.InputTag("l1extraParticles","Central","RECO"),
-                                    cms.InputTag("l1extraParticles","Tau","RECO")),
+#                                    cms.InputTag("l1extraParticles","Tau","RECO")
+                                    ),
     L1ExtraMuons    = cms.VInputTag(cms.InputTag("l1extraParticles","","RECO")),
     PatJets         = cms.VInputTag(cms.InputTag("slimmedJets","","PAT"),
                                     cms.InputTag("slimmedJetsPuppi","","PAT"),
@@ -71,7 +73,10 @@ process.MonteCarloStudies = cms.EDAnalyzer("Ntuplizer",
                                          "btag_csvlep",
                                          "btag_csvmva",
                                         ),
-    TriggerObjectStandAlone  = cms.InputTag("selectedPatTrigger","","PAT"),
+    TriggerObjectStandAlone  = cms.VInputTag(
+                                             cms.InputTag("selectedPatTrigger","","PAT"),
+#                                             cms.InputTag("selectedPatTrigger","","PAT"),
+                                             ),
     TriggerObjectLabels    = cms.vstring  (
     											"hltSinglePFJet40",
     											"hltSinglePFJet60",

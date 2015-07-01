@@ -19,6 +19,7 @@
 
 // system include files
 #include <memory>
+#include <boost/algorithm/string.hpp>
 
 // user include files
 #include "DataFormats/Provenance/interface/Provenance.h"
@@ -72,6 +73,10 @@
 #include <TH1.h>
 #include <TFile.h>
 #include <TTree.h>
+
+using namespace boost;
+using namespace boost::algorithm;
+
 
 typedef std::vector<edm::InputTag> InputTags;
 typedef std::vector<std::string> strings;
@@ -265,102 +270,50 @@ void Ntuplizer::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
    }
    
    // L1 jets
-   if ( do_l1jets_ )
-   {
-      for ( size_t i = 0; i < l1jets_collections_.size() ; ++i )
-      {
-         l1jets_collections_[i]  -> Fill(event);
-      }
-   }
+      for ( auto & collection : l1jets_collections_ )
+         collection -> Fill(event);
    
    // L1 muons
-   if ( do_l1muons_ )
-   {
-      for ( size_t i = 0; i < l1muons_collections_.size() ; ++i )
-      {
-         l1muons_collections_[i]  -> Fill(event);
-      }
-   }
+      for ( auto & collection : l1muons_collections_ )
+         collection -> Fill(event);
    
    // Calo jets (reco)
-   if ( do_calojets_ )
-   {
-      for ( size_t i = 0; i < calojets_collections_.size() ; ++i )
-      {
-         calojets_collections_[i]  -> Fill(event);
-      }
-   }
+      for ( auto & collection : calojets_collections_ )
+         collection -> Fill(event);
 
    // PF jets (reco)
-   if ( do_pfjets_ )
-   {
-      for ( size_t i = 0; i < pfjets_collections_.size() ; ++i )
-      {
-         pfjets_collections_[i]  -> Fill(event);
-      }
-   }
+      for ( auto & collection : pfjets_collections_ )
+         collection -> Fill(event);
 
       // Pat jets (pat)
-   if ( do_patjets_ )
-   {
-      for ( size_t i = 0; i < patjets_collections_.size() ; ++i )
-      {
-         patjets_collections_[i]  -> Fill(event);
-      }
-   }
+      for ( auto & collection : patjets_collections_ )
+         collection -> Fill(event);
    
       // Pat muon (pat)
-   if ( do_patmuons_ )
-   {
-      for ( size_t i = 0; i < patmuons_collections_.size() ; ++i )
-      {
-         patmuons_collections_[i]  -> Fill(event);
-      }
-   }
+      for ( auto & collection : patmuons_collections_ )
+         collection -> Fill(event);
    
       // Gen jets (reco)
-   if ( do_genjets_ )
-   {
-      for ( size_t i = 0; i < genjets_collections_.size() ; ++i )
-      {
-         genjets_collections_[i]  -> Fill(event);
-      }
-   }
+      for ( auto & collection : genjets_collections_ )
+         collection -> Fill(event);
+      
       // Gen particles (reco)
-   if ( do_genparticles_ )
-   {
-      for ( size_t i = 0; i < genparticles_collections_.size() ; ++i )
-      {
-         genparticles_collections_[i]  -> Fill(event);
-      }
-   }
+      for ( auto & collection : genparticles_collections_ )
+         collection -> Fill(event);
+      
       // jets tags
-   if ( do_jetstags_ )
-   {
-      for ( size_t i = 0; i < jetstags_collections_.size() ; ++i )
-      {
-         jetstags_collections_[i]  -> Fill(event);
-      }
-   }
+      for ( auto & collection : jetstags_collections_ )
+         collection -> Fill(event);
+      
       // trigger accecpts
-   if ( do_triggeraccepts_ )
-   {
-      for ( size_t i = 0; i < triggeraccepts_collections_.size() ; ++i )
-      {
-         triggeraccepts_collections_[i]  -> Fill(event);
-      }
-   }
+      for ( auto & collection : triggeraccepts_collections_ )
+         collection -> Fill(event);
+      
       // primary vertices
-   if ( do_primaryvertices_ )
-   {
-      for ( size_t i = 0; i < primaryvertices_collections_.size() ; ++i )
-      {
-         primaryvertices_collections_[i]  -> Fill(event);
-      }
-   }
+      for ( auto & collection : primaryvertices_collections_ )
+         collection -> Fill(event);
    
       // trigger objects
-   if ( do_triggerobjects_ )
       for ( auto & collection : triggerobjects_collections_ )
          collection -> Fill(event);
 }
@@ -391,9 +344,13 @@ Ntuplizer::beginJob()
 
    
    edm::Service<TFileService> fs;
+//   TFileDirectory triggerObjectsDir;
+   
+   std::string name;
+   std::string fullname;
    
    // Metadata 
-   std::string name = "Metadata";
+   name = "Metadata";
    tree_[name] = fs -> make<TTree>(name.c_str(),name.c_str());
    // cross section
    tree_[name] -> Branch("xsection"        , &xsection_        , "xsection/D");
@@ -457,101 +414,117 @@ Ntuplizer::beginJob()
    
   
    // Input tags (vector)
-   for ( auto & inputTag : inputTagsVec_ )
+   for ( auto & inputTags : inputTagsVec_ )
    {
-      InputTags collections = config_.getParameter<InputTags>(inputTag);
+      InputTags collections = config_.getParameter<InputTags>(inputTags);
       for ( auto & collection : collections )
       {
          // Names for the trees, from inputs
          std::string label = collection.label();
+         std::string inst  = collection.instance();
+         std::string proc  = collection.process();
          name = label;
+         if ( find_first(inputTags,"L1Extra") )
+         {
+            // renaming tree for L1 jest as there is no explicit indication those are L1 jets objects
+            std::string l1obj = inputTags;
+            erase_first(l1obj,"L1Extra");
+            name += l1obj;
+         }
+         fullname = name + "_" + inst + "_" + proc;
+         name += inputTags == "L1ExtraJets" && ! use_full_name_ ? "_" + inst : "";
          if ( collection.instance() != "" && collections.size() > 1 )
-            name += "_" + collection.instance();
-         if ( use_full_name_ )
-            name  = collection.label() + "_" + collection.instance() + "_" + collection.process();
-         
+            name += "_" + inst;
+         if ( use_full_name_ ) name = fullname;
          
          // Initialise trees
-         if ( inputTag != "L1ExtraJets" && inputTag != "L1ExtraMuons" )
-            tree_[name] = fs->make<TTree>(name.c_str(),name.c_str());
+         if ( inputTags != "TriggerObjectStandAlone" )
+            tree_[name] = fs->make<TTree>(name.c_str(),fullname.c_str());
          
          // Pileup Info
-         if ( inputTag == "PileupInfo" )
+         if ( inputTags == "PileupInfo" )
          {
             pileupinfo_ = pPileupInfo( new PileupInfo(collection, tree_[name]) );
             pileupinfo_ -> Branches();
          }
          
          // L1 Jets
-         if ( inputTag == "L1ExtraJets" )
+         if ( inputTags == "L1ExtraJets" )
          {
-            // renaming tree for L1 jest as there is no explicit indication those are L1 jets objects
-            name  = collection.label() + "Jets_" + collection.instance();
-            if ( use_full_name_ )
-               name  += "_" + collection.process();
-            tree_[name] = fs->make<TTree>(name.c_str(),name.c_str());
             l1jets_collections_.push_back( pL1JetCandidates( new L1JetCandidates(collection, tree_[name], is_mc_, 5.,5. ) ));
             l1jets_collections_.back() -> Init();
          }
          
          // L1 Muons
-         if ( inputTag == "L1ExtraMuons" )
+         if ( inputTags == "L1ExtraMuons" )
          {
-            // renaming tree for L1 muons as there is no explicit indication those are L1 muon objects
-            name  = collection.label() + "Muons";
-            if ( collection.instance() != "" )
-               name  = collection.label() + "Muons_" + collection.instance();
-            if ( use_full_name_ )
-               name  = collection.label() + "Muons_" + collection.instance() + "_" + collection.process();
-            tree_[name] = fs->make<TTree>(name.c_str(),name.c_str());
             l1muons_collections_.push_back( pL1MuonCandidates( new L1MuonCandidates(collection, tree_[name], is_mc_, 0.,2.5 ) ));
             l1muons_collections_.back() -> Init();
          }
          
          // Calo Jets
-         if ( inputTag == "CaloJets" )
+         if ( inputTags == "CaloJets" )
          {
             calojets_collections_.push_back( pCaloJetCandidates( new CaloJetCandidates(collection, tree_[name], is_mc_, 10.,5. ) ));
             calojets_collections_.back() -> Init();
          }
          // PF Jets
-         if ( inputTag == "PFJets" )
+         if ( inputTags == "PFJets" )
          {
             pfjets_collections_.push_back( pPFJetCandidates( new PFJetCandidates(collection, tree_[name], is_mc_, 10.,5. ) ));
             pfjets_collections_.back() -> Init();
          }
          // Pat Jets
-         if ( inputTag == "PatJets" )
+         if ( inputTags == "PatJets" )
          {
             patjets_collections_.push_back( pPatJetCandidates( new PatJetCandidates(collection, tree_[name], is_mc_, 10, 5. ) ));
             patjets_collections_.back() -> Init(btagAlgos_, btagAlgosAlias_);
          }
          // Pat Muons
-         if ( inputTag == "PatMuons" )
+         if ( inputTags == "PatMuons" )
          {
             patmuons_collections_.push_back( pPatMuonCandidates( new PatMuonCandidates(collection, tree_[name], is_mc_ ,5., 2.5) ));
             patmuons_collections_.back() -> Init();
          }
          // Gen Jets
-         if ( inputTag == "GenJets" )
+         if ( inputTags == "GenJets" )
          {
             genjets_collections_.push_back( pGenJetCandidates( new GenJetCandidates(collection, tree_[name], is_mc_, 10., 5. ) ));
             genjets_collections_.back() -> Init();
          }
          // Gen Particles
-         if ( inputTag == "GenParticles" )
+         if ( inputTags == "GenParticles" )
          {
             genparticles_collections_.push_back( pGenParticleCandidates( new GenParticleCandidates(collection, tree_[name], is_mc_ ) ));
             genparticles_collections_.back() -> Init();
         }
          // Jets Tags
-         if ( inputTag == "JetsTags" )
+         if ( inputTags == "JetsTags" )
          {
             jetstags_collections_.push_back( pJetsTags( new JetsTags(collection, tree_[name]) ));
             jetstags_collections_.back() -> Branches();
          }
+         
+               // Trigger Objects
+         if ( do_triggerobjects_ && inputTags == "TriggerObjectStandAlone"  )
+         {
+            if ( triggerObjectLabels_.empty() )
+               triggerObjectLabels_ = config_.getParameter< std::vector<std::string> >("TriggerObjectLabels");
+            std::string dir = name;
+            TFileDirectory triggerObjectsDir = fs -> mkdir(dir);
+      
+            for ( auto & triggerObjectLabel : triggerObjectLabels_ )
+            {
+               name = triggerObjectLabel;
+               if ( use_full_name_ ) name += "_" + dir;
+               tree_[name] = triggerObjectsDir.make<TTree>(name.c_str(),name.c_str());
+               triggerobjects_collections_.push_back(pTriggerObjectCandidates( new TriggerObjectCandidates(collection, tree_[name], is_mc_ ) ));
+               triggerobjects_collections_.back() -> Init();
+            }
+         }
+         
          // Trigger Accepts
-         if ( do_triggeraccepts_ && inputTag == "TriggerResults" )
+         if ( do_triggeraccepts_ && inputTags == "TriggerResults" )
          {
             // TriggerResults collections names differ by the process, so add it to the name
             std::vector< std::string> trigger_paths = config_.getParameter< std::vector< std::string> >("TriggerPaths");
@@ -559,14 +532,14 @@ Ntuplizer::beginJob()
             triggeraccepts_collections_.back() -> Branches();
          }
          // Primary Vertices
-         if ( inputTag == "PrimaryVertices" )
+         if ( inputTags == "PrimaryVertices" )
          {
             primaryvertices_collections_.push_back( pPrimaryVertices( new PrimaryVertices(collection, tree_[name]) ));
             primaryvertices_collections_.back() -> Branches();
          }
          
          // Event filter
-         if ( do_eventfilter_ && inputTag == "EventFilter" )
+         if ( do_eventfilter_ && inputTags == "EventFilter" )
          {
             eventCounters_.push_back(collection);
             if ( eventCounters_.size() > 1 )
@@ -596,30 +569,8 @@ Ntuplizer::beginJob()
          genfilter_collection_ = pGeneratorFilterEfficiency( new GeneratorFilterEfficiency({genFilterInfo_} ));
       }
 
-
-      // Trigger Objects
-      if ( do_triggerobjects_ && inputTag == "TriggerObjectStandAlone"  )
-      {
-         triggerObjectLabels_.clear();
-         triggerObjectLabels_ = config_.getParameter< std::vector<std::string> >("TriggerObjectLabels");
-         std::string dir = label;
-         if ( use_full_name_ )
-            dir += "_" + collection.instance() + "_" +collection.process();
-         TFileDirectory triggerObjectsDir = fs -> mkdir(dir);
-   
-         for ( auto & triggerObjectLabel : triggerObjectLabels_ )
-         {
-            name = triggerObjectLabel;
-            tree_[name] = triggerObjectsDir.make<TTree>(name.c_str(),name.c_str());
-            triggerobjects_collections_.push_back(pTriggerObjectCandidates( new TriggerObjectCandidates(collection, tree_[name], is_mc_ ) ));
-            triggerobjects_collections_.back() -> Init();
-         }
-      }
    } 
 
-   
-
-   
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
