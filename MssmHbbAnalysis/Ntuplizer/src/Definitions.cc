@@ -38,15 +38,28 @@ Definitions::Definitions()
 
 Definitions::Definitions(edm::Service<TFileService> & fs)
 {
-   std::string name = "Definitions";
-   tree_ = fs->make<TTree>(name.c_str(),name.c_str());
+   std::string category = "Definitions";
+   tree_ = fs->make<TTree>(category.c_str(),category.c_str());
    
 }
 
-Definitions::Definitions(TFileDirectory & dir)
+Definitions::Definitions(edm::Service<TFileService> & fs, const std::string & category )
 {
-   std::string name = "Definitions";
-   tree_ = dir.make<TTree>(name.c_str(),name.c_str());
+   TFileDirectory subDir = fs->mkdir( "Definitions" );
+   tree_ = subDir.make<TTree>(category.c_str(),category.c_str());
+}
+
+Definitions::Definitions(TFileDirectory & subDir)
+{
+   std::string category = "Definitions";
+   tree_ = subDir.make<TTree>(category.c_str(),category.c_str());
+   
+}
+
+Definitions::Definitions(TFileDirectory & subDir, const std::string & category )
+{
+   TFileDirectory subSubDir = subDir.mkdir( "Definitions" );
+   tree_ = subSubDir.make<TTree>(category.c_str(),category.c_str());
    
 }
 

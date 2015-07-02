@@ -180,7 +180,7 @@ class Ntuplizer : public edm::EDAnalyzer {
 
       // Ntuple stuff
       pEventInfo eventinfo_;
-      pDefinitions definitions_;
+      pDefinitions definitions_btag_;
       pPileupInfo pileupinfo_;
       
       // Collections for the ntuples (vector)
@@ -406,9 +406,9 @@ Ntuplizer::beginJob()
    }
    
    // Definitions (the definitions should be later in Metadata directory(?))
-   definitions_ = pDefinitions ( new Definitions(fs) );
-   definitions_ -> Add(btagAlgos_,btagAlgosAlias_);
-   definitions_ -> Fill();
+   definitions_btag_ = pDefinitions ( new Definitions(fs, "btagging") );
+   definitions_btag_ -> Add(btagAlgos_,btagAlgosAlias_);
+   definitions_btag_ -> Fill();
 
    
    // Event info tree

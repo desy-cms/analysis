@@ -39,7 +39,9 @@ namespace mssmhbb {
          public:
             Definitions();
             Definitions(edm::Service<TFileService> &);
+            Definitions(edm::Service<TFileService> &, const std::string &);
             Definitions(TFileDirectory &);
+            Definitions(TFileDirectory &, const std::string &);
            ~Definitions();
             void Fill();
             void Init();
