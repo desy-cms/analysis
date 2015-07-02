@@ -46,11 +46,36 @@ namespace mssmhbb {
 // }
 
 template <typename T>
-FilterEfficiency<T>::FilterEfficiency(const std::vector<edm::InputTag> & collections )   :
-      				collections_(collections),
-                  nTotal_(0),
-                  nFiltr_(0)
+FilterEfficiency<T>::FilterEfficiency(edm::Service<TFileService> & fs, const std::vector<edm::InputTag> & collections) :
+      nTotal_(0), nFiltr_(0), collections_(collections)
 {
+   std::string category = "GeneratorFilter";
+   if ( std::is_same<T,edm::MergeableCounter>::value )
+      category = "EventFilter";
+   
+   tree_ = fs->make<TTree>(category.c_str(),category.c_str());
+   
+   tree_ -> Branch("nEventsTotal"    , &this->nTotal_     , "nEventsTotal/i");
+   tree_ -> Branch("nEventsFiltered" , &this->nFiltr_     , "nEventsFiltered/i");
+   tree_ -> Branch("filterEfficiency", &this->efficiency_ , "filterEfficiency/D");
+
+   
+}
+
+template <typename T>
+FilterEfficiency<T>::FilterEfficiency(TFileDirectory & subDir, const std::vector<edm::InputTag> & collections) :
+      nTotal_(0), nFiltr_(0), collections_(collections)
+{
+   std::string category = "GeneratorFilter";
+   if ( std::is_same<T,edm::MergeableCounter>::value )
+      category = "EventFilter";
+
+   tree_ = subDir.make<TTree>(category.c_str(),category.c_str());
+   
+   tree_ -> Branch("nEventsTotal"    , &this->nTotal_     , "nEventsTotal/i");
+   tree_ -> Branch("nEventsFiltered" , &this->nFiltr_     , "nEventsFiltered/i");
+   tree_ -> Branch("filterEfficiency", &this->efficiency_ , "filterEfficiency/D");
+
 }
 
 template <typename T>
@@ -58,6 +83,27 @@ FilterEfficiency<T>::~FilterEfficiency()
 {
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
+}
+
+// ------------ other methods ----------------
+template <typename T>
+TTree * FilterEfficiency<T>::Tree()
+{
+   return tree_;
+}
+
+// ------------ method called once each job just before starting event loop  ------------
+template <typename T>
+void FilterEfficiency<T>::SetCollections(const std::vector<edm::InputTag> & collections)
+{
+   collections_ = collections;
+}
+
+// ------------ method called at the end of the EDAnalyzer job  ------------
+template <typename T>
+void FilterEfficiency<T>::Fill()
+{
+   tree_ -> Fill();
 }
 
 

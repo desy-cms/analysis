@@ -547,7 +547,7 @@ Ntuplizer::beginJob()
             {
                std::cout << "Ntuplizer::BeginJob() - Warning: you gave more than two collections for the event filter calculation." << std::endl;
                std::cout << "                                 Only the first two collections will be used." << std::endl;
-               eventfilter_collection_ = pEventFilterEfficiency( new EventFilterEfficiency(eventCounters_));
+               eventfilter_collection_ = pEventFilterEfficiency( new EventFilterEfficiency( fs, eventCounters_));
                break;
             }
          }
@@ -567,7 +567,7 @@ Ntuplizer::beginJob()
       if ( do_genfilter_ && inputTag == "GenFilterInfo" )
       {
          genFilterInfo_  = config_.getParameter<edm::InputTag> ("GenFilterInfo");
-         genfilter_collection_ = pGeneratorFilterEfficiency( new GeneratorFilterEfficiency({genFilterInfo_} ));
+         genfilter_collection_ = pGeneratorFilterEfficiency( new GeneratorFilterEfficiency(fs, {genFilterInfo_} ));
       }
 
    } 
@@ -579,11 +579,19 @@ void
 Ntuplizer::endJob() 
 {
    if ( do_genfilter_ )
+   {
       genFilterResults_   = genfilter_collection_->Results();
+      genfilter_collection_   -> Fill();
+   }
    if ( do_eventfilter_ )
+   {
       eventFilterResults_ = eventfilter_collection_->Results();
+      eventfilter_collection_ -> Fill();
+   }
    
    tree_["Metadata"] -> Fill();
+   
+   
      
 }
 

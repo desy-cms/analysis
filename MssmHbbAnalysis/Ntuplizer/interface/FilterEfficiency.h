@@ -26,6 +26,11 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+
+#include "TTree.h"
+
 //
 // class declaration
 //
@@ -42,16 +47,24 @@ namespace mssmhbb {
       template <typename T>
       class FilterEfficiency {
          public:
-            FilterEfficiency(const std::vector<edm::InputTag> & );
+            FilterEfficiency(edm::Service<TFileService> &, const std::vector<edm::InputTag> & collections = std::vector<edm::InputTag>() );
+            FilterEfficiency(TFileDirectory &, const std::vector<edm::InputTag> & collections = std::vector<edm::InputTag>());
            ~FilterEfficiency();
+            void SetCollections(const std::vector<edm::InputTag> &);
             void Increment(edm::LuminosityBlock const& );
             FilterResults Results();
+            TTree * Tree();
+            void Fill();
       
          private:
             // ----------member data ---------------------------
-            std::vector<edm::InputTag> collections_;
             unsigned int    nTotal_;
             unsigned int    nFiltr_;
+            double          efficiency_;
+            std::vector<edm::InputTag> collections_;
+            
+            // Output tree
+            TTree * tree_;
       };         
    }
 }
