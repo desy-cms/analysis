@@ -30,6 +30,9 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+
 #include "TTree.h"
 
 //
@@ -42,22 +45,23 @@ namespace mssmhbb {
       class EventInfo {
          public:
             EventInfo();
-            EventInfo(TTree*);
+            EventInfo(edm::Service<TFileService> &);
            ~EventInfo();
             void Fill(const edm::Event&);
-            void Branches();
             void Init();
+            TTree * Tree();
       
          private:
             // ----------member data ---------------------------
             
-            // particles kinematics for the ntuple
+            // event information
             int event_;
             int run_;
             int lumi_;
             int bx_;
             int orbit_;
             
+            // Output tree
             TTree * tree_;
             
       };

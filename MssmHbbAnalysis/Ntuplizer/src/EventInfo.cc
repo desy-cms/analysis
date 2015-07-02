@@ -36,9 +36,19 @@ EventInfo::EventInfo()
    // default constructor
 }
 
-EventInfo::EventInfo(TTree* tree)
+EventInfo::EventInfo(edm::Service<TFileService> & fs)
 {
-   tree_ = tree;
+   std::string name = "EventInfo";
+   tree_ = fs->make<TTree>(name.c_str(),name.c_str());
+   
+   // event output info
+   tree_->Branch("event", &event_, "event/I");
+   tree_->Branch("run"  , &run_  , "run/I");
+   tree_->Branch("lumisection" , &lumi_ , "lumisection/I");
+   tree_->Branch("bx"   , &bx_   , "bx/I");
+   tree_->Branch("orbit", &orbit_, "orbit/I");
+   
+   
 }
 
 EventInfo::~EventInfo()
@@ -72,20 +82,13 @@ void EventInfo::Fill(const edm::Event& event)
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void EventInfo::Branches()
-{
-   
-   // event output info
-   tree_->Branch("event", &event_, "event/I");
-   tree_->Branch("run"  , &run_  , "run/I");
-   tree_->Branch("lumisection" , &lumi_ , "lumisection/I");
-   tree_->Branch("bx"   , &bx_   , "bx/I");
-   tree_->Branch("orbit", &orbit_, "orbit/I");
-}
-
 void EventInfo::Init()
 {
-   
-   Branches();
+}
+
+// ------------ other methods ----------------
+TTree * EventInfo::Tree()
+{
+   return tree_;
 }
 

@@ -20,6 +20,7 @@
 // system include files
 #include <memory>
 #include <boost/algorithm/string.hpp>
+#include <type_traits>
 
 // user include files
 #include "DataFormats/Provenance/interface/Provenance.h"
@@ -345,6 +346,11 @@ Ntuplizer::beginJob()
    
    edm::Service<TFileService> fs;
 //   TFileDirectory triggerObjectsDir;
+//    std::cout << std::boolalpha;
+//    std::cout << "oioioi  rvalue " << std::is_rvalue_reference< edm::Service<TFileService> >::value << std::endl;
+//    std::cout << "oioioi  lvalue " << std::is_lvalue_reference< edm::Service<TFileService> >::value << std::endl;
+//    std::cout << "oioioi  object " << std::is_object< edm::Service<TFileService> >::value << std::endl;
+
    
    std::string name;
    std::string fullname;
@@ -407,12 +413,8 @@ Ntuplizer::beginJob()
 
    
    // Event info tree
-   name = "EventInfo";
-   tree_[name] = fs->make<TTree>(name.c_str(),name.c_str());
-   eventinfo_ = pEventInfo (new EventInfo(tree_[name]));
-   eventinfo_ -> Init();
+   eventinfo_ = pEventInfo (new EventInfo(fs));
    
-  
    // Input tags (vector)
    for ( auto & inputTags : inputTagsVec_ )
    {
