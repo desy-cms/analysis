@@ -43,6 +43,13 @@ Definitions::Definitions(edm::Service<TFileService> & fs)
    
 }
 
+Definitions::Definitions(TFileDirectory & dir)
+{
+   std::string name = "Definitions";
+   tree_ = dir.make<TTree>(name.c_str(),name.c_str());
+   
+}
+
 Definitions::~Definitions()
 {
    // do anything here that needs to be done at desctruction time
