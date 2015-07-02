@@ -57,6 +57,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 
 #include "MssmHbbAnalysis/Ntuplizer/interface/EventInfo.h"
+#include "MssmHbbAnalysis/Ntuplizer/interface/Definitions.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 #include "MssmHbbAnalysis/Ntuplizer/interface/PileupInfo.h"
 #include "MssmHbbAnalysis/Ntuplizer/interface/Candidates.h"
@@ -84,6 +85,7 @@ typedef std::vector<std::string> strings;
 
 // Alias to the collections classes of candidates for the ntuple
 typedef mssmhbb::ntuple::EventInfo EventInfo;
+typedef mssmhbb::ntuple::Definitions Definitions;
 typedef mssmhbb::ntuple::PileupInfo PileupInfo;
 typedef mssmhbb::ntuple::Candidates<l1extra::L1JetParticle> L1JetCandidates;
 typedef mssmhbb::ntuple::Candidates<l1extra::L1MuonParticle> L1MuonCandidates;
@@ -104,6 +106,7 @@ typedef mssmhbb::ntuple::FilterEfficiency<edm::MergeableCounter> EventFilterEffi
 
 // Alias to the pointers to the above classes
 typedef std::unique_ptr<EventInfo> pEventInfo;
+typedef std::unique_ptr<Definitions> pDefinitions;
 typedef std::unique_ptr<PileupInfo> pPileupInfo;
 typedef std::unique_ptr<L1JetCandidates> pL1JetCandidates;
 typedef std::unique_ptr<L1MuonCandidates> pL1MuonCandidates;
@@ -177,6 +180,7 @@ class Ntuplizer : public edm::EDAnalyzer {
 
       // Ntuple stuff
       pEventInfo eventinfo_;
+      pDefinitions definitions_;
       pPileupInfo pileupinfo_;
       
       // Collections for the ntuples (vector)
@@ -401,15 +405,10 @@ Ntuplizer::beginJob()
          btagAlgosAlias_.push_back(it);
    }
    
-   // Definitions
-   name = "Definitions";
-   tree_[name] = fs -> make<TTree>(name.c_str(),name.c_str());
-   // btag algorihtms
-   for ( size_t i = 0; i < btagAlgos_.size() ; ++i )
-   {
-      tree_[name] ->Branch(btagAlgosAlias_[i].c_str(),(void*)btagAlgos_[i].c_str(),"string/C",1024);
-   }
-   tree_[name] -> Fill();
+   // Definitions (the definitions should be later in Metadata directory(?))
+   definitions_ = pDefinitions ( new Definitions(fs) );
+   definitions_ -> Add(btagAlgos_,btagAlgosAlias_);
+   definitions_ -> Fill();
 
    
    // Event info tree
