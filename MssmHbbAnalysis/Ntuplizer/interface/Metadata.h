@@ -28,10 +28,33 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
+#include "MssmHbbAnalysis/Ntuplizer/interface/Definitions.h"
+
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
+#include "DataFormats/Common/interface/MergeableCounter.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
+
+#include "MssmHbbAnalysis/Ntuplizer/interface/EventFilter.h"
+
+
+
 #include "TTree.h"
+
+
+typedef mssmhbb::ntuple::Definitions Definitions;
+typedef std::unique_ptr<Definitions> pDefinitions;
+
+typedef mssmhbb::ntuple::EventFilter<GenFilterInfo> GenFilter;
+typedef mssmhbb::ntuple::EventFilter<edm::MergeableCounter> EvtFilter;
+
+typedef std::unique_ptr<GenFilter> pGenFilter;
+typedef std::unique_ptr<EvtFilter> pEvtFilter;
+
+
+typedef std::unique_ptr<edm::Service<TFileService> > pTFileService;
+
 
 //
 // class declaration
@@ -42,19 +65,42 @@ namespace mssmhbb {
 
       class Metadata {
          public:
-//            Metadata();
-            Metadata(edm::Service<TFileService> & );
+            Metadata();
+            Metadata(edm::Service<TFileService> &, const std::string & dir = "Metadata" );
             Metadata(TFileDirectory & );
            ~Metadata();
             void Fill();
             TTree * Tree();
             TFileDirectory TreeDir();
+            void AddDefinitions(const std::vector<std::string> &, const std::vector<std::string> &);
+            void AddDefinitions(const std::vector<std::string> &, const std::vector<std::string> &, const std::string &);
+            
+            void SetGeneratorFilter(const edm::InputTag & );
+            void SetEventFilter(const std::vector<edm::InputTag> &);
+            
+            void IncrementEventFilters( edm::LuminosityBlock const& );
+            
+            GenFilter & GetGeneratorFilter();
+            EvtFilter & GetEventFilter();
 
          private:
             // ----------member data ---------------------------
             
+            edm::Service<TFileService> * fs_;
             TTree * tree_;
-            TFileDirectory treeDir_;
+            TFileDirectory mainDir_;
+            
+            std::vector<pDefinitions> vdefinitions_;
+            
+            bool isGenFilter_;
+            bool isEvtFilter_;
+            pGenFilter  genfilter_;
+            pEvtFilter  evtfilter_;
+
+            
+            pTFileService pfs_;
+            
+            
             
       };
    }
