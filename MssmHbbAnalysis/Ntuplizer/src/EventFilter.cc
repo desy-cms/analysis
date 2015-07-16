@@ -103,6 +103,7 @@ void EventFilter<T>::SetCollections(const std::vector<edm::InputTag> & collectio
 template <typename T>
 void EventFilter<T>::Fill()
 {
+   efficiency_ = this -> Results().efficiency;
    tree_ -> Fill();
 }
 
