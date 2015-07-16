@@ -58,6 +58,7 @@
 
 #include "MssmHbbAnalysis/Ntuplizer/interface/EventInfo.h"
 #include "MssmHbbAnalysis/Ntuplizer/interface/Definitions.h"
+#include "MssmHbbAnalysis/Ntuplizer/interface/Metadata.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 #include "MssmHbbAnalysis/Ntuplizer/interface/PileupInfo.h"
 #include "MssmHbbAnalysis/Ntuplizer/interface/Candidates.h"
@@ -67,10 +68,7 @@
 
 #include "DataFormats/Common/interface/OwnVector.h"
 
-#include "DataFormats/Common/interface/MergeableCounter.h"
-#include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
-
-#include "MssmHbbAnalysis/Ntuplizer/interface/FilterEfficiency.h"
+#include "MssmHbbAnalysis/Ntuplizer/interface/EventFilter.h"
 
 #include <TH1.h>
 #include <TFile.h>
@@ -85,6 +83,7 @@ typedef std::vector<std::string> strings;
 
 // Alias to the collections classes of candidates for the ntuple
 typedef mssmhbb::ntuple::EventInfo EventInfo;
+typedef mssmhbb::ntuple::Metadata Metadata;
 typedef mssmhbb::ntuple::Definitions Definitions;
 typedef mssmhbb::ntuple::PileupInfo PileupInfo;
 typedef mssmhbb::ntuple::Candidates<l1extra::L1JetParticle> L1JetCandidates;
@@ -100,12 +99,10 @@ typedef mssmhbb::ntuple::JetsTags JetsTags;
 typedef mssmhbb::ntuple::TriggerAccepts TriggerAccepts;
 typedef mssmhbb::ntuple::PrimaryVertices PrimaryVertices;
 
-typedef mssmhbb::ntuple::FilterEfficiency<GenFilterInfo> GeneratorFilterEfficiency;
-typedef mssmhbb::ntuple::FilterEfficiency<edm::MergeableCounter> EventFilterEfficiency;
-
 
 // Alias to the pointers to the above classes
 typedef std::unique_ptr<EventInfo> pEventInfo;
+typedef std::unique_ptr<Metadata> pMetadata;
 typedef std::unique_ptr<Definitions> pDefinitions;
 typedef std::unique_ptr<PileupInfo> pPileupInfo;
 typedef std::unique_ptr<L1JetCandidates> pL1JetCandidates;
@@ -120,9 +117,6 @@ typedef std::unique_ptr<TriggerObjectCandidates> pTriggerObjectCandidates;
 typedef std::unique_ptr<JetsTags> pJetsTags;
 typedef std::unique_ptr<TriggerAccepts> pTriggerAccepts;
 typedef std::unique_ptr<PrimaryVertices> pPrimaryVertices;
-
-typedef std::unique_ptr<GeneratorFilterEfficiency> pGeneratorFilterEfficiency;
-typedef std::unique_ptr<EventFilterEfficiency> pEventFilterEfficiency;
 
 //
 // class declaration
@@ -180,7 +174,7 @@ class Ntuplizer : public edm::EDAnalyzer {
 
       // Ntuple stuff
       pEventInfo eventinfo_;
-      pDefinitions definitions_btag_;
+      pMetadata  metadata_;
       pPileupInfo pileupinfo_;
       
       // Collections for the ntuples (vector)
@@ -196,10 +190,6 @@ class Ntuplizer : public edm::EDAnalyzer {
       std::vector<pPrimaryVertices> primaryvertices_collections_;
       std::vector<pTriggerAccepts> triggeraccepts_collections_;
       std::vector<pTriggerObjectCandidates> triggerobjects_collections_;
-      
-      pGeneratorFilterEfficiency genfilter_collection_;
-      pEventFilterEfficiency eventfilter_collection_;
-      
       
       // Collections for the ntuples (single)
       
@@ -349,29 +339,15 @@ Ntuplizer::beginJob()
 
    
    edm::Service<TFileService> fs;
-//   TFileDirectory triggerObjectsDir;
-//    std::cout << std::boolalpha;
-//    std::cout << "oioioi  rvalue " << std::is_rvalue_reference< edm::Service<TFileService> >::value << std::endl;
-//    std::cout << "oioioi  lvalue " << std::is_lvalue_reference< edm::Service<TFileService> >::value << std::endl;
-//    std::cout << "oioioi  object " << std::is_object< edm::Service<TFileService> >::value << std::endl;
-
    
    std::string name;
    std::string fullname;
    
    // Metadata 
-   name = "Metadata";
+   name = "MetadataOld";
    tree_[name] = fs -> make<TTree>(name.c_str(),name.c_str());
    // cross section
    tree_[name] -> Branch("xsection"        , &xsection_        , "xsection/D");
-   // event filter
-   tree_[name] -> Branch("nEventsTotal"    , &eventFilterResults_.total     , "nEventsTotal/i");
-   tree_[name] -> Branch("nEventsFiltered" , &eventFilterResults_.filtered  , "nEventsFiltered/i");
-   tree_[name] -> Branch("filterEfficiency", &eventFilterResults_.efficiency, "filterEfficiency/D");
-   // generator filter
-   tree_[name] -> Branch("nGenEventsTotal"    , &genFilterResults_.total     , "nGenEventsTotal/i");
-   tree_[name] -> Branch("nGenEventsFiltered" , &genFilterResults_.filtered  , "nGenEventsFiltered/i");
-   tree_[name] -> Branch("genFilterEfficiency", &genFilterResults_.efficiency, "genFilterEfficiency/D");
    
    xsection_ = -1.0;
    
@@ -405,16 +381,14 @@ Ntuplizer::beginJob()
          btagAlgosAlias_.push_back(it);
    }
    
-   // Definitions (the definitions should be later in Metadata directory(?))
-   definitions_btag_ = pDefinitions ( new Definitions(fs, "btagging") );
-   definitions_btag_ -> Add(btagAlgos_,btagAlgosAlias_);
-   definitions_btag_ -> Fill();
-
-   
    // Event info tree
    eventinfo_ = pEventInfo (new EventInfo(fs));
    
-   // Input tags (vector)
+    // Event info tree
+   metadata_ = pMetadata (new Metadata(fs));
+   metadata_ -> AddDefinitions(btagAlgos_,btagAlgosAlias_,"btagging");
+   
+  // Input tags (vector)
    for ( auto & inputTags : inputTagsVec_ )
    {
       InputTags collections = config_.getParameter<InputTags>(inputTags);
@@ -547,7 +521,7 @@ Ntuplizer::beginJob()
             {
                std::cout << "Ntuplizer::BeginJob() - Warning: you gave more than two collections for the event filter calculation." << std::endl;
                std::cout << "                                 Only the first two collections will be used." << std::endl;
-               eventfilter_collection_ = pEventFilterEfficiency( new EventFilterEfficiency( fs, eventCounters_));
+               metadata_ -> SetEventFilter(eventCounters_);
                break;
             }
          }
@@ -564,10 +538,9 @@ Ntuplizer::beginJob()
       std::string label = collection.label();
          
       // Generator filter
-      if ( do_genfilter_ && inputTag == "GenFilterInfo" )
+      if ( do_genfilter_ && inputTag == "GenFilterInfo" && is_mc_ )
       {
-         genFilterInfo_  = config_.getParameter<edm::InputTag> ("GenFilterInfo");
-         genfilter_collection_ = pGeneratorFilterEfficiency( new GeneratorFilterEfficiency(fs, {genFilterInfo_} ));
+         metadata_ -> SetGeneratorFilter(config_.getParameter<edm::InputTag> ("GenFilterInfo"));
       }
 
    } 
@@ -578,21 +551,8 @@ Ntuplizer::beginJob()
 void 
 Ntuplizer::endJob() 
 {
-   if ( do_genfilter_ )
-   {
-      genFilterResults_   = genfilter_collection_->Results();
-      genfilter_collection_   -> Fill();
-   }
-   if ( do_eventfilter_ )
-   {
-      eventFilterResults_ = eventfilter_collection_->Results();
-      eventfilter_collection_ -> Fill();
-   }
-   
-   tree_["Metadata"] -> Fill();
-   
-   
-     
+   metadata_ -> Fill();
+   tree_["MetadataOld"] -> Fill();
 }
 
 // ------------ method called when starting to processes a run  ------------
@@ -636,12 +596,7 @@ void  Ntuplizer::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::Eve
 void 
 Ntuplizer::endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup)
 {
-   if ( do_eventfilter_ )
-      eventfilter_collection_ -> Increment(lumi);
-   
-   if ( do_genfilter_ )
-      genfilter_collection_ -> Increment(lumi);
-   
+   metadata_ -> IncrementEventFilters(lumi);
 }
 
 
