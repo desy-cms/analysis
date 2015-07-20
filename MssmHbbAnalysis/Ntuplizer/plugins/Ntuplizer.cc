@@ -343,19 +343,8 @@ Ntuplizer::beginJob()
    std::string name;
    std::string fullname;
    
-   // Metadata 
-   name = "MetadataOld";
-   tree_[name] = fs -> make<TTree>(name.c_str(),name.c_str());
-   // cross section
-   tree_[name] -> Branch("xsection"        , &xsection_        , "xsection/D");
-   
-   xsection_ = -1.0;
-   
    genFilterResults_  = {};
    eventFilterResults_ = {};
-   
-   if ( config_.exists("CrossSection") )
-      xsection_ = config_.getParameter<double>("CrossSection");
    
    // Btagging algorithms
    // Will set one default
@@ -385,8 +374,13 @@ Ntuplizer::beginJob()
    eventinfo_ = pEventInfo (new EventInfo(fs));
    
     // Event info tree
-   metadata_ = pMetadata (new Metadata(fs));
+   metadata_ = pMetadata (new Metadata(fs,is_mc_));
    metadata_ -> AddDefinitions(btagAlgos_,btagAlgosAlias_,"btagging");
+   // My cross section  value for the metadata
+   xsection_ = -1.0;
+   if ( config_.exists("CrossSection") )
+      xsection_ = config_.getParameter<double>("CrossSection");
+   
    
   // Input tags (vector)
    for ( auto & inputTags : inputTagsVec_ )
@@ -552,7 +546,6 @@ void
 Ntuplizer::endJob() 
 {
    metadata_ -> Fill();
-   tree_["MetadataOld"] -> Fill();
 }
 
 // ------------ method called when starting to processes a run  ------------
@@ -568,11 +561,9 @@ Ntuplizer::beginRun(edm::Run const&, edm::EventSetup const&)
 void 
 Ntuplizer::endRun(edm::Run const& run, edm::EventSetup const& setup)
 {
-   if ( xsection_ < 0. )
+   if ( is_mc_)
    {
-      edm::Handle<GenRunInfoProduct> genRunInfo;
-      run.getByLabel( "generator", genRunInfo );
-      xsection_ = genRunInfo->internalXSec().value();
+      metadata_ -> SetCrossSections(run,xsection_);
    }
 }
 

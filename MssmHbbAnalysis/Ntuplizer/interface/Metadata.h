@@ -26,6 +26,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include "MssmHbbAnalysis/Ntuplizer/interface/Definitions.h"
@@ -66,7 +67,7 @@ namespace mssmhbb {
       class Metadata {
          public:
             Metadata();
-            Metadata(edm::Service<TFileService> &, const std::string & dir = "Metadata" );
+            Metadata(edm::Service<TFileService> &, const bool & is_mc = false, const std::string & dir = "Metadata" );
             Metadata(TFileDirectory & );
            ~Metadata();
             void Fill();
@@ -77,8 +78,10 @@ namespace mssmhbb {
             
             void SetGeneratorFilter(const edm::InputTag & );
             void SetEventFilter(const std::vector<edm::InputTag> &);
-            
             void IncrementEventFilters( edm::LuminosityBlock const& );
+            
+            void SetCrossSections( const edm::Run  &, const double & myxs = -1. );
+            
             
             GenFilter & GetGeneratorFilter();
             EvtFilter & GetEventFilter();
@@ -86,8 +89,7 @@ namespace mssmhbb {
          private:
             // ----------member data ---------------------------
             
-            edm::Service<TFileService> * fs_;
-            TTree * tree_;
+//            edm::Service<TFileService> * fs_;
             TFileDirectory mainDir_;
             
             std::vector<pDefinitions> vdefinitions_;
@@ -96,9 +98,20 @@ namespace mssmhbb {
             bool isEvtFilter_;
             pGenFilter  genfilter_;
             pEvtFilter  evtfilter_;
+            
+            bool is_mc_;
 
             
             pTFileService pfs_;
+            
+            // Cross sections tree
+            TTree * treeXS_;
+            double myXSec_;
+            double XSec_;
+            double internalXSec_;
+            double externalXSecLO_;
+            double externalXSecNLO_;
+            unsigned int runXS_;
             
             
             

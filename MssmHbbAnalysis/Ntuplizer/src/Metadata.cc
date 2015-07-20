@@ -21,6 +21,8 @@
  
 #include "MssmHbbAnalysis/Ntuplizer/interface/Metadata.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
+
 
 //
 // class declaration
@@ -37,15 +39,31 @@ Metadata::Metadata()
    // default constructor
 }
 
-Metadata::Metadata(edm::Service<TFileService> & fs, const std::string & dir ) 
+Metadata::Metadata(edm::Service<TFileService> & fs, const bool & is_mc, const std::string & dir ) 
 {
+   is_mc_ = is_mc;
+   
    vdefinitions_.clear();
    mainDir_ = fs->mkdir(dir);
    
-   fs_ = &fs;
+//   fs_ = &fs;
    
    isGenFilter_ = false;
    isEvtFilter_ = false;
+   
+   if ( is_mc_ )
+   {
+      // Cross sections tree
+      treeXS_ = mainDir_.make<TTree>("CrossSections","Cross Sections");
+      // cross section branches
+      treeXS_ -> Branch("run"            , &runXS_            , "run/i");
+      treeXS_ -> Branch("myCrossSection" , &myXSec_           , "myCrossSection/D");
+      treeXS_ -> Branch("crossSection"   , &XSec_             , "crossSection_generator/D");
+      treeXS_ -> Branch("internalXSec"   , &internalXSec_     , "internalXSec_generator/D");
+      treeXS_ -> Branch("externalXSecLO" , &externalXSecLO_   , "externalXSecLO_generator/D");
+      treeXS_ -> Branch("externalXSecNLO", &externalXSecNLO_  , "externalXSecNLO_generator/D");
+   }
+
 }
 
 Metadata::~Metadata()
@@ -112,3 +130,24 @@ EvtFilter & Metadata::GetEventFilter()
 {
    return *evtfilter_;
 }
+
+void Metadata::SetCrossSections( const edm::Run  & run, const double & myxs )
+{
+   if ( is_mc_ )
+   {
+      runXS_ = run.run();
+      
+      edm::Handle<GenRunInfoProduct> genRunInfo;
+      run.getByLabel( "generator", genRunInfo );
+      myXSec_          = myxs;
+      XSec_            = genRunInfo -> crossSection();
+      internalXSec_    = genRunInfo -> internalXSec().value();
+      externalXSecLO_  = genRunInfo -> externalXSecLO().value();
+      externalXSecNLO_ = genRunInfo -> externalXSecNLO().value();
+      
+      treeXS_ -> Fill();
+   }
+
+}
+            
+
