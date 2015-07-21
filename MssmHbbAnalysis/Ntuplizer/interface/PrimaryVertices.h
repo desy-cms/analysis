@@ -1,12 +1,12 @@
-#ifndef MssmHbbAnalysis_Ntuplizer_PrimaryVertices_h
-#define MssmHbbAnalysis_Ntuplizer_PrimaryVertices_h 1
+#ifndef MssmHbbAnalysis_Ntuplizer_Vertices_h
+#define MssmHbbAnalysis_Ntuplizer_Vertices_h 1
 
 // -*- C++ -*-
 //
 // Package:    MssmHbbAnalysis/Ntuplizer
-// Class:      PrimaryVertices
+// Class:      Vertices
 // 
-/**\class PrimaryVertices PrimaryVertices.cc MssmHbbAnalysis/Ntuplizer/src/PrimaryVertices.cc
+/**\class Vertices Vertices.cc MssmHbbAnalysis/Ntuplizer/src/Vertices.cc
 
  Description: [one line class summary]
 
@@ -42,16 +42,13 @@
 namespace mssmhbb {
    namespace ntuple {
 
-      class PrimaryVertices {
+      class Vertices {
          public:
-            PrimaryVertices();
-            PrimaryVertices(const edm::InputTag&, TTree*);
-           ~PrimaryVertices();
+            Vertices();
+            Vertices(const edm::InputTag&, TTree*);
+           ~Vertices();
             void ReadFromEvent(const edm::Event&);
-            void Branches();
             void Fill(const edm::Event&);
-            void Fill();
-            void Candidates();
             static const int maxPVs = 100;
       
          protected:
@@ -82,4 +79,4 @@ namespace mssmhbb {
    }
 }
 
-#endif  // MssmHbbAnalysis_Ntuplizer_PrimaryVertices_h
+#endif  // MssmHbbAnalysis_Ntuplizer_Vertices_h
