@@ -26,7 +26,7 @@
 
 
 
-#include "MssmHbbAnalysis/Ntuplizer/interface/PrimaryVertices.h"
+#include "MssmHbbAnalysis/Ntuplizer/interface/Vertices.h"
 
 #include "TTree.h"
 

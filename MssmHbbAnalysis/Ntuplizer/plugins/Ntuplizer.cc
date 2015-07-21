@@ -64,7 +64,7 @@
 #include "MssmHbbAnalysis/Ntuplizer/interface/Candidates.h"
 #include "MssmHbbAnalysis/Ntuplizer/interface/JetsTags.h"
 #include "MssmHbbAnalysis/Ntuplizer/interface/TriggerAccepts.h"
-#include "MssmHbbAnalysis/Ntuplizer/interface/PrimaryVertices.h"
+#include "MssmHbbAnalysis/Ntuplizer/interface/Vertices.h"
 
 #include "DataFormats/Common/interface/OwnVector.h"
 
