@@ -97,7 +97,7 @@ typedef mssmhbb::ntuple::Candidates<reco::GenParticle> GenParticleCandidates;
 typedef mssmhbb::ntuple::Candidates<pat::TriggerObject> TriggerObjectCandidates;
 typedef mssmhbb::ntuple::JetsTags JetsTags;
 typedef mssmhbb::ntuple::TriggerAccepts TriggerAccepts;
-typedef mssmhbb::ntuple::PrimaryVertices PrimaryVertices;
+typedef mssmhbb::ntuple::Vertices PrimaryVertices;
 
 
 // Alias to the pointers to the above classes
@@ -504,7 +504,6 @@ Ntuplizer::beginJob()
          if ( inputTags == "PrimaryVertices" )
          {
             primaryvertices_collections_.push_back( pPrimaryVertices( new PrimaryVertices(collection, tree_[name]) ));
-            primaryvertices_collections_.back() -> Branches();
          }
          
          // Event filter
