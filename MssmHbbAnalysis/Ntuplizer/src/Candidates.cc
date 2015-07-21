@@ -193,7 +193,7 @@ void Candidates<T>::Kinematics()
 //         if ( candidates_[i].pt() < minPt_ || fabs (candidates_[i].eta()) > maxEta_ ) continue;
       
       if ( minPt_  >= 0. && candidates_[i].pt()  < minPt_  ) continue;
-      if ( maxEta_ >= 0. && candidates_[i].eta() > maxEta_ ) continue;
+      if ( maxEta_ >= 0. && fabs(candidates_[i].eta()) > maxEta_ ) continue;
       
       this->pt_[n]  = candidates_[i].pt();
       this->eta_[n] = candidates_[i].eta();
@@ -213,10 +213,28 @@ void Candidates<T>::Kinematics()
             if ( it >= 15 ) break;
             this->btag_[it][n]  = jet->bDiscriminator(btagAlgos_[it]);
          }
+         this->jetid_[0][n] = jet->neutralHadronEnergyFraction();
+         this->jetid_[1][n] = jet->neutralEmEnergyFraction();
+         this->jetid_[2][n] = (float)jet->neutralMultiplicity();
+         this->jetid_[3][n] = jet->chargedHadronEnergyFraction();
+         this->jetid_[4][n] = jet->chargedEmEnergyFraction();
+         this->jetid_[5][n] = (float)jet->chargedMultiplicity();
+         this->jetid_[6][n] = jet->muonEnergyFraction();
          if ( is_mc_ )
          {
             this->flavour_[n]  = jet->partonFlavour();
          }
+      }
+      if ( is_pfjet_ )
+      {
+         reco::PFJet * jet = dynamic_cast<reco::PFJet*> (&candidates_[i]);
+         this->jetid_[0][n] = jet->neutralHadronEnergyFraction();
+         this->jetid_[1][n] = jet->neutralEmEnergyFraction();
+         this->jetid_[2][n] = (float)jet->neutralMultiplicity();
+         this->jetid_[3][n] = jet->chargedHadronEnergyFraction();
+         this->jetid_[4][n] = jet->chargedEmEnergyFraction();
+         this->jetid_[5][n] = (float)jet->chargedMultiplicity();
+         this->jetid_[6][n] = jet->muonEnergyFraction();
       }
       
       ++n;
@@ -292,6 +310,10 @@ void Candidates<T>::Branches()
          {
             tree_->Branch("flavour",   this->flavour_,   "flavour[n]/I");
          }
+      }
+      if ( is_pfjet_ || is_patjet_ )
+      {
+         tree_->Branch("jetid", this->jetid_, "jetid[7][n]/F");
       }
    }
    

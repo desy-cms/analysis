@@ -78,6 +78,8 @@ namespace mssmhbb {
             float btag_[15][maxCandidates];
             int   flavour_[maxCandidates];
             
+            float jetid_[7][maxCandidates];
+            
             int pdg_[maxCandidates];
             int status_[maxCandidates];
             bool higgs_dau_[maxCandidates];
