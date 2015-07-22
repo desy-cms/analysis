@@ -51,6 +51,21 @@ EventInfo::EventInfo(edm::Service<TFileService> & fs)
    
 }
 
+EventInfo::EventInfo(TFileDirectory & dir)
+{
+   std::string name = "EventInfo";
+   tree_ = dir.make<TTree>(name.c_str(),name.c_str());
+   
+   // event output info
+   tree_->Branch("event", &event_, "event/I");
+   tree_->Branch("run"  , &run_  , "run/I");
+   tree_->Branch("lumisection" , &lumi_ , "lumisection/I");
+   tree_->Branch("bx"   , &bx_   , "bx/I");
+   tree_->Branch("orbit", &orbit_, "orbit/I");
+   
+   
+}
+
 EventInfo::~EventInfo()
 {
    // do anything here that needs to be done at desctruction time

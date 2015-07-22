@@ -46,6 +46,7 @@ namespace mssmhbb {
          public:
             EventInfo();
             EventInfo(edm::Service<TFileService> &);
+            EventInfo(TFileDirectory &);
            ~EventInfo();
             void Fill(const edm::Event&);
             void Init();
