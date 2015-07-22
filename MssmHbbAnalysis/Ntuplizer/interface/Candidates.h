@@ -30,6 +30,8 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "MssmHbbAnalysis/Ntuplizer/interface/Utils.h"
+
 #include "TTree.h"
 
 //
@@ -78,7 +80,7 @@ namespace mssmhbb {
             float btag_[15][maxCandidates];
             int   flavour_[maxCandidates];
             
-            float jetid_[7][maxCandidates];
+            float jetid_[15][maxCandidates];
             
             int pdg_[maxCandidates];
             int status_[maxCandidates];
@@ -108,6 +110,8 @@ namespace mssmhbb {
             std::vector<std::string>  filterLabels_;
                       
             int higgs_pdg_;
+            
+            std::map<std::string, TitleIndex>  jetid_vars_;
    
             
       };
