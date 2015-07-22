@@ -345,6 +345,8 @@ Ntuplizer::beginJob()
    
    edm::Service<TFileService> fs;
    
+   TFileDirectory eventsDir = fs -> mkdir("Events");
+   
    std::string name;
    std::string fullname;
    
@@ -384,11 +386,11 @@ Ntuplizer::beginJob()
    
    
    // Event info tree
-   eventinfo_ = pEventInfo (new EventInfo(fs));
+   eventinfo_ = pEventInfo (new EventInfo(eventsDir));
    
-    // Event info tree
+    // Metadata 
    metadata_ = pMetadata (new Metadata(fs,is_mc_));
-   metadata_ -> AddDefinitions(btagAlgos_,btagAlgosAlias_,"btagging");
+   metadata_ -> AddDefinitions(btagVars_,"btagging");
    // My cross section  value for the metadata
    xsection_ = -1.0;
    if ( config_.exists("CrossSection") )
@@ -421,7 +423,7 @@ Ntuplizer::beginJob()
          
          // Initialise trees
          if ( inputTags != "TriggerObjectStandAlone" )
-            tree_[name] = fs->make<TTree>(name.c_str(),fullname.c_str());
+            tree_[name] = eventsDir.make<TTree>(name.c_str(),fullname.c_str());
          
          // Pileup Info
          if ( inputTags == "PileupInfo" )
@@ -460,7 +462,6 @@ Ntuplizer::beginJob()
          if ( inputTags == "PatJets" )
          {
             patjets_collections_.push_back( pPatJetCandidates( new PatJetCandidates(collection, tree_[name], is_mc_, 10, 5. ) ));
-//            patjets_collections_.back() -> Init(btagAlgos_, btagAlgosAlias_);
             patjets_collections_.back() -> Init(btagVars_);
          }
          // Pat Muons
@@ -494,7 +495,7 @@ Ntuplizer::beginJob()
             if ( triggerObjectLabels_.empty() )
                triggerObjectLabels_ = config_.getParameter< std::vector<std::string> >("TriggerObjectLabels");
             std::string dir = name;
-            TFileDirectory triggerObjectsDir = fs -> mkdir(dir);
+            TFileDirectory triggerObjectsDir = eventsDir.mkdir(dir);
       
             for ( auto & triggerObjectLabel : triggerObjectLabels_ )
             {
