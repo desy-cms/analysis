@@ -101,6 +101,19 @@ void Metadata::AddDefinitions(const std::vector<std::string> & names, const std:
    vdefinitions_.back() -> Add(names,aliases);
 }
 
+void Metadata::AddDefinitions(const std::vector<TitleAlias> & tas, const std::string & category)
+{
+   std::vector<std::string> names;
+   std::vector<std::string> aliases;
+   for ( auto & ta : tas )
+   {
+      names.push_back(ta.title);
+      aliases.push_back(ta.alias);
+   }
+   vdefinitions_.push_back(pDefinitions ( new Definitions(mainDir_, category) ));
+   vdefinitions_.back() -> Add(names,aliases);
+}
+
 void Metadata::SetGeneratorFilter(const edm::InputTag & genFilterInfo )
 {
    genfilter_ = pGenFilter( new GenFilter(mainDir_, {genFilterInfo} ));

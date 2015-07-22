@@ -39,6 +39,8 @@
 
 #include "MssmHbbAnalysis/Ntuplizer/interface/EventFilter.h"
 
+#include "MssmHbbAnalysis/Ntuplizer/interface/Utils.h"
+
 
 
 #include "TTree.h"
@@ -75,6 +77,7 @@ namespace mssmhbb {
             TFileDirectory TreeDir();
             void AddDefinitions(const std::vector<std::string> &, const std::vector<std::string> &);
             void AddDefinitions(const std::vector<std::string> &, const std::vector<std::string> &, const std::string &);
+            void AddDefinitions(const std::vector<TitleAlias> &, const std::string &);
             
             void SetGeneratorFilter(const edm::InputTag & );
             void SetEventFilter(const std::vector<edm::InputTag> &);
