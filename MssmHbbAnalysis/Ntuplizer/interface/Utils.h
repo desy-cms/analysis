@@ -34,6 +34,10 @@ namespace mssmhbb {
          std::string title;
          unsigned int index;
       };
+      struct TitleAlias {
+         std::string title;
+         std::string alias;
+      };
    }
 }   
 
