@@ -102,19 +102,19 @@ Candidates<T>::Candidates(const edm::InputTag& tag, TTree* tree, const bool & mc
    
    std::string title = boost::core::demangle(typeid(T).name()) + " | " + tree_->GetTitle();
    
-   
    tree_->SetTitle(title.c_str());
    
    
    // definitions
    // jetid
-   jetid_vars_["id_nHadFrac"] = {"neutralHadronEnergyFraction",0};
-   jetid_vars_["id_nEmFrac"]  = {"neutralEmEnergyFraction",1};
-   jetid_vars_["id_nMult"]    = {"neutralMultiplicity",2};
-   jetid_vars_["id_cHadFrac"] = {"chargedHadronEnergyFraction",3};
-   jetid_vars_["id_cEmFrac"]  = {"chargedEmEnergyFraction",4};
-   jetid_vars_["id_cMult"]    = {"chargedMultiplicity",5};
-   jetid_vars_["id_muonFrac"] = {"muonEnergyFraction",6};
+   id_vars_.clear();
+   id_vars_.push_back({"neutralHadronEnergyFraction", "id_nHadFrac"});
+   id_vars_.push_back({"neutralEmEnergyFraction",     "id_nEmFrac" });
+   id_vars_.push_back({"neutralMultiplicity",         "id_nMult"   });
+   id_vars_.push_back({"chargedHadronEnergyFraction", "id_cHadFrac"});
+   id_vars_.push_back({"chargedEmEnergyFraction",     "id_cEmFrac" });
+   id_vars_.push_back({"chargedMultiplicity",         "id_cMult"   });
+   id_vars_.push_back({"muonEnergyFraction",          "id_muonFrac"});
    
    
 }
@@ -158,12 +158,8 @@ void Candidates<pat::TriggerObject>::ReadFromEvent(const edm::Event& event)
    const std::string treename = tree_ -> GetName(); // using the label to name the tree
    const std::string delimiter = "_";
    std::string label = treename.substr(0, treename.find(delimiter));
-//   std::cout << "oioi   " << label << std::endl;
    for ( auto ito : *handler )
    {
-//      const std::vector< std::string > & filterLabels = ito.filterLabels();
-//      for ( auto & l : filterLabels )
-//         std::cout << l << std::endl;
       if ( ito.filter(label) )
          candidates_.push_back(ito.triggerObject());
    }
@@ -221,11 +217,11 @@ void Candidates<T>::Kinematics()
       if ( is_patjet_ )
       {
          pat::Jet * jet = dynamic_cast<pat::Jet*> (&candidates_[i]);
-         for ( size_t it = 0 ; it < btagAlgos_.size() ;  ++it )
-         {
-            if ( it >= 15 ) break;
-            btag_[it][n]  = jet->bDiscriminator(btagAlgos_[it]);
-         }
+         
+         for ( size_t it = 0 ; it < btag_vars_.size() ; ++it )
+            btag_[it][n] = jet->bDiscriminator(btag_vars_[it].title);
+         
+         
          if ( jet -> isPFJet() || jet -> isJPTJet() ) 
          {
             jetid_[0][n] = jet->neutralHadronEnergyFraction();
@@ -317,13 +313,9 @@ void Candidates<T>::Branches()
       }
       if ( is_patjet_ )
       {
-         for ( size_t it = 0 ; it < btagAlgos_.size() ;  ++it )
-         {
-            if ( it >= 15 ) break;
-            std::string alias = btagAlgosAlias_[it];
-            std::string title = btagAlgos_[it] + "[n]/F";
-            tree_->Branch(alias.c_str(),   btag_[it], title.c_str());
-         }
+         for ( size_t it = 0 ; it < btag_vars_.size() ; ++it )
+            tree_->Branch(btag_vars_[it].alias.c_str(), btag_[it], (btag_vars_[it].title+"[n]/F").c_str());
+         
          if ( is_mc_ )
          {
             tree_->Branch("flavour",   flavour_,   "flavour[n]/I");
@@ -331,18 +323,20 @@ void Candidates<T>::Branches()
       }
       if ( is_pfjet_ || is_patjet_ )
       {
-         for ( auto & var : jetid_vars_ )
-            tree_->Branch(var.first.c_str(), jetid_[var.second.index], (var.second.title+"[n]/F").c_str());
+         for ( size_t it = 0 ; it < id_vars_.size() ; ++it )
+            tree_->Branch(id_vars_[it].alias.c_str(), jetid_[it], (id_vars_[it].title+"[n]/F").c_str());
       }
    }
    
 }
 
 template <typename T>
-void Candidates<T>::Init( const std::vector<std::string> & btagAlgos, const std::vector<std::string> & btagAlgosAlias )
+void Candidates<T>::Init( const std::vector<TitleAlias> & btagVars )
 {
-   btagAlgos_ = btagAlgos;
-   btagAlgosAlias_ = btagAlgosAlias;
+   btag_vars_ = btagVars;
+   if ( btag_vars_.size() > 15 )
+      btag_vars_.erase(btag_vars_.begin()+15,btag_vars_.end());
+   
    Branches();
    
 }

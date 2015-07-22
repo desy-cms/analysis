@@ -70,6 +70,8 @@
 
 #include "MssmHbbAnalysis/Ntuplizer/interface/EventFilter.h"
 
+#include "MssmHbbAnalysis/Ntuplizer/interface/Utils.h"
+
 #include <TH1.h>
 #include <TFile.h>
 #include <TTree.h>
@@ -77,6 +79,8 @@
 using namespace boost;
 using namespace boost::algorithm;
 
+typedef mssmhbb::ntuple::TitleIndex TitleIndex;
+typedef mssmhbb::ntuple::TitleAlias TitleAlias;
 
 typedef std::vector<edm::InputTag> InputTags;
 typedef std::vector<std::string> strings;
@@ -165,6 +169,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       std::vector< std::string > btagAlgos_;
       std::vector< std::string > btagAlgosAlias_;
       std::vector< std::string > triggerObjectLabels_;
+      std::vector<TitleAlias> btagVars_;
       
       
       edm::InputTag genFilterInfo_;
@@ -370,6 +375,14 @@ Ntuplizer::beginJob()
          btagAlgosAlias_.push_back(it);
    }
    
+   btagVars_.clear();
+   for ( size_t it = 0 ; it < btagAlgos_.size() ;  ++it )
+   {
+      btagVars_.push_back({btagAlgos_[it],btagAlgosAlias_[it]});
+//      btagVars_[btagAlgosAlias_[it]] = {btagAlgos_[it],(unsigned int)it};
+   }
+   
+   
    // Event info tree
    eventinfo_ = pEventInfo (new EventInfo(fs));
    
@@ -447,7 +460,8 @@ Ntuplizer::beginJob()
          if ( inputTags == "PatJets" )
          {
             patjets_collections_.push_back( pPatJetCandidates( new PatJetCandidates(collection, tree_[name], is_mc_, 10, 5. ) ));
-            patjets_collections_.back() -> Init(btagAlgos_, btagAlgosAlias_);
+//            patjets_collections_.back() -> Init(btagAlgos_, btagAlgosAlias_);
+            patjets_collections_.back() -> Init(btagVars_);
          }
          // Pat Muons
          if ( inputTags == "PatMuons" )

@@ -49,7 +49,9 @@ namespace mssmhbb {
            ~Candidates();
             void ReadFromEvent(const edm::Event&);
             void BTagAlgorithms(const std::vector<std::string> &, const std::vector<std::string> &);
-            void Init(const std::vector<std::string> &btagAlgos = std::vector<std::string>(), const std::vector<std::string> & btagAlgosAlias = std::vector<std::string>()	);
+//            void Init(const std::vector<std::string> &btagAlgos = std::vector<std::string>(), const std::vector<std::string> & btagAlgosAlias = std::vector<std::string>()	);
+//            void Init(const std::map<std::string, TitleIndex> & btagVars = std::map<std::string,TitleIndex>()	);
+            void Init(const std::vector<TitleAlias> & btagVars = std::vector<TitleAlias>()	);
             void Branches();
             void Fill(const edm::Event&);
             void Fill();
@@ -111,7 +113,8 @@ namespace mssmhbb {
                       
             int higgs_pdg_;
             
-            std::map<std::string, TitleIndex>  jetid_vars_;
+            std::vector<TitleAlias>  id_vars_;
+            std::vector<TitleAlias>  btag_vars_;
    
             
       };
