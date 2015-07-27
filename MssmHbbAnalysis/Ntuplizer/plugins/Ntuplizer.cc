@@ -489,7 +489,7 @@ Ntuplizer::beginJob()
             jetstags_collections_.back() -> Branches();
          }
          
-               // Trigger Objects
+         // Trigger Objects
          if ( do_triggerobjects_ && inputTags == "TriggerObjectStandAlone"  )
          {
             if ( triggerObjectLabels_.empty() )
