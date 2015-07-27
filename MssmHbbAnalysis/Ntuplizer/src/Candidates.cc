@@ -104,7 +104,6 @@ Candidates<T>::Candidates(const edm::InputTag& tag, TTree* tree, const bool & mc
    
    tree_->SetTitle(title.c_str());
    
-   
    // definitions
    // jetid
    id_vars_.clear();
@@ -115,8 +114,7 @@ Candidates<T>::Candidates(const edm::InputTag& tag, TTree* tree, const bool & mc
    id_vars_.push_back({"chargedEmEnergyFraction",     "id_cEmFrac" });
    id_vars_.push_back({"chargedMultiplicity",         "id_cMult"   });
    id_vars_.push_back({"muonEnergyFraction",          "id_muonFrac"});
-   
-   
+    
 }
 
 template <typename T>
@@ -179,31 +177,28 @@ void Candidates<T>::Kinematics()
    {
       if ( n >= maxCandidates ) break;
       
-      if ( do_generator_ )
+      if ( minPt_  >= 0. && candidates_[i].pt()  < minPt_  ) continue;
+      if ( maxEta_ >= 0. && fabs(candidates_[i].eta()) > maxEta_ ) continue;
+
+      if ( is_genparticle_ )
       {
-         int pdg    = candidates_[i].pdgId();
-         int status = candidates_[i].status();
-         
+         reco::GenParticle * gp = dynamic_cast<reco::GenParticle*> (&candidates_[i]);
+         int pdg    = gp -> pdgId();
+         int status = gp -> status();  // any status selection?
+         if ( abs(pdg) > 38 ) continue;
          pdg_[n]   = pdg;
          status_[n]= status;
-         const reco::Candidate * mother = candidates_[i].mother(0);
+         lastcopy_[n] = gp -> isLastCopy();
+         const reco::Candidate * mother = gp->mother(0);
          higgs_dau_[n] = false;
          if ( mother != NULL )  // initial protons are orphans
          {
             if ( mother->pdgId() == higgs_pdg_ )
                higgs_dau_[n] = true;
          }
-         
-         if ( !(abs(pdg) <= 6 || (abs(pdg) >= 11 && abs(pdg) <= 16) || pdg == 36 || higgs_dau_[n] ) ) continue; 
-         
       }
       
-//      if ( !do_generator_ )
-//         if ( candidates_[i].pt() < minPt_ || fabs (candidates_[i].eta()) > maxEta_ ) continue;
-      
-      if ( minPt_  >= 0. && candidates_[i].pt()  < minPt_  ) continue;
-      if ( maxEta_ >= 0. && fabs(candidates_[i].eta()) > maxEta_ ) continue;
-      
+            
       pt_[n]  = candidates_[i].pt();
       eta_[n] = candidates_[i].eta();
       phi_[n] = candidates_[i].phi();
@@ -220,7 +215,6 @@ void Candidates<T>::Kinematics()
          
          for ( size_t it = 0 ; it < btag_vars_.size() ; ++it )
             btag_[it][n] = jet->bDiscriminator(btag_vars_[it].title);
-         
          
          if ( jet -> isPFJet() || jet -> isJPTJet() ) 
          {
@@ -252,9 +246,7 @@ void Candidates<T>::Kinematics()
          jetid_[5][n] = (float)jet->chargedMultiplicity();
          jetid_[6][n] = jet->muonEnergyFraction();
       }
-      
       ++n;
-      
    }
    n_ = n;
 
@@ -305,10 +297,11 @@ void Candidates<T>::Branches()
       tree_->Branch("e",   e_,   "e[n]/F");
       tree_->Branch("et",  et_,  "et[n]/F");
       tree_->Branch("q",   q_,   "q[n]/I");
-      if ( do_generator_ )
+      if ( is_genparticle_ )
       {
          tree_->Branch("pdg",   pdg_,   "pdg[n]/I");
          tree_->Branch("status",status_,"status[n]/I");
+         tree_->Branch("last_copy",lastcopy_,"last_copy[n]/O");
          tree_->Branch("higgs_dau",higgs_dau_,"higgs_dau[n]/O");
       }
       if ( is_patjet_ )
@@ -326,6 +319,7 @@ void Candidates<T>::Branches()
          for ( size_t it = 0 ; it < id_vars_.size() ; ++it )
             tree_->Branch(id_vars_[it].alias.c_str(), jetid_[it], (id_vars_[it].title+"[n]/F").c_str());
       }
+      
    }
    
 }

@@ -58,7 +58,7 @@ namespace mssmhbb {
             void Kinematics();
             void MinPt(const float& minPt = -1.);
             void MaxEta(const float& maxEta = -1.);
-            static const int maxCandidates = 100;
+            static const int maxCandidates = 200;
       
          protected:
             // ----------member data ---------------------------
@@ -86,6 +86,7 @@ namespace mssmhbb {
             
             int pdg_[maxCandidates];
             int status_[maxCandidates];
+            bool lastcopy_[maxCandidates];
             bool higgs_dau_[maxCandidates];
             
             TTree * tree_;
