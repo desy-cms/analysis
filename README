@@ -1,6 +1,8 @@
 ##############################################################################
 
-## If you want to work along with official CMSSW packages
+## If you want to work along with official CMSSW packages in your work area.
+## Preferred is not doing this unless you know what you are doing.
+## See below
 
 setenv SCRAM_ARCH slc6_amd64_gcc491
 ## Create a CMSSW project
@@ -17,10 +19,8 @@ git checkout desy-higgs
 git checkout from-CMSSW_X_Y_Z
 git merge desy-higgs
 ## Add packages (use the git cms command)
-git cms-addpkg MssmHbbAnalysis/Ntuplizer
-git cms-addpkg MssmHbbAnalysis/TriggerStudies
-git cms-addpkg MssmHbbAnalysis/MonteCarloProduction
-git cms-addpkg MssmHbbAnalysis/MonteCarloStudies
+git cms-addpkg Analysis/Ntuplizer
+git cms-addpkg Analysis/MssmHbb
 
 ## The modifications will not be common to desy-higgs and cmssw branches.
 ## Move to branch desy-higgs to commit changes.
@@ -37,7 +37,8 @@ git pull cmssw-analysis desy-higgs
 
 ##############################################################################
 
-## If you don't care about other CMSSW packages
+## If you don't care about other CMSSW packages in your work area.s
+## Preferred method
 
 setenv SCRAM_ARCH slc6_amd64_gcc491
 ## Create a CMSSW project
@@ -53,6 +54,7 @@ git fetch cmssw-analysis
 git checkout desy-higgs
 ## Add packages (use the git cms command)
 git cms-addpkg Analysis/Ntuplizer
+git cms-addpkg Analysis/MssmHbb
 
 ## Get any modifications in the remote (= svn update)
 git pull cmssw-analysis desy-higgs
