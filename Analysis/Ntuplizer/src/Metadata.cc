@@ -1,4 +1,4 @@
-/**\class Metadata Metadata.cc MssmHbbAnalysis/Ntuplizer/src/Metadata.cc
+/**\class Metadata Metadata.cc Analysis/Ntuplizer/src/Metadata.cc
 
  Description: [one line class summary]
 
@@ -19,7 +19,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
  
-#include "MssmHbbAnalysis/Ntuplizer/interface/Metadata.h"
+#include "Analysis/Ntuplizer/interface/Metadata.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 

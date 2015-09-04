@@ -1,4 +1,4 @@
-/**\class Definitions Definitions.cc MssmHbbAnalysis/Ntuplizer/src/Definitions.cc
+/**\class Definitions Definitions.cc Analysis/Ntuplizer/src/Definitions.cc
 
  Description: [one line class summary]
 
@@ -19,7 +19,7 @@
 // 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
  
-#include "MssmHbbAnalysis/Ntuplizer/interface/Definitions.h"
+#include "Analysis/Ntuplizer/interface/Definitions.h"
 
 
 //

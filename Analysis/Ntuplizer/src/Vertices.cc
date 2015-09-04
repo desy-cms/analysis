@@ -1,4 +1,4 @@
-/**\class Vertices Vertices.cc MssmHbbAnalysis/Ntuplizer/src/Vertices.cc
+/**\class Vertices Vertices.cc Analysis/Ntuplizer/src/Vertices.cc
 
  Description: [one line class summary]
 
@@ -26,7 +26,7 @@
 
 
 
-#include "MssmHbbAnalysis/Ntuplizer/interface/Vertices.h"
+#include "Analysis/Ntuplizer/interface/Vertices.h"
 
 #include "TTree.h"
 

@@ -1,12 +1,12 @@
-#ifndef MssmHbbAnalysis_Ntuplizer_TriggerAccepts_h
-#define MssmHbbAnalysis_Ntuplizer_TriggerAccepts_h 1
+#ifndef Analysis_Ntuplizer_TriggerAccepts_h
+#define Analysis_Ntuplizer_TriggerAccepts_h 1
 
 // -*- C++ -*-
 //
-// Package:    MssmHbbAnalysis/Ntuplizer
+// Package:    Analysis/Ntuplizer
 // Class:      TriggerAccepts
 // 
-/**\class TriggerAccepts TriggerAccepts.cc MssmHbbAnalysis/Ntuplizer/src/TriggerAccepts.cc
+/**\class TriggerAccepts TriggerAccepts.cc Analysis/Ntuplizer/src/TriggerAccepts.cc
 
  Description: [one line class summary]
 
@@ -62,4 +62,4 @@ namespace mssmhbb {
    }
 }
 
-#endif  // MssmHbbAnalysis_Ntuplizer_TriggerAccepts_h
+#endif  // Analysis_Ntuplizer_TriggerAccepts_h

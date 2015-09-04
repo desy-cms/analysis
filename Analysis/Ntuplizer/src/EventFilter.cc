@@ -1,4 +1,4 @@
-/**\class EventFilter EventFilter.cc MssmHbbAnalysis/Ntuplizer/src/EventFilter.cc
+/**\class EventFilter EventFilter.cc Analysis/Ntuplizer/src/EventFilter.cc
 
  Description: [one line class summary]
 
@@ -19,7 +19,7 @@
 #include "DataFormats/Common/interface/MergeableCounter.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
 
-#include "MssmHbbAnalysis/Ntuplizer/interface/EventFilter.h"
+#include "Analysis/Ntuplizer/interface/EventFilter.h"
 
 
 

@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    MssmHbbAnalysis/Ntuplizer
+// Package:    Analysis/Ntuplizer
 // Class:      Ntuplizer
 // 
-/**\class Ntuplizer Ntuplizer.cc MssmHbbAnalysis/Ntuplizer/plugins/Ntuplizer.cc
+/**\class Ntuplizer Ntuplizer.cc Analysis/Ntuplizer/plugins/Ntuplizer.cc
 
  Description: [one line class summary]
 
@@ -56,21 +56,21 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 
-#include "MssmHbbAnalysis/Ntuplizer/interface/EventInfo.h"
-#include "MssmHbbAnalysis/Ntuplizer/interface/Definitions.h"
-#include "MssmHbbAnalysis/Ntuplizer/interface/Metadata.h"
+#include "Analysis/Ntuplizer/interface/EventInfo.h"
+#include "Analysis/Ntuplizer/interface/Definitions.h"
+#include "Analysis/Ntuplizer/interface/Metadata.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
-#include "MssmHbbAnalysis/Ntuplizer/interface/PileupInfo.h"
-#include "MssmHbbAnalysis/Ntuplizer/interface/Candidates.h"
-#include "MssmHbbAnalysis/Ntuplizer/interface/JetsTags.h"
-#include "MssmHbbAnalysis/Ntuplizer/interface/TriggerAccepts.h"
-#include "MssmHbbAnalysis/Ntuplizer/interface/Vertices.h"
+#include "Analysis/Ntuplizer/interface/PileupInfo.h"
+#include "Analysis/Ntuplizer/interface/Candidates.h"
+#include "Analysis/Ntuplizer/interface/JetsTags.h"
+#include "Analysis/Ntuplizer/interface/TriggerAccepts.h"
+#include "Analysis/Ntuplizer/interface/Vertices.h"
 
 #include "DataFormats/Common/interface/OwnVector.h"
 
-#include "MssmHbbAnalysis/Ntuplizer/interface/EventFilter.h"
+#include "Analysis/Ntuplizer/interface/EventFilter.h"
 
-#include "MssmHbbAnalysis/Ntuplizer/interface/Utils.h"
+#include "Analysis/Ntuplizer/interface/Utils.h"
 
 #include <TH1.h>
 #include <TFile.h>

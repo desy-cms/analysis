@@ -1,4 +1,4 @@
-/**\class TriggerAccepts TriggerAccepts.cc MssmHbbAnalysis/Ntuplizer/src/TriggerAccepts.cc
+/**\class TriggerAccepts TriggerAccepts.cc Analysis/Ntuplizer/src/TriggerAccepts.cc
 
  Description: [one line class summary]
 
@@ -18,7 +18,7 @@
 // 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
  
-#include "MssmHbbAnalysis/Ntuplizer/interface/TriggerAccepts.h"
+#include "Analysis/Ntuplizer/interface/TriggerAccepts.h"
 
 
 //
@@ -90,7 +90,7 @@ void TriggerAccepts::Branches()
    {
       tree_->Branch(paths_[i].c_str(), &accept_[i], (paths_[i]+"/O").c_str());
    }
-   std::cout << "TriggerAccepts Branches ok" << std::endl;
+   // std::cout << "TriggerAccepts Branches ok" << std::endl;
 }
 
 void TriggerAccepts::LumiBlock(edm::LuminosityBlock const & lumi, edm::EventSetup const& setup)

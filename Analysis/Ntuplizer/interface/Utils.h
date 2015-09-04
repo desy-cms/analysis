@@ -1,12 +1,12 @@
-#ifndef MssmHbbAnalysis_Ntuplizer_Utils_h
-#define MssmHbbAnalysis_Ntuplizer_Utils_h 1
+#ifndef Analysis_Ntuplizer_Utils_h
+#define Analysis_Ntuplizer_Utils_h 1
 
 // -*- C++ -*-
 //
-// Package:    MssmHbbAnalysis/Ntuplizer
+// Package:    Analysis/Ntuplizer
 // Class:      Utils
 // 
-/**\class Utils Utils.cc MssmHbbAnalysis/Ntuplizer/src/Utils.cc
+/**\class Utils Utils.cc Analysis/Ntuplizer/src/Utils.cc
 
  Description: [one line class summary]
 
@@ -41,4 +41,4 @@ namespace mssmhbb {
    }
 }   
 
-#endif  // MssmHbbAnalysis_Ntuplizer_Utils_h
+#endif  // Analysis_Ntuplizer_Utils_h

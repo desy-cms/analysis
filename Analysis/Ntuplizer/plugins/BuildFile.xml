@@ -8,7 +8,7 @@
 <use name="DataFormats/JetReco"/>
 <use name="DataFormats/PatCandidates"/>
 <use name="SimDataFormats/PileupSummaryInfo"/>
-<use name="MssmHbbAnalysis/Ntuplizer"/>
+<use name="Analysis/Ntuplizer"/>
 <use name="root"/>
 <use name="rootmath"/>
 <use name="boost" />

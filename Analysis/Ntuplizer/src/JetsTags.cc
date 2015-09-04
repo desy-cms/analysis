@@ -1,4 +1,4 @@
-/**\class JetsTags JetsTags.cc MssmHbbAnalysis/Ntuplizer/src/JetsTags.cc
+/**\class JetsTags JetsTags.cc Analysis/Ntuplizer/src/JetsTags.cc
 
  Description: [one line class summary]
 
@@ -24,7 +24,7 @@
 
 #include "CommonTools/Utils/interface/PtComparator.h"
 
-#include "MssmHbbAnalysis/Ntuplizer/interface/JetsTags.h"
+#include "Analysis/Ntuplizer/interface/JetsTags.h"
 
 #include "TTree.h"
 

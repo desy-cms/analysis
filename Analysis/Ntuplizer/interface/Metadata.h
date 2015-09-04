@@ -1,12 +1,12 @@
-#ifndef MssmHbbAnalysis_Ntuplizer_Metadata_h
-#define MssmHbbAnalysis_Ntuplizer_Metadata_h 1
+#ifndef Analysis_Ntuplizer_Metadata_h
+#define Analysis_Ntuplizer_Metadata_h 1
 
 // -*- C++ -*-
 //
-// Package:    MssmHbbAnalysis/Ntuplizer
+// Package:    Analysis/Ntuplizer
 // Class:      Metadata
 // 
-/**\class Metadata Metadata.cc MssmHbbAnalysis/Ntuplizer/src/Metadata.cc
+/**\class Metadata Metadata.cc Analysis/Ntuplizer/src/Metadata.cc
 
  Description: [one line class summary]
 
@@ -29,7 +29,7 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
-#include "MssmHbbAnalysis/Ntuplizer/interface/Definitions.h"
+#include "Analysis/Ntuplizer/interface/Definitions.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -37,9 +37,9 @@
 #include "DataFormats/Common/interface/MergeableCounter.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
 
-#include "MssmHbbAnalysis/Ntuplizer/interface/EventFilter.h"
+#include "Analysis/Ntuplizer/interface/EventFilter.h"
 
-#include "MssmHbbAnalysis/Ntuplizer/interface/Utils.h"
+#include "Analysis/Ntuplizer/interface/Utils.h"
 
 
 
@@ -122,4 +122,4 @@ namespace mssmhbb {
    }
 }
 
-#endif  // MssmHbbAnalysis_Ntuplizer_Metadata_h
+#endif  // Analysis_Ntuplizer_Metadata_h

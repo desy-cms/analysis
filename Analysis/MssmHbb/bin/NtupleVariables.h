@@ -1,5 +1,5 @@
-#ifndef MssmHbbAnalysis_Analysis_bin_NtupleVariables_h
-#define MssmHbbAnalysis_Analysis_bin_NtupleVariables_h
+#ifndef Analysis_MssmHbb_bin_NtupleVariables_h
+#define Analysis_MssmHbb_bin_NtupleVariables_h
 
 #include <memory>
 #include <map>

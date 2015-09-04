@@ -1,12 +1,12 @@
-#ifndef MssmHbbAnalysis_Ntuplizer_Vertices_h
-#define MssmHbbAnalysis_Ntuplizer_Vertices_h 1
+#ifndef Analysis_Ntuplizer_Vertices_h
+#define Analysis_Ntuplizer_Vertices_h 1
 
 // -*- C++ -*-
 //
-// Package:    MssmHbbAnalysis/Ntuplizer
+// Package:    Analysis/Ntuplizer
 // Class:      Vertices
 // 
-/**\class Vertices Vertices.cc MssmHbbAnalysis/Ntuplizer/src/Vertices.cc
+/**\class Vertices Vertices.cc Analysis/Ntuplizer/src/Vertices.cc
 
  Description: [one line class summary]
 
@@ -79,4 +79,4 @@ namespace mssmhbb {
    }
 }
 
-#endif  // MssmHbbAnalysis_Ntuplizer_Vertices_h
+#endif  // Analysis_Ntuplizer_Vertices_h

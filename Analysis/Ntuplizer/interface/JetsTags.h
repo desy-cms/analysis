@@ -1,12 +1,12 @@
-#ifndef MssmHbbAnalysis_Ntuplizer_JetsTags_h
-#define MssmHbbAnalysis_Ntuplizer_JetsTags_h 1
+#ifndef Analysis_Ntuplizer_JetsTags_h
+#define Analysis_Ntuplizer_JetsTags_h 1
 
 // -*- C++ -*-
 //
-// Package:    MssmHbbAnalysis/Ntuplizer
+// Package:    Analysis/Ntuplizer
 // Class:      JetsTags
 // 
-/**\class JetsTags JetsTags.cc MssmHbbAnalysis/Ntuplizer/src/JetsTags.cc
+/**\class JetsTags JetsTags.cc Analysis/Ntuplizer/src/JetsTags.cc
 
  Description: [one line class summary]
 
@@ -82,4 +82,4 @@ namespace mssmhbb {
    }
 }
 
-#endif  // MssmHbbAnalysis_Ntuplizer_JetsTags_h
+#endif  // Analysis_Ntuplizer_JetsTags_h

@@ -1,4 +1,4 @@
-/**\class PileupInfo PileupInfo.cc MssmHbbAnalysis/Ntuplizer/src/PileupInfo.cc
+/**\class PileupInfo PileupInfo.cc Analysis/Ntuplizer/src/PileupInfo.cc
 
  Description: [one line class summary]
 
@@ -17,7 +17,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
-#include "MssmHbbAnalysis/Ntuplizer/interface/PileupInfo.h"
+#include "Analysis/Ntuplizer/interface/PileupInfo.h"
  
 //
 // class declaration

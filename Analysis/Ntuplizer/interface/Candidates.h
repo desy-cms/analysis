@@ -1,12 +1,12 @@
-#ifndef MssmHbbAnalysis_Ntuplizer_Candidates_h
-#define MssmHbbAnalysis_Ntuplizer_Candidates_h 1
+#ifndef Analysis_Ntuplizer_Candidates_h
+#define Analysis_Ntuplizer_Candidates_h 1
 
 // -*- C++ -*-
 //
-// Package:    MssmHbbAnalysis/Ntuplizer
+// Package:    Analysis/Ntuplizer
 // Class:      Candidates
 // 
-/**\class Candidates Candidates.cc MssmHbbAnalysis/Ntuplizer/src/Candidates.cc
+/**\class Candidates Candidates.cc Analysis/Ntuplizer/src/Candidates.cc
 
  Description: [one line class summary]
 
@@ -30,7 +30,7 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "MssmHbbAnalysis/Ntuplizer/interface/Utils.h"
+#include "Analysis/Ntuplizer/interface/Utils.h"
 
 #include "TTree.h"
 
@@ -124,4 +124,4 @@ namespace mssmhbb {
    }
 }
 
-#endif  // MssmHbbAnalysis_Ntuplizer_Candidates_h
+#endif  // Analysis_Ntuplizer_Candidates_h

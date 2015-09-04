@@ -1,12 +1,12 @@
-#ifndef MssmHbbAnalysis_Ntuplizer_EventFilter_h
-#define MssmHbbAnalysis_Ntuplizer_EventFilter_h 1
+#ifndef Analysis_Ntuplizer_EventFilter_h
+#define Analysis_Ntuplizer_EventFilter_h 1
 
 // -*- C++ -*-
 //
-// Package:    MssmHbbAnalysis/Ntuplizer
+// Package:    Analysis/Ntuplizer
 // Class:      EventFilter
 // 
-/**\class EventFilter EventFilter.cc MssmHbbAnalysis/Ntuplizer/src/EventFilter.cc
+/**\class EventFilter EventFilter.cc Analysis/Ntuplizer/src/EventFilter.cc
 
  Description: [one line class summary]
 
@@ -69,4 +69,4 @@ namespace mssmhbb {
    }
 }
 
-#endif  // MssmHbbAnalysis_Ntuplizer_EventFilter_h
+#endif  // Analysis_Ntuplizer_EventFilter_h

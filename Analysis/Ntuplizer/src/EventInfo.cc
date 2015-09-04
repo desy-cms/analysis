@@ -1,4 +1,4 @@
-/**\class EventInfo EventInfo.cc MssmHbbAnalysis/Ntuplizer/src/EventInfo.cc
+/**\class EventInfo EventInfo.cc Analysis/Ntuplizer/src/EventInfo.cc
 
  Description: [one line class summary]
 
@@ -18,7 +18,7 @@
 // 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
  
-#include "MssmHbbAnalysis/Ntuplizer/interface/EventInfo.h"
+#include "Analysis/Ntuplizer/interface/EventInfo.h"
 
 
 //
