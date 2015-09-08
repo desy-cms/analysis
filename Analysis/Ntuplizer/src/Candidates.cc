@@ -233,6 +233,7 @@ void Candidates<T>::Kinematics()
          if ( is_mc_ )
          {
             flavour_[n]  = jet->partonFlavour();
+            fflavour_[n]  = (float)jet->partonFlavour();
          }
       }
       if ( is_pfjet_ )
@@ -312,6 +313,7 @@ void Candidates<T>::Branches()
          if ( is_mc_ )
          {
             tree_->Branch("flavour",   flavour_,   "flavour[n]/I");
+            tree_->Branch("fflavour",  fflavour_,   "fflavour[n]/F");
          }
       }
       if ( is_pfjet_ || is_patjet_ )
