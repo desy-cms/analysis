@@ -81,7 +81,6 @@ namespace mssmhbb {
             
             float btag_[15][maxCandidates];
             int   flavour_[maxCandidates];
-            float fflavour_[maxCandidates];
             
             float jetid_[15][maxCandidates];
             
