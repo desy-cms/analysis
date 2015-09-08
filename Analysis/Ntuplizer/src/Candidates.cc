@@ -233,7 +233,12 @@ void Candidates<T>::Kinematics()
          if ( is_mc_ )
          {
             flavour_[n]  = jet->partonFlavour();
-            fflavour_[n]  = (float)jet->partonFlavour();
+            fflavour_[n]  = (float)flavour_[n];
+         }
+         else
+         {
+            flavour_[n]  = 0;
+            fflavour_[n] = 0;
          }
       }
       if ( is_pfjet_ )
@@ -310,11 +315,8 @@ void Candidates<T>::Branches()
          for ( size_t it = 0 ; it < btag_vars_.size() ; ++it )
             tree_->Branch(btag_vars_[it].alias.c_str(), btag_[it], (btag_vars_[it].title+"[n]/F").c_str());
          
-         if ( is_mc_ )
-         {
-            tree_->Branch("flavour",   flavour_,   "flavour[n]/I");
-            tree_->Branch("fflavour",  fflavour_,   "fflavour[n]/F");
-         }
+         tree_->Branch("flavour",   flavour_,   "flavour[n]/I");
+         tree_->Branch("fflavour",  fflavour_,   "fflavour[n]/F");
       }
       if ( is_pfjet_ || is_patjet_ )
       {
