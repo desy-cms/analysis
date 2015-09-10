@@ -27,7 +27,7 @@
 // class declaration
 //
 
-namespace mssmhbb {
+namespace analysis {
    namespace ntuple {
       
       struct TitleIndex {

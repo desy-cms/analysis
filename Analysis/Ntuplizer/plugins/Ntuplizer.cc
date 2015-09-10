@@ -79,29 +79,29 @@
 using namespace boost;
 using namespace boost::algorithm;
 
-typedef mssmhbb::ntuple::TitleIndex TitleIndex;
-typedef mssmhbb::ntuple::TitleAlias TitleAlias;
+typedef analysis::ntuple::TitleIndex TitleIndex;
+typedef analysis::ntuple::TitleAlias TitleAlias;
 
 typedef std::vector<edm::InputTag> InputTags;
 typedef std::vector<std::string> strings;
 
 // Alias to the collections classes of candidates for the ntuple
-typedef mssmhbb::ntuple::EventInfo EventInfo;
-typedef mssmhbb::ntuple::Metadata Metadata;
-typedef mssmhbb::ntuple::Definitions Definitions;
-typedef mssmhbb::ntuple::PileupInfo PileupInfo;
-typedef mssmhbb::ntuple::Candidates<l1extra::L1JetParticle> L1JetCandidates;
-typedef mssmhbb::ntuple::Candidates<l1extra::L1MuonParticle> L1MuonCandidates;
-typedef mssmhbb::ntuple::Candidates<reco::CaloJet> CaloJetCandidates;
-typedef mssmhbb::ntuple::Candidates<reco::PFJet> PFJetCandidates;
-typedef mssmhbb::ntuple::Candidates<pat::Jet> PatJetCandidates;
-typedef mssmhbb::ntuple::Candidates<pat::Muon> PatMuonCandidates;
-typedef mssmhbb::ntuple::Candidates<reco::GenJet> GenJetCandidates;
-typedef mssmhbb::ntuple::Candidates<reco::GenParticle> GenParticleCandidates;
-typedef mssmhbb::ntuple::Candidates<pat::TriggerObject> TriggerObjectCandidates;
-typedef mssmhbb::ntuple::JetsTags JetsTags;
-typedef mssmhbb::ntuple::TriggerAccepts TriggerAccepts;
-typedef mssmhbb::ntuple::Vertices PrimaryVertices;
+typedef analysis::ntuple::EventInfo EventInfo;
+typedef analysis::ntuple::Metadata Metadata;
+typedef analysis::ntuple::Definitions Definitions;
+typedef analysis::ntuple::PileupInfo PileupInfo;
+typedef analysis::ntuple::Candidates<l1extra::L1JetParticle> L1JetCandidates;
+typedef analysis::ntuple::Candidates<l1extra::L1MuonParticle> L1MuonCandidates;
+typedef analysis::ntuple::Candidates<reco::CaloJet> CaloJetCandidates;
+typedef analysis::ntuple::Candidates<reco::PFJet> PFJetCandidates;
+typedef analysis::ntuple::Candidates<pat::Jet> PatJetCandidates;
+typedef analysis::ntuple::Candidates<pat::Muon> PatMuonCandidates;
+typedef analysis::ntuple::Candidates<reco::GenJet> GenJetCandidates;
+typedef analysis::ntuple::Candidates<reco::GenParticle> GenParticleCandidates;
+typedef analysis::ntuple::Candidates<pat::TriggerObject> TriggerObjectCandidates;
+typedef analysis::ntuple::JetsTags JetsTags;
+typedef analysis::ntuple::TriggerAccepts TriggerAccepts;
+typedef analysis::ntuple::Vertices PrimaryVertices;
 
 
 // Alias to the pointers to the above classes
@@ -201,8 +201,8 @@ class Ntuplizer : public edm::EDAnalyzer {
       // metadata
       double xsection_;
       
-      mssmhbb::ntuple::FilterResults eventFilterResults_;
-      mssmhbb::ntuple::FilterResults genFilterResults_;
+      analysis::ntuple::FilterResults eventFilterResults_;
+      analysis::ntuple::FilterResults genFilterResults_;
       
 };
 

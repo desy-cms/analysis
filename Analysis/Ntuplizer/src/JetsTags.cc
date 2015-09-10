@@ -33,8 +33,8 @@
 // class declaration
 //
 
-using namespace mssmhbb;
-using namespace mssmhbb::ntuple;
+using namespace analysis;
+using namespace analysis::ntuple;
 
 //
 // constructors and destructor

@@ -57,11 +57,11 @@
 // class declaration
 //
 
-using namespace mssmhbb;
-using namespace mssmhbb::ntuple;
+using namespace analysis;
+using namespace analysis::ntuple;
 
 // member functions specialization - needed to be declared in the same namespace as the class
-namespace mssmhbb {
+namespace analysis {
    namespace ntuple {
       template <> void Candidates<pat::TriggerObject>::ReadFromEvent(const edm::Event& event);
  }

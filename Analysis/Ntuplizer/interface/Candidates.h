@@ -38,7 +38,7 @@
 // class declaration
 //
 
-namespace mssmhbb {
+namespace analysis {
    namespace ntuple {
 
       template <typename T>

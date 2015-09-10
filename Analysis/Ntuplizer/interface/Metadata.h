@@ -46,11 +46,11 @@
 #include "TTree.h"
 
 
-typedef mssmhbb::ntuple::Definitions Definitions;
+typedef analysis::ntuple::Definitions Definitions;
 typedef std::unique_ptr<Definitions> pDefinitions;
 
-typedef mssmhbb::ntuple::EventFilter<GenFilterInfo> GenFilter;
-typedef mssmhbb::ntuple::EventFilter<edm::MergeableCounter> EvtFilter;
+typedef analysis::ntuple::EventFilter<GenFilterInfo> GenFilter;
+typedef analysis::ntuple::EventFilter<edm::MergeableCounter> EvtFilter;
 
 typedef std::unique_ptr<GenFilter> pGenFilter;
 typedef std::unique_ptr<EvtFilter> pEvtFilter;
@@ -63,7 +63,7 @@ typedef std::unique_ptr<edm::Service<TFileService> > pTFileService;
 // class declaration
 //
 
-namespace mssmhbb {
+namespace analysis {
    namespace ntuple {
 
       class Metadata {
