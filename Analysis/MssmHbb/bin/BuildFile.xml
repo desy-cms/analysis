@@ -1,10 +1,11 @@
-<use   name="rootgraphics"/>
-<use   name="root"/>
-<use   name="rootmath"/>
-<use   name="FWCore/FWLite"/>
-<use   name="PhysicsTools/FWLite"/>
-<use   name="FWCore/ParameterSet"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="root"/>
+<use name="rootmath"/>
+<use name="rootgraphics"/>
+<use name="boost" />
+<use name="Analysis/Tools" />
 
-<bin   name="TagProbeOnlineBtag" file="TagProbeOnlineBtag.cc">
+<bin   name="ExampleAnalyseNtuple" file="ExampleAnalyseNtuple.cc">
 <flags   LDFLAGS="-lCore -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lz -pthread -lm -ldl -rdynamic"/>
 </bin>
