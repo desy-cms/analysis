@@ -51,6 +51,8 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 
+#include "DataFormats/PatCandidates/interface/TriggerObject.h"
+
 #include "DataFormats/JetReco/interface/GenJet.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
@@ -67,6 +69,8 @@
 #include "Analysis/Ntuplizer/interface/Vertices.h"
 
 #include "DataFormats/Common/interface/OwnVector.h"
+
+#include "DataFormats/Common/interface/TriggerResults.h"
 
 #include "Analysis/Ntuplizer/interface/EventFilter.h"
 
@@ -171,6 +175,19 @@ class Ntuplizer : public edm::EDAnalyzer {
       std::vector< std::string > triggerObjectLabels_;
       std::vector<TitleAlias> btagVars_;
       
+      edm::EDGetTokenT<l1extra::L1JetParticle> jetsToken_;
+      
+      std::map<std::string, edm::EDGetTokenT<l1extra::L1JetParticleCollection> > l1JetTokens_;
+      std::map<std::string, edm::EDGetTokenT<l1extra::L1MuonParticleCollection> > l1MuonTokens_;
+      std::map<std::string, edm::EDGetTokenT<reco::CaloJetCollection> > caloJetTokens_;
+      std::map<std::string, edm::EDGetTokenT<reco::PFJetCollection> > pfJetTokens_;
+      std::map<std::string, edm::EDGetTokenT<pat::JetCollection> > patJetTokens_;
+      std::map<std::string, edm::EDGetTokenT<pat::MuonCollection> > patMuonTokens_;
+      std::map<std::string, edm::EDGetTokenT<reco::GenJetCollection> > genJetTokens_;
+      std::map<std::string, edm::EDGetTokenT<reco::GenParticleCollection> > genPartTokens_;
+      std::map<std::string, edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> > triggerObjTokens_;
+      std::map<std::string, edm::EDGetTokenT<edm::TriggerResults> > triggerResultsTokens_;
+      
       
       edm::InputTag genFilterInfo_;
       InputTags eventCounters_;
@@ -226,6 +243,28 @@ Ntuplizer::Ntuplizer(const edm::ParameterSet& config) //:   // initialization of
    inputTags_    = config.getParameterNamesForType<edm::InputTag>();
    
    config_  = config;
+   for ( auto & inputTags : inputTagsVec_ )
+   {
+      InputTags collections = config_.getParameter<InputTags>(inputTags);
+      for ( auto & collection : collections )
+      {
+         std::string label = collection.label();
+         std::string inst  = collection.instance();
+         std::string proc  = collection.process();
+         std::string collection_name = label+"_"+inst+"_"+proc;
+         if ( inputTags == "L1ExtraJets" ) l1JetTokens_[collection_name] = consumes<l1extra::L1JetParticleCollection>(collection);
+         if ( inputTags == "L1ExtraMuons" ) l1MuonTokens_[collection_name] = consumes<l1extra::L1MuonParticleCollection>(collection);
+         if ( inputTags == "CaloJets" ) caloJetTokens_[collection_name] = consumes<reco::CaloJetCollection>(collection);
+         if ( inputTags == "PFJets" ) pfJetTokens_[collection_name] = consumes<reco::PFJetCollection>(collection);
+         if ( inputTags == "PatJets" ) patJetTokens_[collection_name] = consumes<pat::JetCollection>(collection);
+         if ( inputTags == "PatMuons" ) patMuonTokens_[collection_name] = consumes<pat::MuonCollection>(collection);
+         if ( inputTags == "GenJets" ) genJetTokens_[collection_name] = consumes<reco::GenJetCollection>(collection);
+         if ( inputTags == "GenParticles" ) genPartTokens_[collection_name] = consumes<reco::GenParticleCollection>(collection);
+         if ( inputTags == "TriggerObjectStandAlone"  ) triggerObjTokens_[collection_name] = consumes<pat::TriggerObjectStandAloneCollection>(collection);
+         if ( inputTags == "TriggerResults"  ) triggerResultsTokens_[collection_name] = consumes<edm::TriggerResults>(collection);
+     }
+   }
+
    
 }
 
