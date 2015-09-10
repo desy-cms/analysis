@@ -89,6 +89,18 @@ namespace analysis {
             bool lastcopy_[maxCandidates];
             bool higgs_dau_[maxCandidates];
             
+            // met specifics
+            float sigxx_[maxCandidates];
+            float sigxy_[maxCandidates];
+            float sigyx_[maxCandidates];
+            float sigyy_[maxCandidates];
+            
+            // gen info (usually from pat objects)
+            float gen_px_[maxCandidates];
+            float gen_py_[maxCandidates];
+            float gen_pz_[maxCandidates];
+
+            
             TTree * tree_;
             
          private:
@@ -101,6 +113,7 @@ namespace analysis {
             bool is_genjet_;
             bool is_genparticle_;
             bool is_trigobject_;
+            bool is_patmet_;
             bool is_mc_;
             bool do_kinematics_;
             bool do_generator_;

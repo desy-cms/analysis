@@ -38,6 +38,7 @@
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
 
 #include "DataFormats/JetReco/interface/GenJet.h"
 
@@ -88,6 +89,7 @@ Candidates<T>::Candidates(const edm::InputTag& tag, TTree* tree, const bool & mc
    is_pfjet_        = std::is_same<T,reco::PFJet>::value;
    is_patjet_       = std::is_same<T,pat::Jet>::value;
    is_patmuon_      = std::is_same<T,pat::Muon>::value;
+   is_patmet_       = std::is_same<T,pat::MET>::value;
    is_genjet_       = std::is_same<T,reco::GenJet>::value;
    is_genparticle_  = std::is_same<T,reco::GenParticle>::value;
    is_trigobject_   = std::is_same<T,pat::TriggerObject>::value;
@@ -197,7 +199,6 @@ void Candidates<T>::Kinematics()
                higgs_dau_[n] = true;
          }
       }
-      
             
       pt_[n]  = candidates_[i].pt();
       eta_[n] = candidates_[i].eta();
@@ -250,6 +251,22 @@ void Candidates<T>::Kinematics()
          jetid_[5][n] = (float)jet->chargedMultiplicity();
          jetid_[6][n] = jet->muonEnergyFraction();
       }
+      if ( is_patmet_ )
+      {
+         pat::MET * met = dynamic_cast<pat::MET*> (&candidates_[i]);
+         sigxx_[n] = met->getSignificanceMatrix()(0,0);
+         sigxy_[n] = met->getSignificanceMatrix()(0,1);
+         sigyx_[n] = met->getSignificanceMatrix()(1,0);
+         sigyy_[n] = met->getSignificanceMatrix()(1,1);
+         if ( is_mc_ )
+         {
+            const reco::GenMET * genMET = met->genMET();
+            gen_px_[n] = genMET->px();;
+            gen_py_[n] = genMET->py();;
+            gen_pz_[n] = genMET->pz();;
+         }
+      }
+      
       ++n;
    }
    n_ = n;
@@ -301,6 +318,7 @@ void Candidates<T>::Branches()
       tree_->Branch("e",   e_,   "e[n]/F");
       tree_->Branch("et",  et_,  "et[n]/F");
       tree_->Branch("q",   q_,   "q[n]/I");
+      
       if ( is_genparticle_ )
       {
          tree_->Branch("pdg",   pdg_,   "pdg[n]/I");
@@ -320,8 +338,22 @@ void Candidates<T>::Branches()
          for ( size_t it = 0 ; it < id_vars_.size() ; ++it )
             tree_->Branch(id_vars_[it].alias.c_str(), jetid_[it], (id_vars_[it].title+"[n]/F").c_str());
       }
+      if ( is_patmet_ )
+      {
+         tree_->Branch("sigxx",  sigxx_,  "sigxx[n]/F");
+         tree_->Branch("sigxy",  sigxy_,  "sigxy[n]/F");
+         tree_->Branch("sigyx",  sigyx_,  "sigyx[n]/F");
+         tree_->Branch("sigyy",  sigyy_,  "sigyy[n]/F");
+         if ( is_mc_ )
+         {
+            tree_->Branch("gen_px",  gen_px_,  "gen_px[n]/F");
+            tree_->Branch("gen_py",  gen_py_,  "gen_py[n]/F");
+            tree_->Branch("gen_pz",  gen_pz_,  "gen_pz[n]/F");
+        }
+      }
       
    }
+      
    
 }
 
@@ -343,6 +375,7 @@ template class Candidates<reco::CaloJet>;
 template class Candidates<reco::PFJet>;
 template class Candidates<pat::Jet>;
 template class Candidates<pat::Muon>;
+template class Candidates<pat::MET>;
 template class Candidates<reco::GenJet>;
 template class Candidates<reco::GenParticle>;
 template class Candidates<pat::TriggerObject>;

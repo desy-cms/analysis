@@ -50,6 +50,7 @@
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
 
 #include "DataFormats/PatCandidates/interface/TriggerObject.h"
 
@@ -99,6 +100,7 @@ typedef analysis::ntuple::Candidates<l1extra::L1MuonParticle> L1MuonCandidates;
 typedef analysis::ntuple::Candidates<reco::CaloJet> CaloJetCandidates;
 typedef analysis::ntuple::Candidates<reco::PFJet> PFJetCandidates;
 typedef analysis::ntuple::Candidates<pat::Jet> PatJetCandidates;
+typedef analysis::ntuple::Candidates<pat::MET> PatMETCandidates;
 typedef analysis::ntuple::Candidates<pat::Muon> PatMuonCandidates;
 typedef analysis::ntuple::Candidates<reco::GenJet> GenJetCandidates;
 typedef analysis::ntuple::Candidates<reco::GenParticle> GenParticleCandidates;
@@ -118,6 +120,7 @@ typedef std::unique_ptr<L1MuonCandidates> pL1MuonCandidates;
 typedef std::unique_ptr<CaloJetCandidates> pCaloJetCandidates;
 typedef std::unique_ptr<PFJetCandidates> pPFJetCandidates;
 typedef std::unique_ptr<PatJetCandidates> pPatJetCandidates;
+typedef std::unique_ptr<PatMETCandidates> pPatMETCandidates;
 typedef std::unique_ptr<PatMuonCandidates> pPatMuonCandidates;
 typedef std::unique_ptr<GenJetCandidates> pGenJetCandidates;
 typedef std::unique_ptr<GenParticleCandidates> pGenParticleCandidates;
@@ -158,6 +161,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       bool do_calojets_;
       bool do_pfjets_;
       bool do_patjets_;
+      bool do_patmets_;
       bool do_patmuons_;
       bool do_genjets_;
       bool do_genparticles_;
@@ -182,6 +186,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       std::map<std::string, edm::EDGetTokenT<reco::CaloJetCollection> > caloJetTokens_;
       std::map<std::string, edm::EDGetTokenT<reco::PFJetCollection> > pfJetTokens_;
       std::map<std::string, edm::EDGetTokenT<pat::JetCollection> > patJetTokens_;
+      std::map<std::string, edm::EDGetTokenT<pat::METCollection> > patMETTokens_;
       std::map<std::string, edm::EDGetTokenT<pat::MuonCollection> > patMuonTokens_;
       std::map<std::string, edm::EDGetTokenT<reco::GenJetCollection> > genJetTokens_;
       std::map<std::string, edm::EDGetTokenT<reco::GenParticleCollection> > genPartTokens_;
@@ -205,6 +210,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       std::vector<pCaloJetCandidates> calojets_collections_;
       std::vector<pPFJetCandidates> pfjets_collections_;
       std::vector<pPatJetCandidates> patjets_collections_;
+      std::vector<pPatMETCandidates> patmets_collections_;
       std::vector<pPatMuonCandidates> patmuons_collections_;
       std::vector<pGenJetCandidates> genjets_collections_;
       std::vector<pGenParticleCandidates> genparticles_collections_;
@@ -257,6 +263,7 @@ Ntuplizer::Ntuplizer(const edm::ParameterSet& config) //:   // initialization of
          if ( inputTags == "CaloJets" ) caloJetTokens_[collection_name] = consumes<reco::CaloJetCollection>(collection);
          if ( inputTags == "PFJets" ) pfJetTokens_[collection_name] = consumes<reco::PFJetCollection>(collection);
          if ( inputTags == "PatJets" ) patJetTokens_[collection_name] = consumes<pat::JetCollection>(collection);
+         if ( inputTags == "PatMETs" ) patMETTokens_[collection_name] = consumes<pat::METCollection>(collection);
          if ( inputTags == "PatMuons" ) patMuonTokens_[collection_name] = consumes<pat::MuonCollection>(collection);
          if ( inputTags == "GenJets" ) genJetTokens_[collection_name] = consumes<reco::GenJetCollection>(collection);
          if ( inputTags == "GenParticles" ) genPartTokens_[collection_name] = consumes<reco::GenParticleCollection>(collection);
@@ -328,6 +335,10 @@ void Ntuplizer::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       for ( auto & collection : patjets_collections_ )
          collection -> Fill(event);
    
+      // Pat mets (pat)
+      for ( auto & collection : patmets_collections_ )
+         collection -> Fill(event);
+   
       // Pat muon (pat)
       for ( auto & collection : patmuons_collections_ )
          collection -> Fill(event);
@@ -368,6 +379,7 @@ Ntuplizer::beginJob()
    do_calojets_         = config_.exists("CaloJets");
    do_pfjets_           = config_.exists("PFJets");
    do_patjets_          = config_.exists("PatJets");
+   do_patmets_          = config_.exists("PatMETs");
    do_patmuons_         = config_.exists("PatMuons");
    do_genjets_          = config_.exists("GenJets");
    do_genparticles_     = config_.exists("GenParticles");
@@ -502,6 +514,12 @@ Ntuplizer::beginJob()
          {
             patjets_collections_.push_back( pPatJetCandidates( new PatJetCandidates(collection, tree_[name], is_mc_, 10, 5. ) ));
             patjets_collections_.back() -> Init(btagVars_);
+         }
+         // Pat METs
+         if ( inputTags == "PatMETs" )
+         {
+            patmets_collections_.push_back( pPatMETCandidates( new PatMETCandidates(collection, tree_[name], is_mc_) ));
+            patmets_collections_.back() -> Init();
          }
          // Pat Muons
          if ( inputTags == "PatMuons" )
