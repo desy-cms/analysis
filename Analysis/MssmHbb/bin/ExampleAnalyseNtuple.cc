@@ -9,6 +9,7 @@
 
 #include "Analysis/Tools/interface/Jets.h"
 #include "Analysis/Tools/interface/Muons.h"
+#include "Analysis/Tools/interface/METs.h"
 
 using namespace std;
 using namespace analysis;
@@ -27,6 +28,10 @@ int main(int argc, char * argv[])
    std::string inputList = "rootFileList.txt"; 
    TFileCollection fc("dum","",inputList.c_str());
    
+   bool is_mc = false;
+   
+   if ( is_mc ) 
+   {
 // =============================================================================================   
    // Acces to Metadata (outside the event loop, no friendship with event-like trees)
    TChain * t_xsection  = new TChain("MonteCarloStudies/Metadata/CrossSections");
@@ -36,7 +41,8 @@ int main(int argc, char * argv[])
    TChain * t_genfilter  = new TChain("MonteCarloStudies/Metadata/GeneratorFilter");
    t_genfilter -> AddFileInfoList((TCollection*) fc.GetList());
    PrintGeneratorFilter(t_genfilter);
-// =============================================================================================   
+// =============================================================================================  
+   }   
    
 // =============================================================================================
    // EVENT stuff   
@@ -47,16 +53,20 @@ int main(int argc, char * argv[])
    // Other event trees
    TChain * t_Jets    = new TChain("MonteCarloStudies/Events/slimmedJetsPuppi");
    TChain * t_Muons   = new TChain("MonteCarloStudies/Events/slimmedMuons");
+   TChain * t_METs    = new TChain("MonteCarloStudies/Events/slimmedMETsPuppi");
    t_Jets   -> AddFileInfoList((TCollection*) fc.GetList());
    t_Muons  -> AddFileInfoList((TCollection*) fc.GetList());
+   t_METs   -> AddFileInfoList((TCollection*) fc.GetList());
    
    // Friendship (DON'T FORGET!!!)
    t_Event -> AddFriend(t_Jets);
    t_Event -> AddFriend(t_Muons);
+   t_Event -> AddFriend(t_METs);
    
    // Create objects collections
    Jets  jets (t_Jets);
    Muons muons(t_Muons);
+   METs  mets (t_METs);
    
    // HISTOGRAMS
    std::map<std::string, TH1F*> h1;
@@ -75,6 +85,9 @@ int main(int argc, char * argv[])
    h1["h_muon_Eta"]     = new TH1F("h_muon_Eta", "", 100, -5, 5.);
    h1["h_muon_Phi"]     = new TH1F("h_muon_Phi", "", 100, 3.2, 3.2);
 
+   // MET
+   h1["h_met_Pt"]      = new TH1F("h_met_Pt" , "", 200, 0., 1000.);
+   h1["h_met_Phi"]     = new TH1F("h_met_Phi", "", 100, 3.2, 3.2);
    
    // Number of loop events
    int nEvents = t_Event->GetEntries();
@@ -110,12 +123,21 @@ int main(int argc, char * argv[])
          h1["h_muon_Eta"]     -> Fill(muon.eta());
          h1["h_muon_Phi"]     -> Fill(muon.phi());
      }
+     
+     if ( mets.size() > 0 )
+     {
+         MET met = mets.at(0);
+         h1["h_met_Pt"]      -> Fill(met.pt());
+         h1["h_met_Phi"]     -> Fill(met.phi());
+     }
+     
       
    }
    
    TFile * outFile = new TFile("ExampleNtupleHistograms.root","RECREATE");
    outFile -> mkdir("Jets","Jets");
    outFile -> mkdir("Muons","Muons");
+   outFile -> mkdir("METs","METs");
    
    for ( auto& ih1 : h1 )
    {
@@ -123,6 +145,8 @@ int main(int argc, char * argv[])
          outFile -> cd("Jets");
       if ( ih1.first.find("h_muon_") != std::string::npos )
          outFile -> cd("Muons");
+      if ( ih1.first.find("h_met_") != std::string::npos )
+         outFile -> cd("METs");
       ih1.second -> Write();
    }
    outFile -> Close();
