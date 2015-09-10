@@ -1,4 +1,5 @@
 ##############################################################################
+NOT INTENDED FOR CODE DEVELOPMENT
 
 ## On NAF
 module load cmssw
@@ -8,8 +9,6 @@ cd CMSSW_7_5_2/src
 cmsenv
 ## Clone a release from the repository
 
-git clone https://github.com/robervalwalsh/cmssw-analysis.git .
-git checkout -b fall15_pre1 fall15_pre1
+git clone --branch fall15-pre1 https://github.com/robervalwalsh/cmssw-analysis.git .
 
 scram p -j4
-
