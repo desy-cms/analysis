@@ -48,6 +48,11 @@ Candidate::~Candidate()
 //
 
 // ------------ methods  ------------
+float Candidate::px() { return p_[0]; }
+float Candidate::py() { return p_[1]; }
+float Candidate::pz() { return p_[2]; }
+float * Candidate::momentum3() { return p_; }
+
 float Candidate::pt()
 {
    return pt_;
@@ -85,5 +90,24 @@ void Candidate::set(const float & pt, const float & eta, const float & phi, cons
       p4_.SetPtEtaPhiE(0,0,0,0);
    else
       p4_.SetPtEtaPhiE(pt_,eta_,phi_,e_);
-
+   
+}
+void Candidate::momentum3(const float & px, const float & py, const float & pz)
+{
+   p_[0] = px;
+   p_[1] = py;
+   p_[2] = pz;
+  
+}
+void Candidate::phi(const float & phi)
+{
+   phi_  = phi;
+}
+void Candidate::eta(const float & eta)
+{
+   eta_  = eta;
+}
+void Candidate::pt(const float & pt)
+{
+   pt_  = pt;
 }

@@ -41,6 +41,9 @@ Candidates::Candidates(TChain * tree)
    tree_  -> SetBranchAddress( "phi"    ,     phi_   );
    tree_  -> SetBranchAddress( "e"      ,     e_     );
    tree_  -> SetBranchAddress( "q"      ,     q_     );
+   tree_  -> SetBranchAddress( "px"     ,     px_    );
+   tree_  -> SetBranchAddress( "py"     ,     py_    );
+   tree_  -> SetBranchAddress( "pz"     ,     pz_    );
 }
 
 Candidates::~Candidates()
@@ -67,6 +70,10 @@ Candidate Candidates::at(const int& i)
    }
    
    cand.set(pt_[i],eta_[i],phi_[i],e_[i],q_[i]);
+   cand.momentum3(px_[i],py_[i],pz_[i]);
+   cand.phi(phi_[i]);
+   cand.pt(pt_[i]);
+   
    return cand;
    
 }

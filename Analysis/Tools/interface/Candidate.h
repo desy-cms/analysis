@@ -37,13 +37,21 @@ namespace analysis {
             Candidate();
            ~Candidate();
            
+           float px();
+           float py();
+           float pz();
            float pt();
            float eta();
            float phi();
            float e();
            int   q();
            TLorentzVector p4();
+           float * momentum3();
            
+           void pt(const float &);
+           void phi(const float &);
+           void eta(const float &);
+           void momentum3(const float &, const float &, const float &);
            void set(const float & pt, const float & eta, const float & phi, const float & e, const float & q);
 
       
@@ -56,6 +64,7 @@ namespace analysis {
             float phi_;
             float e_  ;
             int   q_  ;
+            float p_[3];
             
             TLorentzVector p4_;
 

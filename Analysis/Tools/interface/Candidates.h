@@ -57,6 +57,10 @@ namespace analysis {
             float e_   [max_];
             int   q_   [max_];
             
+            float px_  [max_];
+            float py_  [max_];
+            float pz_  [max_];
+            
             std::vector<Candidate> candidates_;
             
             TChain * tree_;
