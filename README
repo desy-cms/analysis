@@ -9,6 +9,6 @@ cd CMSSW_7_5_2/src
 cmsenv
 ## Clone a release from the repository
 
-git clone --branch fall15-pre1 https://github.com/robervalwalsh/cmssw-analysis.git .
+git clone --branch fall15-pre2 https://github.com/robervalwalsh/cmssw-analysis.git .
 
 scram p -j4
