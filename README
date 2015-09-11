@@ -1,5 +1,5 @@
 ##############################################################################
-NOT INTENDED FOR CODE DEVELOPMENT
+INSTRUCTIONS FOR INSTALLATION NOT INTENDED FOR CODE DEVELOPMENT
 
 ## On NAF
 module load cmssw
@@ -12,3 +12,9 @@ cmsenv
 git clone --branch fall15-pre2 https://github.com/robervalwalsh/cmssw-analysis.git .
 
 scram p -j4
+
+##############################################################################
+FOR CODE DEVELOPMENT
+Fork this repository and make pull requests to commit changes.
+If needed I can grant more rights to the members of the group.
+
