@@ -5,7 +5,7 @@
 // 
 /**\class Ntuplizer Ntuplizer.cc Analysis/Ntuplizer/plugins/Ntuplizer.cc
 
- Description: [one line class summary]
+ Description: EDAnalyzer to produce ntuples for the CMS Higgs Analysis, meant for MSSM Hbb analysis, but it can be used in other analysis.
 
  Implementation:
      [Notes on implementation]
@@ -138,6 +138,9 @@ class Ntuplizer : public edm::EDAnalyzer {
       explicit Ntuplizer(const edm::ParameterSet&);
       ~Ntuplizer();
 
+      //! Member function
+      /*! To state exactly what you do use, even if it is no parameters. Required by EDAnalyzer?
+      */
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 
