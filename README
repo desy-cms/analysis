@@ -11,7 +11,7 @@ cmsenv
 
 git clone --branch desy-higgs-fall15-pre2 https://github.com/robervalwalsh/cmssw-analysis.git .
 
-scram p -j4
+scram b -j4
 
 ##############################################################################
 FOR CODE DEVELOPMENT
