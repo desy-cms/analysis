@@ -34,11 +34,11 @@ int main(int argc, char * argv[])
    {
 // =============================================================================================   
    // Acces to Metadata (outside the event loop, no friendship with event-like trees)
-   TChain * t_xsection  = new TChain("MonteCarloStudies/Metadata/CrossSections");
+   TChain * t_xsection  = new TChain("MssmHbb/Metadata/CrossSections");
    t_xsection -> AddFileInfoList((TCollection*) fc.GetList());
    PrintCrossSections(t_xsection);
 
-   TChain * t_genfilter  = new TChain("MonteCarloStudies/Metadata/GeneratorFilter");
+   TChain * t_genfilter  = new TChain("MssmHbb/Metadata/GeneratorFilter");
    t_genfilter -> AddFileInfoList((TCollection*) fc.GetList());
    PrintGeneratorFilter(t_genfilter);
 // =============================================================================================  
@@ -47,26 +47,26 @@ int main(int argc, char * argv[])
 // =============================================================================================
    // EVENT stuff   
    // Main event tree
-   TChain * t_Event   = new TChain("MonteCarloStudies/Events/EventInfo");
+   TChain * t_Event   = new TChain("MssmHbb/Events/EventInfo");
    t_Event->AddFileInfoList((TCollection*) fc.GetList());
    
    // Other event trees
-   TChain * t_Jets    = new TChain("MonteCarloStudies/Events/slimmedJetsPuppi");
-   TChain * t_Muons   = new TChain("MonteCarloStudies/Events/slimmedMuons");
-   //TChain * t_METs    = new TChain("MonteCarloStudies/Events/slimmedMETsPuppi");
+   TChain * t_Jets    = new TChain("MssmHbb/Events/slimmedJetsPuppi");
+   TChain * t_Muons   = new TChain("MssmHbb/Events/slimmedMuons");
+   TChain * t_METs    = new TChain("MssmHbb/Events/slimmedMETsPuppi");
    t_Jets   -> AddFileInfoList((TCollection*) fc.GetList());
    t_Muons  -> AddFileInfoList((TCollection*) fc.GetList());
-   //t_METs   -> AddFileInfoList((TCollection*) fc.GetList());
+   t_METs   -> AddFileInfoList((TCollection*) fc.GetList());
    
    // Friendship (DON'T FORGET!!!)
    t_Event -> AddFriend(t_Jets);
    t_Event -> AddFriend(t_Muons);
-   //t_Event -> AddFriend(t_METs);
+   t_Event -> AddFriend(t_METs);
    
    // Create objects collections
    Jets  jets (t_Jets);
    Muons muons(t_Muons);
-   //METs  mets (t_METs);
+   METs  mets (t_METs);
    
    // HISTOGRAMS
    std::map<std::string, TH1F*> h1;
@@ -124,12 +124,12 @@ int main(int argc, char * argv[])
          h1["h_muon_Phi"]     -> Fill(muon.phi());
      }
      
-     //if ( mets.size() > 0 )
-     //{
-      //   MET met = mets.at(0);
-      //   h1["h_met_Pt"]      -> Fill(met.pt());
-      //   h1["h_met_Phi"]     -> Fill(met.phi());
-     //}
+     if ( mets.size() > 0 )
+     {
+        MET met = mets.at(0);
+        h1["h_met_Pt"]      -> Fill(met.pt());
+        h1["h_met_Phi"]     -> Fill(met.phi());
+     }
      
       
    }
