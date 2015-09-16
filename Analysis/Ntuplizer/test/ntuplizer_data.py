@@ -3,43 +3,72 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Demo")
 
-#process.load("FWCore.MessageService.MessageLogger_cfi")
+process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag as customiseGlobalTag
-process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = '74X_dataRun2_Prompt_v1')
-process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_CONDITIONS'
-process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
-for pset in process.GlobalTag.toGet.value():
-    pset.connect = pset.connect.value().replace('frontier://FrontierProd/', 'frontier://FrontierProd/')
-# fix for multi-run processing
-process.GlobalTag.RefreshEachRun = cms.untracked.bool( False )
-process.GlobalTag.ReconnectEachRun = cms.untracked.bool( False )
+##  Using MINIAOD. GlobalTag just in case jet re-clustering, L1 trigger filter  etc is needed to be done
+# process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+# from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag as customiseGlobalTag
+# process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = '74X_dataRun2_Prompt_v1')
+# process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_CONDITIONS'
+# process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
+# for pset in process.GlobalTag.toGet.value():
+#     pset.connect = pset.connect.value().replace('frontier://FrontierProd/', 'frontier://FrontierProd/')
+## fix for multi-run processing
+# process.GlobalTag.RefreshEachRun = cms.untracked.bool( False )
+# process.GlobalTag.ReconnectEachRun = cms.untracked.bool( False )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
-output_file = 'ntuple_pat.root'
+output_file = '/nfs/dust/cms/user/walsh/tmp/ntuple_mssmhbb_data_runs254905to254907.root'
 ## TFileService
 process.TFileService = cms.Service("TFileService",
 	fileName = cms.string(output_file)
 )
 
+## Enable below at Path if needed 
+process.triggerSelection = cms.EDFilter( "TriggerResultsFilter",
+    triggerConditions = cms.vstring(
+                          "HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v*",
+                          "HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v*",
+                          "HLT_DoubleJetsC112_DoubleBTagCSV0p9_DoublePFJetsC112MaxDeta1p6_v*",
+                          "HLT_DoubleJetsC112_DoubleBTagCSV0p85_DoublePFJetsC172_v*",
+                          "HLT_DoubleJet90_Double30_TripleBTagCSV0p67_v*",
+                          "HLT_QuadJet45_DoubleBTagCSV0p67_v*",
+                          "HLT_QuadJet45_TripleBTagCSV0p67_v*",
+                          "HLT_QuadPFJet_DoubleBTagCSV_VBF_Mqq200_v*",
+                          "HLT_QuadPFJet_DoubleBTagCSV_VBF_Mqq240_v*",
+                          "HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq460_v*",
+                          "HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq500_v*",
+                          
+    ),
+    hltResults = cms.InputTag( "TriggerResults", "", "HLT" ),
+    l1tResults = cms.InputTag( "" ),
+    l1tIgnoreMask = cms.bool( False ),
+    l1techIgnorePrescales = cms.bool( False ),
+    daqPartitions = cms.uint32( 1 ),
+    throw = cms.bool( True )
+)
+
+## Filter counter (more useful for MC; still need to implement in the Ntuplizer)
+process.EventsTotal    = cms.EDProducer("EventCountProducer")
+process.EventsFiltered = cms.EDProducer("EventCountProducer")
+
+
 # Ntuplizer
-process.MonteCarloStudies = cms.EDAnalyzer("Ntuplizer",
+process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
     MonteCarlo      = cms.bool(False),
     UseFullName     = cms.bool(False),
-    L1ExtraJets     = cms.VInputTag(cms.InputTag("l1extraParticles","Central","RECO"),
-                                    cms.InputTag("l1extraParticles","Forward","RECO"),
-                                    cms.InputTag("l1extraParticles","Tau","RECO")
-                                    ),
-    L1ExtraMuons    = cms.VInputTag(cms.InputTag("l1extraParticles","","RECO")),
-    PatJets         = cms.VInputTag(cms.InputTag("slimmedJetsPuppi","","RECO"),
+    PatJets         = cms.VInputTag(
+                                    cms.InputTag("slimmedJetsPuppi","","RECO"),
                                     cms.InputTag("slimmedJetsAK8PFCHSSoftDropPacked","SubJets","RECO")
                                     ), 
-    PatMETs         = cms.VInputTag(cms.InputTag("slimmedMETs","","RECO"),
+    PatMETs         = cms.VInputTag(
+                                    cms.InputTag("slimmedMETs","","RECO"),
                                     cms.InputTag("slimmedMETsPuppi","","RECO")
                                     ), 
-    PatMuons        = cms.VInputTag(cms.InputTag("slimmedMuons","","RECO")), 
+    PatMuons        = cms.VInputTag(
+                                    cms.InputTag("slimmedMuons","","RECO")
+                                    ), 
     BTagAlgorithms = cms.vstring   (
                                     "pfCombinedInclusiveSecondaryVertexV2BJetTags",
                                     "combinedSecondaryVertexBJetTags",
@@ -68,37 +97,63 @@ process.MonteCarloStudies = cms.EDAnalyzer("Ntuplizer",
                                         ),
     TriggerResults  = cms.VInputTag(cms.InputTag("TriggerResults","","HLT")),
     TriggerPaths    = cms.vstring  (
-    											"HLT_BTagMu_DiJet20_Mu5",
-    											"HLT_BTagMu_DiJet40_Mu5",
-    											"HLT_BTagMu_DiJet70_Mu5",
-    											"HLT_BTagMu_DiJet110_Mu5",
-    											"HLT_BTagMu_Jet300_Mu5",
+    ## I recommend using the version number explicitly to be able to compare 
+    ## however for production one has to be careful that all versions are included.
+    ## Thinking of a better solution...
+    											"HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v1",
+    											"HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v1",
+    											"HLT_DoubleJetsC112_DoubleBTagCSV0p9_DoublePFJetsC112MaxDeta1p6_v1",
+    											"HLT_DoubleJetsC112_DoubleBTagCSV0p85_DoublePFJetsC172_v1",
+                                    "HLT_DoubleJet90_Double30_TripleBTagCSV0p67_v2",
+                                    "HLT_QuadJet45_DoubleBTagCSV0p67_v2",
+                                    "HLT_QuadJet45_TripleBTagCSV0p67_v2",
+                                    "HLT_QuadPFJet_DoubleBTagCSV_VBF_Mqq200_v2",
+                                    "HLT_QuadPFJet_DoubleBTagCSV_VBF_Mqq240_v2",
+                                    "HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq460_v2",
+                                    "HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq500_v2",
                                    ),
     TriggerObjectStandAlone  = cms.VInputTag(
                                              cms.InputTag("selectedPatTrigger","","RECO"),
                                              ),
     TriggerObjectLabels    = cms.vstring  (
-    											"hltSinglePFJet40",
-    											"hltSinglePFJet60",
-    											"hltSinglePFJet80",
-    											"hltSingleCaloJet10",
-    											"hltSingleCaloJet40",
-    											"hltL1sL1SingleMu5",
-    											"hltL1sMu5",
+    											"hltL1sL1DoubleJetC100",
+    											"hltDoubleJetsC100",
+    											"hltDoublePFJetsC100",
+    											"hltDoublePFJetsC100MaxDeta1p6",
+    											"hltDoublePFJetsC160",
+    											"hltDoubleBTagCSV0p85",
+    											"hltDoubleBTagCSV0p9",
+    											"hltL1sL1DoubleJetC112",
+    											"hltDoubleJetsC112",
+    											"hltDoublePFJetsC112",
+    											"hltDoublePFJetsC112MaxDeta1p6",
+    											"hltDoublePFJetsC172",
                                    ),
+#    L1ExtraJets     = cms.VInputTag(
+#                                    cms.InputTag("l1extraParticles","Central","RECO"),
+#                                    cms.InputTag("l1extraParticles","Forward","RECO"),
+#                                    cms.InputTag("l1extraParticles","Tau","RECO")
+#                                    ),
+#    L1ExtraMuons    = cms.VInputTag(
+#                                    cms.InputTag("l1extraParticles","","RECO")
+#                                    ),
 )
 
-#if options.xsection:
-#process.MonteCarloStudies.CrossSection = cms.double(options.xsection)
-
-process.p = cms.Path(process.MonteCarloStudies)
+process.p = cms.Path(
+#                      process.EventsTotal *
+#                      process.triggerSelection * 
+#                      process.EventsFiltered *
+                      process.MssmHbb
+                    )
 
 readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 
 readFiles.extend( [
-       '/store/data/Run2015C/BTagMu/MINIAOD/PromptReco-v1/000/254/319/00000/E68D6A77-AF45-E511-AA2B-02163E01430A.root',
+       '/pnfs/desy.de/cms/tier2/store/data/Run2015C/BTagCSV/MINIAOD/PromptReco-v1/000/254/905/00000/1877CA80-B64B-E511-BE62-02163E013611.root',
+       '/pnfs/desy.de/cms/tier2/store/data/Run2015C/BTagCSV/MINIAOD/PromptReco-v1/000/254/906/00000/2E43AE21-D74B-E511-B642-02163E011AC9.root',
+       '/pnfs/desy.de/cms/tier2/store/data/Run2015C/BTagCSV/MINIAOD/PromptReco-v1/000/254/907/00000/FA67011D-DE4B-E511-A6B5-02163E01437C.root'
 ] );
 
 
