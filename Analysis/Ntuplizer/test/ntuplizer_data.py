@@ -36,6 +36,9 @@ process.MonteCarloStudies = cms.EDAnalyzer("Ntuplizer",
     PatJets         = cms.VInputTag(cms.InputTag("slimmedJetsPuppi","","RECO"),
                                     cms.InputTag("slimmedJetsAK8PFCHSSoftDropPacked","SubJets","RECO")
                                     ), 
+    PatMETs         = cms.VInputTag(cms.InputTag("slimmedMETs","","RECO"),
+                                    cms.InputTag("slimmedMETsPuppi","","RECO")
+                                    ), 
     PatMuons        = cms.VInputTag(cms.InputTag("slimmedMuons","","RECO")), 
     BTagAlgorithms = cms.vstring   (
                                     "pfCombinedInclusiveSecondaryVertexV2BJetTags",

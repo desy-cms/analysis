@@ -15,7 +15,7 @@ for pset in process.GlobalTag.toGet.value():
 process.GlobalTag.RefreshEachRun = cms.untracked.bool( False )
 process.GlobalTag.ReconnectEachRun = cms.untracked.bool( False )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 ## TFileService
 process.TFileService = cms.Service("TFileService",
@@ -38,6 +38,8 @@ process.MonteCarloStudies = cms.EDAnalyzer("Ntuplizer",
     PatJets         = cms.VInputTag(cms.InputTag("slimmedJets","","PAT"),
                                     cms.InputTag("slimmedJetsPuppi","","PAT"),
                                     cms.InputTag("slimmedJetsAK8PFCHSSoftDropPacked","SubJets","PAT")), 
+    PatMETs         = cms.VInputTag(cms.InputTag("slimmedMETs","","PAT"),
+                                    cms.InputTag("slimmedMETsPuppi","","PAT")),
     PatMuons        = cms.VInputTag(cms.InputTag("slimmedMuons","","PAT")), 
     TriggerResults  = cms.VInputTag(cms.InputTag("TriggerResults","","HLT")),
     TriggerPaths    = cms.vstring  (
