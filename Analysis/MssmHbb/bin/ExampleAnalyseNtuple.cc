@@ -53,20 +53,20 @@ int main(int argc, char * argv[])
    // Other event trees
    TChain * t_Jets    = new TChain("MonteCarloStudies/Events/slimmedJetsPuppi");
    TChain * t_Muons   = new TChain("MonteCarloStudies/Events/slimmedMuons");
-   TChain * t_METs    = new TChain("MonteCarloStudies/Events/slimmedMETsPuppi");
+   //TChain * t_METs    = new TChain("MonteCarloStudies/Events/slimmedMETsPuppi");
    t_Jets   -> AddFileInfoList((TCollection*) fc.GetList());
    t_Muons  -> AddFileInfoList((TCollection*) fc.GetList());
-   t_METs   -> AddFileInfoList((TCollection*) fc.GetList());
+   //t_METs   -> AddFileInfoList((TCollection*) fc.GetList());
    
    // Friendship (DON'T FORGET!!!)
    t_Event -> AddFriend(t_Jets);
    t_Event -> AddFriend(t_Muons);
-   t_Event -> AddFriend(t_METs);
+   //t_Event -> AddFriend(t_METs);
    
    // Create objects collections
    Jets  jets (t_Jets);
    Muons muons(t_Muons);
-   METs  mets (t_METs);
+   //METs  mets (t_METs);
    
    // HISTOGRAMS
    std::map<std::string, TH1F*> h1;
@@ -124,12 +124,12 @@ int main(int argc, char * argv[])
          h1["h_muon_Phi"]     -> Fill(muon.phi());
      }
      
-     if ( mets.size() > 0 )
-     {
-         MET met = mets.at(0);
-         h1["h_met_Pt"]      -> Fill(met.pt());
-         h1["h_met_Phi"]     -> Fill(met.phi());
-     }
+     //if ( mets.size() > 0 )
+     //{
+      //   MET met = mets.at(0);
+      //   h1["h_met_Pt"]      -> Fill(met.pt());
+      //   h1["h_met_Phi"]     -> Fill(met.phi());
+     //}
      
       
    }
