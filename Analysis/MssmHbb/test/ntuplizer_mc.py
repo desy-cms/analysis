@@ -19,7 +19,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(1000)
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
-output_file = '/nfs/dust/cms/user/walsh/tmp/ntuple_mssmhbb_mc_fall15pre3_m300.root'
+output_file = '/nfs/dust/cms/user/walsh/tmp/ntuple_mssmhbb_mc_fall15pre4_m300.root'
 ## TFileService
 process.TFileService = cms.Service("TFileService",
 	fileName = cms.string(output_file)
@@ -75,6 +75,9 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
                                     ), 
     PatMuons        = cms.VInputTag(
                                     cms.InputTag("slimmedMuons","","PAT")
+                                    ), 
+    PrimaryVertices = cms.VInputTag(
+                                    cms.InputTag("offlineSlimmedPrimaryVertices","","PAT")
                                     ), 
     BTagAlgorithms = cms.vstring   (
                                     "pfCombinedInclusiveSecondaryVertexV2BJetTags",
