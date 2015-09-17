@@ -144,14 +144,14 @@ EvtFilter & Metadata::GetEventFilter()
    return *evtfilter_;
 }
 
-void Metadata::SetCrossSections( const edm::Run  & run, const double & myxs )
+void Metadata::SetCrossSections( const edm::Run  & run, const edm::InputTag & inputTag, const double & myxs )
 {
    if ( is_mc_ )
    {
       runXS_ = run.run();
       
       edm::Handle<GenRunInfoProduct> genRunInfo;
-      run.getByLabel( "generator", genRunInfo );
+      run.getByLabel( inputTag, genRunInfo );
       myXSec_          = myxs;
       XSec_            = genRunInfo -> crossSection();
       internalXSec_    = genRunInfo -> internalXSec().value();

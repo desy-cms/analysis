@@ -83,7 +83,7 @@ namespace analysis {
             void SetEventFilter(const std::vector<edm::InputTag> &);
             void IncrementEventFilters( edm::LuminosityBlock const& );
             
-            void SetCrossSections( const edm::Run  &, const double & myxs = -1. );
+            void SetCrossSections( const edm::Run  &, const edm::InputTag &, const double & myxs = -1. );
             
             
             GenFilter & GetGeneratorFilter();
