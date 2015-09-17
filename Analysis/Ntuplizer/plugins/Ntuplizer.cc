@@ -198,7 +198,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       std::map<std::string, edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> > triggerObjTokens_;
       std::map<std::string, edm::EDGetTokenT<edm::TriggerResults> > triggerResultsTokens_;
       
-      edm::EDGetTokenT<GenFilterInfo> genFilterInfoToken_;
+      edm::EDGetTokenT<GenFilterInfo> genFilterInfoToken_;      
       
       edm::InputTag genFilterInfo_;
       InputTags eventCounters_;
@@ -282,16 +282,7 @@ Ntuplizer::Ntuplizer(const edm::ParameterSet& config) //:   // initialization of
    for ( auto & inputTag : inputTags_ )
    {
       edm::InputTag collection = config_.getParameter<edm::InputTag>(inputTag);
-      std::string label = collection.label();
-      std::string inst  = collection.instance();
-      std::string proc  = collection.process();
-      std::string collection_name = label+"_"+inst+"_"+proc;
-      if ( inputTag == "GenFilterInfo" )
-      {
-         genFilterInfoToken_ = consumes<GenFilterInfo>(collection);
-         std::cout << collection_name << std::endl;
-         std::cout << "=============== OIOIOI +++++++++++++++" << std::endl;
-      }
+      if ( inputTag == "GenFilterInfo" )         genFilterInfoToken_ = consumes<GenFilterInfo>(collection);
 
    }
 
@@ -682,6 +673,9 @@ void
 Ntuplizer::endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup)
 {
    metadata_ -> IncrementEventFilters(lumi);
+//      edm::Handle<GenFilterInfo> handler;
+//      lumi.getByToken(genFilterInfoToken_, handler);
+   
 }
 
 
