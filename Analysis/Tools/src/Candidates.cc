@@ -86,6 +86,4 @@ int Candidates::size()
 void Candidates::entry(const int & i)
 {
    tree_ -> GetEntry(i);
-   
-   std::cout << "Entry: " << i << " has " << n_ << " candidates" << std::endl;
 }
