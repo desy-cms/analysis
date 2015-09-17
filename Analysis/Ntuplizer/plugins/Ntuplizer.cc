@@ -70,6 +70,7 @@
 #include "Analysis/Ntuplizer/interface/Vertices.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
+#include "DataFormats/Common/interface/MergeableCounter.h"
 
 
 #include "DataFormats/Common/interface/OwnVector.h"
@@ -156,7 +157,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
       virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
       virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-
+      
       // ----------member data ---------------------------
       edm::ParameterSet config_;
       
@@ -178,6 +179,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       bool do_eventfilter_;
       bool do_genfilter_;
       bool do_triggerobjects_;
+      bool do_genruninfo_;
       
       std::vector< std::string > inputTagsVec_;
       std::vector< std::string > inputTags_;
@@ -198,9 +200,16 @@ class Ntuplizer : public edm::EDAnalyzer {
       std::map<std::string, edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> > triggerObjTokens_;
       std::map<std::string, edm::EDGetTokenT<edm::TriggerResults> > triggerResultsTokens_;
       
-      edm::EDGetTokenT<GenFilterInfo> genFilterInfoToken_;      
-      
       edm::InputTag genFilterInfo_;
+      edm::InputTag totalEvents_;
+      edm::InputTag filteredEvents_;
+      edm::InputTag genRunInfo_;
+      
+      edm::EDGetTokenT<GenFilterInfo> genFilterInfoToken_;      
+      edm::EDGetTokenT<edm::MergeableCounter> totalEventsToken_;      
+      edm::EDGetTokenT<edm::MergeableCounter> filteredEventsToken_;      
+      edm::EDGetTokenT<GenRunInfoProduct> genRunInfoToken_;      
+      
       InputTags eventCounters_;
       
       std::map<std::string, TTree*> tree_; // using pointers instead of smart pointers, could not Fill() with smart pointer???
@@ -275,15 +284,19 @@ Ntuplizer::Ntuplizer(const edm::ParameterSet& config) //:   // initialization of
          if ( inputTags == "GenParticles" ) genPartTokens_[collection_name] = consumes<reco::GenParticleCollection>(collection);
          if ( inputTags == "TriggerObjectStandAlone"  ) triggerObjTokens_[collection_name] = consumes<pat::TriggerObjectStandAloneCollection>(collection);
          if ( inputTags == "TriggerResults"  ) triggerResultsTokens_[collection_name] = consumes<edm::TriggerResults>(collection);
-//         if ( inputTags == "EventFilter"  ) eventFilterTokens_[collection_name] = consumes<edm::MergeableCounter>(collection);
      }
    }
    // Single InputTag
    for ( auto & inputTag : inputTags_ )
    {
       edm::InputTag collection = config_.getParameter<edm::InputTag>(inputTag);
-      if ( inputTag == "GenFilterInfo" )         genFilterInfoToken_ = consumes<GenFilterInfo>(collection);
-
+      
+      // Lumi products
+      if ( inputTag == "GenFilterInfo" )  { genFilterInfoToken_  = consumes<GenFilterInfo,edm::InLumi>(collection);         genFilterInfo_   = collection;}
+      if ( inputTag == "TotalEvents" )    { totalEventsToken_    = consumes<edm::MergeableCounter,edm::InLumi>(collection); totalEvents_     = collection;}
+      if ( inputTag == "FilteredEvents" ) { filteredEventsToken_ = consumes<edm::MergeableCounter,edm::InLumi>(collection); filteredEvents_  = collection;}
+      if ( inputTag == "GenRunInfo" )     { genRunInfoToken_     = consumes<GenRunInfoProduct,edm::InRun>(collection);      genRunInfo_      = collection;}
+ 
    }
 
    
@@ -400,9 +413,11 @@ Ntuplizer::beginJob()
    do_jetstags_         = config_.exists("JetsTags");
    do_triggeraccepts_   = config_.exists("TriggerResults") && config_.exists("TriggerPaths");
    do_primaryvertices_  = config_.exists("PrimaryVertices");
-   do_eventfilter_      = config_.exists("EventFilter");
+//   do_eventfilter_      = config_.exists("EventFilter");
+   do_eventfilter_      = config_.exists("TotalEvents")  && config_.exists("FilteredEvents");
    do_genfilter_        = config_.exists("GenFilterInfo");
    do_triggerobjects_   = config_.exists("TriggerObjectStandAlone") &&  config_.exists("TriggerObjectLabels");
+   do_genruninfo_       = config_.exists("GenRunInfo") && is_mc_ ;
    
    if ( config_.exists("UseFullName") )
       use_full_name_ = config_.getParameter<bool> ("UseFullName");
@@ -592,25 +607,13 @@ Ntuplizer::beginJob()
             primaryvertices_collections_.push_back( pPrimaryVertices( new PrimaryVertices(collection, tree_[name]) ));
          }
          
-         // Event filter
-         if ( do_eventfilter_ && inputTags == "EventFilter" )
-         {
-            eventCounters_.push_back(collection);
-            if ( eventCounters_.size() > 1 )
-            {
-               std::cout << "Ntuplizer::BeginJob() - Warning: you gave more than two collections for the event filter calculation." << std::endl;
-               std::cout << "                                 Only the first two collections will be used." << std::endl;
-               metadata_ -> SetEventFilter(eventCounters_);
-               break;
-            }
-         }
-         
       }
    }
       
    
    // InputTag (single, i.e. not vector)
    
+   int nCounters = 0;
    for ( auto & inputTag : inputTags_ )
    {
       edm::InputTag collection = config_.getParameter<edm::InputTag>(inputTag);
@@ -620,6 +623,14 @@ Ntuplizer::beginJob()
       if ( do_genfilter_ && inputTag == "GenFilterInfo" && is_mc_ )
       {
          metadata_ -> SetGeneratorFilter(config_.getParameter<edm::InputTag> ("GenFilterInfo"));
+      }
+      // Event filter
+      if ( do_eventfilter_ )
+      {
+         eventCounters_.resize(2);
+         if ( inputTag == "TotalEvents" )     { eventCounters_[0] = totalEvents_;    ++nCounters; }
+         if ( inputTag == "FilteredEvents" )  { eventCounters_[1] = filteredEvents_; ++nCounters; }
+         if ( nCounters == 2 ) metadata_ -> SetEventFilter(eventCounters_);
       }
 
    } 
@@ -646,9 +657,9 @@ Ntuplizer::beginRun(edm::Run const&, edm::EventSetup const&)
 void 
 Ntuplizer::endRun(edm::Run const& run, edm::EventSetup const& setup)
 {
-   if ( is_mc_)
+   if ( do_genruninfo_ )
    {
-      metadata_ -> SetCrossSections(run,xsection_);
+      metadata_ -> SetCrossSections(run,genRunInfo_,xsection_);
    }
 }
 
@@ -673,9 +684,6 @@ void
 Ntuplizer::endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup)
 {
    metadata_ -> IncrementEventFilters(lumi);
-//      edm::Handle<GenFilterInfo> handler;
-//      lumi.getByToken(genFilterInfoToken_, handler);
-   
 }
 
 
