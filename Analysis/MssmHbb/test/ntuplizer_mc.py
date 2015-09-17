@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("MssmHbb")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(1000)
 
 ##  Using MINIAOD. GlobalTag just in case jet re-clustering, L1 trigger filter  etc is needed to be done
 # process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
@@ -16,24 +17,54 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 # process.GlobalTag.RefreshEachRun = cms.untracked.bool( False )
 # process.GlobalTag.ReconnectEachRun = cms.untracked.bool( False )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
-output_file = '/nfs/dust/cms/user/walsh/tmp/ntuple_mssmhbb_data_m300.root'
+output_file = '/nfs/dust/cms/user/walsh/tmp/ntuple_mssmhbb_mc_fall15pre3_m300.root'
 ## TFileService
 process.TFileService = cms.Service("TFileService",
 	fileName = cms.string(output_file)
 )
 
-# Ntuplizer
+## ============ TRIGGER FILTER ===============
+## Enable below at cms.Path if needed 
+process.triggerSelection = cms.EDFilter( "TriggerResultsFilter",
+    triggerConditions = cms.vstring(
+                          "HLT_ZeroBias_v*",
+    ),
+    hltResults = cms.InputTag( "TriggerResults", "", "HLT" ),
+    l1tResults = cms.InputTag( "" ),
+    l1tIgnoreMask = cms.bool( False ),
+    l1techIgnorePrescales = cms.bool( False ),
+    daqPartitions = cms.uint32( 1 ),
+    throw = cms.bool( True )
+)
+
+
+## ============ EVENT FILTER COUNTER ===============
+## Filter counter (maybe more useful for MC)
+process.TotalEvents    = cms.EDProducer("EventCountProducer")
+process.FilteredEvents = cms.EDProducer("EventCountProducer")
+
+## ============ PRIMARY VERTEX FILTER ===============
+process.primaryVertexFilter = cms.EDFilter("VertexSelector",
+   src = cms.InputTag("offlineSlimmedPrimaryVertices"), # primary vertex collection name
+   cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2"), # ndof>thr=4 corresponds to sum(track_weigths) > (thr+3)/2 = 3.5 so typically 4 good tracks
+   filter = cms.bool(True),   # otherwise it won't filter the events, just produce an empty vertex collection.
+)
+
+## ============  THE NTUPLIZER!!!  ===============
 process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
     MonteCarlo      = cms.bool(True),
     CrossSection    = cms.double(1),  # in pb
-    GenFilterInfo   = cms.InputTag("genFilterEfficiencyProducer","","SIM"),
     UseFullName     = cms.bool(False),
-#    EventFilter     = cms.VInputTag(cms.InputTag("nEventsTotal"),
-#                                    cms.InputTag("nEventsFiltered")),
-    GenJets         = cms.VInputTag(cms.InputTag("slimmedGenJets","","PAT")),
-    GenParticles    = cms.VInputTag(cms.InputTag("prunedGenParticles","","PAT")),
+    ## Monte Carlo only
+    GenFilterInfo   = cms.InputTag("genFilterEfficiencyProducer"),
+    GenRunInfo      = cms.InputTag("generator"),
+    GenJets         = cms.VInputTag(cms.InputTag("slimmedGenJets")),
+    GenParticles    = cms.VInputTag(cms.InputTag("prunedGenParticles")),
+    ###################
+    TotalEvents     = cms.InputTag("TotalEvents"),
+    FilteredEvents  = cms.InputTag("FilteredEvents"),
     PatJets         = cms.VInputTag(
                                     cms.InputTag("slimmedJetsPuppi","","PAT"),
                                     cms.InputTag("slimmedJetsAK8PFCHSSoftDropPacked","SubJets","PAT")
@@ -116,9 +147,9 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
 )
 
 process.p = cms.Path(
-#                      process.EventsTotal *
-#                      process.triggerSelection * 
-#                      process.EventsFiltered *
+                      process.TotalEvents *
+                      process.primaryVertexFilter *
+                      process.FilteredEvents *
                       process.MssmHbb
                     )
 
