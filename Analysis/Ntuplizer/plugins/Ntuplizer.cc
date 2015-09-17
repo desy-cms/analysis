@@ -69,6 +69,9 @@
 #include "Analysis/Ntuplizer/interface/TriggerAccepts.h"
 #include "Analysis/Ntuplizer/interface/Vertices.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
+
+
 #include "DataFormats/Common/interface/OwnVector.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -175,14 +178,13 @@ class Ntuplizer : public edm::EDAnalyzer {
       bool do_eventfilter_;
       bool do_genfilter_;
       bool do_triggerobjects_;
+      
       std::vector< std::string > inputTagsVec_;
       std::vector< std::string > inputTags_;
       std::vector< std::string > btagAlgos_;
       std::vector< std::string > btagAlgosAlias_;
       std::vector< std::string > triggerObjectLabels_;
       std::vector<TitleAlias> btagVars_;
-      
-      edm::EDGetTokenT<l1extra::L1JetParticle> jetsToken_;
       
       std::map<std::string, edm::EDGetTokenT<l1extra::L1JetParticleCollection> > l1JetTokens_;
       std::map<std::string, edm::EDGetTokenT<l1extra::L1MuonParticleCollection> > l1MuonTokens_;
@@ -196,6 +198,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       std::map<std::string, edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> > triggerObjTokens_;
       std::map<std::string, edm::EDGetTokenT<edm::TriggerResults> > triggerResultsTokens_;
       
+      edm::EDGetTokenT<GenFilterInfo> genFilterInfoToken_;
       
       edm::InputTag genFilterInfo_;
       InputTags eventCounters_;
@@ -272,7 +275,24 @@ Ntuplizer::Ntuplizer(const edm::ParameterSet& config) //:   // initialization of
          if ( inputTags == "GenParticles" ) genPartTokens_[collection_name] = consumes<reco::GenParticleCollection>(collection);
          if ( inputTags == "TriggerObjectStandAlone"  ) triggerObjTokens_[collection_name] = consumes<pat::TriggerObjectStandAloneCollection>(collection);
          if ( inputTags == "TriggerResults"  ) triggerResultsTokens_[collection_name] = consumes<edm::TriggerResults>(collection);
+//         if ( inputTags == "EventFilter"  ) eventFilterTokens_[collection_name] = consumes<edm::MergeableCounter>(collection);
      }
+   }
+   // Single InputTag
+   for ( auto & inputTag : inputTags_ )
+   {
+      edm::InputTag collection = config_.getParameter<edm::InputTag>(inputTag);
+      std::string label = collection.label();
+      std::string inst  = collection.instance();
+      std::string proc  = collection.process();
+      std::string collection_name = label+"_"+inst+"_"+proc;
+      if ( inputTag == "GenFilterInfo" )
+      {
+         genFilterInfoToken_ = consumes<GenFilterInfo>(collection);
+         std::cout << collection_name << std::endl;
+         std::cout << "=============== OIOIOI +++++++++++++++" << std::endl;
+      }
+
    }
 
    
@@ -489,33 +509,33 @@ Ntuplizer::beginJob()
          // L1 Jets
          if ( inputTags == "L1ExtraJets" )
          {
-            l1jets_collections_.push_back( pL1JetCandidates( new L1JetCandidates(collection, tree_[name], is_mc_, 5.,5. ) ));
+            l1jets_collections_.push_back( pL1JetCandidates( new L1JetCandidates(collection, tree_[name], is_mc_ ) ));
             l1jets_collections_.back() -> Init();
          }
          
          // L1 Muons
          if ( inputTags == "L1ExtraMuons" )
          {
-            l1muons_collections_.push_back( pL1MuonCandidates( new L1MuonCandidates(collection, tree_[name], is_mc_, 0.,2.5 ) ));
+            l1muons_collections_.push_back( pL1MuonCandidates( new L1MuonCandidates(collection, tree_[name], is_mc_ ) ));
             l1muons_collections_.back() -> Init();
          }
          
          // Calo Jets
          if ( inputTags == "CaloJets" )
          {
-            calojets_collections_.push_back( pCaloJetCandidates( new CaloJetCandidates(collection, tree_[name], is_mc_, 10.,5. ) ));
+            calojets_collections_.push_back( pCaloJetCandidates( new CaloJetCandidates(collection, tree_[name], is_mc_ ) ));
             calojets_collections_.back() -> Init();
          }
          // PF Jets
          if ( inputTags == "PFJets" )
          {
-            pfjets_collections_.push_back( pPFJetCandidates( new PFJetCandidates(collection, tree_[name], is_mc_, 10.,5. ) ));
+            pfjets_collections_.push_back( pPFJetCandidates( new PFJetCandidates(collection, tree_[name], is_mc_ ) ));
             pfjets_collections_.back() -> Init();
          }
          // Pat Jets
          if ( inputTags == "PatJets" )
          {
-            patjets_collections_.push_back( pPatJetCandidates( new PatJetCandidates(collection, tree_[name], is_mc_, 10, 5. ) ));
+            patjets_collections_.push_back( pPatJetCandidates( new PatJetCandidates(collection, tree_[name], is_mc_ ) ));
             patjets_collections_.back() -> Init(btagVars_);
          }
          // Pat METs
@@ -527,19 +547,19 @@ Ntuplizer::beginJob()
          // Pat Muons
          if ( inputTags == "PatMuons" )
          {
-            patmuons_collections_.push_back( pPatMuonCandidates( new PatMuonCandidates(collection, tree_[name], is_mc_ ,5., 2.5) ));
+            patmuons_collections_.push_back( pPatMuonCandidates( new PatMuonCandidates(collection, tree_[name], is_mc_ ) ));
             patmuons_collections_.back() -> Init();
          }
          // Gen Jets
          if ( inputTags == "GenJets" )
          {
-            genjets_collections_.push_back( pGenJetCandidates( new GenJetCandidates(collection, tree_[name], is_mc_, 10., 5. ) ));
+            genjets_collections_.push_back( pGenJetCandidates( new GenJetCandidates(collection, tree_[name], is_mc_, 10., 6. ) ));
             genjets_collections_.back() -> Init();
          }
          // Gen Particles
          if ( inputTags == "GenParticles" )
          {
-            genparticles_collections_.push_back( pGenParticleCandidates( new GenParticleCandidates(collection, tree_[name], is_mc_ ) ));
+            genparticles_collections_.push_back( pGenParticleCandidates( new GenParticleCandidates(collection, tree_[name], is_mc_, 0.1, 6. ) ));
             genparticles_collections_.back() -> Init();
         }
          // Jets Tags
