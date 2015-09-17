@@ -66,6 +66,12 @@ float Vertex::rho()  { return rho_ ; }
 bool  Vertex::fake() { return fake_; }
 
 // Set
+void  Vertex::set (const float & x, const float & y, const float & z)
+{
+   x_  = x ;
+   y_  = y ;
+   z_  = z ;
+}
 void  Vertex::x   (const float & x ) { x_  = x ; }
 void  Vertex::y   (const float & y ) { y_  = y ; }
 void  Vertex::z   (const float & z ) { z_  = z ; }
