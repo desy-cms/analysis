@@ -199,6 +199,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       std::map<std::string, edm::EDGetTokenT<reco::GenParticleCollection> > genPartTokens_;
       std::map<std::string, edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> > triggerObjTokens_;
       std::map<std::string, edm::EDGetTokenT<edm::TriggerResults> > triggerResultsTokens_;
+      std::map<std::string, edm::EDGetTokenT<reco::VertexCollection> > primaryVertexTokens_;
       
       edm::InputTag genFilterInfo_;
       edm::InputTag totalEvents_;
@@ -284,6 +285,7 @@ Ntuplizer::Ntuplizer(const edm::ParameterSet& config) //:   // initialization of
          if ( inputTags == "GenParticles" ) genPartTokens_[collection_name] = consumes<reco::GenParticleCollection>(collection);
          if ( inputTags == "TriggerObjectStandAlone"  ) triggerObjTokens_[collection_name] = consumes<pat::TriggerObjectStandAloneCollection>(collection);
          if ( inputTags == "TriggerResults"  ) triggerResultsTokens_[collection_name] = consumes<edm::TriggerResults>(collection);
+         if ( inputTags == "PrimaryVertices"  ) primaryVertexTokens_[collection_name] = consumes<reco::VertexCollection>(collection);
      }
    }
    // Single InputTag
