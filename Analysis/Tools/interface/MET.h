@@ -37,6 +37,7 @@ namespace analysis {
       class MET : public Candidate {
          public:
             MET();
+            MET(const float & px, const float & py, const float & pz);
            ~MET();
             matrix<float> significanceMatrix();
             float * genP();
@@ -45,7 +46,7 @@ namespace analysis {
             void genP(const float &, const float &,const float &);
             
             
-            using Candidate::set; // in case needed to overload the function set
+//            using Candidate::set; // in case needed to overload the function set
       
          private:
             // ----------member data ---------------------------

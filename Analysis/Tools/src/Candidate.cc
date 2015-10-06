@@ -13,11 +13,8 @@
 
 // system include files
 // 
+#include <iostream>
 // user include files
-#include "FWCore/Framework/interface/Event.h"
-// 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
- 
 #include "Analysis/Tools/interface/Candidate.h"
 
 
@@ -31,15 +28,27 @@ using namespace analysis::tools;
 //
 // constructors and destructor
 //
-Candidate::Candidate() : pt_(-1.), eta_(0.), phi_(0.), e_(0.), q_(0.) 
+Candidate::Candidate()
 {
-   p4_.SetPtEtaPhiE(0,0,0,0);
+   q_ = 0;
+   p4_.SetPtEtaPhiE(0.,0.,0.,0.);
 }
+
+Candidate::Candidate(const float & pt, const float & eta, const float & phi, const float & e, const float & q)
+{
+   q_ = q;
+   p4_.SetPtEtaPhiE(pt,eta,phi,e);
+}
+
+Candidate::Candidate(const float & px, const float & py, const float & pz)
+{
+   q_ = 0;
+   p4_.SetXYZM(px,py,pz,0.);
+}
+
 
 Candidate::~Candidate()
 {
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
 }
 
 
@@ -47,67 +56,25 @@ Candidate::~Candidate()
 // member functions
 //
 
-// ------------ methods  ------------
-float Candidate::px() { return p_[0]; }
-float Candidate::py() { return p_[1]; }
-float Candidate::pz() { return p_[2]; }
-float * Candidate::momentum3() { return p_; }
-
-float Candidate::pt()
+bool Candidate::matchTo(const std::vector<Candidate> * cands, const std::string & name, const float & deltaR)
 {
-   return pt_;
-}
-float Candidate::eta()
-{
-   return eta_;
-}
-float Candidate::phi()
-{
-   return phi_;
-}
-float Candidate::e()
-{
-   return e_;
-}
-int   Candidate::q()
-{
-   return q_;
-}
-TLorentzVector Candidate::p4()
-{
-   return p4_;
+   if ( ! cands )
+   {
+      this -> matched_[name] = NULL;
+      std::cout << "Cands are NULL" << std::endl;
+      return false;
+   }
+   
+   const Candidate * cand = NULL;
+   for ( size_t i = 0; i < cands->size() ; ++i )
+   {
+      cand = &((*cands)[i]);
+      std::cout << name << ": " << (*cands)[i].pt() << "  " << (*cands)[i].eta() << "  " << (*cands)[i].phi() << std::endl;
+   }
+      std::cout << this->pt() << "  " << this->eta() << "  " << this->phi() << std::endl;
+   // if matched,
+   this->matched_[name]=cand;
+   return true;
 }
 
-void Candidate::set(const float & pt, const float & eta, const float & phi, const float & e, const float & q)
-{
-   pt_  = pt;
-   eta_ = eta;
-   phi_ = phi;
-   e_   = e;
-   q_   = q;
-   
-   if ( pt_ < 0 )
-      p4_.SetPtEtaPhiE(0,0,0,0);
-   else
-      p4_.SetPtEtaPhiE(pt_,eta_,phi_,e_);
-   
-}
-void Candidate::momentum3(const float & px, const float & py, const float & pz)
-{
-   p_[0] = px;
-   p_[1] = py;
-   p_[2] = pz;
-  
-}
-void Candidate::phi(const float & phi)
-{
-   phi_  = phi;
-}
-void Candidate::eta(const float & eta)
-{
-   eta_  = eta;
-}
-void Candidate::pt(const float & pt)
-{
-   pt_  = pt;
-}
+

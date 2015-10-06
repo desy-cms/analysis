@@ -17,13 +17,12 @@
 // user include files
 #include "Analysis/Tools/interface/Analysis.h"
 
+using namespace analysis;
+using namespace analysis::tools;
 
 //
 // class declaration
 //
-
-using namespace analysis;
-using namespace analysis::tools;
 
 //
 // constructors and destructor
@@ -58,27 +57,71 @@ Analysis::~Analysis()
 //
 // ------------ method called for each event  ------------
 
-int Analysis::NumberOfEvents() { return nevents_; }
-void Analysis::Event(const int & i){ t_event_ -> GetEntry(i); }
+int Analysis::numberEvents() { return nevents_; }
+int Analysis::size() { return nevents_; }
 
-int Analysis::Event()       { return event_; }
-int Analysis::Run()         { return run_  ; }
-int Analysis::LumiSection() { return lumi_ ; }
+void Analysis::event(const int & event){ t_event_ -> GetEntry(event); }
 
-void Analysis::AddPhysicsObject(const std::string & unique_name, const std::string & path, const std::string & type)
+int Analysis::event()       { return event_; }
+int Analysis::run()         { return run_  ; }
+int Analysis::lumiSection() { return lumi_ ; }
+
+
+// TREES
+void Analysis::treeInit_(const std::string & unique_name, const std::string & path)
 {
-   t_physobjs_[unique_name] = new TChain(path.c_str(),type.c_str());
-   t_physobjs_[unique_name] -> AddFileInfoList(fileList_);
-   t_event_ -> AddFriend(t_physobjs_[unique_name]);
+   std::string treeTitle = ((TTree*) t_event_->GetFile()->Get(path.c_str())) -> GetTitle();
+   tree_[unique_name] = new TChain(path.c_str(),treeTitle.c_str());
+   tree_[unique_name] -> AddFileInfoList(fileList_);
+   t_event_ -> AddFriend(tree_[unique_name]);
+   
+   treeTitle.erase(std::remove(treeTitle.begin(),treeTitle.end(),' '),treeTitle.end());
+   std::string classname = treeTitle.substr(0,treeTitle.find_first_of("|"));
+   std::string inputTag  = treeTitle.substr(treeTitle.find_first_of("|")+1);
+   
 }
-
-TChain * Analysis::PhysicsObject(const std::string & unique_name)
+// JETS
+template<> pJetTree Analysis::addTree(const std::string & unique_name, const std::string & path) // a bit stupid but I could not make template work here
 {
-   return t_physobjs_[unique_name];
+   this->treeInit_(unique_name,path);
+   t_jets_[unique_name] = pJetTree( new PhysicsObjectTree<Jet>(tree_[unique_name], unique_name) );
+   return t_jets_[unique_name];
 }
+template<> pJetTree    Analysis::tree(const std::string & unique_name) { return t_jets_    [unique_name]; }
 
+// METS
+template<> pMETTree Analysis::addTree(const std::string & unique_name, const std::string & path) // a bit stupid but I could not make template work here
+{
+   this->treeInit_(unique_name,path);
+   t_mets_[unique_name] = pMETTree( new PhysicsObjectTree<MET>(tree_[unique_name], unique_name) );
+   return t_mets_[unique_name];
+}
+template<> pMETTree    Analysis::tree(const std::string & unique_name) { return t_mets_    [unique_name]; }
+
+// MUONS
+template<> pMuonTree Analysis::addTree(const std::string & unique_name, const std::string & path) // a bit stupid but I could not make template work here
+{
+   this->treeInit_(unique_name,path);
+   t_muons_[unique_name] = pMuonTree( new PhysicsObjectTree<Muon>(tree_[unique_name], unique_name) );
+   return t_muons_[unique_name];
+}
+template<> pMuonTree   Analysis::tree(const std::string & unique_name) { return t_muons_   [unique_name]; }
+
+// VERTICES
+template<> pVertexTree Analysis::addTree(const std::string & unique_name, const std::string & path) // a bit stupid but I could not make template work here
+{
+   this->treeInit_(unique_name,path);
+   t_vertices_[unique_name] = pVertexTree( new PhysicsObjectTree<Vertex>(tree_[unique_name], unique_name) );
+   return t_vertices_[unique_name];
+}
+template<> pVertexTree Analysis::tree(const std::string & unique_name) { return t_vertices_[unique_name]; }
+
+// ===========================================================
+// =================   METADATA   ============================
+// ===========================================================
+// ===========================================================
 // ------------ methods called for metadata  ------------
-void Analysis::CrossSections(const std::string & path)
+void Analysis::crossSections(const std::string & path)
 {
    t_xsection_  = new TChain(path.c_str());
    int ok = t_xsection_ -> AddFileInfoList(fileList_);
@@ -98,17 +141,17 @@ void Analysis::CrossSections(const std::string & path)
    t_xsection_ -> GetEntry(0);
 }
 
-double Analysis::CrossSection()
+double Analysis::crossSection()
 {
-   return this -> CrossSection("crossSection");
+   return this -> crossSection("crossSection");
 }
-double Analysis::CrossSection(const std::string & xs) 
+double Analysis::crossSection(const std::string & xs) 
 {
    if ( t_xsection_ == NULL ) return -1.;
    return xsections_[xs];
 }
 
-void   Analysis::ListCrossSections()
+void   Analysis::listCrossSections()
 {
    std::cout << "=======================================================" << std::endl;
    std::cout << "  CROSS SECTIONS" << std::endl;
@@ -131,7 +174,7 @@ void   Analysis::ListCrossSections()
    std::cout << std::endl;
 }
    
-FilterResults Analysis::GeneratorFilter(const std::string & path) 
+FilterResults Analysis::generatorFilter(const std::string & path) 
 {
    t_genfilter_  = new TChain(path.c_str());
    t_genfilter_ -> AddFileInfoList(fileList_);
@@ -159,7 +202,7 @@ FilterResults Analysis::GeneratorFilter(const std::string & path)
    return genfilter_;
 }
 
-void Analysis::ListGeneratorFilter() 
+void Analysis::listGeneratorFilter() 
 {
    std::cout << "=======================================================" << std::endl;
    std::cout << "  GENERATOR FILTER" << std::endl;
@@ -182,3 +225,4 @@ void Analysis::ListGeneratorFilter()
    
    
 }
+

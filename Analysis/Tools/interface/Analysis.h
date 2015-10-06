@@ -27,12 +27,12 @@
 // user include files
 
 #include "TChain.h"
+#include "TFile.h"
 #include "TFileCollection.h"
 #include "Analysis/Tools/interface/Utils.h"
 
-#include "Analysis/Tools/interface/Jets.h"
-#include "Analysis/Tools/interface/Muons.h"
-#include "Analysis/Tools/interface/METs.h"
+#include "Analysis/Tools/interface/PhysicsObjectTree.h"
+#include "Analysis/Tools/interface/Collection.h"
 
 //
 // class declaration
@@ -41,29 +41,41 @@
 namespace analysis {
    namespace tools {
 
+      typedef std::shared_ptr< PhysicsObjectTree<Jet> >    pJetTree;
+      typedef std::shared_ptr< PhysicsObjectTree<MET> >    pMETTree;
+      typedef std::shared_ptr< PhysicsObjectTree<Muon> >   pMuonTree;
+      typedef std::shared_ptr< PhysicsObjectTree<Vertex> > pVertexTree;
+      
       class Analysis {
          public:
             Analysis(const std::string & inputFilelist, const std::string & evtinfo = "MssmHbb/Events/EventInfo");
            ~Analysis();
            
             // Event
-            int NumberOfEvents();
-            void Event(const int & i);
-            int Event();
-            int Run();
-            int LumiSection();
-            void AddPhysicsObject(const std::string & unique_name, const std::string & path , const std::string & type = "" );
-            TChain * PhysicsObject(const std::string & unique_name);
-           
+            int  numberEvents();
+            int  size();
+            void event(const int & event);
+            int  event();
+            int  run();
+            int  lumiSection();
+            
+            // Trees
+            template<class Object>
+            std::shared_ptr< PhysicsObjectTree<Object> > addTree(const std::string & unique_name, const std::string & path );
+            template<class Object>
+            std::shared_ptr< PhysicsObjectTree<Object> > tree(const std::string & unique_name);
+            template<class Object>
+            Collection<Object> collection(const std::string & unique_name);
+            
             // Cross sections
-            void   CrossSections(const std::string & path);
-            double CrossSection();
-            double CrossSection(const std::string & title);
-            void   ListCrossSections();
+            void   crossSections(const std::string & path);
+            double crossSection();
+            double crossSection(const std::string & title);
+            void   listCrossSections();
             
             // Generator Filter
-            FilterResults GeneratorFilter(const std::string & path);
-            void ListGeneratorFilter();
+            FilterResults generatorFilter(const std::string & path);
+            void listGeneratorFilter();
            
             // ----------member data ---------------------------
          protected:
@@ -72,8 +84,6 @@ namespace analysis {
             TCollection * fileList_;
             std::string inputFilelist_;
             
-            
-         private:
 
             std::map<std::string, double> xsections_;
             FilterResults genfilter_;
@@ -85,14 +95,58 @@ namespace analysis {
             int nevents_;
             
             // TREES
+            void treeInit_(const std::string & unique_name, const std::string & path);
             TChain * t_xsection_;
             TChain * t_genfilter_;
             TChain * t_event_;
             
-            std::map<std::string, TChain*> t_physobjs_;
             
+         // Physics objects
+            // root trees
+            std::map<std::string, TChain*> tree_;
+            
+            // analysis trees (in C++14 one can define a variable template member somehow, but I did not manage to do this)
+            std::map<std::string, pJetTree>    t_jets_;
+            std::map<std::string, pMETTree>    t_mets_;
+            std::map<std::string, pMuonTree>   t_muons_;
+            std::map<std::string, pVertexTree> t_vertices_;
+            
+         private:
+               
+      }; // END OF CLASS DECLARATIONS!!!
+         
+      // stupid: I could not make function template without specialisation
+      // it should not work wiht implementation in the header because the 
+      // returned values are different.
+     template <> pJetTree    Analysis::tree(const std::string & unique_name);
+     template <> pMETTree    Analysis::tree(const std::string & unique_name);
+     template <> pMuonTree   Analysis::tree(const std::string & unique_name);
+     template <> pVertexTree Analysis::tree(const std::string & unique_name);
 
-      };
+     template <> pJetTree    Analysis::addTree(const std::string & unique_name, const std::string & path);
+     template <> pMETTree    Analysis::addTree(const std::string & unique_name, const std::string & path);
+     template <> pMuonTree   Analysis::addTree(const std::string & unique_name, const std::string & path);
+     template <> pVertexTree Analysis::addTree(const std::string & unique_name, const std::string & path);
+
+// ========================================================
+//                         IMPLEMENTATIONS!
+// ========================================================
+
+// +++++++++++++++++++++++ IMPORTANT ++++++++++++++++++++++
+// Need to put the implementations in the header file when using template!!!
+// This explains the problems I have been getting.
+// ========================================================
+
+      // COLLECTIONS
+      template <class Object>
+      Collection<Object>  Analysis::collection(const std::string & unique_name)
+      {
+         Collection<Object> col = this -> tree<Object>(unique_name) -> collection();;
+         return col;
+      }
+
+
+         
    }
 }
 

@@ -34,6 +34,9 @@ using namespace analysis::tools;
 MET::MET() : Candidate() 
 {
 }
+MET::MET(const float & px, const float & py, const float & pz) : Candidate(px,py,pz) 
+{
+}
 MET::~MET()
 {
    // do anything here that needs to be done at desctruction time

@@ -34,8 +34,9 @@ namespace analysis {
       class Muon : public Candidate {
          public:
             Muon();
+            Muon(const float & pt, const float & eta, const float & phi, const float & e, const float & q);
            ~Muon();
-            using Candidate::set; // in case needed to overload the function set
+//            using Candidate::set; // in case needed to overload the function set
       
          private:
             // ----------member data ---------------------------

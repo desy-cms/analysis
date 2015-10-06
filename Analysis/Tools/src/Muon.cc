@@ -34,6 +34,10 @@ using namespace analysis::tools;
 Muon::Muon() : Candidate() 
 {
 }
+Muon::Muon(const float & pt, const float & eta, const float & phi, const float & e, const float & q) : 
+      Candidate(pt,eta,phi,e,q) 
+{
+}
 Muon::~Muon()
 {
    // do anything here that needs to be done at desctruction time

@@ -21,6 +21,7 @@
 
 // system include files
 #include <memory>
+#include <map>
 // 
 // user include files
 #include "TLorentzVector.h"
@@ -33,43 +34,70 @@ namespace analysis {
    namespace tools {
 
       class Candidate {
+         typedef std::vector<Candidate> Candidates;
          public:
             Candidate();
+            Candidate(const float & pt, const float & eta, const float & phi, const float & e, const float & q = 0);
+            Candidate(const float & px, const float & py, const float & pz);
            ~Candidate();
            
-           float px();
-           float py();
-           float pz();
-           float pt();
-           float eta();
-           float phi();
-           float e();
-           int   q();
-           TLorentzVector p4();
-           float * momentum3();
+           float px()  const;
+           float py()  const;
+           float pz()  const;
+           float pt()  const;
+           float eta() const;
+           float phi() const;
+           float e()   const;
+           int   q()   const;
+           void  q(const float & q);
+           TLorentzVector p4() const;
+           TVector3       p3() const;
            
-           void pt(const float &);
-           void phi(const float &);
-           void eta(const float &);
-           void momentum3(const float &, const float &, const float &);
-           void set(const float & pt, const float & eta, const float & phi, const float & e, const float & q);
-
-      
+           Candidate candidate();
+           
+           // made below virtual as this may be different for MET, or vertex
+           virtual bool matchTo(const std::vector<Candidate> * cands, const std::string & name, const float & deltaR = 0.3);
+           const Candidate * matched(const std::string & name);
+           
          protected:
             // ----------member data ---------------------------
             
             // 
-            float pt_ ;
-            float eta_;
-            float phi_;
-            float e_  ;
             int   q_  ;
-            float p_[3];
-            
             TLorentzVector p4_;
+            
+            std::map<std::string, const Candidate * > matched_;
 
          private:
       };
+         
+      // ===============================================
+      // INLINE IMPLEMENTATIONS
+         
+      // Gets
+      inline float Candidate::px()  const { return p4_.Px() ; }
+      inline float Candidate::py()  const { return p4_.Py() ; }
+      inline float Candidate::pz()  const { return p4_.Pz() ; }
+      inline float Candidate::pt()  const { return p4_.Pt() ; }
+      inline float Candidate::eta() const { return p4_.Eta(); }
+      inline float Candidate::phi() const { return p4_.Phi(); }
+      inline float Candidate::e()   const { return p4_.E()  ; }
+      inline int   Candidate::q()   const { return q_;   }
+
+      inline TLorentzVector Candidate::p4() const { return p4_; }
+      inline TVector3       Candidate::p3() const { return p4_.Vect(); }
+      
+      inline Candidate Candidate::candidate()
+      {
+         Candidate cand(this->pt(), this->eta(), this->phi(), this->e(), this->q());
+         return cand;
+      }
+      
+      inline const Candidate * Candidate::matched(const std::string & name) { return matched_[name]; }
+
+      // Sets
+      inline void  Candidate::q(const float & q) { q_ = q; }
+               
    }
 }
 

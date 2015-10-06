@@ -7,7 +7,7 @@
 #include "TChain.h"
 #include "TH1.h" 
 
-#include "Analysis/Tools/interface/Jets.h"
+#include "Analysis/Tools/interface/JetCollection.h"
 #include "Analysis/Tools/interface/Muons.h"
 
 using namespace std;
@@ -55,7 +55,7 @@ int main(int argc, char * argv[])
    t_Event -> AddFriend(t_Muons);
    
    // Create objects collections
-   Jets  jets (t_Jets);
+   JetCollection  jets (t_Jets);
    Muons muons(t_Muons);
    
    // HISTOGRAMS

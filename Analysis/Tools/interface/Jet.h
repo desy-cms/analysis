@@ -30,11 +30,13 @@
 
 namespace analysis {
    namespace tools {
-
+      
       class Jet : public Candidate {
          public:
             Jet();
+            Jet(const float & pt, const float & eta, const float & phi, const float & e);
            ~Jet();
+           
             float btag();
             int   flavour();
             bool  idLoose();
@@ -45,17 +47,42 @@ namespace analysis {
             void idLoose(const bool &);
             void idTight(const bool &);
             
-            using Candidate::set; // in case needed to overload the function set
-      
-         private:
-            // ----------member data ---------------------------
+            void id(const float & nHadFrac,
+                    const float & nEmFrac ,
+                    const float & nMult   ,
+                    const float & cHadFrac,
+                    const float & cEmFrac ,
+                    const float & cMult   ,
+                    const float & muFrac  );
             
+//            using Candidate::set; // in case needed to overload the function set
+            
+         protected:
+            // ----------member data ---------------------------
             // 
             float btag_ ;
             int   flavour_;
-            bool  idLoose_;
-            bool  idTight_;
+            bool  idloose_;
+            bool  idtight_;
+         private:
+            // ----------member data ---------------------------
+            
       };
+         
+      // ===============================================
+      // INLINE IMPLEMENTATIONS
+         
+      // Gets
+      inline float Jet::btag()    { return btag_;    }                   
+      inline int   Jet::flavour() { return flavour_; }                   
+      inline bool  Jet::idLoose() { return idloose_; }                   
+      inline bool  Jet::idTight() { return idtight_; }         
+                
+      // Sets                                                             
+      inline void Jet::btag    (const float & btag) { btag_    = btag; } 
+      inline void Jet::flavour (const int   & flav) { flavour_ = flav; } 
+      inline void Jet::idLoose (const bool  & loos) { idloose_ = loos; } 
+      inline void Jet::idTight (const bool  & tigh) { idtight_ = tigh; } 
    }
 }
 
