@@ -12,7 +12,7 @@
 //
 
 // system include files
-// 
+//
 #include <iostream>
 // user include files
 #include "Analysis/Tools/interface/Candidate.h"
@@ -55,26 +55,29 @@ Candidate::~Candidate()
 //
 // member functions
 //
-
 bool Candidate::matchTo(const std::vector<Candidate> * cands, const std::string & name, const float & deltaR)
 {
+  this -> matched_[name] = NULL;
    if ( ! cands )
    {
-      this -> matched_[name] = NULL;
-      std::cout << "Cands are NULL" << std::endl;
       return false;
    }
-   
+
    const Candidate * cand = NULL;
+   float minDeltaR = 100.;
    for ( size_t i = 0; i < cands->size() ; ++i )
    {
-      cand = &((*cands)[i]);
-      std::cout << name << ": " << (*cands)[i].pt() << "  " << (*cands)[i].eta() << "  " << (*cands)[i].phi() << std::endl;
+      cand = &(cands->at(i));
+      if(this->deltaR(*cand) < minDeltaR) minDeltaR = this->deltaR(*cand);
    }
-      std::cout << this->pt() << "  " << this->eta() << "  " << this->phi() << std::endl;
-   // if matched,
-   this->matched_[name]=cand;
-   return true;
+
+   if(minDeltaR < deltaR)
+   {
+     this->matched_[name]=cand;
+     return true;
+   }
+
+   else {
+     return false;
+   }
 }
-
-
