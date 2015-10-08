@@ -5,7 +5,7 @@
 //
 // Package:    Analysis/Tools
 // Class:      Analysis
-// 
+//
 /**\class Analysis Analysis.cc Analysis/Tools/src/Analysis.cc
 
  Description: [one line class summary]
@@ -23,7 +23,7 @@
 #include <memory>
 #include <vector>
 #include <string>
-// 
+//
 // user include files
 
 #include "TChain.h"
@@ -45,12 +45,12 @@ namespace analysis {
       typedef std::shared_ptr< PhysicsObjectTree<MET> >    pMETTree;
       typedef std::shared_ptr< PhysicsObjectTree<Muon> >   pMuonTree;
       typedef std::shared_ptr< PhysicsObjectTree<Vertex> > pVertexTree;
-      
+
       class Analysis {
          public:
             Analysis(const std::string & inputFilelist, const std::string & evtinfo = "MssmHbb/Events/EventInfo");
            ~Analysis();
-           
+
             // Event
             int  numberEvents();
             int  size();
@@ -58,7 +58,8 @@ namespace analysis {
             int  event();
             int  run();
             int  lumiSection();
-            
+            bool isMC();
+
             // Trees
             template<class Object>
             std::shared_ptr< PhysicsObjectTree<Object> > addTree(const std::string & unique_name, const std::string & path );
@@ -66,57 +67,58 @@ namespace analysis {
             std::shared_ptr< PhysicsObjectTree<Object> > tree(const std::string & unique_name);
             template<class Object>
             Collection<Object> collection(const std::string & unique_name);
-            
+
             // Cross sections
             void   crossSections(const std::string & path);
             double crossSection();
             double crossSection(const std::string & title);
             void   listCrossSections();
-            
+
             // Generator Filter
             FilterResults generatorFilter(const std::string & path);
             void listGeneratorFilter();
-           
+
             // ----------member data ---------------------------
          protected:
-               
+
             TFileCollection * fileCollection_;
             TCollection * fileList_;
             std::string inputFilelist_;
-            
+
 
             std::map<std::string, double> xsections_;
             FilterResults genfilter_;
-            
+
             int event_;
             int run_;
             int lumi_;
-            
+            bool is_mc_;
+
             int nevents_;
-            
+
             // TREES
             void treeInit_(const std::string & unique_name, const std::string & path);
             TChain * t_xsection_;
             TChain * t_genfilter_;
             TChain * t_event_;
-            
-            
+
+
          // Physics objects
             // root trees
             std::map<std::string, TChain*> tree_;
-            
+
             // analysis trees (in C++14 one can define a variable template member somehow, but I did not manage to do this)
             std::map<std::string, pJetTree>    t_jets_;
             std::map<std::string, pMETTree>    t_mets_;
             std::map<std::string, pMuonTree>   t_muons_;
             std::map<std::string, pVertexTree> t_vertices_;
-            
+
          private:
-               
+
       }; // END OF CLASS DECLARATIONS!!!
-         
+
       // stupid: I could not make function template without specialisation
-      // it should not work wiht implementation in the header because the 
+      // it should not work wiht implementation in the header because the
       // returned values are different.
      template <> pJetTree    Analysis::tree(const std::string & unique_name);
      template <> pMETTree    Analysis::tree(const std::string & unique_name);
@@ -146,7 +148,7 @@ namespace analysis {
       }
 
 
-         
+
    }
 }
 
