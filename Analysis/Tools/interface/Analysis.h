@@ -45,6 +45,7 @@ namespace analysis {
       typedef std::shared_ptr< PhysicsObjectTree<MET> >    pMETTree;
       typedef std::shared_ptr< PhysicsObjectTree<Muon> >   pMuonTree;
       typedef std::shared_ptr< PhysicsObjectTree<Vertex> > pVertexTree;
+      typedef std::shared_ptr< PhysicsObjectTree<Trigger> > pTriggerTree;
 
       class Analysis {
          public:
@@ -112,8 +113,12 @@ namespace analysis {
             std::map<std::string, pMETTree>    t_mets_;
             std::map<std::string, pMuonTree>   t_muons_;
             std::map<std::string, pVertexTree> t_vertices_;
+            std::map<std::string, pTriggerTree> t_triggers_;
 
          private:
+
+          void triggerTreeInit_(const std::string & resultPath);
+          static bool checker_ = true;
 
       }; // END OF CLASS DECLARATIONS!!!
 
@@ -124,7 +129,9 @@ namespace analysis {
      template <> pMETTree    Analysis::tree(const std::string & unique_name);
      template <> pMuonTree   Analysis::tree(const std::string & unique_name);
      template <> pVertexTree Analysis::tree(const std::string & unique_name);
+     template <> pTriggerTree Analysis::tree(const std::string & unique_name);
 
+     template <> triggerTree Analysis::addTriggerTree(const std::string & unique_name, const std::string & path, const std::string & resultPath = "MssmHbb/Events/TriggerResults");
      template <> pJetTree    Analysis::addTree(const std::string & unique_name, const std::string & path);
      template <> pMETTree    Analysis::addTree(const std::string & unique_name, const std::string & path);
      template <> pMuonTree   Analysis::addTree(const std::string & unique_name, const std::string & path);
@@ -143,7 +150,7 @@ namespace analysis {
       template <class Object>
       Collection<Object>  Analysis::collection(const std::string & unique_name)
       {
-         Collection<Object> col = this -> tree<Object>(unique_name) -> collection();;
+         Collection<Object> col = this -> tree<Object>(unique_name) -> collection();
          return col;
       }
 

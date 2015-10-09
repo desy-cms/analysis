@@ -13,7 +13,7 @@
 
 // system include files
 #include <iostream>
-// 
+//
 // user include files
 #include "Analysis/Tools/interface/PhysicsObjectTree.h"
 
@@ -76,10 +76,10 @@ Collection<Jet>  PhysicsObjectTree<Jet>::collection()
              cMult_[i]   ,
              muFrac_[i]  );
       jets.push_back(jet);
-   }   
+   }
    Collection<Jet> jetCollection(jets, name_);
    return jetCollection;
-   
+
 }
 
 
@@ -91,7 +91,8 @@ PhysicsObjectTree<MET>::PhysicsObjectTree(TChain * tree, const std::string & nam
    tree_  -> SetBranchAddress( "sigxy" , sigxy_ );
    tree_  -> SetBranchAddress( "sigyx" , sigyx_ );
    tree_  -> SetBranchAddress( "sigyy" , sigyy_ );
-   // Exists in MC; check if available and set 
+   // Exists in MC; check if available and set
+   // Maybe it's better to use analysis::isMC() for this perpouse?
    std::vector<std::string>::iterator it;
    it = std::find(branches_.begin(),branches_.end(),"gen_px");  if ( it != branches_.end() ) tree_  -> SetBranchAddress( (*it).c_str(), gen_px_);
    it = std::find(branches_.begin(),branches_.end(),"gen_py");  if ( it != branches_.end() ) tree_  -> SetBranchAddress( (*it).c_str(), gen_py_);
@@ -109,10 +110,10 @@ Collection<MET>  PhysicsObjectTree<MET>::collection()
       met.significanceMatrix(sigxx_[i],sigxy_[i],sigyx_[i],sigyy_[i]);
       met.genP(gen_px_[i],gen_py_[i],gen_pz_[i]);
       mets.push_back(met);
-   }   
+   }
    Collection<MET> metCollection(mets, name_);
    return metCollection;
-   
+
 }
 
 // MUON
@@ -134,7 +135,7 @@ Collection<Muon>  PhysicsObjectTree<Muon>::collection()
    {
       Muon muon(pt_[i], eta_[i], phi_[i], e_[i], q_[i]);
       muons.push_back(muon);
-   }   
+   }
    Collection<Muon> muonCollection(muons, name_);
    return muonCollection;
 }
@@ -156,14 +157,34 @@ Collection<Vertex>  PhysicsObjectTree<Vertex>::collection()
       vertex.ndof(ndof_[i]);
       vertex.rho(rho_[i]);
       vertex.fake(fake_[i]);
-      
+
       vertices.push_back(vertex);
-   }   
-   Collection<Vertex> vertexCollection(vertices, name_);
+   }
+   Collection<Vertex> vertexCollection(vertices, name_ );
    return vertexCollection;
 }
 
+// Triggers
+// Constructors and destructor
+PhysicsObjectTree<Trigger>::PhysicsObjectTree(TChain * tree, const std::string & name) : PhysicsObjectTreeBase<Trigger>(tree, name)
+{
+   tree_  -> SetBranchAddress( name.c_str(), fired_ );
+}
+PhysicsObjectTree<Trigger>::~PhysicsObjectTree() {}
 
+// Member functions
+Collection<Trigger>  PhysicsObjectTree<Trigger>::collection()
+{
+   std::vector<Trigger> triggers;
+   for ( int i = 0 ; i < n_ ; ++i )
+   {
+      Trigger trig(pt_[i], eta_[i], phi_[i], e_[i]);
+      jet.fired(fired_[i]);
+   }
+   Collection<Trigger> triggerCollection(jets, name_);
+   return triggerCollection;
+
+}
 
 // ======================================
 // Templates declarations
@@ -172,3 +193,4 @@ template class PhysicsObjectTree<Jet>;
 template class PhysicsObjectTree<MET>;
 template class PhysicsObjectTree<Muon>;
 template class PhysicsObjectTree<Vertex>;
+template class PhysicsObjectTree<Trigger>;

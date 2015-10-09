@@ -13,7 +13,7 @@
 
 // system include files
 #include <iostream>
-// 
+//
 // user include files
 #include "Analysis/Tools/interface/PhysicsObjectTreeBase.h"
 
@@ -44,7 +44,7 @@ PhysicsObjectTreeBase<Object>::PhysicsObjectTreeBase(TChain * tree, const std::s
    tree_  -> SetBranchAddress( "px" ,  px_  );
    tree_  -> SetBranchAddress( "py" ,  py_  );
    tree_  -> SetBranchAddress( "pz" ,  pz_  );
-   
+
 }
 
 template <class Object>
@@ -68,7 +68,7 @@ PhysicsObjectTreeBase<Vertex>::PhysicsObjectTreeBase() : TreeBase()
 {
 }
 
-PhysicsObjectTreeBase<Vertex>::PhysicsObjectTreeBase(TChain * tree, const std::string & name) : TreeBase(tree, name) 
+PhysicsObjectTreeBase<Vertex>::PhysicsObjectTreeBase(TChain * tree, const std::string & name) : TreeBase(tree, name)
 {
    tree_  -> SetBranchAddress( "n"   , &n_    );
    tree_  -> SetBranchAddress( "x"   ,  x_    );
@@ -95,3 +95,4 @@ template class PhysicsObjectTreeBase<Jet>;
 template class PhysicsObjectTreeBase<MET>;
 template class PhysicsObjectTreeBase<Muon>;
 template class PhysicsObjectTreeBase<Vertex>;
+template class PhysicsObjectTreeBase<Trigger>;
