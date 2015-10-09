@@ -133,7 +133,7 @@ namespace analysis {
      template <> pVertexTree Analysis::tree(const std::string & unique_name);
      template <> pTriggerTree Analysis::tree(const std::string & unique_name);
 
-     template <> pTriggerTree Analysis::addTriggerTree(const std::string & unique_name, const std::string & path, const std::string & resultPath = "MssmHbb/Events/TriggerResults");
+     template <> pTriggerTree Analysis::addTriggerTree(const std::string & unique_name, const std::string & path, const std::string & resultPath);
      template <> pJetTree    Analysis::addTree(const std::string & unique_name, const std::string & path);
      template <> pMETTree    Analysis::addTree(const std::string & unique_name, const std::string & path);
      template <> pMuonTree   Analysis::addTree(const std::string & unique_name, const std::string & path);
