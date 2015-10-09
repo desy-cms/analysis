@@ -27,6 +27,7 @@ using namespace analysis::tools;
 //
 // constructors and destructor
 //
+bool Analysis::checker_ = true;
 
 Analysis::Analysis(const std::string & inputFilelist, const std::string & evtinfo)
 {

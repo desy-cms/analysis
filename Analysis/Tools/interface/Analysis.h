@@ -118,7 +118,7 @@ namespace analysis {
          private:
 
           void triggerTreeInit_(const std::string & resultPath);
-          static bool checker_ = true;
+          static bool checker_;
 
       }; // END OF CLASS DECLARATIONS!!!
 
@@ -131,7 +131,7 @@ namespace analysis {
      template <> pVertexTree Analysis::tree(const std::string & unique_name);
      template <> pTriggerTree Analysis::tree(const std::string & unique_name);
 
-     template <> triggerTree Analysis::addTriggerTree(const std::string & unique_name, const std::string & path, const std::string & resultPath = "MssmHbb/Events/TriggerResults");
+     template <> pTriggerTree Analysis::addTriggerTree(const std::string & unique_name, const std::string & path, const std::string & resultPath = "MssmHbb/Events/TriggerResults");
      template <> pJetTree    Analysis::addTree(const std::string & unique_name, const std::string & path);
      template <> pMETTree    Analysis::addTree(const std::string & unique_name, const std::string & path);
      template <> pMuonTree   Analysis::addTree(const std::string & unique_name, const std::string & path);
