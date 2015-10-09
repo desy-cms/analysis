@@ -65,7 +65,7 @@ namespace analysis {
             template<class Object>
             std::shared_ptr< PhysicsObjectTree<Object> > addTree(const std::string & unique_name, const std::string & path );
             template<class Object>
-            std::shared_ptr< PhysicsObjectTree<Object> > addTree(const std::string & unique_name, const std::string & path, const std::string & resultPath = "MssmHbb/Events/TriggerResults" );
+            std::shared_ptr< PhysicsObjectTree<Object> > addTriggerTree(const std::string & unique_name, const std::string & path, const std::string & resultPath = "MssmHbb/Events/TriggerResults" );
             template<class Object>
             std::shared_ptr< PhysicsObjectTree<Object> > tree(const std::string & unique_name);
             template<class Object>
