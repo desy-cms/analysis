@@ -104,7 +104,7 @@ void Analysis::triggerTreeInit_(const std::string & resultPath)
 }
 
 //Triggers
-template <> triggerTree Analysis::addTriggerTree(const std::string & unique_name, const std::string & path, const std::string & resultPath)
+template <> pTriggerTree Analysis::addTriggerTree(const std::string & unique_name, const std::string & path, const std::string & resultPath)
 {
   this->treeInit_(unique_name,path);
   if(checker_) this -> triggerTreeInit_(resultPath);
