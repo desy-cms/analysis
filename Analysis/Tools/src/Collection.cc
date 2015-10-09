@@ -19,6 +19,7 @@
 #include "Analysis/Tools/interface/MET.h"
 #include "Analysis/Tools/interface/Muon.h"
 #include "Analysis/Tools/interface/Vertex.h"
+#include "Analysis/Tools/interface/Trigger.h"
 
 #include "Analysis/Tools/interface/Collection.h"
 
