@@ -34,7 +34,7 @@ namespace analysis {
       class Trigger : public Candidate {
          public:
             Trigger();
-            Trigger(const float & pt, const float & eta, const float & phi, const float & e, const float & q);
+            Trigger(const float & pt, const float & eta, const float & phi, const float & e);
            ~Trigger();
 
            bool fired();

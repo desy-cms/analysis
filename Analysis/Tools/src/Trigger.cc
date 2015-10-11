@@ -34,8 +34,8 @@ using namespace analysis::tools;
 Trigger::Trigger() : Candidate()
 {
 }
-Trigger::Trigger(const float & pt, const float & eta, const float & phi, const float & e, const float & q) :
-      Candidate(pt,eta,phi,e,q)
+Trigger::Trigger(const float & pt, const float & eta, const float & phi, const float & e) :
+      Candidate(pt,eta,phi,e,0)
 {
 }
 Trigger::~Trigger()

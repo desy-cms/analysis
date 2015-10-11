@@ -179,9 +179,9 @@ Collection<Trigger>  PhysicsObjectTree<Trigger>::collection()
    for ( int i = 0 ; i < n_ ; ++i )
    {
       Trigger trig(pt_[i], eta_[i], phi_[i], e_[i]);
-      jet.fired(fired_[i]);
+      trigger.fired(fired_[i]);
    }
-   Collection<Trigger> triggerCollection(jets, name_);
+   Collection<Trigger> triggerCollection(trigger, name_);
    return triggerCollection;
 
 }
