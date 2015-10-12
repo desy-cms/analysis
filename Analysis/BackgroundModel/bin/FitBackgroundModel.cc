@@ -47,6 +47,8 @@ int main(int argc, char *argv[]) {
   std::cout << "Background events:      " << input.background()->Integral() << std::endl;
 
   ab::FitContainer fitter = ab::FitContainer(input.data(), input.bbH(), input.background());
+  fitter.setModel("background", "novosibirsk");
+  fitter.backgroundOnlyFit();
 
   return 0;
 }

@@ -20,7 +20,7 @@ namespace analysis {
       inline TH1* background() { return summedBackgroundTemplates_; };
 
     private:
-      TH1* getHistogram_(TFile* file, const std::string& name);
+      TH1* getHistogram_(const std::string& name);
 
       const std::string histFileName_;
       TH1* data_;
