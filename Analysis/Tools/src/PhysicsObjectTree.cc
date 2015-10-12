@@ -166,9 +166,11 @@ Collection<Vertex>  PhysicsObjectTree<Vertex>::collection()
 
 // Triggers
 // Constructors and destructor
+PhysicsObjectTree<Trigger>::PhysicsObjectTree() : PhysicsObjectTreeBase<Trigger>()
+{
+}
 PhysicsObjectTree<Trigger>::PhysicsObjectTree(TChain * tree, const std::string & name) : PhysicsObjectTreeBase<Trigger>(tree, name)
 {
-   tree_  -> SetBranchAddress( name.c_str(), fired_ );
 }
 PhysicsObjectTree<Trigger>::~PhysicsObjectTree() {}
 
@@ -179,9 +181,9 @@ Collection<Trigger>  PhysicsObjectTree<Trigger>::collection()
    for ( int i = 0 ; i < n_ ; ++i )
    {
       Trigger trig(pt_[i], eta_[i], phi_[i], e_[i]);
-      trigger.fired(fired_[i]);
+      triggers.push_back(trig);
    }
-   Collection<Trigger> triggerCollection(trigger, name_);
+   Collection<Trigger> triggerCollection(triggers, name_);
    return triggerCollection;
 
 }

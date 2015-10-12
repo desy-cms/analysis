@@ -64,16 +64,8 @@ Analysis::~Analysis()
 // member functions
 //
 // ------------ method called for each event  ------------
-
-int Analysis::numberEvents() { return nevents_; }
-int Analysis::size() { return nevents_; }
-
 void Analysis::event(const int & event){ t_event_ -> GetEntry(event); }
 
-int Analysis::event()       { return event_; }
-int Analysis::run()         { return run_  ; }
-int Analysis::lumiSection() { return lumi_ ; }
-bool Analysis::isMC() { return is_mc_ ; }
 
 
 // TREES
@@ -90,27 +82,22 @@ void Analysis::treeInit_(const std::string & unique_name, const std::string & pa
 
 }
 
-void Analysis::triggerTreeInit_(const std::string & resultPath)
+void Analysis::addTriggerResultTree(const std::string & unique_name, const std::string & path)
 {
-  std::string treeTitle = ((TTree*) t_event_->GetFile()->Get(resultPath.c_str())) -> GetTitle();
-  tree_["TriggerResults"] = new TChain(resultPath.c_str(),treeTitle.c_str());
-  tree_["TriggerResults"] -> AddFileInfoList(fileList_);
-  t_event_ -> AddFriend(tree_["TriggerResults"]);
-
-  treeTitle.erase(std::remove(treeTitle.begin(),treeTitle.end(),' '),treeTitle.end());
-  std::string classname = treeTitle.substr(0,treeTitle.find_first_of("|"));
-  std::string inputTag  = treeTitle.substr(treeTitle.find_first_of("|")+1);
-  checker_ = false;
+  this -> treeInit_(unique_name,path);
+  tree_[unique_name] -> SetBranchAddress("HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v*", & HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_);
+  tree_[unique_name] -> SetBranchAddress("HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v*", & HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_);
 }
 
 //Triggers
-template <> pTriggerTree Analysis::addTriggerTree(const std::string & unique_name, const std::string & path, const std::string & resultPath)
+template <> pTriggerTree Analysis::addTree(const std::string & unique_name, const std::string & path)
 {
   this->treeInit_(unique_name,path);
-  if(checker_) this -> triggerTreeInit_(resultPath);
   t_triggers_[unique_name] = pTriggerTree( new PhysicsObjectTree<Trigger>(tree_[unique_name], unique_name) );
   return t_triggers_[unique_name];
 }
+
+template<> pTriggerTree Analysis::tree(const std::string & unique_name) {return t_triggers_ [unique_name];}
 
 // JETS
 template<> pJetTree Analysis::addTree(const std::string & unique_name, const std::string & path) // a bit stupid but I could not make template work here

@@ -36,26 +36,14 @@ namespace analysis {
             Trigger();
             Trigger(const float & pt, const float & eta, const float & phi, const float & e);
            ~Trigger();
-
-           bool fired();
-           void fired(const bool &);
-
+           
          protected:
-
-           bool fired_;
 
          private:
             // ----------member data ---------------------------
 
             //
       };
-
-      // INLINE implementation
-
-      //Get
-      inline bool Trigger::fired() { return fired_; }
-      //Set
-      inline void Trigger::fired(const bool & fired) { fired_ = fired; }
    }
 }
 

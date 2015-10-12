@@ -65,8 +65,6 @@ namespace analysis {
             template<class Object>
             std::shared_ptr< PhysicsObjectTree<Object> > addTree(const std::string & unique_name, const std::string & path );
             template<class Object>
-            std::shared_ptr< PhysicsObjectTree<Object> > addTriggerTree(const std::string & unique_name, const std::string & path, const std::string & resultPath = "MssmHbb/Events/TriggerResults" );
-            template<class Object>
             std::shared_ptr< PhysicsObjectTree<Object> > tree(const std::string & unique_name);
             template<class Object>
             Collection<Object> collection(const std::string & unique_name);
@@ -76,6 +74,11 @@ namespace analysis {
             double crossSection();
             double crossSection(const std::string & title);
             void   listCrossSections();
+
+            // Trigger results
+            void addTriggerResultTree(const std::string & unique_name, const std::string & path = "MssmHbb/Events/TriggerResults");
+            bool HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160();
+            bool HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6();
 
             // Generator Filter
             FilterResults generatorFilter(const std::string & path);
@@ -98,6 +101,8 @@ namespace analysis {
             bool is_mc_;
 
             int nevents_;
+            int HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_;
+            int HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_;
 
             // TREES
             void treeInit_(const std::string & unique_name, const std::string & path);
@@ -119,7 +124,6 @@ namespace analysis {
 
          private:
 
-          void triggerTreeInit_(const std::string & resultPath);
           static bool checker_;
 
       }; // END OF CLASS DECLARATIONS!!!
@@ -133,7 +137,7 @@ namespace analysis {
      template <> pVertexTree Analysis::tree(const std::string & unique_name);
      template <> pTriggerTree Analysis::tree(const std::string & unique_name);
 
-     template <> pTriggerTree Analysis::addTriggerTree(const std::string & unique_name, const std::string & path, const std::string & resultPath);
+     template <> pTriggerTree Analysis::addTree(const std::string & unique_name, const std::string & path);
      template <> pJetTree    Analysis::addTree(const std::string & unique_name, const std::string & path);
      template <> pMETTree    Analysis::addTree(const std::string & unique_name, const std::string & path);
      template <> pMuonTree   Analysis::addTree(const std::string & unique_name, const std::string & path);
@@ -155,6 +159,16 @@ namespace analysis {
          Collection<Object> col = this -> tree<Object>(unique_name) -> collection();
          return col;
       }
+
+      inline int Analysis::numberEvents() { return nevents_; }
+      inline int Analysis::size() { return nevents_; }
+      inline int Analysis::event()       { return event_; }
+      inline int Analysis::run()         { return run_  ; }
+      inline int Analysis::lumiSection() { return lumi_ ; }
+      inline bool Analysis::isMC() { return is_mc_ ; }
+
+      inline bool Analysis::HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160() { return HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_; }
+      inline bool Analysis::HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6() { return HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_; }
 
 
 

@@ -154,8 +154,6 @@ namespace analysis {
             // ----------member data ---------------------------
          protected:
 
-           bool fired_ [max_];
-
          private:
 
       };
