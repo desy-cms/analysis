@@ -1,11 +1,15 @@
+#include <vector>
 #include <iostream>
+#include <boost/assign/list_of.hpp>
 #include <boost/program_options.hpp>
 #include "TSystem.h"
 
 #include "Analysis/BackgroundModel/interface/DataContainer.h"
 #include "Analysis/BackgroundModel/interface/FitContainer.h"
+#include "Analysis/BackgroundModel/interface/ParamModifier.h"
 
 
+namespace bass = boost::assign;
 namespace po = boost::program_options;
 namespace ab = analysis::backgroundmodel;
 
@@ -21,6 +25,8 @@ int main(int argc, char *argv[]) {
      ->default_value(cmsswBase+"/src/Analysis/BackgroundModel/"
 		     "data/HIG14017_HighMass2012_Packed_M350_inputs.root"),
      "ROOT file from which input histograms are retrieved.")
+    ("background_model,b", po::value<std::string>()->required(),
+     "Name of the background model.")
     ;
 
   po::variables_map vm;
@@ -47,7 +53,10 @@ int main(int argc, char *argv[]) {
   std::cout << "Background events:      " << input.background()->Integral() << std::endl;
 
   ab::FitContainer fitter = ab::FitContainer(input.data(), input.bbH(), input.background());
-  fitter.setModel("background", "novosibirsk");
+  std::vector<ab::ParamModifier> bkgModifiers = bass::list_of
+    (ab::ParamModifier("peak").constant().start(220))
+    (ab::ParamModifier("tail").max(0));
+  fitter.setModel("background", vm["background_model"].as<std::string>(), bkgModifiers);
   fitter.backgroundOnlyFit();
 
   return 0;

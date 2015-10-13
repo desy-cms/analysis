@@ -1,12 +1,15 @@
 #ifndef Analysis_BackgroundModel_FitContainer_h
 #define Analysis_BackgroundModel_FitContainer_h 1
 
+#include <vector>
 #include <string>
 #include "TH1.h"
+#include "RooAbsPdf.h"
 #include "RooRealVar.h"
 #include "RooDataHist.h"
 #include "RooWorkspace.h"
 #include "RooFitResult.h"
+#include "Analysis/BackgroundModel/interface/ParamModifier.h"
 
 
 namespace analysis {
@@ -18,14 +21,25 @@ namespace analysis {
       virtual ~FitContainer();
 
       void setModel(const std::string& type, const std::string& model);
+      void setModel(const std::string& type, const std::string& model,
+		    const std::vector<ParamModifier>& modifiers);
       RooFitResult* backgroundOnlyFit();
 
     private:
       std::string getOutputPath_(const std::string& subdirectory = "");
       bool checkType_(const std::string& type);
       double getMaxPosition_(const RooDataHist& data);
-      void setNovosibirsk_(const std::string& type);
 
+      void setNovosibirsk_(const std::string& type,
+			   const std::vector<ParamModifier>& modifiers);
+      void setBernstein_(const std::string& type,
+			 const std::vector<ParamModifier>& modifiers);
+      void setChebychev_(const std::string& type,
+			 const std::vector<ParamModifier>& modifiers);
+
+      bool applyModifiers_(RooAbsPdf& pdf,
+			   const std::vector<ParamModifier>& modifiers);
+      
       const std::string plotDir_;
       RooWorkspace workspace_;
       RooRealVar mbb_;
