@@ -89,15 +89,15 @@ void Analysis::addTriggerResultTree(const std::string & unique_name, const std::
   tree_[unique_name] -> SetBranchAddress("HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v*", & HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_);
 }
 
-//Triggers
-template <> pTriggerTree Analysis::addTree(const std::string & unique_name, const std::string & path)
+//TriggerObjects
+template <> pTriggerObjectTree Analysis::addTree(const std::string & unique_name, const std::string & path)
 {
   this->treeInit_(unique_name,path);
-  t_triggers_[unique_name] = pTriggerTree( new PhysicsObjectTree<Trigger>(tree_[unique_name], unique_name) );
-  return t_triggers_[unique_name];
+  t_TriggerObjects_[unique_name] = pTriggerObjectTree( new PhysicsObjectTree<TriggerObject>(tree_[unique_name], unique_name) );
+  return t_TriggerObjects_[unique_name];
 }
 
-template<> pTriggerTree Analysis::tree(const std::string & unique_name) {return t_triggers_ [unique_name];}
+template<> pTriggerObjectTree Analysis::tree(const std::string & unique_name) {return t_TriggerObjects_ [unique_name];}
 
 // JETS
 template<> pJetTree Analysis::addTree(const std::string & unique_name, const std::string & path) // a bit stupid but I could not make template work here

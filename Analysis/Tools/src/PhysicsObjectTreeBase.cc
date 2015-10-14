@@ -95,4 +95,4 @@ template class PhysicsObjectTreeBase<Jet>;
 template class PhysicsObjectTreeBase<MET>;
 template class PhysicsObjectTreeBase<Muon>;
 template class PhysicsObjectTreeBase<Vertex>;
-template class PhysicsObjectTreeBase<Trigger>;
+template class PhysicsObjectTreeBase<TriggerObject>;

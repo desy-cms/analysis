@@ -45,7 +45,7 @@ namespace analysis {
       typedef std::shared_ptr< PhysicsObjectTree<MET> >    pMETTree;
       typedef std::shared_ptr< PhysicsObjectTree<Muon> >   pMuonTree;
       typedef std::shared_ptr< PhysicsObjectTree<Vertex> > pVertexTree;
-      typedef std::shared_ptr< PhysicsObjectTree<Trigger> > pTriggerTree;
+      typedef std::shared_ptr< PhysicsObjectTree<TriggerObject> > pTriggerObjectTree;
 
       class Analysis {
          public:
@@ -120,7 +120,7 @@ namespace analysis {
             std::map<std::string, pMETTree>    t_mets_;
             std::map<std::string, pMuonTree>   t_muons_;
             std::map<std::string, pVertexTree> t_vertices_;
-            std::map<std::string, pTriggerTree> t_triggers_;
+            std::map<std::string, pTriggerObjectTree> t_TriggerObjects_;
 
          private:
 
@@ -135,9 +135,9 @@ namespace analysis {
      template <> pMETTree    Analysis::tree(const std::string & unique_name);
      template <> pMuonTree   Analysis::tree(const std::string & unique_name);
      template <> pVertexTree Analysis::tree(const std::string & unique_name);
-     template <> pTriggerTree Analysis::tree(const std::string & unique_name);
+     template <> pTriggerObjectTree Analysis::tree(const std::string & unique_name);
 
-     template <> pTriggerTree Analysis::addTree(const std::string & unique_name, const std::string & path);
+     template <> pTriggerObjectTree Analysis::addTree(const std::string & unique_name, const std::string & path);
      template <> pJetTree    Analysis::addTree(const std::string & unique_name, const std::string & path);
      template <> pMETTree    Analysis::addTree(const std::string & unique_name, const std::string & path);
      template <> pMuonTree   Analysis::addTree(const std::string & unique_name, const std::string & path);

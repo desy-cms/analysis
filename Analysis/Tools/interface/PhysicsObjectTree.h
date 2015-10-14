@@ -141,15 +141,15 @@ namespace analysis {
 
       };
 
-      // Specialization for Trigger
+      // Specialization for TriggerObject
       template <>
-      class PhysicsObjectTree<Trigger> : public PhysicsObjectTreeBase<Trigger> {
+      class PhysicsObjectTree<TriggerObject> : public PhysicsObjectTreeBase<TriggerObject> {
          public:
             PhysicsObjectTree();
             PhysicsObjectTree(TChain * tree, const std::string & name);
            ~PhysicsObjectTree();
 
-            Collection<Trigger> collection();
+            Collection<TriggerObject> collection();
 
             // ----------member data ---------------------------
          protected:

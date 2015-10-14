@@ -19,7 +19,7 @@
 #include "Analysis/Tools/interface/MET.h"
 #include "Analysis/Tools/interface/Muon.h"
 #include "Analysis/Tools/interface/Vertex.h"
-#include "Analysis/Tools/interface/Trigger.h"
+#include "Analysis/Tools/interface/TriggerObject.h"
 
 #include "Analysis/Tools/interface/Collection.h"
 
@@ -95,4 +95,4 @@ template class Collection<Jet>;
 template class Collection<MET>;
 template class Collection<Muon>;
 template class Collection<Vertex>;
-template class Collection<Trigger>;
+template class Collection<TriggerObject>;

@@ -164,27 +164,27 @@ Collection<Vertex>  PhysicsObjectTree<Vertex>::collection()
    return vertexCollection;
 }
 
-// Triggers
+// TriggerObjects
 // Constructors and destructor
-PhysicsObjectTree<Trigger>::PhysicsObjectTree() : PhysicsObjectTreeBase<Trigger>()
+PhysicsObjectTree<TriggerObject>::PhysicsObjectTree() : PhysicsObjectTreeBase<TriggerObject>()
 {
 }
-PhysicsObjectTree<Trigger>::PhysicsObjectTree(TChain * tree, const std::string & name) : PhysicsObjectTreeBase<Trigger>(tree, name)
+PhysicsObjectTree<TriggerObject>::PhysicsObjectTree(TChain * tree, const std::string & name) : PhysicsObjectTreeBase<TriggerObject>(tree, name)
 {
 }
-PhysicsObjectTree<Trigger>::~PhysicsObjectTree() {}
+PhysicsObjectTree<TriggerObject>::~PhysicsObjectTree() {}
 
 // Member functions
-Collection<Trigger>  PhysicsObjectTree<Trigger>::collection()
+Collection<TriggerObject>  PhysicsObjectTree<TriggerObject>::collection()
 {
-   std::vector<Trigger> triggers;
+   std::vector<TriggerObject> triggers;
    for ( int i = 0 ; i < n_ ; ++i )
    {
-      Trigger trig(pt_[i], eta_[i], phi_[i], e_[i]);
+      TriggerObject trig(pt_[i], eta_[i], phi_[i], e_[i]);
       triggers.push_back(trig);
    }
-   Collection<Trigger> triggerCollection(triggers, name_);
-   return triggerCollection;
+   Collection<TriggerObject> TriggerObjectCollection(triggers, name_);
+   return TriggerObjectCollection;
 
 }
 
@@ -195,4 +195,4 @@ template class PhysicsObjectTree<Jet>;
 template class PhysicsObjectTree<MET>;
 template class PhysicsObjectTree<Muon>;
 template class PhysicsObjectTree<Vertex>;
-template class PhysicsObjectTree<Trigger>;
+template class PhysicsObjectTree<TriggerObject>;
