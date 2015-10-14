@@ -42,7 +42,7 @@ namespace analysis {
       class TriggerAccepts {
          public:
             TriggerAccepts();
-            TriggerAccepts(const edm::InputTag&, TTree*, const std::vector<std::string> &);
+            TriggerAccepts(const edm::InputTag&, TTree*, const std::vector<std::string> &, const bool & testmode = false);
            ~TriggerAccepts();
             void Fill(const edm::Event&);
             void Branches();
@@ -54,7 +54,11 @@ namespace analysis {
             edm::InputTag input_collection_;
             HLTConfigProvider hlt_config_;
             std::vector<std::string> paths_;
-            bool accept_[32];
+            std::vector<std::string> inpaths_;
+            bool accept_[1000];
+            
+            bool first_;
+            bool testmode_;
             
             TTree * tree_;
             

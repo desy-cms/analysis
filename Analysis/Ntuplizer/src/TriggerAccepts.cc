@@ -36,11 +36,15 @@ TriggerAccepts::TriggerAccepts()
    // default constructor
 }
 
-TriggerAccepts::TriggerAccepts(const edm::InputTag& tag, TTree* tree, const std::vector<std::string>& paths)
+TriggerAccepts::TriggerAccepts(const edm::InputTag& tag, TTree* tree, const std::vector<std::string>& inpaths, const bool & testmode)
 {
    input_collection_ = tag;
    tree_ = tree;
-   paths_ = paths;
+   inpaths_ = inpaths;
+   paths_.clear();
+   first_ = true;
+   testmode_ = testmode;
+   if ( inpaths_.size() == 0 ) testmode_ = true;
 }
 
 TriggerAccepts::~TriggerAccepts()
@@ -97,5 +101,37 @@ void TriggerAccepts::LumiBlock(edm::LuminosityBlock const & lumi, edm::EventSetu
 {
    bool changed;
    hlt_config_.init(lumi.getRun(), setup, input_collection_.process(), changed);
+   
+   std::vector<std::string> names = hlt_config_.triggerNames();
+   
+   if ( first_ )
+   {
+      if ( ! testmode_ )
+         paths_ = inpaths_;
+      else
+      {
+         if ( inpaths_.size() == 0 ) // means all paths will be considered
+            paths_ = names;
+         else
+         {
+            for ( size_t i = 0 ; i < inpaths_.size() ; ++i )
+            {
+               for ( size_t j = 0 ; j < hlt_config_.size() ; ++j )
+               {
+                  if ( paths_.size() >= 1000 )
+                  {
+                     std::cout << "analysis::ntuple::TriggerAccepts::LumiBlock - Number of trigger paths is larger than 1000." << std::endl;
+                     std::cout << "                                              Not all trigger paths will be considered."    << std::endl;
+                     break;
+                  }
+                  if ( hlt_config_.triggerName(j).find(inpaths_[i]) == 0 )
+                     paths_.push_back(hlt_config_.triggerName(j));
+               }
+            }
+         }
+      }
+      this->Branches();
+      first_ = false;
+   }
 
 }
