@@ -1,0 +1,60 @@
+#ifndef Analysis_Tools_TriggerResults_h
+#define Analysis_Tools_TriggerResults_h 1
+
+// -*- C++ -*-
+//
+// Package:    Analysis/Tools
+// Class:      TriggerResults
+//
+/**\class TriggerResults TriggerResults.cc Analysis/Tools/src/TriggerResults.cc
+
+ Description: [one line class summary]
+
+ Implementation:
+     [Notes on implementation]
+*/
+//
+// Original Author:  Rostyslav Shevchenko
+//         Created:  Mon, 12 Oct 2015 15:14:34 GMT
+//
+//
+
+// system include files
+#include <memory>
+//
+// class declaration
+//
+
+namespace analysis {
+   namespace tools {
+
+      class TriggerResults {
+         public:
+            TriggerResults();
+           ~TriggerResults();
+
+           bool HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6() const;
+           bool HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160() const;
+
+         protected:
+
+           bool HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_;
+           bool HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_;
+
+         private:
+            // ----------member data ---------------------------
+
+            //
+      };
+
+      // ===============================================
+      // INLINE IMPLEMENTATIONS
+
+      // Gets
+
+      inline bool HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160() const { return HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_; }
+      inline bool HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6() const { return HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_; }
+   }
+}
+
+#endif  // Analysis_Tools_TriggerResults_h

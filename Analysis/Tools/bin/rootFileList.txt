@@ -1,1 +1,1 @@
-/nfs/dust/cms/user/walsh/tmp/ntuple_mssmhbb_mc_fall15pre4_m300_v2.root
+/nfs/dust/cms/user/shevchen/ntuples/realData/Run2015C/Run2015C.root

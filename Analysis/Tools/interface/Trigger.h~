@@ -1,12 +1,12 @@
-#ifndef Analysis_Tools_Trigger_h
-#define Analysis_Tools_Trigger_h 1
+#ifndef Analysis_Tools_TriggerObject_h
+#define Analysis_Tools_TriggerObject_h 1
 
 // -*- C++ -*-
 //
 // Package:    Analysis/Tools
-// Class:      Trigger
+// Class:      TriggerObject
 //
-/**\class Trigger Trigger.cc Analysis/Tools/src/Trigger.cc
+/**\class TriggerObject TriggerObject.cc Analysis/Tools/src/TriggerObject.cc
 
  Description: [one line class summary]
 
