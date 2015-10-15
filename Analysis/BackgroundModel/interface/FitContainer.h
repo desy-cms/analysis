@@ -31,6 +31,7 @@ namespace analysis {
       std::string getOutputPath_(const std::string& subdirectory = "");
       bool checkType_(const std::string& type);
       double getMaxPosition_(const RooDataHist& data);
+      int getNonZeroBins_(const RooDataHist& data);
       bool applyModifiers_(RooAbsPdf& pdf,
 			   const std::vector<ParamModifier>& modifiers);
 

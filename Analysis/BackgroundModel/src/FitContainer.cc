@@ -87,8 +87,8 @@ RooFitResult* FitContainer::backgroundOnlyFit() {
 
   // some preliminary test code
   RooPlot* frame = mbb_.frame();
-  data_.plotOn(frame);
-  bkg->plotOn(frame);
+  data_.plotOn(frame, RooFit::Name("data_curve"));
+  bkg->plotOn(frame, RooFit::Name("background_curve"));
   TCanvas canvas("canvas", "", 600, 600);
   canvas.cd();
   frame->Draw();
@@ -100,6 +100,13 @@ RooFitResult* FitContainer::backgroundOnlyFit() {
   fitResult->floatParsInit().Print("v");
   std::cout << "\nfloating parameters (final):" << std::endl;
   fitResult->floatParsFinal().Print("v");
+
+  int nPars = fitResult->floatParsFinal().getSize();
+  int ndf = getNonZeroBins_(data_) - nPars;
+  double normChi2 = frame->chiSquare("background_curve", "data_curve", nPars);
+  std::cout << "\nNormalized chi^2: "
+	    << normChi2 * ndf << "/" << ndf << " = " << normChi2
+	    << std::endl;
 
   return fitResult;
 }
@@ -125,7 +132,7 @@ void FitContainer::setCrystalBall_(const std::string& type) {
   RooRealVar m0("m0", "", mStart, mbb_.getMin(), mbb_.getMax(), "GeV");
   RooRealVar sigma("sigma", "", 35.0, 5.0, 100.0, "GeV");
   RooRealVar alpha("alpha", "", -1.0, 0.0);
-  RooRealVar n("n", "", 5.0); n.setConstant(false);
+  RooRealVar n("n", "", 1.0); n.setConstant(false);
   RooCBShape cb(type.c_str(), (type+"_crystalball").c_str(),
 		mbb_, m0, sigma, alpha, n);
   workspace_.import(cb);
@@ -232,6 +239,17 @@ double FitContainer::getMaxPosition_(const RooDataHist& data) {
   double maximum = hist->GetBinCenter(maximumBin);
   delete hist;
   return maximum;
+}
+
+
+int FitContainer::getNonZeroBins_(const RooDataHist& data) {
+  TH1* hist = data.createHistogram("mbb");
+  int nonZeroBins = 0;
+  for (int i = 1; i <= hist->GetNbinsX(); ++i) {
+    if (hist->GetBinContent(i) > 0) ++nonZeroBins;
+  }
+  delete hist;
+  return nonZeroBins;
 }
 
 
