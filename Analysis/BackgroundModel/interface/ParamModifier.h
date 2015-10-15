@@ -11,7 +11,7 @@ namespace analysis {
     class ParamModifier {
     public:
       ParamModifier(const std::string& name);
-      virtual ~ParamModifier() {};
+      virtual ~ParamModifier() = default;
 
       ParamModifier& start(float value);
       ParamModifier& min(float value);
@@ -21,9 +21,10 @@ namespace analysis {
 
       inline const std::string& name() const { return name_; };
       bool modify(RooRealVar& var) const;
+      void show() const;
 
     private:
-      const std::string name_;
+      std::string name_;
       bool constant_;
       bool floating_;
       float start_;

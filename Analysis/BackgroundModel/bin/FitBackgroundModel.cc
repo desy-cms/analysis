@@ -3,10 +3,11 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/program_options.hpp>
 #include "TSystem.h"
-
+#include "RooFitResult.h"
 #include "Analysis/BackgroundModel/interface/DataContainer.h"
 #include "Analysis/BackgroundModel/interface/FitContainer.h"
 #include "Analysis/BackgroundModel/interface/ParamModifier.h"
+#include "Analysis/BackgroundModel/interface/Tools.h"
 
 
 namespace bass = boost::assign;
@@ -27,6 +28,10 @@ int main(int argc, char *argv[]) {
      "ROOT file from which input histograms are retrieved.")
     ("background_model,b", po::value<std::string>()->required(),
      "Name of the background model.")
+    ("modify_param,m", po::value<std::vector<std::string> >()->composing(),
+     "Modify parameters as follows: "
+     "\"name: [start=<value>], [min=<value>], [max=<value>], "
+     "[constant], [floating]\"")
     ;
 
   po::variables_map vm;
@@ -47,17 +52,19 @@ int main(int argc, char *argv[]) {
   }
 
   ab::DataContainer input = ab::DataContainer(vm["input_file"].as<std::string>());
+  input.show();
 
-  std::cout << "Data events:            " << input.data()->Integral() << std::endl;
-  std::cout << "Expected signal events: " << input.bbH()->Integral() << std::endl;
-  std::cout << "Background events:      " << input.background()->Integral() << std::endl;
-
-  ab::FitContainer fitter = ab::FitContainer(input.data(), input.bbH(), input.background());
-  std::vector<ab::ParamModifier> bkgModifiers = bass::list_of
-    (ab::ParamModifier("peak").constant().start(220))
-    (ab::ParamModifier("tail").max(0));
+  ab::FitContainer fitter = ab::FitContainer(input);
+  std::vector<ab::ParamModifier> bkgModifiers =
+    vm["modify_param"].empty() ? std::vector<ab::ParamModifier>() :
+    ab::parseModifiers(vm["modify_param"].as<std::vector<std::string> >());
   fitter.setModel("background", vm["background_model"].as<std::string>(), bkgModifiers);
-  fitter.backgroundOnlyFit();
+
+  RooFitResult* bkgOnlyFit = fitter.backgroundOnlyFit();
+  std::cout << "\nCorrelation matrix of background-only fit:" << std::endl;
+  bkgOnlyFit->correlationMatrix().Print("v");
+
+  for (const auto& m : bkgModifiers) m.show();
 
   return 0;
 }

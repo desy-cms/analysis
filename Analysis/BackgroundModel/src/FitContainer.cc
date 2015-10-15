@@ -4,10 +4,18 @@
 #include "TSystem.h"
 #include "TCanvas.h"
 #include "RooPlot.h"
+#include "RooArgList.h"
+#include "RooRealVar.h"
+#include "RooFormulaVar.h"
 #include "RooAbsPdf.h"
+#include "RooProdPdf.h"
+#include "RooEffProd.h"
+#include "RooGenericPdf.h"
+#include "RooExponential.h"
 #include "RooBernstein.h"
 #include "RooChebychev.h"
 #include "RooNovosibirsk.h"
+#include "RooCBShape.h"
 #include "Analysis/BackgroundModel/interface/FitContainer.h"
 
 
@@ -34,6 +42,11 @@ FitContainer::FitContainer(TH1* data, TH1* signal, TH1* background)
 }
 
 
+FitContainer::FitContainer(const DataContainer& container)
+  : FitContainer(container.data(), container.bbH(), container.background()) {
+}
+
+
 FitContainer::~FitContainer() {
 }
 
@@ -51,26 +64,27 @@ void FitContainer::setModel(const std::string& type, const std::string& name,
     std::cerr << ">>> Model for " << type << " has already been set!" << std::endl;
     throw std::exception();
   }
-  
-  if (name == "novosibirsk") {
-    setNovosibirsk_(type, modifiers);
-  } else if (name == "bernstein") {
-    setBernstein_(type, modifiers);
-  } else if (name == "chebychev") {
-    setChebychev_(type, modifiers);
-  } else {
+
+  if (name == "novosibirsk") setNovosibirsk_(type);
+  else if (name == "crystalball") setCrystalBall_(type);
+  else if (name == "bernstein") setBernstein_(type);
+  else if (name == "chebychev") setChebychev_(type);
+  else if (name == "berneffprod") setBernEffProd_(type);
+  else if (name == "expeffprod") setExpEffProd_(type);
+  else {
     std::cerr << ">>> Model '" << name << "' not implemented!" << std::endl;
     throw std::exception();
   }
+
+  applyModifiers_(*workspace_.pdf(type.c_str()), modifiers);
 }
 
 
 RooFitResult* FitContainer::backgroundOnlyFit() {
   RooAbsPdf* bkg = workspace_.pdf("background");
   RooFitResult* fitResult =
-    bkg->fitTo(data_, RooFit::Save()// , RooFit::Range(0.0, 1500.0)
-	       );
-  
+    bkg->fitTo(data_, RooFit::Save());
+
   // some preliminary test code
   RooPlot* frame = mbb_.frame();
   data_.plotOn(frame);
@@ -91,8 +105,7 @@ RooFitResult* FitContainer::backgroundOnlyFit() {
 }
 
 
-void FitContainer::setNovosibirsk_(const std::string& type,
-				   const std::vector<ParamModifier>& modifiers) {
+void FitContainer::setNovosibirsk_(const std::string& type) {
   double peakStart  = (mbb_.getMin() + mbb_.getMax()) / 2.0;
   if (type == "signal") peakStart = getMaxPosition_(signal_);
   else if (type == "background") peakStart = getMaxPosition_(background_);
@@ -101,13 +114,25 @@ void FitContainer::setNovosibirsk_(const std::string& type,
   RooRealVar tail("tail", "tail", -0.1, -1.0, 1.0);
   RooNovosibirsk novo(type.c_str(), (type+"_novosibirsk").c_str(),
 		      mbb_, peak, width, tail);
-  applyModifiers_(novo, modifiers);
   workspace_.import(novo);
 }
 
 
-void FitContainer::setBernstein_(const std::string& type,
-				 const std::vector<ParamModifier>& modifiers) {
+void FitContainer::setCrystalBall_(const std::string& type) {
+  double mStart  = (mbb_.getMin() + mbb_.getMax()) / 2.0;
+  if (type == "signal") mStart = getMaxPosition_(signal_);
+  else if (type == "background") mStart = getMaxPosition_(background_);
+  RooRealVar m0("m0", "", mStart, mbb_.getMin(), mbb_.getMax(), "GeV");
+  RooRealVar sigma("sigma", "", 35.0, 5.0, 100.0, "GeV");
+  RooRealVar alpha("alpha", "", -1.0, 0.0);
+  RooRealVar n("n", "", 5.0); n.setConstant(false);
+  RooCBShape cb(type.c_str(), (type+"_crystalball").c_str(),
+		mbb_, m0, sigma, alpha, n);
+  workspace_.import(cb);
+}
+
+
+void FitContainer::setBernstein_(const std::string& type) {
   const unsigned int numCoeff = 7;
   double upperBound[numCoeff] = {10.0, 20.0, 20.0, 10.0, 10.0, 10.0, 10.0};
   RooArgList coefficients("bernstein_coefficients");
@@ -117,13 +142,11 @@ void FitContainer::setBernstein_(const std::string& type,
     coefficients.add(*coefficient);
   }
   RooBernstein bern(type.c_str(), (type+"_bernstein").c_str(), mbb_, coefficients);
-  applyModifiers_(bern, modifiers);
   workspace_.import(bern);
 }
 
 
-void FitContainer::setChebychev_(const std::string& type,
-				 const std::vector<ParamModifier>& modifiers) {
+void FitContainer::setChebychev_(const std::string& type) {
   const unsigned int numCoeff = 7;
   double upperBound[numCoeff] = {10.0, 20.0, 20.0, 10.0, 10.0, 10.0, 10.0};
   RooArgList coefficients("chebychev_coefficients");
@@ -133,8 +156,53 @@ void FitContainer::setChebychev_(const std::string& type,
     coefficients.add(*coefficient);
   }
   RooChebychev cheb(type.c_str(), (type+"_chebychev").c_str(), mbb_, coefficients);
-  applyModifiers_(cheb, modifiers);
   workspace_.import(cheb);
+}
+
+
+void FitContainer::setBernEffProd_(const std::string& type) {
+  const unsigned int numCoeff = 7;
+  double upperBound[numCoeff] = {10.0, 20.0, 20.0, 10.0, 10.0, 10.0, 10.0};
+  RooArgList coefficients("bernstein_coefficients");
+  for (unsigned int c = 0; c < numCoeff; ++c) {
+    RooRealVar* coefficient =
+      new RooRealVar(Form("bernstein_coefficient_%02d", c), "", 0.0, upperBound[c]);
+    coefficients.add(*coefficient);
+  }
+  RooBernstein bern((type+"_bernstein").c_str(), (type+"_bernstein").c_str(),
+		    mbb_, coefficients);
+
+  RooRealVar slope("slope", "", 0.01, 0.0, 0.1);
+  RooRealVar turnon("turnon", "", 100.0, mbb_.getMin(), mbb_.getMax());
+
+  RooFormulaVar eff((type+"eff").c_str(),
+		    "0.5*(TMath::Erf(slope*mbb-turnon) + 1)",
+		    RooArgSet(mbb_, slope, turnon));
+
+  RooEffProd bernEffProd(type.c_str(), (type+"_berneffprod").c_str(), bern, eff);
+
+  workspace_.import(bernEffProd);
+}
+
+
+void FitContainer::setExpEffProd_(const std::string& type) {
+  RooRealVar tau("tau", "", -0.1);
+  tau.setConstant(false);
+  RooExponential exp(type.c_str(), (type+"_exp").c_str(), mbb_, tau);
+  // RooExponential exp((type+"_exp").c_str(), (type+"_exp").c_str(), mbb_, tau);
+
+  // RooRealVar slope("slope", "", 0.01, 0.0, 0.1);
+  // RooRealVar turnon("turnon", "", 100.0, mbb_.getMin(), mbb_.getMax());
+
+  // RooFormulaVar eff((type+"_eff").c_str(),
+  // 		    "0.5*(TMath::Erf(slope*mbb-turnon) + 1)",
+  // 		    RooArgSet(mbb_, slope, turnon));
+
+  // RooEffProd expEffProd(type.c_str(), (type+"_berneffprod").c_str(), exp, eff);
+
+  // applyModifiers_(expEffProd, modifiers);
+  // workspace_.import(expEffProd);
+  workspace_.import(exp);
 }
 
 
@@ -150,8 +218,8 @@ bool FitContainer::checkType_(const std::string& type) {
   // update this list if needed
   const std::vector<std::string> allowedTypes = bass::list_of
     ("signal")("background");
-  for (auto t = allowedTypes.cbegin(); t != allowedTypes.cend(); ++t) {
-    if (*t == type) return true;
+  for (const auto& t : allowedTypes) {
+    if (t == type) return true;
   }
   std::cerr << "Type '" << type << "' is not allowed." << std::endl;
   return false;
@@ -174,8 +242,8 @@ bool FitContainer::applyModifiers_(RooAbsPdf& pdf,
   TIterator* iter = parameters->createIterator();
   RooRealVar* parameter = static_cast<RooRealVar*>(iter->Next());
   while (parameter) {
-    for (auto m = modifiers.cbegin(); m != modifiers.cend(); ++m) {
-      if (m->modify(*parameter)) {
+    for (const auto& m : modifiers) {
+      if (m.modify(*parameter)) {
 	modified = true;
 	break;
       }
