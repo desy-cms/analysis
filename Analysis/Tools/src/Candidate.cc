@@ -70,7 +70,7 @@ bool Candidate::matchTo(const std::vector<Candidate> * cands, const std::string 
       cand = &(cands->at(i));
       if(this->deltaR(*cand) < minDeltaR) minDeltaR = this->deltaR(*cand);
    }
-
+	
    if(minDeltaR < deltaR)
    {
      this->matched_[name]=cand;
@@ -81,3 +81,4 @@ bool Candidate::matchTo(const std::vector<Candidate> * cands, const std::string 
      return false;
    }
 }
+

@@ -76,9 +76,8 @@ namespace analysis {
             void   listCrossSections();
 
             // Trigger results
-            void addTriggerResultTree(const std::string & unique_name, const std::string & path = "MssmHbb/Events/TriggerResults");
-            bool HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160();
-            bool HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6();
+            void triggerResults(const std::string & path);
+            int triggerResult(const std::string & trig);
 
             // Generator Filter
             FilterResults generatorFilter(const std::string & path);
@@ -93,6 +92,7 @@ namespace analysis {
 
 
             std::map<std::string, double> xsections_;
+            std::map<std::string, bool> triggerResults_;
             FilterResults genfilter_;
 
             int event_;
@@ -101,14 +101,13 @@ namespace analysis {
             bool is_mc_;
 
             int nevents_;
-            int HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_;
-            int HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_;
 
             // TREES
             void treeInit_(const std::string & unique_name, const std::string & path);
             TChain * t_xsection_;
             TChain * t_genfilter_;
             TChain * t_event_;
+            TChain * t_triggerResults_;
 
 
          // Physics objects
@@ -124,7 +123,6 @@ namespace analysis {
 
          private:
 
-          static bool checker_;
 
       }; // END OF CLASS DECLARATIONS!!!
 
@@ -166,10 +164,6 @@ namespace analysis {
       inline int Analysis::run()         { return run_  ; }
       inline int Analysis::lumiSection() { return lumi_ ; }
       inline bool Analysis::isMC() { return is_mc_ ; }
-
-      inline bool Analysis::HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160() { return HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_; }
-      inline bool Analysis::HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6() { return HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_; }
-
 
 
    }

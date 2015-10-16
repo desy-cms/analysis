@@ -27,7 +27,6 @@ using namespace analysis::tools;
 //
 // constructors and destructor
 //
-bool Analysis::checker_ = true;
 
 Analysis::Analysis(const std::string & inputFilelist, const std::string & evtinfo)
 {
@@ -50,6 +49,8 @@ Analysis::Analysis(const std::string & inputFilelist, const std::string & evtinf
    } else {
      is_mc_ = false;
    }
+   
+   //if(is_mc_) crossSection();
 
 }
 
@@ -80,13 +81,6 @@ void Analysis::treeInit_(const std::string & unique_name, const std::string & pa
    std::string classname = treeTitle.substr(0,treeTitle.find_first_of("|"));
    std::string inputTag  = treeTitle.substr(treeTitle.find_first_of("|")+1);
 
-}
-
-void Analysis::addTriggerResultTree(const std::string & unique_name, const std::string & path)
-{
-  this -> treeInit_(unique_name,path);
-  tree_[unique_name] -> SetBranchAddress("HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v*", & HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_);
-  tree_[unique_name] -> SetBranchAddress("HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v*", & HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_);
 }
 
 //TriggerObjects
@@ -134,6 +128,36 @@ template<> pVertexTree Analysis::addTree(const std::string & unique_name, const 
    return t_vertices_[unique_name];
 }
 template<> pVertexTree Analysis::tree(const std::string & unique_name) { return t_vertices_[unique_name]; }
+
+// ===========================================================
+// =============== Method for Trigger Results=================
+// ===========================================================
+
+void Analysis::triggerResults(const std::string & path)
+{
+   t_triggerResults_  = new TChain(path.c_str());
+   int ok = t_triggerResults_ -> AddFileInfoList(fileList_);
+   t_event_ -> AddFriend(t_triggerResults_);
+   if ( ok == 0 )
+   {
+      std::cout << "tree does not exist" << std::endl;
+      return;
+   }
+   TObjArray * triggerBranches = t_triggerResults_ -> GetListOfBranches();
+   for ( int i = 0 ; i < triggerBranches->GetEntries() ; ++i )
+   {
+      std::string branch = triggerBranches->At(i)->GetName();
+      triggerResults_[branch] = 0;
+      t_triggerResults_ -> SetBranchAddress(branch.c_str(), &triggerResults_[branch]);
+   }
+}
+
+int Analysis::triggerResult(const std::string & trig)
+{
+   if ( t_triggerResults_ == NULL ) return -1.;
+   return triggerResults_[trig];
+}
+
 
 // ===========================================================
 // =================   METADATA   ============================
@@ -244,3 +268,20 @@ void Analysis::listGeneratorFilter()
 
 
 }
+
+// Way to get the Trigger names independent of Run period
+/*
+void triggerNames(std::string &trueTriggerNames,const char *myTriggerNames, TTree * t_Trig)
+{
+	TObjArray *mycopy = (TObjArray *)t_Trig->GetListOfBranches()->Clone();
+	TString names;
+	
+	for (int i = 0; i < mycopy -> GetEntries(); ++i)
+	{
+		names = mycopy->At(i)->GetName();
+		if( names.Contains(myTriggerNames) ) trueTriggerNames = (std::string)mycopy->At(i)->GetName();
+		std::cout<<"name = "<<names<<std::endl;
+	}
+	
+}
+*/
