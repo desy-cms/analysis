@@ -1,1 +1,1 @@
-/nfs/dust/cms/user/walsh/tmp/ntuple_mssmhbb_mc_fall15pre4_m300.root
+/nfs/dust/cms/user/shevchen/DataRunII13TeV/CMSSW_7_5_2/src/Analysis/Ntuplizer/test/latest/Run2015D.root
