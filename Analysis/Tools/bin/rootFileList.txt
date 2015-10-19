@@ -1,1 +1,0 @@
-/nfs/dust/cms/user/shevchen/ntuples/realData/Run2015C/Run2015C.root

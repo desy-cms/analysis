@@ -1,1 +1,0 @@
-/nfs/dust/cms/user/shevchen/DataRunII13TeV/CMSSW_7_5_2/src/Analysis/Ntuplizer/test/latest/Run2015C.root
