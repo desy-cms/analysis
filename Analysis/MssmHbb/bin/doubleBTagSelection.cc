@@ -1,6 +1,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <boost/filesystem.hpp>
 
 #include "TFile.h"
 #include "TFileCollection.h"
@@ -8,7 +9,6 @@
 #include "TH1.h"
 
 #include "Analysis/MssmHbb/interface/MssmHbb.h"
-#include "Analysis/MssmHbb/src/HbbStyle.cc"
 
 using namespace std;
 using namespace analysis::mssmhbb;
@@ -23,18 +23,30 @@ int main(int argc, char * argv[])
    // Input files list MonteCarloStudies
    std::string inputList = "rootFileList.txt";
    MssmHbb analysis(inputList,"MssmHbb/Events/EventInfo");
+   
+   if(analysis.isMC())
+   {
+     // cross sections
+     analysis.crossSections("MonteCarloStudies/Metadata/CrossSections");
+     analysis.listCrossSections();
+
+     //generator filter
+     analysis.generatorFilter("MonteCarloStudies/Metadata/GeneratorFilter");
+     analysis.listGeneratorFilter();
+   }
 
    analysis.addTree<Jet> ("Jets","MssmHbb/Events/slimmedJetsPuppi");
    analysis.addTree<TriggerObject> ("hltDoubleBTagCSV0p9","MssmHbb/Events/selectedPatTrigger/hltDoubleBTagCSV0p9");
    analysis.addTree<TriggerObject> ("hltL1sL1DoubleJetC100","MssmHbb/Events/selectedPatTrigger/hltL1sL1DoubleJetC100");
    analysis.addTree<TriggerObject> ("hltDoublePFJetsC100","MssmHbb/Events/selectedPatTrigger/hltDoublePFJetsC100");
+   analysis.triggerResults("MssmHbb/Events/TriggerResults");
+   std::string triggerLogicName = "HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v1";
    
    int nCand = 0;
    std::vector <int> leadJetsNumber;
    
    
    std::map < std::string, TH1F *> h1;
-   //HbbStyle.set(PRELIMINARY);
    h1["h_jet_N"]         = new TH1F("h_jet_N" , "", 20, 0., 20.);
 	
 	h1["h_jet1_Pt"]       = new TH1F("h_jet1_Pt" , "", 100, 0., 1000.);
@@ -57,7 +69,6 @@ int main(int argc, char * argv[])
 	h1["h_djet_Phi12"]    = new TH1F("h_djet_Phi12","",100,-3.2,3.2);
 	h1["h_djet_PtTOT"]	  = new TH1F("h_djet_PtTOT","",100,0,1);
    
-	analysis.triggerResults("MssmHbb/Events/TriggerResults");
    // Analysis of events
    for ( int i = 0 ; i < analysis.size() ; ++i )
    {
@@ -68,10 +79,7 @@ int main(int argc, char * argv[])
       Collection<TriggerObject> hltDoublePFJetsC100 = analysis.collection<TriggerObject>("hltDoublePFJetsC100");
       Collection<TriggerObject> hltDoubleBTagCSV0p9 = analysis.collection<TriggerObject>("hltDoubleBTagCSV0p9");
       Collection<TriggerObject> hltL1sL1DoubleJetC100 = analysis.collection<TriggerObject>("hltL1sL1DoubleJetC100");
-      
       Collection<Jet> leadJets;
-      
-      if(jets.size() < 2 ) continue;
       
       leadJetsNumber.clear();
       int bTagged = 0;
@@ -79,7 +87,7 @@ int main(int argc, char * argv[])
       {
       	Jet jet = jets.at(iJet);
 		if(jet.idLoose() ) leadJetsNumber.push_back(iJet);
-		if(jet.matchTo(hltDoubleBTagCSV0p9.vectorCandidates(),"hltDoubleBTagCSV0p9") ) bTagged ++;
+		if(jet.btag() > 0.9 && jet.matchTo(hltDoubleBTagCSV0p9.vectorCandidates(),"hltDoubleBTagCSV0p9") ) bTagged ++;
 		
       }
       if( leadJetsNumber.size() < 2) continue;
@@ -87,12 +95,12 @@ int main(int argc, char * argv[])
       leadJets.add(jets.at(leadJetsNumber[0]));
       leadJets.add(jets.at(leadJetsNumber[1]));
       
-      if ( !analysis.triggerResult("HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v2") ) continue;
+      if ( !analysis.triggerResult(triggerLogicName) ) continue;
       if( leadJets.at(0).pt() < 100 || leadJets.at(1).pt() < 100 ) continue;
       if( std::abs(leadJets.at(0).eta()) > 2.4 || std::abs(leadJets.at(1).eta()) > 2.4 ) continue;
       if( std::abs( leadJets.at(0).eta() - leadJets.at(1).eta() ) > 1.4 ) continue;
       if( leadJets.at(0).deltaR(leadJets.at(1)) <= 1) continue;
-      if( leadJets.at(0).btag() < 0.8 || leadJets.at(1).btag() < 0.8 ) continue;
+      if( leadJets.at(0).btag() < 0.9 || leadJets.at(1).btag() < 0.9 ) continue;
       
       //Trigger matching:
       //Two Leading jets matchs online objects
@@ -132,29 +140,18 @@ int main(int argc, char * argv[])
    }
    std::cout<<"Number of Candidates: "<<nCand<<std::endl;
    std::string fileName = "output.root";
-   //std::string fileName = analysis.eventTree()->GetFile()->GetName();
-   //fileName = "Results" + boost::filesystem::basename(fileName) + ".root";
+   fileName = analysis.eventTree()->GetFile()->GetName();
+   //fileName = "outputFiles/"+fileName;
+   fileName = "outputFiles/Results" + boost::filesystem::basename(fileName) + ".root";
    //if(analysis.isMC()) fileName = "outputFiles/" + boost::filesystem::basename(fileName) + ".root";
    TFile * outFile = new TFile(fileName.c_str(),"RECREATE");
    for ( auto& ih1 : h1 )
    {
+   	if(analysis.isMC()) ih1.second->Scale(594.65/analysis.crossSection());
    	ih1.second -> Write();
    }
    outFile -> Close();
    
    return 0;
-
-   if(analysis.isMC())
-   {
-     // cross sections
-     analysis.crossSections("MonteCarloStudies/Metadata/CrossSections");
-     analysis.listCrossSections();
-
-     //generator filter
-     analysis.generatorFilter("MonteCarloStudies/Metadata/GeneratorFilter");
-     analysis.listGeneratorFilter();
-   }
-
-
 //
 }
