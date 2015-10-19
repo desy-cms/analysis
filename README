@@ -1,5 +1,5 @@
 ##############################################################################
-INSTRUCTIONS FOR INSTALLATION NOT INTENDED FOR CODE DEVELOPMENT
+INSTRUCTIONS FOR INSTALLATION INTENDED FOR CODE DEVELOPMENT
 
 ## On NAF
 module load cmssw
@@ -8,16 +8,15 @@ scram p -s CMSSW CMSSW_7_5_2
 cd CMSSW_7_5_2/src
 cmsenv
 ## Clone a release from the repository
-
-git clone https://github.com/desy-cms/analysis.git .
-
+git init
+git remote add analysis https://github.com/robervalwalsh/analysis.git
+git fetch analysis
+git checkout <branch>
 scram b -j4
 
 ##############################################################################
-FOR CODE DEVELOPMENT
-Fork this repository and make pull requests to commit changes.
-If needed I can grant more rights to the members of the group.
+INSTRUCTIONS TO SYNC THE FORK WITH THE UPSTREAM REPOSITORY
+git remote add analysis-upstream https://github.com/desy-cms/analysis.git
+git fetch analysis-upstream
+git checkout develop
 
-##############################################################################
-DOXYGEN documentation
-http://www.desy.de/~walsh/cmssw-analysis/desy-higgs/docs/html/index.html
