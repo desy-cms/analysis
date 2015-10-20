@@ -57,7 +57,7 @@ namespace analysis {
            Candidate candidate();
 
            // made below virtual as this may be different for MET, or vertex
-           virtual bool matchTo(const std::vector<Candidate> * cands, const std::string & name, const float & deltaR = 0.3);
+           virtual bool matchTo(const std::vector<Candidate> * cands, const std::string & name, const float & deltaR = 0.5);
            const Candidate * matched(const std::string & name);
 
          protected:

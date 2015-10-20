@@ -73,7 +73,7 @@ bool Candidate::matchTo(const std::vector<Candidate> * cands, const std::string 
          nearcand = cand;
       }
    }
-
+	
    if(minDeltaR < deltaR)
    {
      this->matched_[name]=nearcand;
@@ -84,3 +84,4 @@ bool Candidate::matchTo(const std::vector<Candidate> * cands, const std::string 
      return false;
    }
 }
+

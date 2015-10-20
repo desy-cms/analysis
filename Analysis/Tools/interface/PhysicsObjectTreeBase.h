@@ -5,7 +5,7 @@
 //
 // Package:    Analysis/Tools
 // Class:      PhysicsObjectTreeBase
-// 
+//
 /**\class PhysicsObjectTreeBase PhysicsObjectTreeBase.cc Analysis/Tools/src/PhysicsObjectTreeBase.cc
 
  Description: [one line class summary]
@@ -22,7 +22,7 @@
 // system include files
 #include <memory>
 #include <vector>
-// 
+//
 // user include files
 
 #include "TTree.h"
@@ -33,6 +33,7 @@
 #include "Analysis/Tools/interface/MET.h"
 #include "Analysis/Tools/interface/Muon.h"
 #include "Analysis/Tools/interface/Vertex.h"
+#include "Analysis/Tools/interface/TriggerObject.h"
 
 //
 // class declaration
@@ -47,7 +48,7 @@ namespace analysis {
             PhysicsObjectTreeBase();
             PhysicsObjectTreeBase(TChain * tree, const std::string & name);
            ~PhysicsObjectTreeBase();
-           
+
             // ----------member data ---------------------------
          protected:
             static const int max_ = 1000;
@@ -58,26 +59,26 @@ namespace analysis {
             float phi_ [max_];
             float e_   [max_];
             int   q_   [max_];
-            
+
             float px_  [max_];
             float py_  [max_];
             float pz_  [max_];
-            
+
          private:
 
       };
-         
+
       template <>
       class PhysicsObjectTreeBase<Vertex> : public TreeBase {
          public:
             PhysicsObjectTreeBase();
             PhysicsObjectTreeBase(TChain * tree, const std::string & name);
            ~PhysicsObjectTreeBase();
-           
+
             // ----------member data ---------------------------
          protected:
             static const int max_ = 400;
-            
+
             // general candidates
             int n_;
             float x_   [max_];
@@ -90,7 +91,7 @@ namespace analysis {
             float chi2_[max_];
             float ndof_[max_];
             float rho_ [max_];
-            
+
          private:
 
       };

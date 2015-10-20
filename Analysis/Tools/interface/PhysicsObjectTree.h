@@ -5,7 +5,7 @@
 //
 // Package:    Analysis/Tools
 // Class:      PhysicsObjectTree
-// 
+//
 /**\class PhysicsObjectTree PhysicsObjectTree.cc Analysis/Tools/src/PhysicsObjectTree.cc
 
  Description: [one line class summary]
@@ -22,7 +22,7 @@
 // system include files
 #include <memory>
 #include <vector>
-// 
+//
 // user include files
 
 #include "TTree.h"
@@ -43,16 +43,16 @@ namespace analysis {
             PhysicsObjectTree();
             PhysicsObjectTree(TChain * tree, const std::string & name);
            ~PhysicsObjectTree();
-           
+
             Collection<Object> collection();
-           
+
             // ----------member data ---------------------------
          protected:
-            
+
          private:
 
       };
-         
+
       // Specialization for JET
       template <>
       class PhysicsObjectTree<Jet> : public PhysicsObjectTreeBase<Jet> {
@@ -60,9 +60,9 @@ namespace analysis {
             PhysicsObjectTree();
             PhysicsObjectTree(TChain * tree, const std::string & name);
            ~PhysicsObjectTree();
-           
+
             Collection<Jet> collection();
-            
+
             // ----------member data ---------------------------
          protected:
             // PatJets
@@ -77,11 +77,11 @@ namespace analysis {
             float muFrac_  [max_];
             bool  idLoose_ [max_];
             bool  idTight_ [max_];
-            
+
          private:
 
       };
-         
+
       // Specialization for MET
       template <>
       class PhysicsObjectTree<MET> : public PhysicsObjectTreeBase<MET>{
@@ -89,7 +89,7 @@ namespace analysis {
             PhysicsObjectTree();
             PhysicsObjectTree(TChain * tree, const std::string & name);
            ~PhysicsObjectTree();
-           
+
             Collection<MET> collection();
             // ----------member data ---------------------------
          protected:
@@ -98,15 +98,15 @@ namespace analysis {
             float sigxy_  [max_];
             float sigyx_  [max_];
             float sigyy_  [max_];
-         
+
             float gen_px_ [max_];
             float gen_py_ [max_];
             float gen_pz_ [max_];
-            
+
          private:
 
       };
-         
+
       // Specialization for Muon
       template <>
       class PhysicsObjectTree<Muon> : public PhysicsObjectTreeBase<Muon> {
@@ -114,16 +114,16 @@ namespace analysis {
             PhysicsObjectTree();
             PhysicsObjectTree(TChain * tree, const std::string & name);
            ~PhysicsObjectTree();
-           
+
             Collection<Muon> collection();
-            
+
             // ----------member data ---------------------------
          protected:
-            
+
          private:
 
       };
-         
+
       // Specialization for Vertex
       template <>
       class PhysicsObjectTree<Vertex> : public PhysicsObjectTreeBase<Vertex> {
@@ -131,12 +131,29 @@ namespace analysis {
             PhysicsObjectTree();
             PhysicsObjectTree(TChain * tree, const std::string & name);
            ~PhysicsObjectTree();
-           
+
             Collection<Vertex> collection();
-            
+
             // ----------member data ---------------------------
          protected:
-               
+
+         private:
+
+      };
+
+      // Specialization for TriggerObject
+      template <>
+      class PhysicsObjectTree<TriggerObject> : public PhysicsObjectTreeBase<TriggerObject> {
+         public:
+            PhysicsObjectTree();
+            PhysicsObjectTree(TChain * tree, const std::string & name);
+           ~PhysicsObjectTree();
+
+            Collection<TriggerObject> collection();
+
+            // ----------member data ---------------------------
+         protected:
+
          private:
 
       };

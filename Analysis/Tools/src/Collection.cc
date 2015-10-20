@@ -13,12 +13,13 @@
 
 // system include files
 #include <iostream>
-// 
+//
 // user include files
 #include "Analysis/Tools/interface/Jet.h"
 #include "Analysis/Tools/interface/MET.h"
 #include "Analysis/Tools/interface/Muon.h"
 #include "Analysis/Tools/interface/Vertex.h"
+#include "Analysis/Tools/interface/TriggerObject.h"
 
 #include "Analysis/Tools/interface/Collection.h"
 
@@ -66,19 +67,19 @@ Collection<Object>::~Collection()
 template <class Object>
 std::vector<Object> * Collection<Object>::vector()
 {
-   return &objects_; 
+   return &objects_;
 }
 
 template <class Object>
 std::vector<Candidate>* Collection<Object>::vectorCandidates()
 {
    for ( int i = 0; i < size_ ; ++i ) candidates_.push_back(objects_[i]);
-   return &candidates_; 
+   return &candidates_;
 }
 
 // try to find how the enable_if works to avoid this specialization
 // typename std::enable_if<std::is_base_of<Candidate, Object>::value, std::vector<Candidate>* >::type
-// std::is_base_of<Foo, Bar>::value 
+// std::is_base_of<Foo, Bar>::value
 template <>
 std::vector<Candidate> * Collection<Vertex>::vectorCandidates()
 {
@@ -94,3 +95,4 @@ template class Collection<Jet>;
 template class Collection<MET>;
 template class Collection<Muon>;
 template class Collection<Vertex>;
+template class Collection<TriggerObject>;
