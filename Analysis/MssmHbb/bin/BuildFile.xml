@@ -7,12 +7,13 @@
 <use name="Analysis/Tools" />
 <use name="Analysis/MssmHbb" />
 
-
+<!--
 <bin   name="doubleBTagSelection" file="doubleBTagSelection.cc">
 <flags   LDFLAGS="-lCore -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lz -pthread -lm -ldl -rdynamic"/>
 </bin>
-
+-->
+<!--
 <bin   name="triggerStudy" file="triggerStudy.cc">
 <flags   LDFLAGS="-lCore -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lz -pthread -lm -ldl -rdynamic"/>
 </bin>
-
+-->
