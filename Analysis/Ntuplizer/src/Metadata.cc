@@ -63,6 +63,10 @@ Metadata::Metadata(edm::Service<TFileService> & fs, const bool & is_mc, const st
       treeXS_ -> Branch("externalXSecLO" , &externalXSecLO_   , "externalXSecLO_generator/D");
       treeXS_ -> Branch("externalXSecNLO", &externalXSecNLO_  , "externalXSecNLO_generator/D");
    }
+   
+   // Dataset
+   treeDS_ = mainDir_.make<TTree>("Dataset","Dataset info");
+   treeDS_ -> Branch("isMC"            , &is_mc_            , "isMC/O");
 
 }
 
@@ -85,6 +89,8 @@ void Metadata::Fill()
    
    if ( isGenFilter_ ) genfilter_ -> Fill();
    if ( isEvtFilter_ ) evtfilter_ -> Fill();
+   
+   treeDS_ -> Fill();
    
 }
 
