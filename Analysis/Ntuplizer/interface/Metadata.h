@@ -102,8 +102,6 @@ namespace analysis {
             pGenFilter  genfilter_;
             pEvtFilter  evtfilter_;
             
-            bool is_mc_;
-
             
             pTFileService pfs_;
             
@@ -115,6 +113,11 @@ namespace analysis {
             double externalXSecLO_;
             double externalXSecNLO_;
             unsigned int runXS_;
+            
+            // Dataset tree
+            TTree * treeDS_;
+            bool is_mc_;
+
             
             
             
