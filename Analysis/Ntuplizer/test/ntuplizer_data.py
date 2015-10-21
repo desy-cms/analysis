@@ -1,31 +1,33 @@
 import os
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("Demo")
+process = cms.Process("MssmHbb")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(1000)
 
 ##  Using MINIAOD. GlobalTag just in case jet re-clustering, L1 trigger filter  etc is needed to be done
-# process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-# from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag as customiseGlobalTag
-# process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = '74X_dataRun2_Prompt_v1')
-# process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_CONDITIONS'
-# process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
-# for pset in process.GlobalTag.toGet.value():
-#     pset.connect = pset.connect.value().replace('frontier://FrontierProd/', 'frontier://FrontierProd/')
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag as customiseGlobalTag
+process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = '74X_dataRun2_Prompt_v1')
+process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_CONDITIONS'
+process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
+for pset in process.GlobalTag.toGet.value():
+    pset.connect = pset.connect.value().replace('frontier://FrontierProd/', 'frontier://FrontierProd/')
 ## fix for multi-run processing
-# process.GlobalTag.RefreshEachRun = cms.untracked.bool( False )
-# process.GlobalTag.ReconnectEachRun = cms.untracked.bool( False )
+process.GlobalTag.RefreshEachRun = cms.untracked.bool( False )
+process.GlobalTag.ReconnectEachRun = cms.untracked.bool( False )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
-output_file = '/nfs/dust/cms/user/walsh/tmp/ntuple_mssmhbb_data_runs254905to254907.root'
+output_file = 'test_data.root'
 ## TFileService
 process.TFileService = cms.Service("TFileService",
 	fileName = cms.string(output_file)
 )
 
-## Enable below at Path if needed 
+## ============ TRIGGER FILTER ===============
+## Enable below at cms.Path if needed (not recommended for Monte Carlo samples)
 process.triggerSelection = cms.EDFilter( "TriggerResultsFilter",
     triggerConditions = cms.vstring(
                           "HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v*",
@@ -49,15 +51,27 @@ process.triggerSelection = cms.EDFilter( "TriggerResultsFilter",
     throw = cms.bool( True )
 )
 
-## Filter counter (more useful for MC; still need to implement in the Ntuplizer)
-process.EventsTotal    = cms.EDProducer("EventCountProducer")
-process.EventsFiltered = cms.EDProducer("EventCountProducer")
+## ============ EVENT FILTER COUNTER ===============
+## Filter counter (maybe more useful for MC)
+process.TotalEvents    = cms.EDProducer("EventCountProducer")
+process.FilteredEvents = cms.EDProducer("EventCountProducer")
+
+## ============ PRIMARY VERTEX FILTER ===============
+process.primaryVertexFilter = cms.EDFilter("VertexSelector",
+   src = cms.InputTag("offlineSlimmedPrimaryVertices"), # primary vertex collection name
+   cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2"), # ndof>thr=4 corresponds to sum(track_weigths) > (thr+3)/2 = 3.5 so typically 4 good tracks
+   filter = cms.bool(True),   # otherwise it won't filter the events, just produce an empty vertex collection.
+)
 
 
-# Ntuplizer
+
+
+## ============  THE NTUPLIZER!!!  ===============
 process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
     MonteCarlo      = cms.bool(False),
     UseFullName     = cms.bool(False),
+    TotalEvents     = cms.InputTag("TotalEvents"),
+    FilteredEvents  = cms.InputTag("FilteredEvents"),
     PatJets         = cms.VInputTag(
                                     cms.InputTag("slimmedJetsPuppi","","RECO"),
                                     cms.InputTag("slimmedJetsAK8PFCHSSoftDropPacked","SubJets","RECO")
@@ -68,6 +82,9 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
                                     ), 
     PatMuons        = cms.VInputTag(
                                     cms.InputTag("slimmedMuons","","RECO")
+                                    ), 
+    PrimaryVertices = cms.VInputTag(
+                                    cms.InputTag("offlineSlimmedPrimaryVertices","","RECO")
                                     ), 
     BTagAlgorithms = cms.vstring   (
                                     "pfCombinedInclusiveSecondaryVertexV2BJetTags",
@@ -140,9 +157,10 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
 )
 
 process.p = cms.Path(
-#                      process.EventsTotal *
-#                      process.triggerSelection * 
-#                      process.EventsFiltered *
+                      process.TotalEvents *
+                      process.primaryVertexFilter *
+                      process.triggerSelection * 
+                      process.FilteredEvents *
                       process.MssmHbb
                     )
 
@@ -151,9 +169,9 @@ secFiles = cms.untracked.vstring()
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 
 readFiles.extend( [
-       '/pnfs/desy.de/cms/tier2/store/data/Run2015C/BTagCSV/MINIAOD/PromptReco-v1/000/254/905/00000/1877CA80-B64B-E511-BE62-02163E013611.root',
-       '/pnfs/desy.de/cms/tier2/store/data/Run2015C/BTagCSV/MINIAOD/PromptReco-v1/000/254/906/00000/2E43AE21-D74B-E511-B642-02163E011AC9.root',
-       '/pnfs/desy.de/cms/tier2/store/data/Run2015C/BTagCSV/MINIAOD/PromptReco-v1/000/254/907/00000/FA67011D-DE4B-E511-A6B5-02163E01437C.root'
+       '/store/data/Run2015C/BTagCSV/MINIAOD/PromptReco-v1/000/254/905/00000/1877CA80-B64B-E511-BE62-02163E013611.root',
+       '/store/data/Run2015C/BTagCSV/MINIAOD/PromptReco-v1/000/254/906/00000/2E43AE21-D74B-E511-B642-02163E011AC9.root',
+       '/store/data/Run2015C/BTagCSV/MINIAOD/PromptReco-v1/000/254/907/00000/FA67011D-DE4B-E511-A6B5-02163E01437C.root'
 ] );
 
 
