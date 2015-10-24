@@ -25,6 +25,7 @@
 // 
 // user include files
 #include "Analysis/Tools/interface/Candidate.h"
+#include "Analysis/Tools/interface/TriggerObject.h"
 
 //
 // class declaration
@@ -47,18 +48,19 @@ namespace analysis {
            Object at(const int & index);
            void add(const Object & object);
            
-           void matchTo( const Collection<Object> & collection );
+           void matchTo( const Collection<Candidate> & collection );
+           void matchTo( const Collection<TriggerObject> & collection );
            Objects* vector();
-           std::vector<Candidate>* vectorCandidates();
+           std::vector<Candidate>* vectorCandidates() const;
            
-           std::string name();
+           std::string name() const;
            
             // ----------member data ---------------------------
          protected:
                
          private:
             Objects objects_;
-            std::vector<Candidate> candidates_;
+            mutable std::vector<Candidate> candidates_; // maybe not the best idea but need to make code work
             int size_;
             std::string name_;
 
@@ -70,7 +72,7 @@ namespace analysis {
       // Gets
       template <class Object> inline int         Collection<Object>::size()                { return size_; }
       template <class Object> inline Object      Collection<Object>::at(const int & index) { return objects_.at(index); }
-      template <class Object> inline std::string Collection<Object>::name()                { return name_; }
+      template <class Object> inline std::string Collection<Object>::name() const          { return name_; }
 
       // Sets
       template <class Object> inline void   Collection<Object>::add(const Object & object) { objects_.push_back(object); }
