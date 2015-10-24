@@ -40,16 +40,14 @@ int main(int argc, char * argv[])
       Collection<Jet> jets = analysis.collection<Jet>("Jets");
       Collection<TriggerObject> hltDoubleJetsC100 = analysis.collection<TriggerObject>("hltDoubleJetsC100");
       Collection<TriggerObject> hltDoublePFJetsC100 = analysis.collection<TriggerObject>("hltDoublePFJetsC100");
+//       Collection<Vertex> vtxs = analysis.collection<Vertex>("Vertices");
       
       jets.matchTo(hltDoubleJetsC100);
       jets.matchTo(hltDoublePFJetsC100);
       
-//       Collection<Vertex> vtxs = analysis.collection<Vertex>("Vertices");
       for ( int j = 0 ; j < jets.size() ; ++j )
       {
          Jet jet = jets.at(j);
-//          jet.matchTo(hltDoubleJetsC100.vectorCandidates(),"hltDoubleJetsC100");
-//          jet.matchTo(hltDoublePFJetsC100.vectorCandidates(),"hltDoublePFJetsC100");
          const Candidate * to_calojet = jet.matched("hltDoubleJetsC100");
          const Candidate * to_pfjet = jet.matched("hltDoublePFJetsC100");
          std::cout << "Jet " << j << "   " << jet.eta() << "   " << jet.phi() << "   " << std::endl;
@@ -63,24 +61,6 @@ int main(int argc, char * argv[])
           }
       }
       
-//       jets.matchTo(hltDoublePFJetsC100);
-//       for ( int j = 0 ; j < jets.size() ; ++j )
-//       {
-//          Jet jet = jets.at(j);
-// //          jet.matchTo(hltDoubleJetsC100.vectorCandidates(),"hltDoubleJetsC100");
-// //          jet.matchTo(hltDoublePFJetsC100.vectorCandidates(),"hltDoublePFJetsC100");
-//          const Candidate * to_calojet = jet.matched("hltDoubleJetsC100");
-//          const Candidate * to_pfjet = jet.matched("hltDoublePFJetsC100");
-//          std::cout << "Jet " << j << "   " << jet.eta() << "   " << jet.phi() << "   " << std::endl;
-//          if ( to_calojet )
-//           {
-//              std::cout << "SimpleAnalysis  TriggerObject CaloJet: " << to_calojet -> eta() << ", " << to_calojet -> phi() << "   " << to_calojet << std::endl;
-//           }
-//           if ( to_pfjet )
-//           {
-//              std::cout << "SimpleAnalysis  TriggerObject PFJet:   " << to_pfjet -> eta() << ", " << to_pfjet -> phi() << "   " << to_pfjet << std::endl;
-//           }
-//       }
        
 //       Collection<Muon> muons = analysis.collection<Muon>("Muons");
 //       std::cout << "muons  " << muons.size() << std::endl;
