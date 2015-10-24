@@ -19,7 +19,6 @@
 #include "Analysis/Tools/interface/MET.h"
 #include "Analysis/Tools/interface/Muon.h"
 #include "Analysis/Tools/interface/Vertex.h"
-#include "Analysis/Tools/interface/TriggerObject.h"
 
 #include "Analysis/Tools/interface/Collection.h"
 
@@ -27,7 +26,10 @@
 // member functions specialization - needed to be declared in the same namespace as the class
 namespace analysis {
    namespace tools {
-      template <> std::vector<Candidate> * Collection<Vertex>::vectorCandidates();
+      template <> Collection<Vertex>::Collection(const Objects & objects, const std::string & name);
+      template <> std::vector<Candidate> * Collection<Vertex>::vectorCandidates() const;
+      template <> void Collection<Vertex>::matchTo( const Collection<Candidate> & collection );
+      template <> void Collection<Vertex>::matchTo( const Collection<TriggerObject> & collection );
    }
 }
 //
@@ -46,6 +48,16 @@ Collection<Object>::Collection()
 }
 template <class Object>
 Collection<Object>::Collection(const Objects & objects, const std::string & name)
+{
+   objects_ = objects;
+   size_ = (int) objects_.size();
+   name_ = name;
+   candidates_.clear();
+   for ( int i = 0; i < size_ ; ++i ) candidates_.push_back(objects_[i]);
+}
+
+template <>
+Collection<Vertex>::Collection(const Objects & objects, const std::string & name)
 {
    objects_ = objects;
    size_ = (int) objects_.size();
@@ -71,9 +83,28 @@ std::vector<Object> * Collection<Object>::vector()
 }
 
 template <class Object>
-std::vector<Candidate>* Collection<Object>::vectorCandidates()
+void Collection<Object>::matchTo( const Collection<Candidate> & collection )
 {
-   for ( int i = 0; i < size_ ; ++i ) candidates_.push_back(objects_[i]);
+   for ( auto & obj : objects_ )
+   {
+      obj.matchTo(collection.vectorCandidates(),collection.name());
+   }
+}
+
+template <class Object>
+void Collection<Object>::matchTo( const Collection<TriggerObject> & collection )
+{
+   for ( auto & obj : objects_ )
+   {
+      obj.matchTo(collection.vectorCandidates(),collection.name());
+   }
+}
+
+
+template <class Object>
+std::vector<Candidate>* Collection<Object>::vectorCandidates() const
+{
+//   for ( int i = 0; i < size_ ; ++i ) candidates_.push_back(objects_[i]);
    return &candidates_;
 }
 
@@ -81,9 +112,8 @@ std::vector<Candidate>* Collection<Object>::vectorCandidates()
 // typename std::enable_if<std::is_base_of<Candidate, Object>::value, std::vector<Candidate>* >::type
 // std::is_base_of<Foo, Bar>::value
 template <>
-std::vector<Candidate> * Collection<Vertex>::vectorCandidates()
+std::vector<Candidate> * Collection<Vertex>::vectorCandidates() const
 {
-   std::cout << "NULL" << std::endl;
    return NULL;
 }
 // ------------ method called for each event  ------------
