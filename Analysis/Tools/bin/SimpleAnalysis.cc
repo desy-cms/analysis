@@ -33,8 +33,9 @@ int main(int argc, char * argv[])
    // Analysis of events
    std::cout << "This analysis has " << analysis.size() << " events" << std::endl;
 //   for ( int i = 0 ; i < analysis.size() ; ++i )
-   for ( int i = 0 ; i < 1 ; ++i )
+   for ( int i = 0 ; i < 5 ; ++i )
    {
+      std::cout << "++++++    EVENT  " << i << std::endl;
       analysis.event(i);
       Collection<Jet> jets = analysis.collection<Jet>("Jets");
       Collection<TriggerObject> hltDoubleJetsC100 = analysis.collection<TriggerObject>("hltDoubleJetsC100");
@@ -61,7 +62,6 @@ int main(int argc, char * argv[])
              std::cout << "SimpleAnalysis  TriggerObject PFJet:   " << to_pfjet -> eta() << ", " << to_pfjet -> phi() << "   " << to_pfjet << std::endl;
           }
       }
-      std::cout << "==============" << std::endl;
       
 //       jets.matchTo(hltDoublePFJetsC100);
 //       for ( int j = 0 ; j < jets.size() ; ++j )
@@ -99,7 +99,7 @@ int main(int argc, char * argv[])
 //          std::cout << p3.Px() << "  " << p3.Py() << "  " << p3.Phi() << "  "  << p3.Pt() << std::endl;
 //       }
 //       std::cout << "Analysis  ====== " << mets.size() << std::endl;
-//      std::cout << "=====" << std::endl;
+      std::cout << std::endl;
    }
    
 //    // cross sections
