@@ -16,11 +16,11 @@ namespace analysis {
 	boost::split(modifiers, nameAndModifiers.at(1), boost::is_any_of(","));
 	for (const auto& m : modifiers) {
 	  if (m.find("start") != std::string::npos)
-	    paramModifier.start(StrToNum<float>(m.substr(m.find("=") + 1)));
+	    paramModifier.start(std::stof(m.substr(m.find("=") + 1)));
 	  if (m.find("min") != std::string::npos)
-	    paramModifier.min(StrToNum<float>(m.substr(m.find("=") + 1)));
+	    paramModifier.min(std::stof(m.substr(m.find("=") + 1)));
 	  if (m.find("max") != std::string::npos)
-	    paramModifier.max(StrToNum<float>(m.substr(m.find("=") + 1)));
+	    paramModifier.max(std::stof(m.substr(m.find("=") + 1)));
 	  if (m.find("constant") != std::string::npos) paramModifier.constant();
 	  if (m.find("floating") != std::string::npos) paramModifier.floating();
 	}

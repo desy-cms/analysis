@@ -1,6 +1,5 @@
 #include <vector>
 #include <iostream>
-#include <boost/assign/list_of.hpp>
 #include <boost/program_options.hpp>
 #include "TSystem.h"
 #include "RooFitResult.h"
@@ -10,7 +9,6 @@
 #include "Analysis/BackgroundModel/interface/Tools.h"
 
 
-namespace bass = boost::assign;
 namespace po = boost::program_options;
 namespace ab = analysis::backgroundmodel;
 
@@ -51,7 +49,7 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  ab::DataContainer input = ab::DataContainer(vm["input_file"].as<std::string>());
+  ab::DataContainer input(vm["input_file"].as<std::string>());
   input.show();
 
   ab::FitContainer fitter = ab::FitContainer(input);
@@ -60,7 +58,7 @@ int main(int argc, char *argv[]) {
     ab::parseModifiers(vm["modify_param"].as<std::vector<std::string> >());
   fitter.setModel("background", vm["background_model"].as<std::string>(), bkgModifiers);
 
-  RooFitResult* bkgOnlyFit = fitter.backgroundOnlyFit();
+  std::unique_ptr<RooFitResult> bkgOnlyFit = fitter.backgroundOnlyFit();
   std::cout << "\nCorrelation matrix of background-only fit:" << std::endl;
   bkgOnlyFit->correlationMatrix().Print("v");
 

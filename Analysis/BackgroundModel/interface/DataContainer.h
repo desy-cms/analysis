@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 #include "TH1.h"
 #include "TFile.h"
 
@@ -15,23 +16,23 @@ namespace analysis {
       DataContainer(const std::string& input);
       virtual ~DataContainer();
 
-      TH1* data() const;
-      TH1* bbH() const;
-      TH1* background() const;
+      std::shared_ptr<TH1> data() const;
+      std::shared_ptr<TH1> bbH() const;
+      std::shared_ptr<TH1> background() const;
       void show() const;
 
     private:
-      TH1* getHistogram_(const std::string& name);
+      std::unique_ptr<TH1> getHistogram_(const std::string& name);
 
       static unsigned int dataCount_;
       static unsigned int bbHCount_;
       static unsigned int backgroundCount_;
 
       const std::string histFileName_;
-      TH1* data_;
-      TH1* bbH_;
-      std::vector<TH1*> backgroundTemplates_;
-      TH1* summedBackground_;
+      std::unique_ptr<TH1> data_;
+      std::unique_ptr<TH1> bbH_;
+      std::vector<std::unique_ptr<TH1> > backgroundTemplates_;
+      std::unique_ptr<TH1> summedBackground_;
     };
 
   }

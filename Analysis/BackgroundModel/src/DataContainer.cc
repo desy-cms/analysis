@@ -1,64 +1,56 @@
-#include <boost/assign/list_of.hpp>
 #include "Analysis/BackgroundModel/interface/DataContainer.h"
 #include "Analysis/BackgroundModel/interface/Tools.h"
 
 
-namespace bass = boost::assign;
-
 using namespace analysis::backgroundmodel;
 
 
-DataContainer::DataContainer(const std::string& input)
-  : histFileName_(input), data_(nullptr), bbH_(nullptr),
-    summedBackground_(nullptr) {
+DataContainer::DataContainer(const std::string& input) : histFileName_(input) {
   data_ = getHistogram_("data");
   data_->GetSumw2()->Set(0);
   bbH_ = getHistogram_("bbH");
-  const std::vector<std::string> bkgNames = bass::list_of
-    ("B2C2B1bb")("C1bb")("Qbb")("bbB2B1C2")("bbC1Q");
+  const std::vector<std::string> bkgNames = 
+    {"B2C2B1bb", "C1bb", "Qbb", "bbB2B1C2", "bbC1Q"};
   for (const auto& bkg : bkgNames) {
     backgroundTemplates_.push_back(getHistogram_(bkg));
     if (bkg == bkgNames.front()) {
       summedBackground_ =
-	static_cast<TH1*>(backgroundTemplates_.front()->Clone("background"));
+	staticCastUnique<TH1>(backgroundTemplates_.front()->Clone("background"));
       summedBackground_->SetDirectory(0);
     } else {
-      summedBackground_->Add(backgroundTemplates_.back());
+      summedBackground_->Add(backgroundTemplates_.back().get());
     }
   }
 }
 
 
 DataContainer::~DataContainer() {
-  delete data_;
-  delete bbH_;
-  for (auto& bkg : backgroundTemplates_) delete bkg;
-  delete summedBackground_;
 }
 
 
-TH1* DataContainer::data() const {
+std::shared_ptr<TH1> DataContainer::data() const {
   std::string name(data_->GetName());
-  name += "_"+NumToStr(dataCount_);
-  TH1* data = static_cast<TH1*>(data_->Clone(name.c_str()));
+  name += "_"+std::to_string(dataCount_);
+  std::shared_ptr<TH1> data(static_cast<TH1*>(data_->Clone(name.c_str())));
   ++dataCount_;
   return data;
 }
 
 
-TH1* DataContainer::bbH() const {
+std::shared_ptr<TH1> DataContainer::bbH() const {
   std::string name(bbH_->GetName());
-  name += "_"+NumToStr(bbHCount_);
-  TH1* bbH = static_cast<TH1*>(bbH_->Clone(name.c_str()));
+  name += "_"+std::to_string(bbHCount_);
+  std::shared_ptr<TH1> bbH(static_cast<TH1*>(bbH_->Clone(name.c_str())));
   ++bbHCount_;
   return bbH;
 }
 
 
-TH1* DataContainer::background() const {
+std::shared_ptr<TH1> DataContainer::background() const {
   std::string name(summedBackground_->GetName());
-  name += "_"+NumToStr(backgroundCount_);
-  TH1* background = static_cast<TH1*>(summedBackground_->Clone(name.c_str()));
+  name += "_"+std::to_string(backgroundCount_);
+  std::shared_ptr<TH1> background
+    (static_cast<TH1*>(summedBackground_->Clone(name.c_str())));
   ++backgroundCount_;
   return background;
 }
@@ -71,13 +63,12 @@ void DataContainer::show() const {
 }
 
 
-TH1* DataContainer::getHistogram_(const std::string& name) {
-  TFile* file = TFile::Open(histFileName_.c_str(), "read");
-  TH1* hist =
-    static_cast<TH1*>(file->Get((name+"_Mbb").c_str())->Clone(name.c_str()));
+std::unique_ptr<TH1> DataContainer::getHistogram_(const std::string& name) {
+  TFile file(histFileName_.c_str(), "read");
+  std::unique_ptr<TH1> hist =
+    staticCastUnique<TH1>(file.Get((name+"_Mbb").c_str())->Clone(name.c_str()));
   hist->SetDirectory(0);
   if (hist->GetSumw2N() == 0) hist->Sumw2();
-  delete file;
   return hist;
 }
 

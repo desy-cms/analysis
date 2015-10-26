@@ -1,6 +1,5 @@
 #include <iostream>
 #include <exception>
-#include <boost/assign/list_of.hpp>
 #include "TSystem.h"
 #include "TCanvas.h"
 #include "RooPlot.h"
@@ -17,24 +16,23 @@
 #include "RooNovosibirsk.h"
 #include "RooCBShape.h"
 #include "Analysis/BackgroundModel/interface/FitContainer.h"
+#include "Analysis/BackgroundModel/interface/Tools.h"
 
-
-namespace bass = boost::assign;
 
 using namespace analysis::backgroundmodel;
 
 
-FitContainer::FitContainer(TH1* data, TH1* signal, TH1* background)
+FitContainer::FitContainer(TH1& data, TH1& signal, TH1& background)
   : plotDir_(getOutputPath_("plots")), workspace_(RooWorkspace("workspace")),
     mbb_("mbb", "m_{bb}",
-	 data->GetXaxis()->GetXmin(), data->GetXaxis()->GetXmax(), "GeV"),
-    data_("data_container", "", mbb_, RooFit::Import(*data)),
-    signal_("signal_container", "", mbb_, RooFit::Import(*signal)),
-    background_("background_container", "", mbb_, RooFit::Import(*background)) {
+	 data.GetXaxis()->GetXmin(), data.GetXaxis()->GetXmax(), "GeV"),
+    data_("data_container", "", mbb_, RooFit::Import(data)),
+    signal_("signal_container", "", mbb_, RooFit::Import(signal)),
+    background_("background_container", "", mbb_, RooFit::Import(background)) {
 
   // some preliminary test code
-  RooPlot* frame = mbb_.frame();
-  data_.plotOn(frame);
+  std::unique_ptr<RooPlot> frame(mbb_.frame());
+  data_.plotOn(frame.get());
   TCanvas canvas("canvas", "", 600, 600);
   canvas.cd();
   frame->Draw();
@@ -43,7 +41,7 @@ FitContainer::FitContainer(TH1* data, TH1* signal, TH1* background)
 
 
 FitContainer::FitContainer(const DataContainer& container)
-  : FitContainer(container.data(), container.bbH(), container.background()) {
+  : FitContainer(*(container.data()), *(container.bbH()), *(container.background())) {
 }
 
 
@@ -76,19 +74,18 @@ void FitContainer::setModel(const std::string& type, const std::string& name,
     throw std::exception();
   }
 
-  applyModifiers_(*workspace_.pdf(type.c_str()), modifiers);
+  applyModifiers_(*(workspace_.pdf(type.c_str())), modifiers);
 }
 
 
-RooFitResult* FitContainer::backgroundOnlyFit() {
-  RooAbsPdf* bkg = workspace_.pdf("background");
-  RooFitResult* fitResult =
-    bkg->fitTo(data_, RooFit::Save());
+std::unique_ptr<RooFitResult> FitContainer::backgroundOnlyFit() {
+  RooAbsPdf& bkg = *(workspace_.pdf("background"));
+  std::unique_ptr<RooFitResult> fitResult(bkg.fitTo(data_, RooFit::Save()));
 
   // some preliminary test code
-  RooPlot* frame = mbb_.frame();
-  data_.plotOn(frame, RooFit::Name("data_curve"));
-  bkg->plotOn(frame, RooFit::Name("background_curve"));
+  std::unique_ptr<RooPlot> frame(mbb_.frame());
+  data_.plotOn(frame.get(), RooFit::Name("data_curve"));
+  bkg.plotOn(frame.get(), RooFit::Name("background_curve"));
   TCanvas canvas("canvas", "", 600, 600);
   canvas.cd();
   frame->Draw();
@@ -144,9 +141,9 @@ void FitContainer::setBernstein_(const std::string& type) {
   double upperBound[numCoeff] = {10.0, 20.0, 20.0, 10.0, 10.0, 10.0, 10.0};
   RooArgList coefficients("bernstein_coefficients");
   for (unsigned int c = 0; c < numCoeff; ++c) {
-    RooRealVar* coefficient =
-      new RooRealVar(Form("bernstein_coefficient_%02d", c), "", 0.0, upperBound[c]);
-    coefficients.add(*coefficient);
+    std::unique_ptr<RooRealVar> coefficient
+      (new RooRealVar(Form("bernstein_coefficient_%02d", c), "", 0.0, upperBound[c]));
+    coefficients.addClone(*coefficient);
   }
   RooBernstein bern(type.c_str(), (type+"_bernstein").c_str(), mbb_, coefficients);
   workspace_.import(bern);
@@ -158,9 +155,9 @@ void FitContainer::setChebychev_(const std::string& type) {
   double upperBound[numCoeff] = {10.0, 20.0, 20.0, 10.0, 10.0, 10.0, 10.0};
   RooArgList coefficients("chebychev_coefficients");
   for (unsigned int c = 0; c < numCoeff; ++c) {
-    RooRealVar* coefficient =
-      new RooRealVar(Form("chebychev_coefficient_%02d", c), "", 0.0, upperBound[c]);
-    coefficients.add(*coefficient);
+    std::unique_ptr<RooRealVar> coefficient
+      (new RooRealVar(Form("chebychev_coefficient_%02d", c), "", 0.0, upperBound[c]));
+    coefficients.addClone(*coefficient);
   }
   RooChebychev cheb(type.c_str(), (type+"_chebychev").c_str(), mbb_, coefficients);
   workspace_.import(cheb);
@@ -172,9 +169,9 @@ void FitContainer::setBernEffProd_(const std::string& type) {
   double upperBound[numCoeff] = {10.0, 20.0, 20.0, 10.0, 10.0, 10.0, 10.0};
   RooArgList coefficients("bernstein_coefficients");
   for (unsigned int c = 0; c < numCoeff; ++c) {
-    RooRealVar* coefficient =
-      new RooRealVar(Form("bernstein_coefficient_%02d", c), "", 0.0, upperBound[c]);
-    coefficients.add(*coefficient);
+    std::unique_ptr<RooRealVar> coefficient
+      (new RooRealVar(Form("bernstein_coefficient_%02d", c), "", 0.0, upperBound[c]));
+    coefficients.addClone(*coefficient);
   }
   RooBernstein bern((type+"_bernstein").c_str(), (type+"_bernstein").c_str(),
 		    mbb_, coefficients);
@@ -223,8 +220,7 @@ std::string FitContainer::getOutputPath_(const std::string& subdirectory) {
 
 bool FitContainer::checkType_(const std::string& type) {
   // update this list if needed
-  const std::vector<std::string> allowedTypes = bass::list_of
-    ("signal")("background");
+  const std::vector<std::string> allowedTypes = {"signal", "background"};
   for (const auto& t : allowedTypes) {
     if (t == type) return true;
   }
@@ -234,21 +230,18 @@ bool FitContainer::checkType_(const std::string& type) {
 
 
 double FitContainer::getMaxPosition_(const RooDataHist& data) {
-  TH1* hist = data.createHistogram("mbb");
+  std::unique_ptr<TH1> hist(data.createHistogram("mbb"));
   int maximumBin = hist->GetMaximumBin();
-  double maximum = hist->GetBinCenter(maximumBin);
-  delete hist;
-  return maximum;
+  return hist->GetBinCenter(maximumBin);
 }
 
 
 int FitContainer::getNonZeroBins_(const RooDataHist& data) {
-  TH1* hist = data.createHistogram("mbb");
+  std::unique_ptr<TH1> hist(data.createHistogram("mbb"));
   int nonZeroBins = 0;
   for (int i = 1; i <= hist->GetNbinsX(); ++i) {
     if (hist->GetBinContent(i) > 0) ++nonZeroBins;
   }
-  delete hist;
   return nonZeroBins;
 }
 
@@ -256,8 +249,9 @@ int FitContainer::getNonZeroBins_(const RooDataHist& data) {
 bool FitContainer::applyModifiers_(RooAbsPdf& pdf,
 				   const std::vector<ParamModifier>& modifiers) {
   bool modified = false;
-  RooArgSet* parameters = pdf.getParameters(mbb_);
-  TIterator* iter = parameters->createIterator();
+  std::unique_ptr<RooArgSet> parameters(pdf.getParameters(mbb_));
+  std::unique_ptr<TIterator> iter(parameters->createIterator());
+  // use raw pointer for 'parameter' because 'pdf' owns the object it points to
   RooRealVar* parameter = static_cast<RooRealVar*>(iter->Next());
   while (parameter) {
     for (const auto& m : modifiers) {

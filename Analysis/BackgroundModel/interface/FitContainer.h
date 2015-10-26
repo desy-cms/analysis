@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 #include "TH1.h"
 #include "RooAbsPdf.h"
 #include "RooRealVar.h"
@@ -18,14 +19,14 @@ namespace analysis {
 
     class FitContainer {
     public:
-      FitContainer(TH1* data, TH1* signal, TH1* background);
+      FitContainer(TH1& data, TH1& signal, TH1& background);
       FitContainer(const DataContainer& container);
       virtual ~FitContainer();
 
       void setModel(const std::string& type, const std::string& model);
       void setModel(const std::string& type, const std::string& model,
 		    const std::vector<ParamModifier>& modifiers);
-      RooFitResult* backgroundOnlyFit();
+      std::unique_ptr<RooFitResult> backgroundOnlyFit();
 
     private:
       std::string getOutputPath_(const std::string& subdirectory = "");
@@ -42,7 +43,7 @@ namespace analysis {
       void setBernEffProd_(const std::string& type);
       void setExpEffProd_(const std::string& type);
       
-      const std::string plotDir_;
+      std::string plotDir_;
       RooWorkspace workspace_;
       RooRealVar mbb_;
       RooDataHist data_;

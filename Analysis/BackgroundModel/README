@@ -1,0 +1,19 @@
+################################################################################
+After compilation you can run a fit with the following command:
+
+FitBackgroundModel -b crystalball
+
+################################################################################
+Tool can be checked with valgrind:
+
+valgrind --tool=memcheck --track-origins=yes \
+ --suppressions=$CMSSW_RELEASE_BASE/src/Utilities/ReleaseScripts/data/cms-valgrind-memcheck.supp \
+ --suppressions=$ROOTSYS/etc/valgrind-root.supp \
+ FitBackgroundModel -b crystalball
+
+
+NB: Compile with the following line in Analysis/BackgroundModel/BuildFile.xml:
+
+<Flags CXXFLAGS="-g -O0">
+
+This is also useful for using gdb.
