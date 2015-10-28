@@ -45,11 +45,12 @@ namespace analysis {
            ~Collection();
            
            int size();
-           Object at(const int & index);
+           Object & at(const int & index);
            void add(const Object & object);
            
            void matchTo( const Collection<Candidate> & collection );
            void matchTo( const Collection<TriggerObject> & collection );
+           void matchTo( const std::shared_ptr<Collection<TriggerObject> > collection );
            Objects* vector();
            std::vector<Candidate>* vectorCandidates() const;
            
@@ -71,7 +72,7 @@ namespace analysis {
       
       // Gets
       template <class Object> inline int         Collection<Object>::size()                { return size_; }
-      template <class Object> inline Object      Collection<Object>::at(const int & index) { return objects_.at(index); }
+      template <class Object> inline Object  &   Collection<Object>::at(const int & index) { return objects_.at(index); }
       template <class Object> inline std::string Collection<Object>::name() const          { return name_; }
 
       // Sets

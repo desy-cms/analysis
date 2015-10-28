@@ -30,6 +30,7 @@ namespace analysis {
       template <> std::vector<Candidate> * Collection<Vertex>::vectorCandidates() const;
       template <> void Collection<Vertex>::matchTo( const Collection<Candidate> & collection );
       template <> void Collection<Vertex>::matchTo( const Collection<TriggerObject> & collection );
+      template <> void Collection<Vertex>::matchTo( const std::shared_ptr<Collection<TriggerObject> > collection );
    }
 }
 //
@@ -68,6 +69,8 @@ Collection<Vertex>::Collection(const Objects & objects, const std::string & name
 template <class Object>
 Collection<Object>::~Collection()
 {
+//   std::cout<< this << "  Collection destroyed" << std::endl;
+   
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 }
@@ -86,25 +89,25 @@ template <class Object>
 void Collection<Object>::matchTo( const Collection<Candidate> & collection )
 {
    for ( auto & obj : objects_ )
-   {
       obj.matchTo(collection.vectorCandidates(),collection.name());
-   }
 }
 
 template <class Object>
 void Collection<Object>::matchTo( const Collection<TriggerObject> & collection )
 {
    for ( auto & obj : objects_ )
-   {
       obj.matchTo(collection.vectorCandidates(),collection.name());
-   }
 }
 
+template <class Object>
+void Collection<Object>::matchTo( const std::shared_ptr<Collection<TriggerObject> > collection )
+{
+   this->matchTo(*collection);
+}
 
 template <class Object>
 std::vector<Candidate>* Collection<Object>::vectorCandidates() const
 {
-//   for ( int i = 0; i < size_ ; ++i ) candidates_.push_back(objects_[i]);
    return &candidates_;
 }
 
@@ -114,7 +117,7 @@ std::vector<Candidate>* Collection<Object>::vectorCandidates() const
 template <>
 std::vector<Candidate> * Collection<Vertex>::vectorCandidates() const
 {
-   return NULL;
+   return nullptr;
 }
 // ------------ method called for each event  ------------
 
