@@ -1,6 +1,7 @@
 #include <vector>
 #include <iostream>
 #include <boost/program_options.hpp>
+#include <boost/algorithm/string/join.hpp>
 #include "TSystem.h"
 #include "RooFitResult.h"
 #include "Analysis/BackgroundModel/interface/DataContainer.h"
@@ -25,8 +26,11 @@ int main(int argc, char *argv[]) {
 		     "data/HIG14017_HighMass2012_Packed_M350_inputs.root"),
      "ROOT file from which input histograms are retrieved.")
     ("background_model,b", po::value<std::string>()->required(),
-     "Name of the background model.")
-    ("modify_param,m", po::value<std::vector<std::string> >()->composing(),
+     ("Name of the background model (" +
+      boost::algorithm::join(ab::FitContainer::availableModels(), ", ") +
+      ").").c_str())
+    ("modify_param,m", po::value<std::vector<std::string> >()->composing()
+     ->default_value(std::vector<std::string>(), ""),
      "Modify parameters as follows: "
      "\"name: [start=<value>], [min=<value>], [max=<value>], "
      "[constant], [floating]\"")
@@ -54,13 +58,18 @@ int main(int argc, char *argv[]) {
 
   ab::FitContainer fitter = ab::FitContainer(input);
   std::vector<ab::ParamModifier> bkgModifiers =
-    vm["modify_param"].empty() ? std::vector<ab::ParamModifier>() :
     ab::parseModifiers(vm["modify_param"].as<std::vector<std::string> >());
-  fitter.setModel("background", vm["background_model"].as<std::string>(), bkgModifiers);
+  fitter.setModel("background", vm["background_model"].as<std::string>(),
+		  bkgModifiers);
 
   std::unique_ptr<RooFitResult> bkgOnlyFit = fitter.backgroundOnlyFit();
-  std::cout << "\nCorrelation matrix of background-only fit:" << std::endl;
-  bkgOnlyFit->correlationMatrix().Print("v");
+  if (bkgOnlyFit) {
+    std::cout << "\nCorrelation matrix of background-only fit:" << std::endl;
+    if (&(bkgOnlyFit->correlationMatrix()) != nullptr)
+      bkgOnlyFit->correlationMatrix().Print("v");
+    else
+      std::cout << ">>> no correlation matrix available" << std::endl;
+  }
 
   for (const auto& m : bkgModifiers) m.show();
 

@@ -10,9 +10,9 @@ ParamModifier::ParamModifier(const std::string& name)
 
 bool ParamModifier::modify(RooRealVar& var) const {
   if (var.GetName() != name_) return false;
-  if (changeStart_) var.setVal(start_);
   if (changeMin_) var.setMin(min_);
   if (changeMax_) var.setMax(max_);
+  if (changeStart_) var.setVal(start_);
   if (constant_ && !floating_) var.setConstant();
   if (floating_ && !constant_) var.setConstant(false);
   return true;

@@ -23,6 +23,10 @@ namespace analysis {
       FitContainer(const DataContainer& container);
       virtual ~FitContainer();
 
+      inline static const std::vector<std::string>& availableModels() {
+	return availableModels_;
+      };
+
       void setModel(const std::string& type, const std::string& model);
       void setModel(const std::string& type, const std::string& model,
 		    const std::vector<ParamModifier>& modifiers);
@@ -36,13 +40,18 @@ namespace analysis {
       bool applyModifiers_(RooAbsPdf& pdf,
 			   const std::vector<ParamModifier>& modifiers);
 
+      static std::unique_ptr<RooArgList>
+      getCoefficients_(const int numCoeffs, const std::string& name);
       void setNovosibirsk_(const std::string& type);
       void setCrystalBall_(const std::string& type);
-      void setBernstein_(const std::string& type);
-      void setChebychev_(const std::string& type);
-      void setBernEffProd_(const std::string& type);
+      void setNovoEffProd_(const std::string& type);
       void setExpEffProd_(const std::string& type);
-      
+      void setBernstein_(const std::string& type, const int numCoeffs);
+      void setChebychev_(const std::string& type, const int numCoeffs);
+      void setBernEffProd_(const std::string& type, const int numCoeffs);
+      static const std::vector<std::string> availableModels_;
+
+      static const int defaultNumberOfCoefficients_;
       std::string plotDir_;
       RooWorkspace workspace_;
       RooRealVar mbb_;
