@@ -12,6 +12,7 @@
 //
 
 // system include files
+#include <iostream>
 // 
 // user include files
 #include "FWCore/Framework/interface/Event.h"
