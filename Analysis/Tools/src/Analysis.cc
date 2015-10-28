@@ -65,11 +65,29 @@ Analysis::~Analysis()
 // member functions
 //
 // ------------ method called for each event  ------------
-void Analysis::event(const int & event){ t_event_ -> GetEntry(event); }
+void Analysis::event(const int & event, const bool & addCollections)
+{
+   t_event_ -> GetEntry(event);
+   if ( !addCollections) return;
+   
+   for ( auto & tree : t_any_ )
+   {
+      std::string name = tree.first;
+      std::string type = t_type_[name];
+      if ( type == "Jet" )            this->addCollection<Jet>(name);
+      if ( type == "Muon" )           this->addCollection<Muon>(name);
+      if ( type == "MET" )            this->addCollection<MET>(name);
+      if ( type == "Vertex" )         this->addCollection<Vertex>(name);
+      if ( type == "TriggerObject" )  this->addCollection<TriggerObject>(name);
+   }
+   
+}
 
 
 
-// TREES
+// ===========================================================
+// ===============         Trees             =================
+// ===========================================================
 void Analysis::treeInit_(const std::string & unique_name, const std::string & path)
 {
    std::string treeTitle = ((TTree*) t_event_->GetFile()->Get(path.c_str())) -> GetTitle();
@@ -82,53 +100,16 @@ void Analysis::treeInit_(const std::string & unique_name, const std::string & pa
    std::string inputTag  = treeTitle.substr(treeTitle.find_first_of("|")+1);
 
 }
+// See Analysis.h for the implementations related to template trees
 
-//TriggerObjects
-template <> pTriggerObjectTree Analysis::addTree(const std::string & unique_name, const std::string & path)
-{
-  this->treeInit_(unique_name,path);
-  t_TriggerObjects_[unique_name] = pTriggerObjectTree( new PhysicsObjectTree<TriggerObject>(tree_[unique_name], unique_name) );
-  return t_TriggerObjects_[unique_name];
-}
 
-template<> pTriggerObjectTree Analysis::tree(const std::string & unique_name) {return t_TriggerObjects_ [unique_name];}
+// ===========================================================
+// ===============       Collections         =================
+// ===========================================================
 
-// JETS
-template<> pJetTree Analysis::addTree(const std::string & unique_name, const std::string & path) // a bit stupid but I could not make template work here
-{
-   this->treeInit_(unique_name,path);
-   t_jets_[unique_name] = pJetTree( new PhysicsObjectTree<Jet>(tree_[unique_name], unique_name) );
-   return t_jets_[unique_name];
-}
-template<> pJetTree    Analysis::tree(const std::string & unique_name) { return t_jets_    [unique_name]; }
+// See also Analysis.h for the implementations related to template collections
 
-// METS
-template<> pMETTree Analysis::addTree(const std::string & unique_name, const std::string & path) // a bit stupid but I could not make template work here
-{
-   this->treeInit_(unique_name,path);
-   t_mets_[unique_name] = pMETTree( new PhysicsObjectTree<MET>(tree_[unique_name], unique_name) );
-   return t_mets_[unique_name];
-}
-template<> pMETTree    Analysis::tree(const std::string & unique_name) { return t_mets_    [unique_name]; }
-
-// MUONS
-template<> pMuonTree Analysis::addTree(const std::string & unique_name, const std::string & path) // a bit stupid but I could not make template work here
-{
-   this->treeInit_(unique_name,path);
-   t_muons_[unique_name] = pMuonTree( new PhysicsObjectTree<Muon>(tree_[unique_name], unique_name) );
-   return t_muons_[unique_name];
-}
-template<> pMuonTree   Analysis::tree(const std::string & unique_name) { return t_muons_   [unique_name]; }
-
-// VERTICES
-template<> pVertexTree Analysis::addTree(const std::string & unique_name, const std::string & path) // a bit stupid but I could not make template work here
-{
-   this->treeInit_(unique_name,path);
-   t_vertices_[unique_name] = pVertexTree( new PhysicsObjectTree<Vertex>(tree_[unique_name], unique_name) );
-   return t_vertices_[unique_name];
-}
-template<> pVertexTree Analysis::tree(const std::string & unique_name) { return t_vertices_[unique_name]; }
-
+//}
 // ===========================================================
 // =============== Method for Trigger Results=================
 // ===========================================================
@@ -285,3 +266,5 @@ void triggerNames(std::string &trueTriggerNames,const char *myTriggerNames, TTre
 	
 }
 */
+
+ 
