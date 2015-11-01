@@ -181,6 +181,8 @@ class Ntuplizer : public edm::EDAnalyzer {
       bool do_triggerobjects_;
       bool do_genruninfo_;
       
+      bool testmode_;
+      
       std::vector< std::string > inputTagsVec_;
       std::vector< std::string > inputTags_;
       std::vector< std::string > btagAlgos_;
@@ -261,6 +263,7 @@ Ntuplizer::Ntuplizer(const edm::ParameterSet& config) //:   // initialization of
    //now do what ever initialization is needed
    is_mc_         = config.getParameter<bool> ("MonteCarlo");
    use_full_name_ = true;
+   testmode_      = false;
    inputTagsVec_ = config.getParameterNamesForType<InputTags>();
    inputTags_    = config.getParameterNamesForType<edm::InputTag>();
    
@@ -413,13 +416,17 @@ Ntuplizer::beginJob()
    do_genjets_          = config_.exists("GenJets");
    do_genparticles_     = config_.exists("GenParticles");
    do_jetstags_         = config_.exists("JetsTags");
-   do_triggeraccepts_   = config_.exists("TriggerResults") && config_.exists("TriggerPaths");
+//   do_triggeraccepts_   = config_.exists("TriggerResults") && config_.exists("TriggerPaths");
+   do_triggeraccepts_   = config_.exists("TriggerResults");
    do_primaryvertices_  = config_.exists("PrimaryVertices");
 //   do_eventfilter_      = config_.exists("EventFilter");
    do_eventfilter_      = config_.exists("TotalEvents")  && config_.exists("FilteredEvents");
    do_genfilter_        = config_.exists("GenFilterInfo");
    do_triggerobjects_   = config_.exists("TriggerObjectStandAlone") &&  config_.exists("TriggerObjectLabels");
    do_genruninfo_       = config_.exists("GenRunInfo") && is_mc_ ;
+   
+   if ( config_.exists("TestMode") ) // This is DANGEROUS! but can be useful. So BE CAREFUL!!!!
+      testmode_ = config_.getParameter<bool> ("TestMode");
    
    if ( config_.exists("UseFullName") )
       use_full_name_ = config_.getParameter<bool> ("UseFullName");
@@ -599,9 +606,11 @@ Ntuplizer::beginJob()
          if ( do_triggeraccepts_ && inputTags == "TriggerResults" )
          {
             // TriggerResults collections names differ by the process, so add it to the name
-            std::vector< std::string> trigger_paths = config_.getParameter< std::vector< std::string> >("TriggerPaths");
-            triggeraccepts_collections_.push_back( pTriggerAccepts( new TriggerAccepts(collection, tree_[name], trigger_paths) ));
-            triggeraccepts_collections_.back() -> Branches();
+            std::vector< std::string> trigger_paths;
+            trigger_paths.clear();
+            if ( config_.exists("TriggerPaths") ) trigger_paths = config_.getParameter< std::vector< std::string> >("TriggerPaths");
+            triggeraccepts_collections_.push_back( pTriggerAccepts( new TriggerAccepts(collection, tree_[name], trigger_paths, testmode_) ));
+//            triggeraccepts_collections_.back() -> Branches();
          }
          // Primary Vertices
          if ( inputTags == "PrimaryVertices" )

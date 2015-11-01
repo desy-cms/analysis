@@ -1,54 +1,84 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("Demo")
+process = cms.Process("MssmHbb")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(1000)
 
+##  Using MINIAOD. GlobalTag just in case jet re-clustering, L1 trigger filter  etc is needed to be done
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag as customiseGlobalTag
-process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = 'MCRUN2_74_V9',conditions='TrackerAlignmentExtendedError_2011Realistic_v1_mc,TrackerAlignmentErrorExtendedRcd,frontier://FrontierProd/CMS_CONDITIONS+MuonDTAPEObjectsExtended_v0_mc,DTAlignmentErrorExtendedRcd,frontier://FrontierProd/CMS_CONDITIONS+MuonCSCAPEObjectsExtended_v0_mc,CSCAlignmentErrorExtendedRcd,frontier://FrontierProd/CMS_CONDITIONS+EcalSamplesCorrelation_mc,EcalSamplesCorrelationRcd,frontier://FrontierProd/CMS_CONDITIONS+EcalPulseShapes_mc,EcalPulseShapesRcd,frontier://FrontierProd/CMS_CONDITIONS+EcalPulseCovariances_mc,EcalPulseCovariancesRcd,frontier://FrontierProd/CMS_CONDITIONS')
+process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = 'MCRUN2_74_V9')
 process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_CONDITIONS'
 process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
 for pset in process.GlobalTag.toGet.value():
     pset.connect = pset.connect.value().replace('frontier://FrontierProd/', 'frontier://FrontierProd/')
-# fix for multi-run processing
+## fix for multi-run processing
 process.GlobalTag.RefreshEachRun = cms.untracked.bool( False )
 process.GlobalTag.ReconnectEachRun = cms.untracked.bool( False )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
+output_file = 'test_mc.root'
 ## TFileService
 process.TFileService = cms.Service("TFileService",
-	fileName = cms.string('ntuple_pat_2.root')
+	fileName = cms.string(output_file)
 )
 
-# Ntuplizer
-process.MonteCarloStudies = cms.EDAnalyzer("Ntuplizer",
+## ============ TRIGGER FILTER ===============
+## Enable below at cms.Path if needed 
+process.triggerSelection = cms.EDFilter( "TriggerResultsFilter",
+    triggerConditions = cms.vstring(
+                          "HLT_ZeroBias_v*",
+    ),
+    hltResults = cms.InputTag( "TriggerResults", "", "HLT" ),
+    l1tResults = cms.InputTag( "" ),
+    l1tIgnoreMask = cms.bool( False ),
+    l1techIgnorePrescales = cms.bool( False ),
+    daqPartitions = cms.uint32( 1 ),
+    throw = cms.bool( True )
+)
+
+
+## ============ EVENT FILTER COUNTER ===============
+## Filter counter (maybe more useful for MC)
+process.TotalEvents    = cms.EDProducer("EventCountProducer")
+process.FilteredEvents = cms.EDProducer("EventCountProducer")
+
+## ============ PRIMARY VERTEX FILTER ===============
+process.primaryVertexFilter = cms.EDFilter("VertexSelector",
+   src = cms.InputTag("offlineSlimmedPrimaryVertices"), # primary vertex collection name
+   cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2"), # ndof>thr=4 corresponds to sum(track_weigths) > (thr+3)/2 = 3.5 so typically 4 good tracks
+   filter = cms.bool(True),   # otherwise it won't filter the events, just produce an empty vertex collection.
+)
+
+## ============  THE NTUPLIZER!!!  ===============
+process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
     MonteCarlo      = cms.bool(True),
-    CrossSection    = cms.double(3.0001143e06),
-    GenFilterInfo   = cms.InputTag("genFilterEfficiencyProducer","","SIM"),
+    CrossSection    = cms.double(1),  # in pb
     UseFullName     = cms.bool(False),
-#    EventFilter     = cms.VInputTag(cms.InputTag("nEventsTotal"),
-#                                    cms.InputTag("nEventsFiltered")),
-    GenJets         = cms.VInputTag(cms.InputTag("slimmedGenJets","","PAT")),
-    L1ExtraJets     = cms.VInputTag(cms.InputTag("l1extraParticles","Central","RECO"),
-#                                    cms.InputTag("l1extraParticles","Tau","RECO")
-                                    ),
-    L1ExtraMuons    = cms.VInputTag(cms.InputTag("l1extraParticles","","RECO")),
-    PatJets         = cms.VInputTag(cms.InputTag("slimmedJets","","PAT"),
+    ## Monte Carlo only
+    GenFilterInfo   = cms.InputTag("genFilterEfficiencyProducer"),
+    GenRunInfo      = cms.InputTag("generator"),
+    GenJets         = cms.VInputTag(cms.InputTag("slimmedGenJets")),
+    GenParticles    = cms.VInputTag(cms.InputTag("prunedGenParticles")),
+    ###################
+    TotalEvents     = cms.InputTag("TotalEvents"),
+    FilteredEvents  = cms.InputTag("FilteredEvents"),
+    PatJets         = cms.VInputTag(
                                     cms.InputTag("slimmedJetsPuppi","","PAT"),
-                                    cms.InputTag("slimmedJetsAK8PFCHSSoftDropPacked","SubJets","PAT")), 
-    PatMETs         = cms.VInputTag(cms.InputTag("slimmedMETs","","PAT"),
-                                    cms.InputTag("slimmedMETsPuppi","","PAT")),
-    PatMuons        = cms.VInputTag(cms.InputTag("slimmedMuons","","PAT")), 
-    TriggerResults  = cms.VInputTag(cms.InputTag("TriggerResults","","HLT")),
-    TriggerPaths    = cms.vstring  (
-    											"HLT_BTagMu_DiJet20_Mu5",
-    											"HLT_BTagMu_DiJet40_Mu5",
-    											"HLT_BTagMu_DiJet70_Mu5",
-    											"HLT_BTagMu_DiJet110_Mu5",
-    											"HLT_BTagMu_Jet300_Mu5",
-                                   ),
+                                    cms.InputTag("slimmedJetsAK8PFCHSSoftDropPacked","SubJets","PAT")
+                                    ), 
+    PatMETs         = cms.VInputTag(
+                                    cms.InputTag("slimmedMETs","","PAT"),
+                                    cms.InputTag("slimmedMETsPuppi","","PAT")
+                                    ), 
+    PatMuons        = cms.VInputTag(
+                                    cms.InputTag("slimmedMuons","","PAT")
+                                    ), 
+    PrimaryVertices = cms.VInputTag(
+                                    cms.InputTag("offlineSlimmedPrimaryVertices","","PAT")
+                                    ), 
     BTagAlgorithms = cms.vstring   (
                                     "pfCombinedInclusiveSecondaryVertexV2BJetTags",
                                     "combinedSecondaryVertexBJetTags",
@@ -75,30 +105,63 @@ process.MonteCarloStudies = cms.EDAnalyzer("Ntuplizer",
                                          "btag_csvlep",
                                          "btag_csvmva",
                                         ),
+    TriggerResults  = cms.VInputTag(cms.InputTag("TriggerResults","","HLT")),
+    TriggerPaths    = cms.vstring  (
+    ## I recommend using the version number explicitly to be able to compare 
+    ## however for production one has to be careful that all versions are included.
+    ## Thinking of a better solution...
+    											"HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v1",
+    											"HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v1",
+    											"HLT_DoubleJetsC112_DoubleBTagCSV0p9_DoublePFJetsC112MaxDeta1p6_v1",
+    											"HLT_DoubleJetsC112_DoubleBTagCSV0p85_DoublePFJetsC172_v1",
+                                    "HLT_DoubleJet90_Double30_TripleBTagCSV0p67_v2",
+                                    "HLT_QuadJet45_DoubleBTagCSV0p67_v2",
+                                    "HLT_QuadJet45_TripleBTagCSV0p67_v2",
+                                    "HLT_QuadPFJet_DoubleBTagCSV_VBF_Mqq200_v2",
+                                    "HLT_QuadPFJet_DoubleBTagCSV_VBF_Mqq240_v2",
+                                    "HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq460_v2",
+                                    "HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq500_v2",
+                                   ),
     TriggerObjectStandAlone  = cms.VInputTag(
                                              cms.InputTag("selectedPatTrigger","","PAT"),
                                              ),
     TriggerObjectLabels    = cms.vstring  (
-    											"hltSinglePFJet40",
-    											"hltSinglePFJet60",
-    											"hltSinglePFJet80",
-    											"hltSingleCaloJet10",
-    											"hltSingleCaloJet40",
-    											"hltL1sL1SingleMu5",
-    											"hltL1sMu5",
+    											"hltL1sL1DoubleJetC100",
+    											"hltDoubleJetsC100",
+    											"hltDoublePFJetsC100",
+    											"hltDoublePFJetsC100MaxDeta1p6",
+    											"hltDoublePFJetsC160",
+    											"hltDoubleBTagCSV0p85",
+    											"hltDoubleBTagCSV0p9",
+    											"hltL1sL1DoubleJetC112",
+    											"hltDoubleJetsC112",
+    											"hltDoublePFJetsC112",
+    											"hltDoublePFJetsC112MaxDeta1p6",
+    											"hltDoublePFJetsC172",
                                    ),
+#    L1ExtraJets     = cms.VInputTag(
+#                                    cms.InputTag("l1extraParticles","Central","RECO"),
+#                                    cms.InputTag("l1extraParticles","Forward","RECO"),
+#                                    cms.InputTag("l1extraParticles","Tau","RECO")
+#                                    ),
+#    L1ExtraMuons    = cms.VInputTag(
+#                                    cms.InputTag("l1extraParticles","","RECO")
+#                                    ),
 )
 
-process.p = cms.Path(process.MonteCarloStudies)
+process.p = cms.Path(
+                      process.TotalEvents *
+                      process.primaryVertexFilter *
+                      process.FilteredEvents *
+                      process.MssmHbb
+                    )
+
 
 readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 readFiles.extend( [
-#       '/store/mc/RunIISpring15DR74/QCD_Pt-80to120_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/00000/2A98D4CF-F9FE-E411-AB1A-047D7BD6DD44.root',
-       '/store/mc/RunIISpring15DR74/QCD_Pt-80to120_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/00000/4839E86C-B2FE-E411-A854-0025B3E05C74.root',
-#       '/store/mc/RunIIWinter15GS/SUSYGluGluToBBHToBB_M-300_TuneCUETP8M1_13TeV-pythia8/GEN-SIM/MCRUN2_71_V1-v1/70000/C20B0795-2BE8-E411-975F-008CFA1CB55C.root',
-#       '/store/mc/RunIIWinter15GS/SUSYGluGluToBBHToBB_M-300_TuneCUETP8M1_13TeV-pythia8/GEN-SIM/MCRUN2_71_V1-v1/70000/E492AEA0-3DE8-E411-AE51-008CFA06477C.root',
+       '/store/mc/RunIISpring15DR74/SUSYGluGluToBBHToBB_M-300_TuneCUETP8M1_13TeV-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/50000/38C86330-3F13-E511-86E6-002590A37106.root',
 ] );
 
 

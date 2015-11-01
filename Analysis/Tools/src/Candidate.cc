@@ -57,28 +57,38 @@ Candidate::~Candidate()
 //
 bool Candidate::matchTo(const std::vector<Candidate> * cands, const std::string & name, const float & deltaR)
 {
-  this -> matched_[name] = NULL;
+   bool status = false;
+   
+   
    if ( ! cands )
    {
-      return false;
+      this -> matched_[name] = NULL;
+      return status;
    }
 
    const Candidate * cand = NULL;
+   const Candidate * nearcand = NULL;
    float minDeltaR = 100.;
    for ( size_t i = 0; i < cands->size() ; ++i )
    {
       cand = &(cands->at(i));
-      if(this->deltaR(*cand) < minDeltaR) minDeltaR = this->deltaR(*cand);
+      if(this->deltaR(*cand) < minDeltaR)
+      {
+         minDeltaR = this->deltaR(*cand);
+         nearcand = cand;
+      }
    }
 	
    if(minDeltaR < deltaR)
    {
-     this->matched_[name]=cand;
-     return true;
+     this->matched_[name]=nearcand;
+     status = true;
    }
 
    else {
-     return false;
+     this -> matched_[name] = NULL;
    }
+   
+   return status;
 }
 
