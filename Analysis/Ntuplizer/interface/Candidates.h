@@ -81,6 +81,9 @@ namespace analysis {
             
             float btag_[15][maxCandidates];
             int   flavour_[maxCandidates];
+            int   hadronFlavour_[maxCandidates];
+            int   partonFlavour_[maxCandidates];
+            int   physicsFlavour_[maxCandidates];
             
             float jetid_[15][maxCandidates];
             
