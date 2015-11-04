@@ -13,6 +13,8 @@
 
 // system include files
 #include <iostream>
+#include <fstream>
+#include <cstdlib>
 //
 // user include files
 #include "Analysis/Tools/interface/Analysis.h"
@@ -175,6 +177,17 @@ double Analysis::crossSection(const std::string & xs)
    return xsections_[xs];
 }
 
+double Analysis::luminosity()
+{
+	return (nevents_ / this -> crossSection() );
+}
+
+double Analysis::luminosity(const std::string & xs)
+{
+	if ( t_xsection_ == NULL ) return -1.;
+	return (nevents_ / this -> crossSection(xs));
+}
+
 void   Analysis::listCrossSections()
 {
    std::cout << "=======================================================" << std::endl;
@@ -248,6 +261,55 @@ void Analysis::listGeneratorFilter()
    std::cout << std::endl;
 
 
+}
+
+void Analysis::processJsonFile(const std::string & fileName)
+{
+	std::string scriptName = "source $CMSSW_BASE/src/Analysis/Tools/interface/strip.sh ";
+	std::system((scriptName + fileName).c_str());
+	const std::string modifidedJsonFileName("temp");
+    std::ifstream fileStream(modifidedJsonFileName, std::ifstream::in);
+    if (!fileStream.good()) 
+    {
+    	std::cerr<<"Error in Analysis.cc! Cannot find file with name: "<< fileName <<"\n...break\n"<<std::endl;
+        exit(12);
+    }
+    // Loop over all lines in ccFile
+    int checker = 0;
+    while(fileStream.good())
+    {
+    	// Read input File
+    	std::string line;
+    	std::getline(fileStream, line);
+    	// Loop over words in cc-File line and fill vWord
+    	std::vector<std::string> vWord;
+    	std::string word;
+    	for (std::stringstream ss(line); ss >> word; )
+    	{
+    	    vWord.push_back(word);
+    	}
+            goodLumi_[checker] = vWord;
+            checker ++;
+    }
+}
+
+bool Analysis::selectJson()
+{
+	bool lumi = false;
+    for( std::map<int, std::vector<std::string> >::iterator it = goodLumi_.begin(); it != --goodLumi_.end(); ++it)
+    {
+      if(std::stoi(it->second.at(0)) == run_)
+      {
+      	for(size_t lumiIt = 1; lumiIt < it->second.size()-1;  lumiIt = lumiIt + 2)
+      	{
+      		int lower = std::stoi(it->second.at(lumiIt));
+      		int bigger = std::stoi(it->second.at(lumiIt+1));
+      		if(lumi_ >= lower && lumi_ <= bigger ) lumi = true;
+      	}
+      }
+      else continue;
+    }
+    return lumi;
 }
 
 // Way to get the Trigger names independent of Run period

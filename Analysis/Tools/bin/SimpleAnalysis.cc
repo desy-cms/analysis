@@ -40,6 +40,8 @@ int main(int argc, char * argv[])
    jetTriggerObjects.push_back("hltDoubleBTagCSV0p9");
    jetTriggerObjects.push_back("hltDoublePFJetsC100");
    
+   if(!analysis.isMC()) analysis.processJsonFile("goodJson.txt");
+   
    
    // Analysis of events
    std::cout << "This analysis has " << analysis.size() << " events" << std::endl;
@@ -48,7 +50,8 @@ int main(int argc, char * argv[])
    {
       std::cout << "++++++    EVENT  " << i << std::endl;
       analysis.event(i);
-     
+      if (!analysis.isMC() && !analysis.selectJson()) continue; // To use only goodJSonFiles
+      
       analysis.match<Jet,TriggerObject>("Jets",jetTriggerObjects);
       
       // Jets
