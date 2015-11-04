@@ -31,11 +31,11 @@ using namespace analysis::tools;
 // constructors and destructor
 //
 // template <typename Object>
-TreeBase::TreeBase()
+TreeBase::TreeBase() : TChain()
 {
 }
 //template <typename Object>
-TreeBase::TreeBase(TChain * tree, const std::string & name)
+TreeBase::TreeBase(TChain * tree, const std::string & name) : TChain()
 {
    tree_ = tree;
    name_ = name;
