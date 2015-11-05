@@ -3,11 +3,8 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/join.hpp>
 #include "TSystem.h"
-#include "TCanvas.h"
 #include "TLatex.h"
-#include "RooPlot.h"
 #include "RooArgList.h"
-#include "RooRealVar.h"
 #include "RooFormulaVar.h"
 #include "RooAbsPdf.h"
 #include "RooEffProd.h"
@@ -17,6 +14,7 @@
 #include "RooChebychev.h"
 #include "RooNovosibirsk.h"
 #include "RooCBShape.h"
+#include "Analysis/BackgroundModel/interface/RooDoubleCB.h"
 #include "Analysis/BackgroundModel/interface/FitContainer.h"
 #include "Analysis/BackgroundModel/interface/Tools.h"
 
@@ -24,30 +22,34 @@
 using namespace analysis::backgroundmodel;
 
 
-FitContainer::FitContainer(TH1& data, TH1& signal, TH1& background)
-  : plotDir_(getOutputPath_("plots")), workspace_(RooWorkspace("workspace")),
-    mbb_("mbb", "m_{bb}",
-	 data.GetXaxis()->GetXmin(), data.GetXaxis()->GetXmax(), "GeV"),
-    data_("data_container", "", mbb_, RooFit::Import(data)),
-    signal_("signal_container", "", mbb_, RooFit::Import(signal)),
-    background_("background_container", "", mbb_, RooFit::Import(background)) {
+FitContainer::FitContainer(TH1& data, TH1& signal, TH1& background) :
+  plotDir_(getOutputPath_("plots")),
+  workspace_(RooWorkspace("workspace")),
+  mbb_("mbb", "m_{bb}",
+       data.GetXaxis()->GetXmin(), data.GetXaxis()->GetXmax(), "GeV"),
+  data_("data_container", "", mbb_, RooFit::Import(data)),
+  signal_("signal_container", "", mbb_, RooFit::Import(signal)),
+  background_("background_container", "", mbb_, RooFit::Import(background)) {
 
   // some preliminary test code
   std::unique_ptr<RooPlot> frame(mbb_.frame());
   data_.plotOn(frame.get());
   TCanvas canvas("canvas", "", 600, 600);
   canvas.cd();
+  prepareCanvas_(canvas);
+  prepareFrame_(*frame);
   frame->Draw();
   canvas.SaveAs((plotDir_+"input_data.pdf").c_str());
 }
 
 
-FitContainer::FitContainer(const DataContainer& container)
-  : FitContainer(*(container.data()), *(container.bbH()), *(container.background())) {
+FitContainer::FitContainer(const DataContainer& container) :
+  FitContainer(*(container.data()), *(container.bbH()), *(container.background())) {
 }
 
 
 FitContainer::~FitContainer() {
+  workspace_.writeToFile((getOutputPath_("workspace")+"workspace.root").c_str());
 }
 
 
@@ -83,6 +85,7 @@ void FitContainer::setModel(const std::string& type, const std::string& name,
   else if (nameSplitted[0] == "crystalball") setCrystalBall_(type);
   else if (nameSplitted[0] == "novoeffprod") setNovoEffProd_(type);
   else if (nameSplitted[0] == "expeffprod") setExpEffProd_(type);
+  else if (nameSplitted[0] == "doublecb") setDoubleCB_(type);
   else if (nameSplitted[0] == "bernstein") setBernstein_(type, numCoeffs);
   else if (nameSplitted[0] == "chebychev") setChebychev_(type, numCoeffs);
   else if (nameSplitted[0] == "berneffprod") setBernEffProd_(type, numCoeffs);
@@ -109,11 +112,13 @@ std::unique_ptr<RooFitResult> FitContainer::backgroundOnlyFit() {
   std::cout << "\nfloating parameters (final):" << std::endl;
   fitResult->floatParsFinal().Print("v");
 
-  std::unique_ptr<RooPlot> frame(mbb_.frame(RooFit::Title(" ")));
+  std::unique_ptr<RooPlot> frame(mbb_.frame());
   data_.plotOn(frame.get(), RooFit::Name("data_curve"));
   bkg.plotOn(frame.get(), RooFit::Name("background_curve"));
   TCanvas canvas("canvas", "", 600, 600);
   canvas.cd();
+  prepareCanvas_(canvas);
+  prepareFrame_(*frame);
   frame->Draw();
 
   int nPars = fitResult->floatParsFinal().getSize();
@@ -199,6 +204,24 @@ void FitContainer::setExpEffProd_(const std::string& type) {
 }
 
 
+void FitContainer::setDoubleCB_(const std::string& type) {
+  double meanStart  = (mbb_.getMin() + mbb_.getMax()) / 2.0;
+  if (type == "signal") meanStart = getMaxPosition_(signal_);
+  else if (type == "background") meanStart = getMaxPosition_(background_);
+  RooRealVar mean("mean", "", meanStart, mbb_.getMin(), mbb_.getMax(), "GeV");
+  RooRealVar width("width", "", 35.0, 5.0, 100.0, "GeV");
+  RooRealVar alpha1("alpha1", "", -1.0, 0.0);
+  RooRealVar n1("n1", "", 1.0);
+  RooRealVar alpha2("alpha2", "", -1.0, 0.0);
+  RooRealVar n2("n2", "", 1.0);
+  n1.setConstant(false);
+  n2.setConstant(false);
+  RooDoubleCB doubleCB(type.c_str(), (type+"_doublecb").c_str(),
+                      mbb_, mean, width, alpha1, n1, alpha2, n2);
+  workspace_.import(doubleCB);
+}
+
+
 void FitContainer::setBernstein_(const std::string& type, const int numCoeffs) {
   std::unique_ptr<RooArgList> coeffs(getCoefficients_(numCoeffs, "bernstein"));
   RooBernstein bern(type.c_str(), (type+"_bernstein").c_str(), mbb_, *coeffs);
@@ -237,6 +260,18 @@ std::string FitContainer::getOutputPath_(const std::string& subdirectory) {
   path += "/src/Analysis/BackgroundModel/test/" + subdirectory + "/";
   gSystem->mkdir(path.c_str(), true);
   return path;
+}
+
+
+void FitContainer::prepareCanvas_(TCanvas& raw) {
+  raw.SetLeftMargin(0.15);
+  raw.SetRightMargin(0.05);
+}
+
+
+void FitContainer::prepareFrame_(RooPlot& raw) {
+  raw.GetYaxis()->SetTitleOffset(2);
+  raw.SetTitle("");
 }
 
 
@@ -318,6 +353,7 @@ const std::vector<std::string> FitContainer::availableModels_ =
    "crystalball",
    "novoeffprod",
    "expeffprod",
+   "doublecb",
    "bernstein",
    "chebychev",
    "berneffprod"};
