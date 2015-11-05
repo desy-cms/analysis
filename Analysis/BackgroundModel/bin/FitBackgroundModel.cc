@@ -13,36 +13,49 @@
 namespace po = boost::program_options;
 namespace ab = analysis::backgroundmodel;
 
-int main(int argc, char *argv[]) {
-  std::cout << "Fitting Background Model..." << std::endl;
 
+int main(int argc, char *argv[]) {
   const std::string cmsswBase(gSystem->Getenv("CMSSW_BASE"));
 
-  po::options_description cmdLineOptions("Command line options");
+  // general command line options
+  po::options_description cmdLineOptions("Optional arguments");
   cmdLineOptions.add_options()
     ("help,h", "Produce help message.")
     ("input_file,i", po::value<std::string>()
      ->default_value(cmsswBase+"/src/Analysis/BackgroundModel/"
 		     "data/HIG14017_HighMass2012_Packed_M350_inputs.root"),
      "ROOT file from which input histograms are retrieved.")
+    ("modify_param,m", po::value<std::vector<std::string> >()->composing()
+     ->default_value(std::vector<std::string>(), ""),
+     "Modify parameters as follows: "
+     "\"name: [start=<value>,] [min=<value>,] [max=<value>,] "
+     "[constant,] [floating]\"")
+    ;
+  po::variables_map vm;
+  po::store(po::command_line_parser(argc, argv).options(cmdLineOptions)
+	    .allow_unregistered().run(), vm);
+  po::notify(vm);
+
+
+  // now add required options
+  po::options_description requiredOptions("Required arguments");
+  requiredOptions.add_options()
     ("background_model,b", po::value<std::string>()->required(),
      ("Name of the background model (" +
       boost::algorithm::join(ab::FitContainer::availableModels(), ", ") +
       ").").c_str())
-    ("modify_param,m", po::value<std::vector<std::string> >()->composing()
-     ->default_value(std::vector<std::string>(), ""),
-     "Modify parameters as follows: "
-     "\"name: [start=<value>], [min=<value>], [max=<value>], "
-     "[constant], [floating]\"")
     ;
+  po::store(po::command_line_parser(argc, argv).options(requiredOptions)
+	    .allow_unregistered().run(), vm);
 
-  po::variables_map vm;
-  po::store(po::parse_command_line(argc, argv, cmdLineOptions), vm);
-  po::notify(vm);
 
+  po::options_description allOptions ("Allowed arguments");
+  allOptions.add(cmdLineOptions).add(requiredOptions);
+
+  // check for help flag before checking for required options
   if (vm.count("help")) {
-    std::cerr << cmdLineOptions << std::endl;
-    return 1;
+    std::cerr << allOptions << std::endl;
+    return 0;
   }
 
   try {
@@ -52,6 +65,9 @@ int main(int argc, char *argv[]) {
     std::cerr << ex.what() << std::endl;
     return 1;
   }
+
+
+  std::cout << "Fitting Background Model..." << std::endl;
 
   ab::DataContainer input(vm["input_file"].as<std::string>());
   input.show();
