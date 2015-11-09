@@ -44,7 +44,7 @@ namespace analysis {
             TriggerAccepts();
             TriggerAccepts(const edm::InputTag&, TTree*, const std::vector<std::string> &, const bool & testmode = false);
            ~TriggerAccepts();
-            void Fill(const edm::Event&);
+            void Fill(const edm::Event & event, const edm::EventSetup & setup);
             void Branches();
             void LumiBlock(edm::LuminosityBlock const & , edm::EventSetup const& );
       
@@ -56,6 +56,8 @@ namespace analysis {
             std::vector<std::string> paths_;
             std::vector<std::string> inpaths_;
             bool accept_[1000];
+            int psl1_[1000];
+            int pshlt_[1000];
             
             bool first_;
             bool testmode_;
