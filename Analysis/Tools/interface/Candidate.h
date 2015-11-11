@@ -22,6 +22,7 @@
 // system include files
 #include <memory>
 #include <map>
+#include <iostream>
 //
 // user include files
 #include "TLorentzVector.h"
@@ -59,7 +60,7 @@ namespace analysis {
            // made below virtual as this may be different for MET, or vertex
            virtual bool matchTo(const std::vector<Candidate> * cands, const std::string & name, const float & deltaR = 0.5);
            const Candidate * matched(const std::string & name);
-
+           const Candidate * matched(const std::string & name) const;
          protected:
             // ----------member data ---------------------------
 
@@ -97,6 +98,7 @@ namespace analysis {
       }
 
       inline const Candidate * Candidate::matched(const std::string & name) { return matched_[name]; }
+      inline const Candidate * Candidate::matched(const std::string & name) const { return matched_.find(name) != matched_.end() ? matched_.find(name)->second : 0; }
 
       // Sets
       inline void  Candidate::q(const float & q) { q_ = q; }

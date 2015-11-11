@@ -27,6 +27,7 @@
 #include <boost/any.hpp>
 #include <boost/core/demangle.hpp>
 #include <boost/algorithm/string.hpp>
+#include "stdlib.h"
 //
 // user include files
 
@@ -76,6 +77,10 @@ namespace analysis {
             double crossSection();
             double crossSection(const std::string & title);
             void   listCrossSections();
+            
+            // Luminosity
+            double luminosity();
+            double luminosity(const std::string & title);
 
             // Trigger results
             void triggerResults(const std::string & path);
@@ -90,6 +95,10 @@ namespace analysis {
             void match(const std::string & collection, const std::string & match_collection);
             template <class Object1, class Object2>
             void match(const std::string & collection, const std::vector<std::string> & match_collections);
+            
+            // good Json files
+            void processJsonFile(const std::string & fileName = "goodJson.txt");
+            bool selectJson();
 
             // ----------member data ---------------------------
          protected:
@@ -101,6 +110,7 @@ namespace analysis {
 
             std::map<std::string, double> xsections_;
             std::map<std::string, bool> triggerResults_;
+            std::map<int,std::vector<std::string> > goodLumi_;
             FilterResults genfilter_;
 
             int event_;

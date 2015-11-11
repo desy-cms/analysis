@@ -40,7 +40,7 @@ namespace analysis {
    namespace tools {
 
 //       template <typename Object>
-      class TreeBase {
+      class TreeBase : public TChain{
          public:
             TreeBase();
             TreeBase(TChain * tree, const std::string & name);
