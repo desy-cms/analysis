@@ -68,6 +68,9 @@ namespace analysis {
             // PatJets
             float btag_    [max_];
             int   flavour_ [max_];
+            int   hadrflavour_ [max_];
+            int   partflavour_ [max_];
+            int   physflavour_ [max_];
             float nHadFrac_[max_];
             float nEmFrac_ [max_];
             float nMult_   [max_];

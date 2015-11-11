@@ -48,7 +48,10 @@ template <class Object> Collection<Object>  PhysicsObjectTree<Object>::collectio
 PhysicsObjectTree<Jet>::PhysicsObjectTree(TChain * tree, const std::string & name) : PhysicsObjectTreeBase<Jet>(tree, name)
 {
    tree_  -> SetBranchAddress( "btag_csvivf", btag_    );
-   tree_  -> SetBranchAddress( "flavour"    , flavour_ );
+   tree_  -> SetBranchAddress( "flavour"        , flavour_ );
+   tree_  -> SetBranchAddress( "hadronFlavour"  , hadrflavour_ );
+   tree_  -> SetBranchAddress( "partonFlavour"  , partflavour_ );
+   tree_  -> SetBranchAddress( "physicsFlavour" , physflavour_ );
    tree_  -> SetBranchAddress( "id_nHadFrac", nHadFrac_);
    tree_  -> SetBranchAddress( "id_nEmFrac" , nEmFrac_ );
    tree_  -> SetBranchAddress( "id_nMult"   , nMult_   );
@@ -68,6 +71,9 @@ Collection<Jet>  PhysicsObjectTree<Jet>::collection()
       Jet jet(pt_[i], eta_[i], phi_[i], e_[i]);
       jet.btag(btag_[i]);
       jet.flavour(flavour_[i]);
+      jet.flavour("Hadron",hadrflavour_[i]);
+      jet.flavour("Parton",partflavour_[i]);
+      jet.flavour("Physics",physflavour_[i]);
       jet.id(nHadFrac_[i],
              nEmFrac_[i] ,
              nMult_[i]   ,

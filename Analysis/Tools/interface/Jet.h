@@ -39,11 +39,13 @@ namespace analysis {
            
             float btag();
             int   flavour();
+            int   flavour(const std::string & definition = "Hadron");
             bool  idLoose();
             bool  idTight();
             
             void btag(const float &);
             void flavour(const int &);
+            void flavour(const std::string & definition, const int & value);
             void idLoose(const bool &);
             void idTight(const bool &);
             
@@ -61,7 +63,8 @@ namespace analysis {
             // ----------member data ---------------------------
             // 
             float btag_ ;
-            int   flavour_;
+//            int   flavour_;
+            std::map<std::string, int> flavour_;
             bool  idloose_;
             bool  idtight_;
          private:
@@ -74,13 +77,15 @@ namespace analysis {
          
       // Gets
       inline float Jet::btag()    { return btag_;    }                   
-      inline int   Jet::flavour() { return flavour_; }                   
+      inline int   Jet::flavour() { return flavour_["Hadron"]; }                   
+      inline int   Jet::flavour(const std::string & definition) { return flavour_[definition]; }                   
       inline bool  Jet::idLoose() { return idloose_; }                   
       inline bool  Jet::idTight() { return idtight_; }         
                 
       // Sets                                                             
       inline void Jet::btag    (const float & btag) { btag_    = btag; } 
-      inline void Jet::flavour (const int   & flav) { flavour_ = flav; } 
+      inline void Jet::flavour (const int   & flav) { flavour_["Hadron"] = flav; } 
+      inline void Jet::flavour (const std::string & definition, const int   & flav) { flavour_[definition] = flav; } 
       inline void Jet::idLoose (const bool  & loos) { idloose_ = loos; } 
       inline void Jet::idTight (const bool  & tigh) { idtight_ = tigh; } 
    }
