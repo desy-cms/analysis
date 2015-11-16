@@ -60,7 +60,7 @@ TriggerAccepts::~TriggerAccepts()
 //
 
 // ------------ method called for each event  ------------
-void TriggerAccepts::Fill(const edm::Event& event)
+void TriggerAccepts::Fill(const edm::Event& event, const edm::EventSetup & setup)
 {
    using namespace edm;
    
@@ -76,10 +76,12 @@ void TriggerAccepts::Fill(const edm::Event& event)
    {
       for (size_t i = 0; i < paths_.size() ; ++i )
       {
-         if ( hlt_config_.triggerName(j).find(paths_[i]) == 0 && triggers.accept(j) )
+         if ( hlt_config_.triggerName(j).find(paths_[i]) == 0 )
          {
-            accept_[i] = true;
-            break;
+            std::pair< int, int > ps = hlt_config_.prescaleValues (event, setup, hlt_config_.triggerName(j));
+            psl1_[i] = ps.first;
+            pshlt_[i] = ps.second;
+            if ( triggers.accept(j) ) accept_[i] = true;
          }
       }
    }
@@ -94,6 +96,8 @@ void TriggerAccepts::Branches()
    for (size_t i = 0; i < paths_.size() ; ++i )
    {
       tree_->Branch(paths_[i].c_str(), &accept_[i], (paths_[i]+"/O").c_str());
+      tree_->Branch(("psl1_"+paths_[i]).c_str(), &psl1_[i], ("psl1_"+paths_[i]+"/I").c_str());
+      tree_->Branch(("pshlt_"+paths_[i]).c_str(), &pshlt_[i], ("pshlt_"+paths_[i]+"/I").c_str());
    }
    // std::cout << "TriggerAccepts Branches ok" << std::endl;
 }
@@ -105,7 +109,7 @@ void TriggerAccepts::LumiBlock(edm::LuminosityBlock const & lumi, edm::EventSetu
    
    std::vector<std::string> names = hlt_config_.triggerNames();
    
-   if ( first_ )
+   if ( first_ )  // using this kind of resource to get the names from the configuration, when needed.
    {
       if ( ! testmode_ )
          paths_ = inpaths_;

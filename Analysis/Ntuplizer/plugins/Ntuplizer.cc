@@ -389,7 +389,7 @@ void Ntuplizer::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       
       // trigger accecpts
       for ( auto & collection : triggeraccepts_collections_ )
-         collection -> Fill(event);
+         collection -> Fill(event, iSetup);
       
       // primary vertices
       for ( auto & collection : primaryvertices_collections_ )

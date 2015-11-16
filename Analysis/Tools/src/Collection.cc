@@ -28,6 +28,7 @@ namespace analysis {
    namespace tools {
       template <> Collection<Vertex>::Collection(const Objects & objects, const std::string & name);
       template <> std::vector<Candidate> * Collection<Vertex>::vectorCandidates() const;
+      template <> void Collection<Vertex>::matchTo( const std::vector<Candidate>* vectorcandidates, const std::string & name );
       template <> void Collection<Vertex>::matchTo( const Collection<Candidate> & collection );
       template <> void Collection<Vertex>::matchTo( const Collection<TriggerObject> & collection );
       template <> void Collection<Vertex>::matchTo( const std::shared_ptr<Collection<TriggerObject> > collection );
@@ -83,6 +84,13 @@ template <class Object>
 std::vector<Object> * Collection<Object>::vector()
 {
    return &objects_;
+}
+
+template <class Object>
+void Collection<Object>::matchTo( const std::vector<Candidate>* vectorcandidates, const std::string & name )
+{
+   for ( auto & obj : objects_ )
+      obj.matchTo(vectorcandidates,name);
 }
 
 template <class Object>

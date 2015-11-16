@@ -231,13 +231,17 @@ void Candidates<T>::Kinematics()
          {
             for ( size_t ii = 0; ii < 7; ++ii )  jetid_[ii][n] = -1.;
          }
+         flavour_        [n] = 0;
+         hadronFlavour_  [n] = 0;
+         partonFlavour_  [n] = 0;
+         physicsFlavour_ [n] = 0;
          if ( is_mc_ )
          {
-            flavour_[n]  = jet->partonFlavour();
-         }
-         else
-         {
-            flavour_[n] = 0;
+            flavour_       [n]  = jet->hadronFlavour();
+            hadronFlavour_ [n]  = jet->hadronFlavour();
+            partonFlavour_ [n]  = jet->partonFlavour();
+            if (jet->genParton())
+            physicsFlavour_[n] = jet->genParton()->pdgId();
          }
       }
       if ( is_pfjet_ )
@@ -330,8 +334,11 @@ void Candidates<T>::Branches()
       {
          for ( size_t it = 0 ; it < btag_vars_.size() ; ++it )
             tree_->Branch(btag_vars_[it].alias.c_str(), btag_[it], (btag_vars_[it].title+"[n]/F").c_str());
-         
-         tree_->Branch("flavour",  flavour_,   "flavour[n]/I");
+            
+         tree_->Branch("flavour",        flavour_,         "flavour[n]/I");
+         tree_->Branch("hadronFlavour",  hadronFlavour_,   "hadronFlavour[n]/I" );
+         tree_->Branch("partonFlavour",  partonFlavour_,   "partonFlavour[n]/I" );
+         tree_->Branch("physicsFlavour", physicsFlavour_,  "physicsFlavour[n]/I");
       }
       if ( is_pfjet_ || is_patjet_ )
       {
