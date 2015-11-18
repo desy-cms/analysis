@@ -11,9 +11,9 @@ PROCESS         = 'MSSMHbb'
 UNITS_PER_JOB   = 1
 TYPE            = 'MC'
 PSET            = 'ntuplizer_mc.py'
-#CAMPAIGN        = 'Fall15.SomeVersion'
-#BASEOUTDIR      = '/store/user/MyUserName/Analysis/Ntuples/' + PROCESS
-$URL             = 'http://www.desy.de/~MyUserName/cms/analysis/samples/miniaod'
+CAMPAIGN        = 'Fall15.SomeVersion'
+BASEOUTDIR      = '/store/user/MyUserName/Analysis/Ntuples/' + PROCESS
+URL             = 'http://www.desy.de/~MyUserName/cms/analysis/samples/miniaod'
 
 # ---
 dataset_list    = URL + '/' + PROCESS + '.txt'
