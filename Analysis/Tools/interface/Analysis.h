@@ -81,6 +81,7 @@ namespace analysis {
             // Luminosity
             double luminosity();
             double luminosity(const std::string & title);
+            double luminosity(const double & xSection);
 
             // Trigger results
             void triggerResults(const std::string & path);
