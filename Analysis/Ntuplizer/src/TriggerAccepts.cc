@@ -76,12 +76,10 @@ void TriggerAccepts::Fill(const edm::Event& event, const edm::EventSetup & setup
    {
       for (size_t i = 0; i < paths_.size() ; ++i )
       {
-         if ( hlt_config_.triggerName(j).find(paths_[i]) == 0 )
+         if ( hlt_config_.triggerName(j).find(paths_[i]) == 0 && triggers.accept(j) )
          {
-            std::pair< int, int > ps = hlt_config_.prescaleValues (event, setup, hlt_config_.triggerName(j));
-            psl1_[i] = ps.first;
-            pshlt_[i] = ps.second;
-            if ( triggers.accept(j) ) accept_[i] = true;
+            accept_[i] = true;
+            break;
          }
       }
    }
