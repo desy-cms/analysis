@@ -46,7 +46,7 @@ if __name__ == '__main__':
       dataset_cond = dataset.split('/')[2]
       dataset_tier = dataset.split('/')[3]
       config.Data.inputDataset    = dataset
-      config.Data.publishDataName = dataset_cond
+      config.Data.outputDatasetTag = dataset_cond
       config.General.requestName  = dataset_name
       config.Data.outLFNDirBase   = BASEOUTDIR + '/' + dataset_tier + '/' + CAMPAIGN + '/'
       config.JobType.psetName    = PSET
