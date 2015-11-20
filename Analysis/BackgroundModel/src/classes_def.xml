@@ -1,3 +1,4 @@
 <lcgdict>
   <class name="analysis::backgroundmodel::RooDoubleCB" />
+  <class name="analysis::backgroundmodel::RooExpGausExp" />
 </lcgdict>

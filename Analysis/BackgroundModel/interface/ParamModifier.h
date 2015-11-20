@@ -35,41 +35,6 @@ namespace analysis {
       bool changeMax_;
     };
 
-
-    inline ParamModifier& ParamModifier::start(float value) {
-      start_ = value;
-      changeStart_ = true;
-      return *this;
-    }
-
-
-    inline ParamModifier& ParamModifier::min(float value) {
-      min_ = value;
-      changeMin_ = true;
-      return *this;
-    }
-
-
-    inline ParamModifier& ParamModifier::max(float value) {
-      max_ = value;
-      changeMax_ = true;
-      return *this;
-    }
-
-
-    inline ParamModifier& ParamModifier::constant() {
-      constant_ = true;
-      floating_ = false;
-      return *this;
-    }
-
-
-    inline ParamModifier& ParamModifier::floating() {
-      floating_ = true;
-      constant_ = false;
-      return *this;
-    }
-
   }
 }
 

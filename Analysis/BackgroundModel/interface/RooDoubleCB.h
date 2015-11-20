@@ -10,7 +10,7 @@ namespace analysis {
 
     class RooDoubleCB : public RooAbsPdf {
     public:
-      inline RooDoubleCB() {};
+      inline RooDoubleCB() = default;
       RooDoubleCB(const char* name, const char* title,
 		  RooAbsReal& x,
 		  RooAbsReal& mean,
@@ -38,6 +38,7 @@ namespace analysis {
       RooRealProxy alpha2_;
       RooRealProxy n2_;
 
+    private:
       ClassDef(RooDoubleCB,1);
     };
 

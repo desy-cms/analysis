@@ -1,3 +1,5 @@
+#include <sstream>
+#include "TFile.h"
 #include "Analysis/BackgroundModel/interface/DataContainer.h"
 #include "Analysis/BackgroundModel/interface/Tools.h"
 
@@ -24,35 +26,21 @@ DataContainer::DataContainer(const std::string& input) : histFileName_(input) {
 }
 
 
-DataContainer::~DataContainer() {
+DataContainer::~DataContainer() = default;
+
+
+std::unique_ptr<TH1> DataContainer::data() const {
+  return uniqueClone_(*data_);
 }
 
 
-std::shared_ptr<TH1> DataContainer::data() const {
-  std::string name(data_->GetName());
-  name += "_"+std::to_string(dataCount_);
-  std::shared_ptr<TH1> data(static_cast<TH1*>(data_->Clone(name.c_str())));
-  ++dataCount_;
-  return data;
+std::unique_ptr<TH1> DataContainer::bbH() const {
+  return uniqueClone_(*bbH_);
 }
 
 
-std::shared_ptr<TH1> DataContainer::bbH() const {
-  std::string name(bbH_->GetName());
-  name += "_"+std::to_string(bbHCount_);
-  std::shared_ptr<TH1> bbH(static_cast<TH1*>(bbH_->Clone(name.c_str())));
-  ++bbHCount_;
-  return bbH;
-}
-
-
-std::shared_ptr<TH1> DataContainer::background() const {
-  std::string name(summedBackground_->GetName());
-  name += "_"+std::to_string(backgroundCount_);
-  std::shared_ptr<TH1> background
-    (static_cast<TH1*>(summedBackground_->Clone(name.c_str())));
-  ++backgroundCount_;
-  return background;
+std::unique_ptr<TH1> DataContainer::background() const {
+  return uniqueClone_(*summedBackground_);
 }
 
 
@@ -63,16 +51,21 @@ void DataContainer::show() const {
 }
 
 
-std::unique_ptr<TH1> DataContainer::getHistogram_(const std::string& name) {
+std::unique_ptr<TH1> DataContainer::getHistogram_(const std::string& name) const {
   TFile file(histFileName_.c_str(), "read");
   std::unique_ptr<TH1> hist =
     staticCastUnique<TH1>(file.Get((name+"_Mbb").c_str())->Clone(name.c_str()));
   hist->SetDirectory(0);
+  file.Close();
   if (hist->GetSumw2N() == 0) hist->Sumw2();
   return hist;
 }
 
 
-unsigned int DataContainer::dataCount_ = 0;
-unsigned int DataContainer::bbHCount_ = 0;
-unsigned int DataContainer::backgroundCount_ = 0;
+std::unique_ptr<TH1> DataContainer::uniqueClone_(const TH1& original) {
+  std::unique_ptr<TH1> clone(static_cast<TH1*>(original.Clone()));
+  std::stringstream uniqueName;
+  uniqueName << original.GetName() << "_" << clone.get();
+  clone->SetName(uniqueName.str().c_str());
+  return clone;
+}

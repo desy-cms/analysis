@@ -21,36 +21,47 @@ namespace analysis {
 
     class FitContainer {
     public:
+      enum class Type { signal, background };
+      inline static std::string toString(const Type& type) {
+	switch (type) {
+	case Type::signal: return "signal";
+	case Type::background: return "background";
+	};
+	return "";		// to silence compiler
+      };
+
       FitContainer(TH1& data, TH1& signal, TH1& background);
       FitContainer(const DataContainer& container);
       virtual ~FitContainer();
 
       inline static const std::vector<std::string>& availableModels() {
 	return availableModels_; };
-      void setModel(const std::string& type, const std::string& model);
-      void setModel(const std::string& type, const std::string& model,
+      void setModel(const Type& type, const std::string& model);
+      void setModel(const Type& type, const std::string& model,
 		    const std::vector<ParamModifier>& modifiers);
       std::unique_ptr<RooFitResult> backgroundOnlyFit();
+      void profileModel(const Type& type);
 
     private:
       // methods to set the fit model
       static std::unique_ptr<RooArgList>
       getCoefficients_(const int numCoeffs, const std::string& name);
-      void setNovosibirsk_(const std::string& type);
-      void setCrystalBall_(const std::string& type);
-      void setNovoEffProd_(const std::string& type);
-      void setExpEffProd_(const std::string& type);
-      void setDoubleCB_(const std::string& type);
-      void setBernstein_(const std::string& type, const int numCoeffs);
-      void setChebychev_(const std::string& type, const int numCoeffs);
-      void setBernEffProd_(const std::string& type, const int numCoeffs);
+      void setNovosibirsk_(const Type& type);
+      void setCrystalBall_(const Type& type);
+      void setNovoEffProd_(const Type& type);
+      void setCBEffProd_(const Type& type);
+      void setExpEffProd_(const Type& type);
+      void setDoubleCB_(const Type& type);
+      void setExpGausExp_(const Type& type);
+      void setBernstein_(const Type& type, const int numCoeffs);
+      void setChebychev_(const Type& type, const int numCoeffs);
+      void setBernEffProd_(const Type& type, const int numCoeffs);
       static const std::vector<std::string> availableModels_;
 
       // internal methods
       std::string getOutputPath_(const std::string& subdirectory = "");
       void prepareCanvas_(TCanvas& raw);
       void prepareFrame_(RooPlot& raw);
-      bool checkType_(const std::string& type);
       double getMaxPosition_(const RooDataHist& data);
       int getNonZeroBins_(const RooDataHist& data);
       bool applyModifiers_(RooAbsPdf& pdf,
@@ -59,6 +70,7 @@ namespace analysis {
       // data member
       static const int defaultNumberOfCoefficients_;
       std::string plotDir_;
+      std::string workspaceDir_;
       RooWorkspace workspace_;
       RooRealVar mbb_;
       RooDataHist data_;

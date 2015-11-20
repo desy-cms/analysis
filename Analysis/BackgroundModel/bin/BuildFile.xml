@@ -1,10 +1,7 @@
-<use name="root"/>
+<flags CPPDEFINES="_GLIBXX_DEBUG_PEDANTIC=1"/>
+<flags CXXFLAGS="-Werror -Wextra -Wall -Wpointer-arith -Wcast-align -Wwrite-strings -Wcast-qual -Wunreachable-code -Winit-self -ftrapv -g -O0"/>
+
 <use name="boost_program_options" />
 <use name="Analysis/BackgroundModel" />
 
-<bin name="FitBackgroundModel"
-     file="FitBackgroundModel.cc">
-  <flags CPPDEFINES="_GLIBXX_DEBUG_PEDANTIC=1"/>
-  <flags CXXFLAGS="-Werror -Wextra -Wall -Wpointer-arith -Wcast-align -Wwrite-strings -Wcast-qual -Wswitch-enum -Wunreachable-code -Winit-self -ftrapv"/>
-  <flags LDFLAGS="-lCore -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lz -pthread -lm -ldl -rdynamic"/>
-</bin>
+<bin name="FitBackgroundModel" file="FitBackgroundModel.cc" />

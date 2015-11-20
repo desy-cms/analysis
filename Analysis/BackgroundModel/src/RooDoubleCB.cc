@@ -70,8 +70,9 @@ double RooDoubleCB::evaluate() const {
 
 
 int RooDoubleCB::getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars,
-				       const char* range) const {
+				       const char* /* range */) const {
   if (matchArgs(allVars, analVars, x_)) return 1;
+
   return 0;
 }
 

@@ -8,10 +8,51 @@ ParamModifier::ParamModifier(const std::string& name)
 }
 
 
+ParamModifier& ParamModifier::start(float value) {
+  start_ = value;
+  changeStart_ = true;
+  return *this;
+}
+
+
+ParamModifier& ParamModifier::min(float value) {
+  min_ = value;
+  changeMin_ = true;
+  return *this;
+}
+
+
+ParamModifier& ParamModifier::max(float value) {
+  max_ = value;
+  changeMax_ = true;
+  return *this;
+}
+
+
+ParamModifier& ParamModifier::constant() {
+  constant_ = true;
+  floating_ = false;
+  return *this;
+}
+
+
+ParamModifier& ParamModifier::floating() {
+  floating_ = true;
+  constant_ = false;
+  return *this;
+}
+
+
 bool ParamModifier::modify(RooRealVar& var) const {
   if (var.GetName() != name_) return false;
-  if (changeMin_) var.setMin(min_);
-  if (changeMax_) var.setMax(max_);
+  if (changeMin_) {
+    if (min_ > var.getMax()) var.setMax(min_);
+    var.setMin(min_);
+  }
+  if (changeMax_) {
+    if (max_ < var.getMin()) var.setMin(max_);
+    var.setMax(max_);
+  }
   if (changeStart_) var.setVal(start_);
   if (constant_ && !floating_) var.setConstant();
   if (floating_ && !constant_) var.setConstant(false);

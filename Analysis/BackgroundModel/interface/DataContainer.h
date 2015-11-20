@@ -5,7 +5,6 @@
 #include <vector>
 #include <memory>
 #include "TH1.h"
-#include "TFile.h"
 
 
 namespace analysis {
@@ -16,17 +15,14 @@ namespace analysis {
       DataContainer(const std::string& input);
       virtual ~DataContainer();
 
-      std::shared_ptr<TH1> data() const;
-      std::shared_ptr<TH1> bbH() const;
-      std::shared_ptr<TH1> background() const;
+      std::unique_ptr<TH1> data() const;
+      std::unique_ptr<TH1> bbH() const;
+      std::unique_ptr<TH1> background() const;
       void show() const;
 
     private:
-      std::unique_ptr<TH1> getHistogram_(const std::string& name);
-
-      static unsigned int dataCount_;
-      static unsigned int bbHCount_;
-      static unsigned int backgroundCount_;
+      std::unique_ptr<TH1> getHistogram_(const std::string& name) const;
+      static std::unique_ptr<TH1> uniqueClone_(const TH1& original);
 
       const std::string histFileName_;
       std::unique_ptr<TH1> data_;

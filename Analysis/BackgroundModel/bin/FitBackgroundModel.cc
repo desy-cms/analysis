@@ -21,6 +21,7 @@ int main(int argc, char *argv[]) {
   po::options_description cmdLineOptions("Optional arguments");
   cmdLineOptions.add_options()
     ("help,h", "Produce help message.")
+    ("verbose,v", "More verbose output.")
     ("input_file,i", po::value<std::string>()
      ->default_value(cmsswBase+"/src/Analysis/BackgroundModel/"
 		     "data/HIG14017_HighMass2012_Packed_M350_inputs.root"),
@@ -66,6 +67,9 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
+  if (!vm.count("verbose")) {
+    RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
+  }
 
   std::cout << "Fitting Background Model..." << std::endl;
 
@@ -75,8 +79,9 @@ int main(int argc, char *argv[]) {
   ab::FitContainer fitter = ab::FitContainer(input);
   std::vector<ab::ParamModifier> bkgModifiers =
     ab::parseModifiers(vm["modify_param"].as<std::vector<std::string> >());
-  fitter.setModel("background", vm["background_model"].as<std::string>(),
-		  bkgModifiers);
+  fitter.setModel(ab::FitContainer::Type::background,
+		  vm["background_model"].as<std::string>(),
+  		  bkgModifiers);
 
   std::unique_ptr<RooFitResult> bkgOnlyFit = fitter.backgroundOnlyFit();
   if (bkgOnlyFit) {
@@ -86,6 +91,7 @@ int main(int argc, char *argv[]) {
     else
       std::cout << ">>> no correlation matrix available" << std::endl;
   }
+  fitter.profileModel(ab::FitContainer::Type::background);
 
   for (const auto& m : bkgModifiers) m.show();
 
