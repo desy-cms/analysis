@@ -11,7 +11,7 @@ DataContainer::DataContainer(const std::string& input) : histFileName_(input) {
   data_ = getHistogram_("data");
   data_->GetSumw2()->Set(0);
   bbH_ = getHistogram_("bbH");
-  const std::vector<std::string> bkgNames = 
+  const std::vector<std::string> bkgNames =
     {"B2C2B1bb", "C1bb", "Qbb", "bbB2B1C2", "bbC1Q"};
   for (const auto& bkg : bkgNames) {
     backgroundTemplates_.push_back(getHistogram_(bkg));
@@ -41,6 +41,15 @@ std::unique_ptr<TH1> DataContainer::bbH() const {
 
 std::unique_ptr<TH1> DataContainer::background() const {
   return uniqueClone_(*summedBackground_);
+}
+
+
+std::vector<std::unique_ptr<TH1> > DataContainer::backgrounds() const {
+  std::vector<std::unique_ptr<TH1> > result;
+  for (const auto& bkg: backgroundTemplates_) {
+    result.emplace_back(uniqueClone_(*bkg));
+  }
+  return result;
 }
 
 

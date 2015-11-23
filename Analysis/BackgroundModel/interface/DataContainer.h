@@ -18,6 +18,7 @@ namespace analysis {
       std::unique_ptr<TH1> data() const;
       std::unique_ptr<TH1> bbH() const;
       std::unique_ptr<TH1> background() const;
+      std::vector<std::unique_ptr<TH1> > backgrounds() const;
       void show() const;
 
     private:
