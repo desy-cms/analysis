@@ -25,6 +25,7 @@ using namespace analysis::backgroundmodel;
 
 
 FitContainer::FitContainer(TH1& data, TH1& signal, TH1& background) :
+  verbosity_(1),
   plotDir_(getOutputPath_("plots")),
   workspaceDir_(getOutputPath_("workspace")),
   workspace_(RooWorkspace("workspace")),
@@ -56,6 +57,12 @@ FitContainer::FitContainer(const DataContainer& container) :
 
 FitContainer::~FitContainer() {
   workspace_.writeToFile((workspaceDir_+"workspace.root").c_str());
+}
+
+
+FitContainer& FitContainer::verbosity(int level) {
+  verbosity_ = level;
+  return *this;
 }
 
 
@@ -115,7 +122,8 @@ std::unique_ptr<RooFitResult> FitContainer::backgroundOnlyFit() {
   if (&bkg == nullptr) {
     throw std::logic_error("No background model has been set.");
   }
-  std::unique_ptr<RooFitResult> fitResult(bkg.fitTo(data_, RooFit::Save()));
+  std::unique_ptr<RooFitResult>
+    fitResult(bkg.fitTo(data_, RooFit::Save(), RooFit::PrintLevel(verbosity_)));
 
   // some preliminary test code
   std::cout << "\nconstant parameters:" << std::endl;

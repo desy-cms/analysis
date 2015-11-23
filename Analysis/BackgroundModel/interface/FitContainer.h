@@ -34,6 +34,8 @@ namespace analysis {
       FitContainer(const DataContainer& container);
       virtual ~FitContainer();
 
+      FitContainer& verbosity(int level);
+
       inline static const std::vector<std::string>& availableModels() {
 	return availableModels_; };
       void setModel(const Type& type, const std::string& model);
@@ -69,6 +71,7 @@ namespace analysis {
 
       // data member
       static const int defaultNumberOfCoefficients_;
+      int verbosity_;
       std::string plotDir_;
       std::string workspaceDir_;
       RooWorkspace workspace_;

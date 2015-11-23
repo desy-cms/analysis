@@ -21,7 +21,8 @@ int main(int argc, char *argv[]) {
   po::options_description cmdLineOptions("Optional arguments");
   cmdLineOptions.add_options()
     ("help,h", "Produce help message.")
-    ("verbose,v", "More verbose output.")
+    ("verbose,v", po::value<int>()->default_value(0), "More verbose output.")
+    ("profile,p", "Create profile likelihoods of the fit parameters.")
     ("input_file,i", po::value<std::string>()
      ->default_value(cmsswBase+"/src/Analysis/BackgroundModel/"
 		     "data/HIG14017_HighMass2012_Packed_M350_inputs.root"),
@@ -67,8 +68,13 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  if (!vm.count("verbose")) {
+  int verbosity(vm["verbose"].as<int>());
+  if (verbosity < 1) {
+    RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
+  } else if (verbosity == 1) {
     RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
+  } else {
+    // highest level of verbosity reached
   }
 
   std::cout << "Fitting Background Model..." << std::endl;
@@ -76,7 +82,7 @@ int main(int argc, char *argv[]) {
   ab::DataContainer input(vm["input_file"].as<std::string>());
   input.show();
 
-  ab::FitContainer fitter = ab::FitContainer(input);
+  ab::FitContainer fitter = ab::FitContainer(input).verbosity(verbosity - 1);
   std::vector<ab::ParamModifier> bkgModifiers =
     ab::parseModifiers(vm["modify_param"].as<std::vector<std::string> >());
   fitter.setModel(ab::FitContainer::Type::background,
@@ -91,7 +97,10 @@ int main(int argc, char *argv[]) {
     else
       std::cout << ">>> no correlation matrix available" << std::endl;
   }
-  fitter.profileModel(ab::FitContainer::Type::background);
+
+  if (vm.count("profile")) {
+    fitter.profileModel(ab::FitContainer::Type::background);
+  }
 
   for (const auto& m : bkgModifiers) m.show();
 
