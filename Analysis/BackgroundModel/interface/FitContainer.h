@@ -55,17 +55,19 @@ namespace analysis {
       void setExpEffProd_(const Type& type);
       void setDoubleCB_(const Type& type);
       void setExpGausExp_(const Type& type);
+      void setExpBWExp_(const Type& type);
+      void setBukin_(const Type& type);
       void setBernstein_(const Type& type, const int numCoeffs);
       void setChebychev_(const Type& type, const int numCoeffs);
       void setBernEffProd_(const Type& type, const int numCoeffs);
       static const std::vector<std::string> availableModels_;
 
       // internal methods
-      std::string getOutputPath_(const std::string& subdirectory = "");
-      void prepareCanvas_(TCanvas& raw);
-      void prepareFrame_(RooPlot& raw);
-      double getMaxPosition_(const RooDataHist& data);
-      int getNonZeroBins_(const RooDataHist& data);
+      static std::string getOutputPath_(const std::string& subdirectory = "");
+      static void prepareCanvas_(TCanvas& raw);
+      static void prepareFrame_(RooPlot& raw);
+      static double getMaxPosition_(const RooDataHist& data);
+      static int getNonZeroBins_(const RooDataHist& data);
       bool applyModifiers_(RooAbsPdf& pdf,
 			   const std::vector<ParamModifier>& modifiers);
 

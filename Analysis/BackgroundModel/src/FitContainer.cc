@@ -15,8 +15,10 @@
 #include "RooChebychev.h"
 #include "RooNovosibirsk.h"
 #include "RooCBShape.h"
+#include "RooBukinPdf.h"
 #include "Analysis/BackgroundModel/interface/RooDoubleCB.h"
 #include "Analysis/BackgroundModel/interface/RooExpGausExp.h"
+#include "Analysis/BackgroundModel/interface/RooExpBWExp.h"
 #include "Analysis/BackgroundModel/interface/FitContainer.h"
 #include "Analysis/BackgroundModel/interface/Tools.h"
 
@@ -102,6 +104,8 @@ void FitContainer::setModel(const Type& type, const std::string& name,
   else if (nameSplitted[0] == "expeffprod") setExpEffProd_(type);
   else if (nameSplitted[0] == "doublecb") setDoubleCB_(type);
   else if (nameSplitted[0] == "expgausexp") setExpGausExp_(type);
+  else if (nameSplitted[0] == "expbwexp") setExpBWExp_(type);
+  else if (nameSplitted[0] == "bukin") setBukin_(type);
   else if (nameSplitted[0] == "bernstein") setBernstein_(type, numCoeffs);
   else if (nameSplitted[0] == "chebychev") setChebychev_(type, numCoeffs);
   else if (nameSplitted[0] == "berneffprod") setBernEffProd_(type, numCoeffs);
@@ -333,6 +337,41 @@ void FitContainer::setExpGausExp_(const Type& type) {
 }
 
 
+void FitContainer::setExpBWExp_(const Type& type) {
+  double peakStart  = (mbb_.getMin() + mbb_.getMax()) / 2.0;
+  switch (type) {
+  case Type::signal: peakStart = getMaxPosition_(signal_); break;
+  case Type::background: peakStart = getMaxPosition_(background_); break;
+  }
+  RooRealVar peak("peak", "peak", peakStart, 50.0, 500.0, "GeV");
+  RooRealVar width("width", "width", 35.0, 5.0, 150.0, "GeV");
+  RooRealVar left("left", "left", 0.1, 15.0);
+  RooRealVar right("right", "right", 0.1, 15.0);
+  RooExpBWExp expBWExp(toString(type).c_str(),
+		       (toString(type)+"_expbwexp").c_str(),
+		       mbb_, peak, width, left, right);
+  workspace_.import(expBWExp);
+}
+
+
+void FitContainer::setBukin_(const Type& type) {
+  double XpStart  = (mbb_.getMin() + mbb_.getMax()) / 2.0;
+  switch (type) {
+  case Type::signal: XpStart = getMaxPosition_(signal_); break;
+  case Type::background: XpStart = getMaxPosition_(background_); break;
+  }
+  RooRealVar Xp("Xp", "Xp", XpStart, 50.0, 350.0, "GeV");
+  RooRealVar sigp("sigp", "sigp", 15.0, 85.0, "GeV");
+  RooRealVar xi("xi", "xi", 0.0, 0.55);
+  RooRealVar rho1("rho1", "rho1", 0.05, -0.1, 0.2);
+  RooRealVar rho2("rho2", "rho2", -0.05, -0.07, 0.045);
+  RooBukinPdf bukin(toString(type).c_str(),
+		    (toString(type)+"_bukin").c_str(),
+		    mbb_, Xp, sigp, xi, rho1, rho2);
+  workspace_.import(bukin);
+}
+
+
 void FitContainer::setBernstein_(const Type& type, const int numCoeffs) {
   std::unique_ptr<RooArgList> coeffs(getCoefficients_(numCoeffs, "bernstein"));
   RooBernstein bern(toString(type).c_str(),
@@ -466,6 +505,8 @@ const std::vector<std::string> FitContainer::availableModels_ =
    "expeffprod",
    "doublecb",
    "expgausexp",
+   "expbwexp",
+   "bukin",
    "bernstein",
    "chebychev",
    "berneffprod"};
