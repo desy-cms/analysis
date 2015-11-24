@@ -15,12 +15,12 @@
 #include <iostream>
 // 
 // user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-// 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
  
 #include "Analysis/Ntuplizer/interface/TriggerAccepts.h"
-
 
 //
 // class declaration
@@ -36,6 +36,20 @@ TriggerAccepts::TriggerAccepts()
 {
    // default constructor
 }
+
+#ifndef CMSSWOLD
+TriggerAccepts::TriggerAccepts(const edm::InputTag& tag, TTree* tree, const std::vector<std::string>& inpaths, const std::shared_ptr<HLTPrescaleProvider> hltPrescale , const bool & testmode)
+{
+   hlt_prescale_ = hltPrescale;
+   input_collection_ = tag;
+   tree_ = tree;
+   inpaths_ = inpaths;
+   paths_.clear();
+   first_ = true;
+   testmode_ = testmode;
+   if ( inpaths_.size() == 0 ) testmode_ = true;
+}
+#endif
 
 TriggerAccepts::TriggerAccepts(const edm::InputTag& tag, TTree* tree, const std::vector<std::string>& inpaths, const bool & testmode)
 {
@@ -78,11 +92,15 @@ void TriggerAccepts::Fill(const edm::Event& event, const edm::EventSetup & setup
       {
          if ( hlt_config_.triggerName(j).find(paths_[i]) == 0 )
          {
-//            std::pair< int, int > ps = hlt_config_.prescaleValues (event, setup, hlt_config_.triggerName(j));
-//            psl1_[i] = ps.first;
-//            pshlt_[i] = ps.second;
-            psl1_[i]  = 1;
-            pshlt_[i] = 1;
+#ifndef CMSSWOLD          
+            std::pair< int, int > ps = hlt_prescale_->prescaleValues (event, setup, hlt_config_.triggerName(j));
+#else
+            std::pair< int, int > ps = hlt_config_.prescaleValues (event, setup, hlt_config_.triggerName(j));
+#endif            
+            psl1_[i] = ps.first;
+            pshlt_[i] = ps.second;
+//            psl1_[i]  = 1;
+//            pshlt_[i] = 1;
             if ( triggers.accept(j) ) accept_[i] = true;
          }
       }
@@ -107,7 +125,12 @@ void TriggerAccepts::Branches()
 void TriggerAccepts::LumiBlock(edm::LuminosityBlock const & lumi, edm::EventSetup const& setup)
 {
    bool changed;
+#ifndef CMSSWOLD          
+   hlt_prescale_->init(lumi.getRun(), setup, input_collection_.process(), changed);
+   hlt_config_ = hlt_prescale_->hltConfigProvider();
+#else
    hlt_config_.init(lumi.getRun(), setup, input_collection_.process(), changed);
+#endif            
    
    std::vector<std::string> names = hlt_config_.triggerNames();
    
