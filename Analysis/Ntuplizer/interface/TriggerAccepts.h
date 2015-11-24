@@ -28,7 +28,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#ifndef CMSSWOLD        
 #include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
+#endif            
 
 #include "TTree.h"
 
