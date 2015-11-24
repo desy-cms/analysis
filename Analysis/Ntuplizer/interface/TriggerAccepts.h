@@ -1,3 +1,4 @@
+//#define CMSSWOLD
 #ifndef Analysis_Ntuplizer_TriggerAccepts_h
 #define Analysis_Ntuplizer_TriggerAccepts_h 1
 
@@ -29,7 +30,8 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-#ifndef CMSSWOLD        
+
+#ifndef CMSSWOLD
 #include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
 #endif            
 
