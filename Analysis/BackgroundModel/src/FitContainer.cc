@@ -26,21 +26,21 @@
 using namespace analysis::backgroundmodel;
 
 
-FitContainer::FitContainer(TH1& data, TH1& signal, TH1& background) :
+FitContainer::FitContainer(const TH1& data, const TH1& signal, const TH1& background) :
   verbosity_(1),
   plotDir_(getOutputPath_("plots")),
   workspaceDir_(getOutputPath_("workspace")),
   workspace_(RooWorkspace("workspace")),
   mbb_("mbb", "m_{bb}",
        data.GetXaxis()->GetXmin(), data.GetXaxis()->GetXmax(), "GeV"),
-  data_("data_container", "", mbb_, RooFit::Import(data)),
-  signal_("signal_container", "", mbb_, RooFit::Import(signal)),
-  background_("background_container", "", mbb_, RooFit::Import(background)) {
+  data_("data_container", "", mbb_, &data),
+  signal_("signal_container", "", mbb_, &signal),
+  background_("background_container", "", mbb_, &background) {
 
   gSystem->Exec((std::string("rm -f "+plotDir_+"*").c_str()));
   gSystem->Exec((std::string("rm -f "+workspaceDir_+"*").c_str()));
 
-  // some preliminary test code
+  // plot the input data:
   std::unique_ptr<RooPlot> frame(mbb_.frame());
   data_.plotOn(frame.get());
   TCanvas canvas("canvas", "", 600, 600);
@@ -93,7 +93,7 @@ void FitContainer::setModel(const Type& type, const std::string& name,
   default:
     std::stringstream msg;
     msg << "Unsupported number of arguments for fit model: "
-	<< nameSplitted.size();
+        << nameSplitted.size();
     throw std::runtime_error(msg.str());
   }
 
@@ -112,8 +112,8 @@ void FitContainer::setModel(const Type& type, const std::string& name,
   else {
     std::stringstream msg;
     msg << "Model '" << name
-	<< "' not implemented! Choose one of the following: "
-	<< boost::algorithm::join(availableModels_, ", ");
+        << "' not implemented! Choose one of the following: "
+        << boost::algorithm::join(availableModels_, ", ");
     throw std::runtime_error(msg.str());
   }
 
@@ -129,7 +129,6 @@ std::unique_ptr<RooFitResult> FitContainer::backgroundOnlyFit() {
   std::unique_ptr<RooFitResult>
     fitResult(bkg.fitTo(data_, RooFit::Save(), RooFit::PrintLevel(verbosity_)));
 
-  // some preliminary test code
   std::cout << "\nconstant parameters:" << std::endl;
   fitResult->constPars().Print("v");
   std::cout << "\nfloating parameters (init):" << std::endl;
@@ -146,13 +145,18 @@ std::unique_ptr<RooFitResult> FitContainer::backgroundOnlyFit() {
   prepareFrame_(*frame);
   frame->Draw();
 
+  TLatex latex;
+  latex.SetTextFont(43);
+  latex.SetTextSize(30);
+  latex.SetTextAlign(11);
+  latex.DrawLatexNDC(canvas.GetLeftMargin()-0.004, 1.02-canvas.GetTopMargin(),
+                     "Background-only fit");
+
   int nPars = fitResult->floatParsFinal().getSize();
   int ndf = getNonZeroBins_(data_) - nPars;
   double normChi2 = frame->chiSquare("background_curve", "data_curve", nPars);
-  std::string chi2str(Form("%.1f/%d = %.1f",normChi2 * ndf, ndf, normChi2));
+  std::string chi2str(Form("%.1f/%d = %.1f", normChi2 * ndf, ndf, normChi2));
   std::cout << "\nNormalized chi^2: " << chi2str << std::endl;
-  TLatex latex;
-  latex.SetTextFont(43);
   latex.SetTextSize(20);
   latex.SetTextAlign(33);
   latex.DrawLatexNDC(0.98-canvas.GetRightMargin(), 0.98-canvas.GetTopMargin(),
@@ -191,12 +195,37 @@ void FitContainer::profileModel(const Type& type) {
     prepareFrame_(*frame);
     frame->Draw();
     canvas.SaveAs((plotDir_+toString(type)+"_profile_"+
-		   parameter->GetName()+".pdf").c_str());
+                   parameter->GetName()+".pdf").c_str());
     canvas.SetLogy();
     canvas.SaveAs((plotDir_+toString(type)+"_profile_"+
-		   parameter->GetName()+"_log.pdf").c_str());
+                   parameter->GetName()+"_log.pdf").c_str());
     parameter = static_cast<RooRealVar*>(iter->Next());
   }
+}
+
+
+void FitContainer::showModels() const {
+  std::cout << "\n=============================================" << std::endl;
+  std::cout << "Defined Models" << std::endl;
+  std::cout << "---------------------------------------------" << std::endl;
+  RooArgSet models(workspace_.allPdfs());
+  std::unique_ptr<TIterator> itModel(models.createIterator());
+  // use raw pointer for 'model' because 'models' owns the object it points to:
+  RooAbsPdf* model = static_cast<RooAbsPdf*>(itModel->Next());
+  while (model) {
+    model->Print();
+    std::unique_ptr<RooArgSet> parameters(model->getParameters(mbb_));
+    std::unique_ptr<TIterator> itPar(parameters->createIterator());
+    // use raw pointer for 'parameter' because 'model' owns the object it points to:
+    RooRealVar* parameter = static_cast<RooRealVar*>(itPar->Next());
+    while (parameter) {
+      parameter->Print();
+      parameter = static_cast<RooRealVar*>(itPar->Next());
+    }
+    model = static_cast<RooAbsPdf*>(itModel->Next());
+    std::cout << "---------------------------------------------" << std::endl;
+  }
+  std::cout << std::endl;
 }
 
 
@@ -210,7 +239,7 @@ void FitContainer::setNovosibirsk_(const Type& type) {
   RooRealVar width("width", "width", 50.0, 5.0, mbb_.getMax()/2.0, "GeV");
   RooRealVar tail("tail", "tail", -0.1, -1.0, 1.0);
   RooNovosibirsk novo(toString(type).c_str(),
-		      (toString(type)+"_novosibirsk").c_str(),
+                      (toString(type)+"_novosibirsk").c_str(),
                       mbb_, peak, width, tail);
   workspace_.import(novo);
 }
@@ -252,7 +281,7 @@ void FitContainer::setNovoEffProd_(const Type& type) {
                     RooArgSet(mbb_, slope, turnon));
 
   RooEffProd novoEffProd(toString(type).c_str(),
-			 (toString(type)+"_novoeffprod").c_str(), novo, eff);
+                         (toString(type)+"_novoeffprod").c_str(), novo, eff);
   workspace_.import(novoEffProd);
 }
 
@@ -268,7 +297,7 @@ void FitContainer::setCBEffProd_(const Type& type) {
   RooRealVar alpha("alpha", "alpha", -1.0, -0.1);
   RooRealVar n("n", "n", 20.0, 3.0, 100.0);
   RooCBShape cb((toString(type)+"_crystalball").c_str(),
-		(toString(type)+"_crystalball").c_str(),
+                (toString(type)+"_crystalball").c_str(),
                 mbb_, m0, sigma, alpha, n);
 
   RooRealVar slope("slope", "slope", 0.01, 0.0, 0.1);
@@ -278,7 +307,7 @@ void FitContainer::setCBEffProd_(const Type& type) {
                     RooArgSet(mbb_, slope, turnon));
 
   RooEffProd cbEffProd(toString(type).c_str(),
-		       (toString(type)+"_cbeffprod").c_str(), cb, eff);
+                       (toString(type)+"_cbeffprod").c_str(), cb, eff);
   workspace_.import(cbEffProd);
 }
 
@@ -287,7 +316,7 @@ void FitContainer::setExpEffProd_(const Type& type) {
   RooRealVar tau("tau", "tau", -0.1);
   tau.setConstant(false);
   RooExponential exp((toString(type)+"_exp").c_str(),
-		     (toString(type)+"_exp").c_str(), mbb_, tau);
+                     (toString(type)+"_exp").c_str(), mbb_, tau);
 
   RooRealVar slope("slope", "slope", 0.01, 0.0, 0.1);
   RooRealVar turnon("turnon", "turnon", 5.0, mbb_.getMin(), 100.0);
@@ -296,7 +325,7 @@ void FitContainer::setExpEffProd_(const Type& type) {
                     RooArgSet(mbb_, slope, turnon));
 
   RooEffProd expEffProd(toString(type).c_str(),
-			(toString(type)+"_expeffprod").c_str(), exp, eff);
+                        (toString(type)+"_expeffprod").c_str(), exp, eff);
   workspace_.import(expEffProd);
 }
 
@@ -314,8 +343,8 @@ void FitContainer::setDoubleCB_(const Type& type) {
   RooRealVar alpha2("alpha2", "alpha2", 0.1, 1.0);
   RooRealVar n2("n2", "n2", 20.0, 3.0, 100.0);
   RooDoubleCB doubleCB(toString(type).c_str(),
-		       (toString(type)+"_doublecb").c_str(),
-		       mbb_, mean, width, alpha1, n1, alpha2, n2);
+                       (toString(type)+"_doublecb").c_str(),
+                       mbb_, mean, width, alpha1, n1, alpha2, n2);
   workspace_.import(doubleCB);
 }
 
@@ -331,8 +360,8 @@ void FitContainer::setExpGausExp_(const Type& type) {
   RooRealVar left("left", "left", 0.1, 15.0);
   RooRealVar right("right", "right", 0.1, 15.0);
   RooExpGausExp expGausExp(toString(type).c_str(),
-			   (toString(type)+"_expgausexp").c_str(),
-			   mbb_, mean, sigma, left, right);
+                           (toString(type)+"_expgausexp").c_str(),
+                           mbb_, mean, sigma, left, right);
   workspace_.import(expGausExp);
 }
 
@@ -348,8 +377,8 @@ void FitContainer::setExpBWExp_(const Type& type) {
   RooRealVar left("left", "left", 0.1, 15.0);
   RooRealVar right("right", "right", 0.1, 15.0);
   RooExpBWExp expBWExp(toString(type).c_str(),
-		       (toString(type)+"_expbwexp").c_str(),
-		       mbb_, peak, width, left, right);
+                       (toString(type)+"_expbwexp").c_str(),
+                       mbb_, peak, width, left, right);
   workspace_.import(expBWExp);
 }
 
@@ -366,8 +395,8 @@ void FitContainer::setBukin_(const Type& type) {
   RooRealVar rho1("rho1", "rho1", 0.05, -0.1, 0.2);
   RooRealVar rho2("rho2", "rho2", -0.05, -0.07, 0.045);
   RooBukinPdf bukin(toString(type).c_str(),
-		    (toString(type)+"_bukin").c_str(),
-		    mbb_, Xp, sigp, xi, rho1, rho2);
+                    (toString(type)+"_bukin").c_str(),
+                    mbb_, Xp, sigp, xi, rho1, rho2);
   workspace_.import(bukin);
 }
 
@@ -375,7 +404,7 @@ void FitContainer::setBukin_(const Type& type) {
 void FitContainer::setBernstein_(const Type& type, const int numCoeffs) {
   std::unique_ptr<RooArgList> coeffs(getCoefficients_(numCoeffs, "bernstein"));
   RooBernstein bern(toString(type).c_str(),
-		    (toString(type)+"_bernstein").c_str(), mbb_, *coeffs);
+                    (toString(type)+"_bernstein").c_str(), mbb_, *coeffs);
   workspace_.import(bern);
 }
 
@@ -387,7 +416,7 @@ void FitContainer::setChebychev_(const Type& type, const int numCoeffs) {
   }
   std::unique_ptr<RooArgList> coeffs(getCoefficients_(numCoeffs, "chebychev"));
   RooChebychev cheb(toString(type).c_str(),
-		    (toString(type)+"_chebychev").c_str(), mbb_, *coeffs);
+                    (toString(type)+"_chebychev").c_str(), mbb_, *coeffs);
   workspace_.import(cheb);
 }
 
@@ -395,7 +424,7 @@ void FitContainer::setChebychev_(const Type& type, const int numCoeffs) {
 void FitContainer::setBernEffProd_(const Type& type, const int numCoeffs) {
   std::unique_ptr<RooArgList> coeffs(getCoefficients_(numCoeffs, "bernstein"));
   RooBernstein bern((toString(type)+"_bernstein").c_str(),
-		    (toString(type)+"_bernstein").c_str(),
+                    (toString(type)+"_bernstein").c_str(),
                     mbb_, *coeffs);
 
   RooRealVar slope1("slope1", "slope1", 0.01, 0.0, 0.1);
@@ -408,7 +437,7 @@ void FitContainer::setBernEffProd_(const Type& type, const int numCoeffs) {
                     RooArgSet(mbb_, slope1, turnon1, slope2, turnon2));
 
   RooEffProd bernEffProd(toString(type).c_str(),
-			 (toString(type)+"_berneffprod").c_str(), bern, eff);
+                         (toString(type)+"_berneffprod").c_str(), bern, eff);
   workspace_.import(bernEffProd);
 }
 

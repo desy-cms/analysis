@@ -30,7 +30,7 @@ namespace analysis {
 	return "";		// to silence compiler
       };
 
-      FitContainer(TH1& data, TH1& signal, TH1& background);
+      FitContainer(const TH1& data, const TH1& signal, const TH1& background);
       FitContainer(const DataContainer& container);
       virtual ~FitContainer();
 
@@ -43,6 +43,7 @@ namespace analysis {
 		    const std::vector<ParamModifier>& modifiers);
       std::unique_ptr<RooFitResult> backgroundOnlyFit();
       void profileModel(const Type& type);
+      void showModels() const;
 
     private:
       // methods to set the fit model

@@ -23,6 +23,7 @@ int main(int argc, char *argv[]) {
     ("help,h", "Produce help message.")
     ("verbose,v", po::value<int>()->default_value(0), "More verbose output.")
     ("profile,p", "Create profile likelihoods of the fit parameters.")
+    ("list_parameters,l", "List parameters of the chosen fit models and exit.")
     ("input_file,i", po::value<std::string>()
      ->default_value(cmsswBase+"/src/Analysis/BackgroundModel/"
 		     "data/HIG14017_HighMass2012_Packed_M350_inputs.root"),
@@ -88,6 +89,11 @@ int main(int argc, char *argv[]) {
   fitter.setModel(ab::FitContainer::Type::background,
 		  vm["background_model"].as<std::string>(),
   		  bkgModifiers);
+
+  if (vm.count("list_parameters")) {
+    fitter.showModels();
+    return 0;
+  }
 
   std::unique_ptr<RooFitResult> bkgOnlyFit = fitter.backgroundOnlyFit();
   if (bkgOnlyFit) {
