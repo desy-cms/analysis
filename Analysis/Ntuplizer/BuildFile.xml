@@ -13,6 +13,9 @@
 <use name="root"/>
 <use name="rootmath"/>
 <use name="boost" />
+<!--
+<Flags CPPDEFINES="CMSSWOLD" />
+-->
 <export>
   <lib name="1"/>
 </export>

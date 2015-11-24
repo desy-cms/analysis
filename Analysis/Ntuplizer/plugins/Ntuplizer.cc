@@ -72,18 +72,22 @@
 #include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
 #include "DataFormats/Common/interface/MergeableCounter.h"
 
-
 #include "DataFormats/Common/interface/OwnVector.h"
-
 #include "DataFormats/Common/interface/TriggerResults.h"
 
 #include "Analysis/Ntuplizer/interface/EventFilter.h"
-
 #include "Analysis/Ntuplizer/interface/Utils.h"
 
 #include <TH1.h>
 #include <TFile.h>
 #include <TTree.h>
+
+
+
+
+#ifndef CMSSWOLD
+#include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
+#endif
 
 using namespace boost;
 using namespace boost::algorithm;
@@ -202,7 +206,11 @@ class Ntuplizer : public edm::EDAnalyzer {
       std::map<std::string, edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> > triggerObjTokens_;
       std::map<std::string, edm::EDGetTokenT<edm::TriggerResults> > triggerResultsTokens_;
       std::map<std::string, edm::EDGetTokenT<reco::VertexCollection> > primaryVertexTokens_;
-      
+
+#ifndef CMSSWOLD
+      std::shared_ptr<HLTPrescaleProvider> hltPrescaleProvider_;
+#endif
+           
       edm::InputTag genFilterInfo_;
       edm::InputTag totalEvents_;
       edm::InputTag filteredEvents_;
@@ -237,6 +245,8 @@ class Ntuplizer : public edm::EDAnalyzer {
       std::vector<pTriggerAccepts> triggeraccepts_collections_;
       std::vector<pTriggerObjectCandidates> triggerobjects_collections_;
       
+      
+      
       // Collections for the ntuples (single)
       
       // metadata
@@ -260,6 +270,8 @@ class Ntuplizer : public edm::EDAnalyzer {
 //
 Ntuplizer::Ntuplizer(const edm::ParameterSet& config) //:   // initialization of ntuple classes
 {
+//   std::cout << "oioi  " << MYX << " _ " << MYY << " " << OIOI << std::endl;
+   
    //now do what ever initialization is needed
    is_mc_         = config.getParameter<bool> ("MonteCarlo");
    use_full_name_ = true;
@@ -287,10 +299,17 @@ Ntuplizer::Ntuplizer(const edm::ParameterSet& config) //:   // initialization of
          if ( inputTags == "GenJets" ) genJetTokens_[collection_name] = consumes<reco::GenJetCollection>(collection);
          if ( inputTags == "GenParticles" ) genPartTokens_[collection_name] = consumes<reco::GenParticleCollection>(collection);
          if ( inputTags == "TriggerObjectStandAlone"  ) triggerObjTokens_[collection_name] = consumes<pat::TriggerObjectStandAloneCollection>(collection);
-         if ( inputTags == "TriggerResults"  ) triggerResultsTokens_[collection_name] = consumes<edm::TriggerResults>(collection);
          if ( inputTags == "PrimaryVertices"  ) primaryVertexTokens_[collection_name] = consumes<reco::VertexCollection>(collection);
+         if ( inputTags == "TriggerResults"  ) triggerResultsTokens_[collection_name] = consumes<edm::TriggerResults>(collection);
+
+         
      }
    }
+   
+#ifndef CMSSWOLD  
+   hltPrescaleProvider_ = std::shared_ptr<HLTPrescaleProvider>(new HLTPrescaleProvider(config, consumesCollector(), *this));;
+#endif
+   
    // Single InputTag
    for ( auto & inputTag : inputTags_ )
    {
@@ -609,7 +628,11 @@ Ntuplizer::beginJob()
             std::vector< std::string> trigger_paths;
             trigger_paths.clear();
             if ( config_.exists("TriggerPaths") ) trigger_paths = config_.getParameter< std::vector< std::string> >("TriggerPaths");
-            triggeraccepts_collections_.push_back( pTriggerAccepts( new TriggerAccepts(collection, tree_[name], trigger_paths, testmode_) ));
+#ifndef CMSSWOLD           
+            triggeraccepts_collections_.push_back( pTriggerAccepts( new TriggerAccepts(collection, tree_[name], trigger_paths, hltPrescaleProvider_, testmode_) ));
+#else
+            triggeraccepts_collections_.push_back( pTriggerAccepts( new TriggerAccepts(collection, tree_[name], trigger_paths, testmode_) ));  
+#endif                      
 //            triggeraccepts_collections_.back() -> Branches();
          }
          // Primary Vertices
