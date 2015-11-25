@@ -85,6 +85,27 @@ namespace analysis {
 
       };
 
+      // Specialization for GENPARTICLE
+      template <>
+      class PhysicsObjectTree<GenParticle> : public PhysicsObjectTreeBase<GenParticle> {
+         public:
+            PhysicsObjectTree();
+            PhysicsObjectTree(TChain * tree, const std::string & name);
+           ~PhysicsObjectTree();
+
+            Collection<GenParticle> collection();
+
+            // ----------member data ---------------------------
+         protected:
+            // PatJets
+            int   pdgid_    [max_];
+            int   status_   [max_];
+            bool  higgs_dau_[max_];
+
+         private:
+
+      };
+
       // Specialization for MET
       template <>
       class PhysicsObjectTree<MET> : public PhysicsObjectTreeBase<MET>{

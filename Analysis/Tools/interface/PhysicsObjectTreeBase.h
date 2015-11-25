@@ -34,6 +34,7 @@
 #include "Analysis/Tools/interface/Muon.h"
 #include "Analysis/Tools/interface/Vertex.h"
 #include "Analysis/Tools/interface/TriggerObject.h"
+#include "Analysis/Tools/interface/GenParticle.h"
 
 //
 // class declaration
