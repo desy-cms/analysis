@@ -70,6 +70,10 @@ namespace analysis {
             template<class Object>
             std::shared_ptr< Collection<Object> > addCollection(const std::string & unique_name);
             template<class Object>
+            std::shared_ptr< Collection<Object> > addCollection(const Collection<Object> & collection);
+            template<class Object>
+            std::shared_ptr< Collection<Object> > addCollection(const std::vector<Object> & objects, const std::string & unique_name );
+            template<class Object>
             std::shared_ptr< Collection<Object> > collection(const std::string & unique_name);
             
             // Cross sections
@@ -193,6 +197,28 @@ namespace analysis {
          
          return ret;
       }
+      
+      template <class Object>
+      std::shared_ptr< Collection<Object> >  Analysis::addCollection(const Collection<Object> & collection)
+      {
+         std::string unique_name = collection.name();
+         t_any_[unique_name] = nullptr;
+         c_any_[unique_name] = std::shared_ptr< Collection<Object> > ( new Collection<Object>(collection) );
+         std::shared_ptr< Collection<Object> > ret = boost::any_cast< std::shared_ptr< Collection<Object> > > (c_any_[unique_name]);
+         
+         return ret;
+      }
+      
+      template <class Object>
+      std::shared_ptr< Collection<Object> >  Analysis::addCollection(const std::vector<Object> & objects , const std::string & unique_name )
+      {
+         Collection<Object> collection(objects,unique_name);
+         t_any_[unique_name] = nullptr;
+         c_any_[unique_name] = std::shared_ptr< Collection<Object> > ( new Collection<Object>(collection) );
+         std::shared_ptr< Collection<Object> > ret = boost::any_cast< std::shared_ptr< Collection<Object> > > (c_any_[unique_name]);
+         return ret;
+      }
+      
       template <class Object>
       std::shared_ptr< Collection<Object> >  Analysis::collection(const std::string & unique_name)
       {
