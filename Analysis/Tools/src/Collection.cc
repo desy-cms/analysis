@@ -19,6 +19,7 @@
 #include "Analysis/Tools/interface/MET.h"
 #include "Analysis/Tools/interface/Muon.h"
 #include "Analysis/Tools/interface/Vertex.h"
+#include "Analysis/Tools/interface/GenParticle.h"
 
 #include "Analysis/Tools/interface/Collection.h"
 
@@ -137,3 +138,4 @@ template class Collection<MET>;
 template class Collection<Muon>;
 template class Collection<Vertex>;
 template class Collection<TriggerObject>;
+template class Collection<GenParticle>;
