@@ -42,13 +42,15 @@ namespace analysis {
             Candidate(const float & px, const float & py, const float & pz);
            ~Candidate();
 
-           float px()  const;
-           float py()  const;
-           float pz()  const;
-           float pt()  const;
-           float eta() const;
-           float phi() const;
-           float e()   const;
+           float px()   const;
+           float py()   const;
+           float pz()   const;
+           float pt()   const;
+           float eta()  const;
+           float phi()  const;
+           float e()    const;
+           float m()    const;
+           float mass() const;
            inline float deltaR(const Candidate & cand) const;
            int   q()   const;
            void  q(const float & q);
@@ -78,14 +80,16 @@ namespace analysis {
       // INLINE IMPLEMENTATIONS
 
       // Gets
-      inline float Candidate::px()  const { return p4_.Px() ; }
-      inline float Candidate::py()  const { return p4_.Py() ; }
-      inline float Candidate::pz()  const { return p4_.Pz() ; }
-      inline float Candidate::pt()  const { return p4_.Pt() ; }
-      inline float Candidate::eta() const { return p4_.Eta(); }
-      inline float Candidate::phi() const { return p4_.Phi(); }
-      inline float Candidate::e()   const { return p4_.E()  ; }
-      inline int   Candidate::q()   const { return q_;   }
+      inline float Candidate::px()   const { return p4_.Px() ; }
+      inline float Candidate::py()   const { return p4_.Py() ; }
+      inline float Candidate::pz()   const { return p4_.Pz() ; }
+      inline float Candidate::pt()   const { return p4_.Pt() ; }
+      inline float Candidate::eta()  const { return p4_.Eta(); }
+      inline float Candidate::phi()  const { return p4_.Phi(); }
+      inline float Candidate::e()    const { return p4_.E()  ; }
+      inline float Candidate::m()    const { return p4_.M()  ; }
+      inline float Candidate::mass() const { return p4_.M()  ; }
+      inline int   Candidate::q()    const { return q_;   }
       inline float Candidate::deltaR(const Candidate &cand) const { return p4_.DeltaR(cand.p4()) ;}
 
       inline TLorentzVector Candidate::p4() const { return p4_; }
