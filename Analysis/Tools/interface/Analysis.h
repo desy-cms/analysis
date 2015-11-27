@@ -172,7 +172,6 @@ namespace analysis {
          std::map<std::string, boost::any >::iterator it = t_any_.find(unique_name);
          if ( it == t_any_.end() )
             return nullptr;
-         
          return boost::any_cast< std::shared_ptr< PhysicsObjectTree<Object> > > (t_any_[unique_name]);
       }
 // -------------------------------------------------------
@@ -190,7 +189,6 @@ namespace analysis {
          
          auto tree = boost::any_cast< std::shared_ptr< PhysicsObjectTree<Object> > > (t_any_[unique_name]);
          c_any_[unique_name] = std::shared_ptr< Collection<Object> > ( new Collection<Object>(tree -> collection()));
-         
          std::shared_ptr< Collection<Object> > ret = boost::any_cast< std::shared_ptr< Collection<Object> > > (c_any_[unique_name]);
          
          return ret;
