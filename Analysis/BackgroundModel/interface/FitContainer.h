@@ -7,6 +7,7 @@
 #include "TH1.h"
 #include "TCanvas.h"
 #include "RooPlot.h"
+#include "RooCurve.h"
 #include "RooAbsPdf.h"
 #include "RooRealVar.h"
 #include "RooDataHist.h"
@@ -67,8 +68,9 @@ namespace analysis {
       static std::string getOutputPath_(const std::string& subdirectory = "");
       static void prepareCanvas_(TCanvas& raw);
       static void prepareFrame_(RooPlot& raw);
-      static double getMaxPosition_(const RooDataHist& data);
-      static int getNonZeroBins_(const RooDataHist& data);
+      double getMaxPosition_(const RooDataHist& data);
+      int getNonZeroBins_(const RooDataHist& data);
+      double chiSquare_(const RooDataHist& data, const RooCurve& fit);
       bool applyModifiers_(RooAbsPdf& pdf,
 			   const std::vector<ParamModifier>& modifiers);
 

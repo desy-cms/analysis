@@ -49,6 +49,8 @@ FitContainer::FitContainer(const TH1& data, const TH1& signal, const TH1& backgr
   prepareFrame_(*frame);
   frame->Draw();
   canvas.SaveAs((plotDir_+"input_data.pdf").c_str());
+  canvas.SetLogy();
+  canvas.SaveAs((plotDir_+"input_data_log.pdf").c_str());
 }
 
 
@@ -137,7 +139,8 @@ std::unique_ptr<RooFitResult> FitContainer::backgroundOnlyFit() {
   fitResult->floatParsFinal().Print("v");
 
   std::unique_ptr<RooPlot> frame(mbb_.frame());
-  data_.plotOn(frame.get(), RooFit::Name("data_curve"));
+  // data_.plotOn(frame.get(), RooFit::Name("data_curve"));
+  data_.plotOn(frame.get(), RooFit::Name("data_curve"), RooFit::DrawOption("p e6"));
   bkg.plotOn(frame.get(), RooFit::Name("background_curve"));
   TCanvas canvas("canvas", "", 600, 600);
   canvas.cd();
@@ -160,9 +163,21 @@ std::unique_ptr<RooFitResult> FitContainer::backgroundOnlyFit() {
   latex.SetTextSize(20);
   latex.SetTextAlign(33);
   latex.DrawLatexNDC(0.98-canvas.GetRightMargin(), 0.98-canvas.GetTopMargin(),
-                     (std::string("#chi^{2}/ndf = ")+chi2str).c_str());
+                     (std::string("#chi^{2}_{RooFit}/ndf = ")+chi2str).c_str());
+  double myChi2 = chiSquare_(data_, *(frame->getCurve("background_curve")));
+  std::string myChi2str(Form("%.1f/%d = %.1f", myChi2, ndf, myChi2/ndf));
+  std::cout << "\nMy normalized chi^2: " << myChi2str << std::endl;
+  latex.SetTextSize(20);
+  latex.SetTextAlign(33);
+  latex.DrawLatexNDC(0.98-canvas.GetRightMargin(), 0.93-canvas.GetTopMargin(),
+                     (std::string("#chi^{2}/ndf = ")+myChi2str).c_str());
 
-  canvas.SaveAs((plotDir_+"backgroundOnlyFit.pdf").c_str());
+  canvas.SaveAs((plotDir_+"background_only_fit.pdf").c_str());
+  canvas.SetLogy();
+  frame->GetYaxis()->SetRangeUser(0.2, 2.0*frame->GetMaximum());
+  canvas.Modified();
+  canvas.Update();
+  canvas.SaveAs((plotDir_+"background_only_fit_log.pdf").c_str());
 
   return fitResult;
 }
@@ -178,27 +193,28 @@ void FitContainer::profileModel(const Type& type) {
   std::unique_ptr<RooAbsReal> nll(model.createNLL(data_));
   std::unique_ptr<RooArgSet> parameters(model.getParameters(mbb_));
   std::unique_ptr<TIterator> iter(parameters->createIterator());
-  // use raw pointer for 'parameter' because 'pdf' owns the object it points to:
-  RooRealVar* parameter = static_cast<RooRealVar*>(iter->Next());
+  // use raw pointer for 'parameter' because 'model' owns the object it points to:
+  auto parameter = static_cast<RooRealVar*>(iter->Next());
   while (parameter) {
-    std::unique_ptr<RooAbsReal> profile(nll->createProfile(*parameter));
-    std::unique_ptr<RooPlot> frame(parameter->frame());
-    if (frame == nullptr) {
-      std::stringstream msg;
-      msg << "Problems creating the frame for '" << parameter->GetName() << "'.";
-      throw std::runtime_error(msg.str());
+    if (!(parameter->isConstant())) {
+      std::unique_ptr<RooAbsReal> profile(nll->createProfile(*parameter));
+      std::unique_ptr<RooPlot> frame(parameter->frame());
+      if (frame == nullptr) {
+	std::stringstream msg;
+	msg << "Problems creating frame for '" << parameter->GetName() << "'.";
+	throw std::runtime_error(msg.str());
+      }
+      profile->plotOn(frame.get());
+      TCanvas canvas("canvas", "", 600, 600);
+      prepareCanvas_(canvas);
+      prepareFrame_(*frame);
+      frame->Draw();
+      canvas.SaveAs((plotDir_+toString(type)+"_profile_"+
+		     parameter->GetName()+".pdf").c_str());
+      canvas.SetLogy();
+      canvas.SaveAs((plotDir_+toString(type)+"_profile_"+
+		     parameter->GetName()+"_log.pdf").c_str());
     }
-    profile->plotOn(frame.get());
-    TCanvas canvas("canvas", "", 600, 600);
-    canvas.cd();
-    prepareCanvas_(canvas);
-    prepareFrame_(*frame);
-    frame->Draw();
-    canvas.SaveAs((plotDir_+toString(type)+"_profile_"+
-                   parameter->GetName()+".pdf").c_str());
-    canvas.SetLogy();
-    canvas.SaveAs((plotDir_+toString(type)+"_profile_"+
-                   parameter->GetName()+"_log.pdf").c_str());
     parameter = static_cast<RooRealVar*>(iter->Next());
   }
 }
@@ -211,13 +227,13 @@ void FitContainer::showModels() const {
   RooArgSet models(workspace_.allPdfs());
   std::unique_ptr<TIterator> itModel(models.createIterator());
   // use raw pointer for 'model' because 'models' owns the object it points to:
-  RooAbsPdf* model = static_cast<RooAbsPdf*>(itModel->Next());
+  auto model = static_cast<RooAbsPdf*>(itModel->Next());
   while (model) {
     model->Print();
     std::unique_ptr<RooArgSet> parameters(model->getParameters(mbb_));
     std::unique_ptr<TIterator> itPar(parameters->createIterator());
     // use raw pointer for 'parameter' because 'model' owns the object it points to:
-    RooRealVar* parameter = static_cast<RooRealVar*>(itPar->Next());
+    auto parameter = static_cast<RooRealVar*>(itPar->Next());
     while (parameter) {
       parameter->Print();
       parameter = static_cast<RooRealVar*>(itPar->Next());
@@ -275,9 +291,9 @@ void FitContainer::setNovoEffProd_(const Type& type) {
                       mbb_, peak, width, tail);
 
   RooRealVar slope("slope", "slope", 0.01, 0.0, 0.1);
-  RooRealVar turnon("turnon", "turnon", 5.0, mbb_.getMin(), 100.0);
+  RooRealVar turnon("turnon", "turnon", 5.0, mbb_.getMin(), mbb_.getMax());
   RooFormulaVar eff((toString(type)+"_eff").c_str(),
-                    "0.5*(TMath::Erf(slope*mbb-turnon) + 1)",
+                    "0.5*(TMath::Erf(slope*(mbb-turnon)) + 1)",
                     RooArgSet(mbb_, slope, turnon));
 
   RooEffProd novoEffProd(toString(type).c_str(),
@@ -301,9 +317,9 @@ void FitContainer::setCBEffProd_(const Type& type) {
                 mbb_, m0, sigma, alpha, n);
 
   RooRealVar slope("slope", "slope", 0.01, 0.0, 0.1);
-  RooRealVar turnon("turnon", "turnon", 5.0, mbb_.getMin(), 100.0);
+  RooRealVar turnon("turnon", "turnon", 5.0, mbb_.getMin(), mbb_.getMax());
   RooFormulaVar eff((toString(type)+"_eff").c_str(),
-                    "0.5*(TMath::Erf(slope*mbb-turnon) + 1)",
+                    "0.5*(TMath::Erf(slope*(mbb-turnon)) + 1)",
                     RooArgSet(mbb_, slope, turnon));
 
   RooEffProd cbEffProd(toString(type).c_str(),
@@ -319,9 +335,9 @@ void FitContainer::setExpEffProd_(const Type& type) {
                      (toString(type)+"_exp").c_str(), mbb_, tau);
 
   RooRealVar slope("slope", "slope", 0.01, 0.0, 0.1);
-  RooRealVar turnon("turnon", "turnon", 5.0, mbb_.getMin(), 100.0);
+  RooRealVar turnon("turnon", "turnon", 5.0, mbb_.getMin(), mbb_.getMax());
   RooFormulaVar eff((toString(type)+"_eff").c_str(),
-                    "0.5*(TMath::Erf(slope*mbb-turnon) + 1)",
+                    "0.5*(TMath::Erf(slope*(mbb-turnon)) + 1)",
                     RooArgSet(mbb_, slope, turnon));
 
   RooEffProd expEffProd(toString(type).c_str(),
@@ -390,7 +406,7 @@ void FitContainer::setBukin_(const Type& type) {
   case Type::background: XpStart = getMaxPosition_(background_); break;
   }
   RooRealVar Xp("Xp", "Xp", XpStart, 50.0, 350.0, "GeV");
-  RooRealVar sigp("sigp", "sigp", 15.0, 85.0, "GeV");
+  RooRealVar sigp("sigp", "sigp", 20.0, 85.0, "GeV");
   RooRealVar xi("xi", "xi", 0.0, 0.55);
   RooRealVar rho1("rho1", "rho1", 0.05, -0.1, 0.2);
   RooRealVar rho2("rho2", "rho2", -0.05, -0.07, 0.045);
@@ -428,13 +444,16 @@ void FitContainer::setBernEffProd_(const Type& type, const int numCoeffs) {
                     mbb_, *coeffs);
 
   RooRealVar slope1("slope1", "slope1", 0.01, 0.0, 0.1);
-  RooRealVar turnon1("turnon1", "turnon1", 5.0, mbb_.getMin(), 100.0);
-  RooRealVar slope2("slope2", "slope2", 0.01, 0.0, 0.1);
-  RooRealVar turnon2("turnon2", "turnon2", 10.0, mbb_.getMin(), 100.0);
+  RooRealVar turnon1("turnon1", "turnon1", 5.0, mbb_.getMin(), mbb_.getMax());
+  RooRealVar slope2("slope2", "slope2", 0.04, 0.0, 0.1);
+  RooRealVar turnon2("turnon2", "turnon2", 10.0, mbb_.getMin(), mbb_.getMax());
+  // RooFormulaVar eff((toString(type)+"_eff").c_str(),
+  //                   "0.5*(TMath::Erf(slope1*(mbb-turnon1)) + 1)*"
+  //                   "0.5*(TMath::Erf(slope2*(mbb-turnon2)) + 1)",
+  //                   RooArgSet(mbb_, slope1, turnon1, slope2, turnon2));
   RooFormulaVar eff((toString(type)+"_eff").c_str(),
-                    "0.5*(TMath::Erf(slope_1*mbb-turnon_1) + 1)*"
-                    "0.5*(TMath::Erf(slope_2*mbb-turnon_2) + 1)",
-                    RooArgSet(mbb_, slope1, turnon1, slope2, turnon2));
+                    "0.5*(TMath::Erf(slope2*(mbb-turnon2)) + 1)",
+                    RooArgSet(mbb_, slope2, turnon2));
 
   RooEffProd bernEffProd(toString(type).c_str(),
                          (toString(type)+"_berneffprod").c_str(), bern, eff);
@@ -464,19 +483,37 @@ void FitContainer::prepareFrame_(RooPlot& raw) {
 
 
 double FitContainer::getMaxPosition_(const RooDataHist& data) {
-  std::unique_ptr<TH1> hist(data.createHistogram("mbb"));
+  std::unique_ptr<TH1> hist(data.createHistogram("mbb", mbb_));
   int maximumBin = hist->GetMaximumBin();
   return hist->GetBinCenter(maximumBin);
 }
 
 
 int FitContainer::getNonZeroBins_(const RooDataHist& data) {
-  std::unique_ptr<TH1> hist(data.createHistogram("mbb"));
+  std::unique_ptr<TH1> hist(data.createHistogram("mbb", mbb_));
   int nonZeroBins = 0;
   for (int i = 1; i <= hist->GetNbinsX(); ++i) {
     if (hist->GetBinContent(i) > 0) ++nonZeroBins;
   }
   return nonZeroBins;
+}
+
+
+double FitContainer::chiSquare_(const RooDataHist& data, const RooCurve& fit) {
+  std::unique_ptr<TH1> hist(data.createHistogram("mbb", mbb_));
+  double chi2 = 0.0;
+  double avgBinSize = hist->GetXaxis()->GetXmax() - hist->GetXaxis()->GetXmin();
+  avgBinSize /= hist->GetNbinsX();
+  for (int i = 1; i <= hist->GetNbinsX(); ++i) {
+    if (hist->GetBinContent(i) > 0.0) {
+      double densityCorrection = avgBinSize/hist->GetBinWidth(i);
+      double model = fit.interpolate(hist->GetBinCenter(i));
+      double dataPoint = hist->GetBinContent(i)*densityCorrection;
+      double pull = (dataPoint - model)/hist->GetBinError(i)/densityCorrection;
+      chi2 += pull*pull;
+    }
+  }
+  return chi2;
 }
 
 
