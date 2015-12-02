@@ -92,9 +92,9 @@ namespace analysis {
             
             // Matching to trigger objects
             template <class Object1, class Object2>
-            void match(const std::string & collection, const std::string & match_collection);
+            void match(const std::string & collection, const std::string & match_collection, const float & deltaR = 0.5);
             template <class Object1, class Object2>
-            void match(const std::string & collection, const std::vector<std::string> & match_collections);
+            void match(const std::string & collection, const std::vector<std::string> & match_collections, const float & deltaR = 0.5);
             
             // good Json files
             void processJsonFile(const std::string & fileName = "goodJson.txt");
@@ -201,18 +201,18 @@ namespace analysis {
       }
       //--
       template <class Object1, class Object2>
-      void Analysis::match(const std::string & collection, const std::string & match_collection)
+      void Analysis::match(const std::string & collection, const std::string & match_collection, const float & deltaR)
       {
          auto o1 = boost::any_cast< std::shared_ptr< Collection<Object1> > > (c_any_[collection]);
          auto o2 = boost::any_cast< std::shared_ptr< Collection<Object2> > > (c_any_[match_collection]);
-         o1->matchTo(o2->vectorCandidates(),o2->name());
+         o1->matchTo(o2->vectorCandidates(),o2->name(), deltaR);
       }
       //--
       template <class Object1, class Object2>
-      void Analysis::match(const std::string & collection, const std::vector<std::string> & match_collections)
+      void Analysis::match(const std::string & collection, const std::vector<std::string> & match_collections, const float & deltaR)
       {
          for ( auto & mc : match_collections )
-            this->match<Object1,Object2>(collection,mc);
+            this->match<Object1,Object2>(collection, mc, deltaR);
       }
       
 // ========================================================
