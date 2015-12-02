@@ -52,7 +52,7 @@ int main(int argc, char * argv[])
       analysis.event(i);
       if (!analysis.isMC() && !analysis.selectJson()) continue; // To use only goodJSonFiles
       
-      analysis.match<Jet,TriggerObject>("Jets",jetTriggerObjects);
+      analysis.match<Jet,TriggerObject>("Jets",jetTriggerObjects,0.5);
       
       // Jets
       auto offlineJets         = analysis.collection<Jet>("Jets");
