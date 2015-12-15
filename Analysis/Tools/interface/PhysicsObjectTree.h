@@ -84,6 +84,23 @@ namespace analysis {
          private:
 
       };
+         
+      // Specialization for Candidate
+      template <>
+      class PhysicsObjectTree<Candidate> : public PhysicsObjectTreeBase<Candidate> {
+         public:
+            PhysicsObjectTree();
+            PhysicsObjectTree(TChain * tree, const std::string & name);
+           ~PhysicsObjectTree();
+
+            Collection<Candidate> collection();
+
+            // ----------member data ---------------------------
+         protected:
+
+         private:
+
+      };  
 
       // Specialization for GENPARTICLE
       template <>

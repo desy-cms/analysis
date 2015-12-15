@@ -43,6 +43,31 @@ template <class Object> Collection<Object>  PhysicsObjectTree<Object>::collectio
    return obj;
 }
 
+// Candidate
+// Constructors and destructor
+PhysicsObjectTree<Candidate>::PhysicsObjectTree() : PhysicsObjectTreeBase<Candidate>()
+{
+}
+PhysicsObjectTree<Candidate>::PhysicsObjectTree(TChain * tree, const std::string & name) : PhysicsObjectTreeBase<Candidate>(tree, name)
+{
+}
+PhysicsObjectTree<Candidate>::~PhysicsObjectTree() {}
+
+// Member functions
+Collection<Candidate>  PhysicsObjectTree<Candidate>::collection()
+{
+   std::vector<Candidate> candidates;
+   for ( int i = 0 ; i < n_ ; ++i )
+   {
+      Candidate cand(pt_[i], eta_[i], phi_[i], e_[i], q_[i]);
+      candidates.push_back(cand);
+   }
+   Collection<Candidate> CandidateCollection(candidates, name_);
+   return CandidateCollection;
+
+}
+
+
 // JETS
 // Constructors and destructor
 PhysicsObjectTree<Jet>::PhysicsObjectTree(TChain * tree, const std::string & name) : PhysicsObjectTreeBase<Jet>(tree, name)
