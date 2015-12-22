@@ -1,0 +1,571 @@
+DEBUG 2015-11-19 12:37:37,321: 	 Executing command: 'submit'
+DEBUG 2015-11-19 12:37:37,321: 	 Found CRAB cache file /afs/desy.de/user/s/shevchen/.crab3
+DEBUG 2015-11-19 12:37:37,328: 	 Checking credentials
+DEBUG 2015-11-19 12:37:37,328: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-11-19 12:37:37,328: 	 Getting proxy life time left
+DEBUG 2015-11-19 12:37:37,730: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 337883
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 12:37:38,134: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 337882
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 12:37:38,134: 	 Proxy valid for 93:51:23 hours
+DEBUG 2015-11-19 12:37:38,135: 	 Will use CRAB Analysis plugin (i.e. will run an analysis job type).
+DEBUG 2015-11-19 12:37:38,141: 	 Using VO group 'dcms' as specified in the CRAB configuration file.
+DEBUG 2015-11-19 12:37:38,251: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-11-19 12:37:38,251: 	 Checking credentials
+DEBUG 2015-11-19 12:37:38,251: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-11-19 12:37:38,251: 	 Getting proxy life time left
+DEBUG 2015-11-19 12:37:38,654: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 337882
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 12:37:39,057: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 337881
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 12:37:39,058: 	 Proxy valid for 93:51:22 hours
+DEBUG 2015-11-19 12:37:39,461: 	 Executing : 
+ command : env X509_USER_PROXY=/tmp/x509up_u20182 voms-proxy-info -fqan
+ output : /cms/dcms/Role=NULL/Capability=NULL
+/cms/Role=NULL/Capability=NULL
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 12:37:39,950: 	 Registering user credentials for server /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+DEBUG 2015-11-19 12:37:40,058: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-11-19 12:37:40,058: 	 Getting myproxy life time left for myproxy.cern.ch
+DEBUG 2015-11-19 12:37:40,058: 	 Calculating hash of /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko_cmsweb.cern.ch for credential name
+DEBUG 2015-11-19 12:37:40,261: 	 Executing : 
+ command : myproxy-info -l 4bd1d453c3fff9872aebbf43cb3102690cbbeef6 -s myproxy.cern.ch
+ output : username: 4bd1d453c3fff9872aebbf43cb3102690cbbeef6
+owner: /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+  renewal policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  trusted retrieval policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  timeleft: 701:19:39  (29.2 days)
+
+ error: 
+ retcode : 0
+DEBUG 2015-11-19 12:37:40,261: 	 Myproxy is valid: 2524779
+DEBUG 2015-11-19 12:37:40,261: 	 Command use: submit
+DEBUG 2015-11-19 12:37:40,261: 	 Options use: ['--config', <WMCore.Configuration.Configuration object at 0x2b93cd0>]
+DEBUG 2015-11-19 12:37:40,758: 	 CRABClient version: 3.3.1511
+DEBUG 2015-11-19 12:37:40,758: 	 Instance is prod
+DEBUG 2015-11-19 12:37:40,758: 	 Server base url is cmsweb.cern.ch
+DEBUG 2015-11-19 12:37:40,758: 	 Command url /crabserver/prod/workflow
+DEBUG 2015-11-19 12:37:40,758: 	 Started submission
+DEBUG 2015-11-19 12:37:40,759: 	 Working on /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8
+DEBUG 2015-11-19 12:37:41,218: 	 Loading required information from the environment
+DEBUG 2015-11-19 12:37:41,218: 	 Found CMSSW_7_5_2 for slc6_amd64_gcc491 with base /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2
+DEBUG 2015-11-19 12:37:41,234: 	 UNIQUE NAME: tarUUID eb7a0641-721c-4587-9c01-62d249fb02e2 
+DEBUG 2015-11-19 12:37:41,235: 	 self.config: from WMCore.Configuration import Configuration
+config = Configuration()
+config.section_('General')
+config.General.transferOutputs = True
+config.General.workArea = 'crab_projects_QCD'
+config.General.requestName = 'QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8'
+config.section_('JobType')
+config.JobType.psetName = '/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Ntuplizer/test/qcd_mc.py'
+config.JobType.pluginName = 'Analysis'
+config.JobType.outputFiles = ['output.root']
+config.section_('Data')
+config.Data.inputDataset = '/QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM'
+config.Data.outputDatasetTag = 'RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1'
+config.Data.publication = False
+config.Data.unitsPerJob = 1
+config.Data.splitting = 'FileBased'
+config.Data.outLFNDirBase = '/store/user/rshevche/Analysis/Ntuples/QCD/MINIAODSIM/Fall15.20151119/'
+config.Data.totalUnits = -1
+config.section_('User')
+config.User.voGroup = 'dcms'
+config.section_('Site')
+config.Site.storageSite = 'T2_DE_DESY'
+
+DEBUG 2015-11-19 12:37:41,235: 	 self.config.JobType.psetName: /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Ntuplizer/test/qcd_mc.py
+INFO 2015-11-19 12:37:41,235: 	 Importing CMSSW configuration /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Ntuplizer/test/qcd_mc.py
+INFO 2015-11-19 12:37:41,239: 	 Finished importing CMSSW configuration /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Ntuplizer/test/qcd_mc.py
+DEBUG 2015-11-19 12:37:41,240: 	 Writing CMSSW configuration to /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8/inputs/PSet.py
+DEBUG 2015-11-19 12:37:41,271: 	 The following EDM output files will be collected: []
+DEBUG 2015-11-19 12:37:41,271: 	 The following TFile output files will be collected: ['output.root']
+DEBUG 2015-11-19 12:37:41,271: 	 The following user output files will be collected: []
+DEBUG 2015-11-19 12:37:41,272: 	 Loading required information from the environment
+DEBUG 2015-11-19 12:37:41,272: 	 Found CMSSW_7_5_2 for slc6_amd64_gcc491 with base /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2
+DEBUG 2015-11-19 12:37:41,272: 	 Making tarball in /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8/inputs/eb7a0641-721c-4587-9c01-62d249fb02e2default.tgz
+DEBUG 2015-11-19 12:37:41,273: 	 Checking directory /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/lib
+DEBUG 2015-11-19 12:37:41,273: 	 Adding directory /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/lib to tarball
+DEBUG 2015-11-19 12:37:41,527: 	 Checking directory /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/biglib
+DEBUG 2015-11-19 12:37:41,527: 	 Adding directory /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/biglib to tarball
+DEBUG 2015-11-19 12:37:41,528: 	 Checking directory /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/module
+DEBUG 2015-11-19 12:37:41,558: 	 Adding data directory /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/MssmHbb/interface to tarball
+DEBUG 2015-11-19 12:37:41,563: 	 Adding data directory /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Ntuplizer/interface to tarball
+DEBUG 2015-11-19 12:37:41,571: 	 Adding data directory /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/interface to tarball
+DEBUG 2015-11-19 12:37:41,601: 	 Uploading archive /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8/inputs/eb7a0641-721c-4587-9c01-62d249fb02e2default.tgz to the CRAB cache. Using URI https://cmsweb.cern.ch/crabcache
+DEBUG 2015-11-19 12:37:42,414: 	 Result uploading input files: 6132bdabecf7f1debc0e4a15fda727869740776d1cf11132eefafebbc2884492.tar.gz 
+INFO 2015-11-19 12:37:42,414: 	 Sending the request to the server
+DEBUG 2015-11-19 12:37:42,414: 	 Submitting {'maxjobruntime': 1250, 'lfn': '/store/user/rshevche/Analysis/Ntuples/QCD/MINIAODSIM/Fall15.20151119/', 'savelogsflag': 0, 'useparent': 0, 'asyncdest': 'T2_DE_DESY', 'algoargs': 1, 'cachefilename': '6132bdabecf7f1debc0e4a15fda727869740776d1cf11132eefafebbc2884492.tar.gz', 'numcores': 1, 'addoutputfiles': [], 'generator': 'pythia', 'maxmemory': 2000, 'publishdbsurl': 'https://cmsweb.cern.ch/dbs/prod/phys03/DBSWriter', 'vogroup': 'dcms', 'priority': 10, 'jobsw': 'CMSSW_7_5_2', 'edmoutfiles': [], 'userfiles': [], 'primarydataset': '', 'inputdata': '/QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM', 'ignorelocality': 0, 'dryrun': 0, 'workflow': 'crab_QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8', 'adduserfiles': [], 'nonprodsw': 0, 'tfileoutfiles': ['output.root'], 'oneEventMode': 0, 'cacheurl': 'https://cmsweb.cern.ch/crabcache', 'saveoutput': 1, 'publication': 0, 'jobarch': 'slc6_amd64_gcc491', 'totalunits': -1, 'splitalgo': 'FileBased', 'nonvaliddata': 0, 'dbsurl': 'https://cmsweb.cern.ch/dbs/prod/global/DBSReader', 'publishgroupname': 0, 'jobtype': 'Analysis', 'publishname2': 'RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1'} 
+DEBUG 2015-11-19 12:37:42,414: 	 Encoded submit request: maxjobruntime=1250&lfn=%2Fstore%2Fuser%2Frshevche%2FAnalysis%2FNtuples%2FQCD%2FMINIAODSIM%2FFall15.20151119%2F&savelogsflag=0&useparent=0&asyncdest=T2_DE_DESY&algoargs=1&cachefilename=6132bdabecf7f1debc0e4a15fda727869740776d1cf11132eefafebbc2884492.tar.gz&numcores=1&generator=pythia&maxmemory=2000&publishdbsurl=https%3A%2F%2Fcmsweb.cern.ch%2Fdbs%2Fprod%2Fphys03%2FDBSWriter&vogroup=dcms&priority=10&jobsw=CMSSW_7_5_2&primarydataset=&inputdata=%2FQCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8%2FRunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1%2FMINIAODSIM&ignorelocality=0&dryrun=0&workflow=crab_QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8&nonprodsw=0&oneEventMode=0&cacheurl=https%3A%2F%2Fcmsweb.cern.ch%2Fcrabcache&saveoutput=1&publication=0&jobarch=slc6_amd64_gcc491&totalunits=-1&splitalgo=FileBased&nonvaliddata=0&dbsurl=https%3A%2F%2Fcmsweb.cern.ch%2Fdbs%2Fprod%2Fglobal%2FDBSReader&publishgroupname=0&jobtype=Analysis&publishname2=RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1&tfileoutfiles=output.root
+DEBUG 2015-11-19 12:37:43,399: 	 Result: {'result': [{'RequestName': '151119_113743:rshevche_crab_QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8'}]}
+INFO 2015-11-19 12:37:43,401: 	 Success: Your task has been delivered to the CRAB3 server.
+INFO 2015-11-19 12:37:43,401: 	 Task name: 151119_113743:rshevche_crab_QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-19 12:37:43,401: 	 Please use 'crab status' to check how the submission process proceeds.
+DEBUG 2015-11-19 12:37:43,401: 	 About to return
+DEBUG 2015-11-23 16:10:36,402: 	 Executing command: 'resubmit'
+DEBUG 2015-11-23 16:10:36,402: 	 Found CRAB cache file /afs/desy.de/user/s/shevchen/.crab3
+DEBUG 2015-11-23 16:10:36,409: 	 Checking credentials
+DEBUG 2015-11-23 16:10:36,409: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-11-23 16:10:36,409: 	 Getting proxy life time left
+DEBUG 2015-11-23 16:10:36,812: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 62512
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-23 16:10:37,215: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 62511
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-23 16:10:37,215: 	 Proxy valid for 17:21:52 hours
+DEBUG 2015-11-23 16:10:37,371: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-11-23 16:10:37,371: 	 Checking credentials
+DEBUG 2015-11-23 16:10:37,371: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-11-23 16:10:37,371: 	 Getting proxy life time left
+DEBUG 2015-11-23 16:10:37,774: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 62511
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-23 16:10:38,177: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 62510
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-23 16:10:38,177: 	 Proxy valid for 17:21:51 hours
+DEBUG 2015-11-23 16:10:38,721: 	 Registering user credentials for server /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+DEBUG 2015-11-23 16:10:38,829: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-11-23 16:10:38,829: 	 Getting myproxy life time left for myproxy.cern.ch
+DEBUG 2015-11-23 16:10:38,829: 	 Calculating hash of /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko_cmsweb.cern.ch for credential name
+DEBUG 2015-11-23 16:10:39,332: 	 Executing : 
+ command : myproxy-info -l 4bd1d453c3fff9872aebbf43cb3102690cbbeef6 -s myproxy.cern.ch
+ output : username: 4bd1d453c3fff9872aebbf43cb3102690cbbeef6
+owner: /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+  renewal policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  trusted retrieval policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  timeleft: 695:58:15  (29.0 days)
+
+ error: 
+ retcode : 0
+DEBUG 2015-11-23 16:10:39,334: 	 Myproxy is valid: 2505495
+DEBUG 2015-11-23 16:10:39,334: 	 Command use: resubmit
+DEBUG 2015-11-23 16:10:39,334: 	 Options use: ['-d', 'crab_projects_QCD/crab_QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8']
+DEBUG 2015-11-23 16:10:39,878: 	 CRABClient version: 3.3.1511
+DEBUG 2015-11-23 16:10:39,878: 	 Instance is prod
+DEBUG 2015-11-23 16:10:39,878: 	 Server base url is cmsweb.cern.ch
+DEBUG 2015-11-23 16:10:39,878: 	 Command url /crabserver/prod/workflow
+DEBUG 2015-11-23 16:10:39,878: 	 Requesting resubmission of failed jobs in task 151119_113743:rshevche_crab_QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-23 16:10:39,878: 	 Sending the request to the server
+DEBUG 2015-11-23 16:10:39,878: 	 Submitting {'force': 0, 'subresource': 'resubmit', 'workflow': '151119_113743:rshevche_crab_QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8'} 
+DEBUG 2015-11-23 16:10:39,878: 	 Encoded resubmit request: force=0&subresource=resubmit&workflow=151119_113743%3Arshevche_crab_QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8
+DEBUG 2015-11-23 16:10:47,309: 	 Result: {'result': [{'result': 'ok'}], 'desc': {'columns': ['tm_site_blacklist', 'tm_site_whitelist', 'tm_maxjobruntime', 'tm_maxmemory', 'tm_numcores', 'tm_priority']}}
+INFO 2015-11-23 16:10:47,309: 	 Resubmit request sent to the CRAB3 server.
+INFO 2015-11-23 16:10:47,309: 	 Please use 'crab status' to check how the resubmission process proceeds.
+INFO 2015-11-23 16:10:47,359: 	 Log file is /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8/crab.log
+DEBUG 2015-11-23 16:10:54,679: 	 Executing command: 'status'
+DEBUG 2015-11-23 16:10:54,679: 	 Found CRAB cache file /afs/desy.de/user/s/shevchen/.crab3
+DEBUG 2015-11-23 16:10:54,685: 	 Checking credentials
+DEBUG 2015-11-23 16:10:54,685: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-11-23 16:10:54,685: 	 Getting proxy life time left
+DEBUG 2015-11-23 16:10:55,088: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 62493
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-23 16:10:55,491: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 62493
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-23 16:10:55,491: 	 Proxy valid for 17:21:33 hours
+DEBUG 2015-11-23 16:10:55,603: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-11-23 16:10:55,603: 	 Checking credentials
+DEBUG 2015-11-23 16:10:55,604: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-11-23 16:10:55,604: 	 Getting proxy life time left
+DEBUG 2015-11-23 16:10:56,007: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 62493
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-23 16:10:56,411: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 62492
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-23 16:10:56,411: 	 Proxy valid for 17:21:33 hours
+DEBUG 2015-11-23 16:10:56,948: 	 Registering user credentials for server /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+DEBUG 2015-11-23 16:10:57,059: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-11-23 16:10:57,059: 	 Getting myproxy life time left for myproxy.cern.ch
+DEBUG 2015-11-23 16:10:57,060: 	 Calculating hash of /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko_cmsweb.cern.ch for credential name
+DEBUG 2015-11-23 16:10:57,571: 	 Executing : 
+ command : myproxy-info -l 4bd1d453c3fff9872aebbf43cb3102690cbbeef6 -s myproxy.cern.ch
+ output : username: 4bd1d453c3fff9872aebbf43cb3102690cbbeef6
+owner: /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+  renewal policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  trusted retrieval policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  timeleft: 695:57:57  (29.0 days)
+
+ error: 
+ retcode : 0
+DEBUG 2015-11-23 16:10:57,573: 	 Myproxy is valid: 2505477
+DEBUG 2015-11-23 16:10:57,573: 	 Command use: status
+DEBUG 2015-11-23 16:10:57,573: 	 Options use: []
+DEBUG 2015-11-23 16:10:58,135: 	 CRABClient version: 3.3.1511
+DEBUG 2015-11-23 16:10:58,135: 	 Instance is prod
+DEBUG 2015-11-23 16:10:58,135: 	 Server base url is cmsweb.cern.ch
+DEBUG 2015-11-23 16:10:58,135: 	 Command url /crabserver/prod/workflow
+DEBUG 2015-11-23 16:10:58,135: 	 Looking up detailed status of task 151119_113743:rshevche_crab_QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8
+DEBUG 2015-11-23 16:11:00,225: 	 {'status': 'FAILED', 'schedd': 'crab3test-3@vocms096.cern.ch', 'saveLogs': 'T', 'jobsPerStatus': {'failed': 1, 'finished': 115}, 'jobs': {'24': {'State': 'finished'}, '25': {'State': 'finished'}, '26': {'State': 'finished'}, '27': {'State': 'finished'}, '20': {'State': 'finished'}, '21': {'State': 'finished'}, '22': {'State': 'finished'}, '23': {'State': 'finished'}, '28': {'State': 'finished'}, '29': {'State': 'finished'}, '4': {'State': 'finished'}, '8': {'State': 'finished'}, '59': {'State': 'finished'}, '58': {'State': 'finished'}, '55': {'State': 'finished'}, '54': {'State': 'finished'}, '57': {'State': 'finished'}, '56': {'State': 'finished'}, '51': {'State': 'finished'}, '50': {'State': 'finished'}, '53': {'State': 'finished'}, '52': {'State': 'finished'}, '115': {'State': 'finished'}, '114': {'State': 'finished'}, '88': {'State': 'finished'}, '89': {'State': 'finished'}, '111': {'State': 'finished'}, '110': {'State': 'finished'}, '113': {'State': 'finished'}, '112': {'State': 'finished'}, '82': {'State': 'finished'}, '83': {'State': 'finished'}, '80': {'State': 'finished'}, '81': {'State': 'finished'}, '86': {'State': 'finished'}, '87': {'State': 'finished'}, '84': {'State': 'finished'}, '85': {'State': 'finished'}, '3': {'State': 'finished'}, '7': {'State': 'finished'}, '108': {'State': 'finished'}, '109': {'State': 'finished'}, '102': {'State': 'finished'}, '103': {'State': 'finished'}, '100': {'State': 'finished'}, '101': {'State': 'finished'}, '106': {'State': 'finished'}, '107': {'State': 'finished'}, '104': {'State': 'finished'}, '105': {'State': 'finished'}, '39': {'State': 'finished'}, '38': {'State': 'finished'}, '33': {'State': 'finished'}, '32': {'State': 'finished'}, '31': {'State': 'finished'}, '30': {'State': 'finished'}, '37': {'State': 'finished'}, '36': {'State': 'finished'}, '35': {'State': 'finished'}, '34': {'State': 'finished'}, '60': {'State': 'finished'}, '61': {'State': 'finished'}, '62': {'State': 'finished'}, '63': {'State': 'finished'}, '64': {'State': 'finished'}, '65': {'State': 'finished'}, '66': {'State': 'finished'}, '67': {'State': 'finished'}, '68': {'State': 'finished'}, '69': {'State': 'finished'}, '2': {'State': 'finished'}, '6': {'State': 'finished'}, '99': {'State': 'finished'}, '98': {'State': 'finished'}, '91': {'State': 'finished'}, '90': {'State': 'finished'}, '93': {'State': 'finished'}, '92': {'State': 'finished'}, '95': {'State': 'finished'}, '94': {'State': 'finished'}, '97': {'State': 'finished'}, '96': {'State': 'finished'}, '11': {'State': 'finished'}, '10': {'State': 'finished'}, '13': {'State': 'finished'}, '12': {'State': 'finished'}, '15': {'State': 'finished'}, '14': {'State': 'finished'}, '17': {'State': 'finished'}, '16': {'State': 'finished'}, '19': {'State': 'finished'}, '18': {'State': 'finished'}, '116': {'State': 'finished'}, '48': {'State': 'finished'}, '49': {'State': 'finished'}, '46': {'State': 'failed', 'Error': [90000, "Got fatal stageout exception:\nStageout failed with code 1.\nThere were 1 failed/killed stageout jobs. 1 of those jobs had a permanent failure.\nFailure reasons (per document) follow:\n- af7af1a73ea029e3d67e2ea2b53c408c33d100e6bcb24163f61c11d8:\n  -----> ASO log start -----\n  ['TRANSFER  globus_ftp_client: the server responded with an error 530 530-Login incorrect. : globus_gss_assist: Error invoking callout  530-globus_callout_module: The callout returned an error  530-an unknown error occurred  530 End.   ']\n  <----- ASO log finish ----\n  The last failure reason is permanent.", {}]}, '47': {'State': 'finished'}, '44': {'State': 'finished'}, '45': {'State': 'finished'}, '42': {'State': 'finished'}, '43': {'State': 'finished'}, '40': {'State': 'finished'}, '41': {'State': 'finished'}, '1': {'State': 'finished'}, '5': {'State': 'finished'}, '9': {'State': 'finished'}, '77': {'State': 'finished'}, '76': {'State': 'finished'}, '75': {'State': 'finished'}, '74': {'State': 'finished'}, '73': {'State': 'finished'}, '72': {'State': 'finished'}, '71': {'State': 'finished'}, '70': {'State': 'finished'}, '79': {'State': 'finished'}, '78': {'State': 'finished'}}, 'publication': {'disabled': []}, 'taskWarningMsg': [], 'publicationFailures': {}, 'outdatasets': None, 'statusFailureMsg': '', 'taskFailureMsg': '', 'failedJobdefs': 0, 'ASOURL': 'https://cmsweb.cern.ch/couchdb', 'totalJobdefs': 0, 'jobSetID': '151123_150605:goni_crab_Jpsi_MM_step3_inDQM', 'jobdefErrors': [], 'collector': 'cmssrv221.fnal.gov,vocms099.cern.ch', 'jobList': [['finished', 24], ['finished', 25], ['finished', 26], ['finished', 27], ['finished', 20], ['finished', 21], ['finished', 22], ['finished', 23], ['finished', 28], ['finished', 29], ['finished', 4], ['finished', 8], ['finished', 59], ['finished', 58], ['finished', 55], ['finished', 54], ['finished', 57], ['finished', 56], ['finished', 51], ['finished', 50], ['finished', 53], ['finished', 52], ['finished', 115], ['finished', 114], ['finished', 88], ['finished', 89], ['finished', 111], ['finished', 110], ['finished', 113], ['finished', 112], ['finished', 82], ['finished', 83], ['finished', 80], ['finished', 81], ['finished', 86], ['finished', 87], ['finished', 84], ['finished', 85], ['finished', 3], ['finished', 7], ['finished', 108], ['finished', 109], ['finished', 102], ['finished', 103], ['finished', 100], ['finished', 101], ['finished', 106], ['finished', 107], ['finished', 104], ['finished', 105], ['finished', 39], ['finished', 38], ['finished', 33], ['finished', 32], ['finished', 31], ['finished', 30], ['finished', 37], ['finished', 36], ['finished', 35], ['finished', 34], ['finished', 60], ['finished', 61], ['finished', 62], ['finished', 63], ['finished', 64], ['finished', 65], ['finished', 66], ['finished', 67], ['finished', 68], ['finished', 69], ['finished', 2], ['finished', 6], ['finished', 99], ['finished', 98], ['finished', 91], ['finished', 90], ['finished', 93], ['finished', 92], ['finished', 95], ['finished', 94], ['finished', 97], ['finished', 96], ['finished', 11], ['finished', 10], ['finished', 13], ['finished', 12], ['finished', 15], ['finished', 14], ['finished', 17], ['finished', 16], ['finished', 19], ['finished', 18], ['finished', 116], ['finished', 48], ['finished', 49], ['failed', 46], ['finished', 47], ['finished', 44], ['finished', 45], ['finished', 42], ['finished', 43], ['finished', 40], ['finished', 41], ['finished', 1], ['finished', 5], ['finished', 9], ['finished', 77], ['finished', 76], ['finished', 75], ['finished', 74], ['finished', 73], ['finished', 72], ['finished', 71], ['finished', 70], ['finished', 79], ['finished', 78]]}
+INFO 2015-11-23 16:11:00,225: 	 CRAB project directory:		/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-23 16:11:00,225: 	 Task name:			151119_113743:rshevche_crab_QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-23 16:11:00,225: 	 Grid scheduler:			crab3test-3@vocms096.cern.ch
+INFO 2015-11-23 16:11:00,225: 	 Task status:			FAILED
+INFO 2015-11-23 16:11:00,226: 	 Dashboard monitoring URL:	http://dashb-cms-job.cern.ch/dashboard/templates/task-analysis/#user=crab&refresh=0&table=Jobs&p=1&records=25&activemenu=2&status=&site=&tid=151119_113743%3Arshevche_crab_QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-23 16:11:00,226: 	 
+Jobs status:			failed          0.9% (  1/116)
+INFO 2015-11-23 16:11:00,226: 	 				finished       99.1% (115/116)
+INFO 2015-11-23 16:11:00,226: 	 
+No publication information (publication has been disabled in the CRAB configuration file)
+INFO 2015-11-23 16:11:00,226: 	 
+Error Summary: (use --verboseErrors for details about the errors)
+
+  1 jobs failed in postprocessing step
+
+Have a look at https://twiki.cern.ch/twiki/bin/viewauth/CMSPublic/JobExitCodes for a description of the exit codes.
+INFO 2015-11-23 16:11:00,229: 	 Log file is /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8/crab.log
+DEBUG 2015-11-23 16:11:05,833: 	 Executing command: 'status'
+DEBUG 2015-11-23 16:11:05,833: 	 Found CRAB cache file /afs/desy.de/user/s/shevchen/.crab3
+DEBUG 2015-11-23 16:11:05,840: 	 Checking credentials
+DEBUG 2015-11-23 16:11:05,840: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-11-23 16:11:05,840: 	 Getting proxy life time left
+DEBUG 2015-11-23 16:11:06,243: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 62482
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-23 16:11:06,646: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 62482
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-23 16:11:06,646: 	 Proxy valid for 17:21:22 hours
+DEBUG 2015-11-23 16:11:06,757: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-11-23 16:11:06,757: 	 Checking credentials
+DEBUG 2015-11-23 16:11:06,757: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-11-23 16:11:06,757: 	 Getting proxy life time left
+DEBUG 2015-11-23 16:11:07,160: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 62481
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-23 16:11:07,563: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 62481
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-23 16:11:07,563: 	 Proxy valid for 17:21:21 hours
+DEBUG 2015-11-23 16:11:08,144: 	 Registering user credentials for server /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+DEBUG 2015-11-23 16:11:08,251: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-11-23 16:11:08,252: 	 Getting myproxy life time left for myproxy.cern.ch
+DEBUG 2015-11-23 16:11:08,252: 	 Calculating hash of /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko_cmsweb.cern.ch for credential name
+DEBUG 2015-11-23 16:11:08,554: 	 Executing : 
+ command : myproxy-info -l 4bd1d453c3fff9872aebbf43cb3102690cbbeef6 -s myproxy.cern.ch
+ output : username: 4bd1d453c3fff9872aebbf43cb3102690cbbeef6
+owner: /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+  renewal policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  trusted retrieval policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  timeleft: 695:57:46  (29.0 days)
+
+ error: 
+ retcode : 0
+DEBUG 2015-11-23 16:11:08,555: 	 Myproxy is valid: 2505466
+DEBUG 2015-11-23 16:11:08,555: 	 Command use: status
+DEBUG 2015-11-23 16:11:08,555: 	 Options use: []
+DEBUG 2015-11-23 16:11:09,137: 	 CRABClient version: 3.3.1511
+DEBUG 2015-11-23 16:11:09,137: 	 Instance is prod
+DEBUG 2015-11-23 16:11:09,137: 	 Server base url is cmsweb.cern.ch
+DEBUG 2015-11-23 16:11:09,137: 	 Command url /crabserver/prod/workflow
+DEBUG 2015-11-23 16:11:09,137: 	 Looking up detailed status of task 151119_113743:rshevche_crab_QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8
+DEBUG 2015-11-23 16:11:12,050: 	 {'status': 'FAILED', 'schedd': 'crab3-1@submit-5.t2.ucsd.edu', 'saveLogs': 'F', 'jobsPerStatus': {'failed': 1, 'finished': 115}, 'jobs': {'24': {'State': 'finished'}, '25': {'State': 'finished'}, '26': {'State': 'finished'}, '27': {'State': 'finished'}, '20': {'State': 'finished'}, '21': {'State': 'finished'}, '22': {'State': 'finished'}, '23': {'State': 'finished'}, '28': {'State': 'finished'}, '29': {'State': 'finished'}, '4': {'State': 'finished'}, '8': {'State': 'finished'}, '59': {'State': 'finished'}, '58': {'State': 'finished'}, '55': {'State': 'finished'}, '54': {'State': 'finished'}, '57': {'State': 'finished'}, '56': {'State': 'finished'}, '51': {'State': 'finished'}, '50': {'State': 'finished'}, '53': {'State': 'finished'}, '52': {'State': 'finished'}, '115': {'State': 'finished'}, '114': {'State': 'finished'}, '88': {'State': 'finished'}, '89': {'State': 'finished'}, '111': {'State': 'finished'}, '110': {'State': 'finished'}, '113': {'State': 'finished'}, '112': {'State': 'finished'}, '82': {'State': 'finished'}, '83': {'State': 'finished'}, '80': {'State': 'finished'}, '81': {'State': 'finished'}, '86': {'State': 'finished'}, '87': {'State': 'finished'}, '84': {'State': 'finished'}, '85': {'State': 'finished'}, '3': {'State': 'finished'}, '7': {'State': 'finished'}, '108': {'State': 'finished'}, '109': {'State': 'finished'}, '102': {'State': 'finished'}, '103': {'State': 'finished'}, '100': {'State': 'finished'}, '101': {'State': 'finished'}, '106': {'State': 'finished'}, '107': {'State': 'finished'}, '104': {'State': 'finished'}, '105': {'State': 'finished'}, '39': {'State': 'finished'}, '38': {'State': 'finished'}, '33': {'State': 'finished'}, '32': {'State': 'finished'}, '31': {'State': 'finished'}, '30': {'State': 'finished'}, '37': {'State': 'finished'}, '36': {'State': 'finished'}, '35': {'State': 'finished'}, '34': {'State': 'finished'}, '60': {'State': 'finished'}, '61': {'State': 'finished'}, '62': {'State': 'finished'}, '63': {'State': 'finished'}, '64': {'State': 'finished'}, '65': {'State': 'finished'}, '66': {'State': 'finished'}, '67': {'State': 'finished'}, '68': {'State': 'finished'}, '69': {'State': 'finished'}, '2': {'State': 'finished'}, '6': {'State': 'finished'}, '99': {'State': 'finished'}, '98': {'State': 'finished'}, '91': {'State': 'finished'}, '90': {'State': 'finished'}, '93': {'State': 'finished'}, '92': {'State': 'finished'}, '95': {'State': 'finished'}, '94': {'State': 'finished'}, '97': {'State': 'finished'}, '96': {'State': 'finished'}, '11': {'State': 'finished'}, '10': {'State': 'finished'}, '13': {'State': 'finished'}, '12': {'State': 'finished'}, '15': {'State': 'finished'}, '14': {'State': 'finished'}, '17': {'State': 'finished'}, '16': {'State': 'finished'}, '19': {'State': 'finished'}, '18': {'State': 'finished'}, '116': {'State': 'finished'}, '48': {'State': 'finished'}, '49': {'State': 'finished'}, '46': {'State': 'failed', 'Error': [90000, "Got fatal stageout exception:\nStageout failed with code 1.\nThere were 1 failed/killed stageout jobs. 1 of those jobs had a permanent failure.\nFailure reasons (per document) follow:\n- af7af1a73ea029e3d67e2ea2b53c408c33d100e6bcb24163f61c11d8:\n  -----> ASO log start -----\n  ['TRANSFER  globus_ftp_client: the server responded with an error 530 530-Login incorrect. : globus_gss_assist: Error invoking callout  530-globus_callout_module: The callout returned an error  530-an unknown error occurred  530 End.   ']\n  <----- ASO log finish ----\n  The last failure reason is permanent.", {}]}, '47': {'State': 'finished'}, '44': {'State': 'finished'}, '45': {'State': 'finished'}, '42': {'State': 'finished'}, '43': {'State': 'finished'}, '40': {'State': 'finished'}, '41': {'State': 'finished'}, '1': {'State': 'finished'}, '5': {'State': 'finished'}, '9': {'State': 'finished'}, '77': {'State': 'finished'}, '76': {'State': 'finished'}, '75': {'State': 'finished'}, '74': {'State': 'finished'}, '73': {'State': 'finished'}, '72': {'State': 'finished'}, '71': {'State': 'finished'}, '70': {'State': 'finished'}, '79': {'State': 'finished'}, '78': {'State': 'finished'}}, 'publication': {'disabled': []}, 'taskWarningMsg': [], 'publicationFailures': {}, 'outdatasets': None, 'statusFailureMsg': '', 'taskFailureMsg': '', 'failedJobdefs': 0, 'ASOURL': 'https://cmsweb.cern.ch/couchdb', 'totalJobdefs': 0, 'jobSetID': '151119_113743:rshevche_crab_QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8', 'jobdefErrors': [], 'collector': 'cmssrv221.fnal.gov,vocms099.cern.ch', 'jobList': [['finished', 24], ['finished', 25], ['finished', 26], ['finished', 27], ['finished', 20], ['finished', 21], ['finished', 22], ['finished', 23], ['finished', 28], ['finished', 29], ['finished', 4], ['finished', 8], ['finished', 59], ['finished', 58], ['finished', 55], ['finished', 54], ['finished', 57], ['finished', 56], ['finished', 51], ['finished', 50], ['finished', 53], ['finished', 52], ['finished', 115], ['finished', 114], ['finished', 88], ['finished', 89], ['finished', 111], ['finished', 110], ['finished', 113], ['finished', 112], ['finished', 82], ['finished', 83], ['finished', 80], ['finished', 81], ['finished', 86], ['finished', 87], ['finished', 84], ['finished', 85], ['finished', 3], ['finished', 7], ['finished', 108], ['finished', 109], ['finished', 102], ['finished', 103], ['finished', 100], ['finished', 101], ['finished', 106], ['finished', 107], ['finished', 104], ['finished', 105], ['finished', 39], ['finished', 38], ['finished', 33], ['finished', 32], ['finished', 31], ['finished', 30], ['finished', 37], ['finished', 36], ['finished', 35], ['finished', 34], ['finished', 60], ['finished', 61], ['finished', 62], ['finished', 63], ['finished', 64], ['finished', 65], ['finished', 66], ['finished', 67], ['finished', 68], ['finished', 69], ['finished', 2], ['finished', 6], ['finished', 99], ['finished', 98], ['finished', 91], ['finished', 90], ['finished', 93], ['finished', 92], ['finished', 95], ['finished', 94], ['finished', 97], ['finished', 96], ['finished', 11], ['finished', 10], ['finished', 13], ['finished', 12], ['finished', 15], ['finished', 14], ['finished', 17], ['finished', 16], ['finished', 19], ['finished', 18], ['finished', 116], ['finished', 48], ['finished', 49], ['failed', 46], ['finished', 47], ['finished', 44], ['finished', 45], ['finished', 42], ['finished', 43], ['finished', 40], ['finished', 41], ['finished', 1], ['finished', 5], ['finished', 9], ['finished', 77], ['finished', 76], ['finished', 75], ['finished', 74], ['finished', 73], ['finished', 72], ['finished', 71], ['finished', 70], ['finished', 79], ['finished', 78]]}
+INFO 2015-11-23 16:11:12,050: 	 CRAB project directory:		/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-23 16:11:12,050: 	 Task name:			151119_113743:rshevche_crab_QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-23 16:11:12,051: 	 Grid scheduler:			crab3-1@submit-5.t2.ucsd.edu
+INFO 2015-11-23 16:11:12,051: 	 Task status:			FAILED
+INFO 2015-11-23 16:11:12,051: 	 Dashboard monitoring URL:	http://dashb-cms-job.cern.ch/dashboard/templates/task-analysis/#user=crab&refresh=0&table=Jobs&p=1&records=25&activemenu=2&status=&site=&tid=151119_113743%3Arshevche_crab_QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-23 16:11:12,051: 	 
+Jobs status:			failed          0.9% (  1/116)
+INFO 2015-11-23 16:11:12,051: 	 				finished       99.1% (115/116)
+INFO 2015-11-23 16:11:12,051: 	 
+No publication information (publication has been disabled in the CRAB configuration file)
+INFO 2015-11-23 16:11:12,051: 	 
+Error Summary: (use --verboseErrors for details about the errors)
+
+  1 jobs failed in postprocessing step
+
+Have a look at https://twiki.cern.ch/twiki/bin/viewauth/CMSPublic/JobExitCodes for a description of the exit codes.
+INFO 2015-11-23 16:11:12,054: 	 Log file is /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8/crab.log
+DEBUG 2015-11-23 16:21:36,750: 	 Executing command: 'status'
+DEBUG 2015-11-23 16:21:36,751: 	 Found CRAB cache file /afs/desy.de/user/s/shevchen/.crab3
+DEBUG 2015-11-23 16:21:36,760: 	 Checking credentials
+DEBUG 2015-11-23 16:21:36,760: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-11-23 16:21:36,760: 	 Getting proxy life time left
+DEBUG 2015-11-23 16:21:37,163: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 61851
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-23 16:21:37,566: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 61851
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-23 16:21:37,566: 	 Proxy valid for 17:10:51 hours
+DEBUG 2015-11-23 16:21:37,677: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-11-23 16:21:37,677: 	 Checking credentials
+DEBUG 2015-11-23 16:21:37,677: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-11-23 16:21:37,677: 	 Getting proxy life time left
+DEBUG 2015-11-23 16:21:38,080: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 61850
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-23 16:21:38,484: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 61850
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-23 16:21:38,484: 	 Proxy valid for 17:10:50 hours
+DEBUG 2015-11-23 16:21:39,077: 	 Registering user credentials for server /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+DEBUG 2015-11-23 16:21:39,186: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-11-23 16:21:39,186: 	 Getting myproxy life time left for myproxy.cern.ch
+DEBUG 2015-11-23 16:21:39,187: 	 Calculating hash of /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko_cmsweb.cern.ch for credential name
+DEBUG 2015-11-23 16:21:39,690: 	 Executing : 
+ command : myproxy-info -l 4bd1d453c3fff9872aebbf43cb3102690cbbeef6 -s myproxy.cern.ch
+ output : username: 4bd1d453c3fff9872aebbf43cb3102690cbbeef6
+owner: /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+  renewal policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  trusted retrieval policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  timeleft: 695:47:15  (29.0 days)
+
+ error: 
+ retcode : 0
+DEBUG 2015-11-23 16:21:39,691: 	 Myproxy is valid: 2504835
+DEBUG 2015-11-23 16:21:39,691: 	 Command use: status
+DEBUG 2015-11-23 16:21:39,691: 	 Options use: []
+DEBUG 2015-11-23 16:21:40,283: 	 CRABClient version: 3.3.1511
+DEBUG 2015-11-23 16:21:40,283: 	 Instance is prod
+DEBUG 2015-11-23 16:21:40,283: 	 Server base url is cmsweb.cern.ch
+DEBUG 2015-11-23 16:21:40,283: 	 Command url /crabserver/prod/workflow
+DEBUG 2015-11-23 16:21:40,283: 	 Looking up detailed status of task 151119_113743:rshevche_crab_QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8
+DEBUG 2015-11-23 16:21:45,389: 	 {'status': 'SUBMITTED', 'schedd': 'crab3test-2@vocms095.cern.ch', 'saveLogs': 'F', 'jobsPerStatus': {'finished': 115, 'idle': 1}, 'jobs': {'24': {'State': 'finished'}, '25': {'State': 'finished'}, '26': {'State': 'finished'}, '27': {'State': 'finished'}, '20': {'State': 'finished'}, '21': {'State': 'finished'}, '22': {'State': 'finished'}, '23': {'State': 'finished'}, '28': {'State': 'finished'}, '29': {'State': 'finished'}, '4': {'State': 'finished'}, '8': {'State': 'finished'}, '59': {'State': 'finished'}, '58': {'State': 'finished'}, '55': {'State': 'finished'}, '54': {'State': 'finished'}, '57': {'State': 'finished'}, '56': {'State': 'finished'}, '51': {'State': 'finished'}, '50': {'State': 'finished'}, '53': {'State': 'finished'}, '52': {'State': 'finished'}, '115': {'State': 'finished'}, '114': {'State': 'finished'}, '88': {'State': 'finished'}, '89': {'State': 'finished'}, '111': {'State': 'finished'}, '110': {'State': 'finished'}, '113': {'State': 'finished'}, '112': {'State': 'finished'}, '82': {'State': 'finished'}, '83': {'State': 'finished'}, '80': {'State': 'finished'}, '81': {'State': 'finished'}, '86': {'State': 'finished'}, '87': {'State': 'finished'}, '84': {'State': 'finished'}, '85': {'State': 'finished'}, '3': {'State': 'finished'}, '7': {'State': 'finished'}, '108': {'State': 'finished'}, '109': {'State': 'finished'}, '102': {'State': 'finished'}, '103': {'State': 'finished'}, '100': {'State': 'finished'}, '101': {'State': 'finished'}, '106': {'State': 'finished'}, '107': {'State': 'finished'}, '104': {'State': 'finished'}, '105': {'State': 'finished'}, '39': {'State': 'finished'}, '38': {'State': 'finished'}, '33': {'State': 'finished'}, '32': {'State': 'finished'}, '31': {'State': 'finished'}, '30': {'State': 'finished'}, '37': {'State': 'finished'}, '36': {'State': 'finished'}, '35': {'State': 'finished'}, '34': {'State': 'finished'}, '60': {'State': 'finished'}, '61': {'State': 'finished'}, '62': {'State': 'finished'}, '63': {'State': 'finished'}, '64': {'State': 'finished'}, '65': {'State': 'finished'}, '66': {'State': 'finished'}, '67': {'State': 'finished'}, '68': {'State': 'finished'}, '69': {'State': 'finished'}, '2': {'State': 'finished'}, '6': {'State': 'finished'}, '99': {'State': 'finished'}, '98': {'State': 'finished'}, '91': {'State': 'finished'}, '90': {'State': 'finished'}, '93': {'State': 'finished'}, '92': {'State': 'finished'}, '95': {'State': 'finished'}, '94': {'State': 'finished'}, '97': {'State': 'finished'}, '96': {'State': 'finished'}, '11': {'State': 'finished'}, '10': {'State': 'finished'}, '13': {'State': 'finished'}, '12': {'State': 'finished'}, '15': {'State': 'finished'}, '14': {'State': 'finished'}, '17': {'State': 'finished'}, '16': {'State': 'finished'}, '19': {'State': 'finished'}, '18': {'State': 'finished'}, '116': {'State': 'finished'}, '48': {'State': 'finished'}, '49': {'State': 'finished'}, '46': {'State': 'idle'}, '47': {'State': 'finished'}, '44': {'State': 'finished'}, '45': {'State': 'finished'}, '42': {'State': 'finished'}, '43': {'State': 'finished'}, '40': {'State': 'finished'}, '41': {'State': 'finished'}, '1': {'State': 'finished'}, '5': {'State': 'finished'}, '9': {'State': 'finished'}, '77': {'State': 'finished'}, '76': {'State': 'finished'}, '75': {'State': 'finished'}, '74': {'State': 'finished'}, '73': {'State': 'finished'}, '72': {'State': 'finished'}, '71': {'State': 'finished'}, '70': {'State': 'finished'}, '79': {'State': 'finished'}, '78': {'State': 'finished'}}, 'publication': {'disabled': []}, 'taskWarningMsg': ['Extracting files from sandbox failed, ops monitor will not work.'], 'publicationFailures': {}, 'outdatasets': None, 'statusFailureMsg': '', 'taskFailureMsg': '', 'failedJobdefs': 0, 'ASOURL': 'https://cmsweb.cern.ch/couchdb', 'totalJobdefs': 0, 'jobSetID': '151123_111916:sciaba_HC-152-AnySite-21885-20151123121903-T2_US_MIT', 'jobdefErrors': [], 'collector': 'cmssrv221.fnal.gov,vocms099.cern.ch', 'jobList': [['finished', 24], ['finished', 25], ['finished', 26], ['finished', 27], ['finished', 20], ['finished', 21], ['finished', 22], ['finished', 23], ['finished', 28], ['finished', 29], ['finished', 4], ['finished', 8], ['finished', 59], ['finished', 58], ['finished', 55], ['finished', 54], ['finished', 57], ['finished', 56], ['finished', 51], ['finished', 50], ['finished', 53], ['finished', 52], ['finished', 115], ['finished', 114], ['finished', 88], ['finished', 89], ['finished', 111], ['finished', 110], ['finished', 113], ['finished', 112], ['finished', 82], ['finished', 83], ['finished', 80], ['finished', 81], ['finished', 86], ['finished', 87], ['finished', 84], ['finished', 85], ['finished', 3], ['finished', 7], ['finished', 108], ['finished', 109], ['finished', 102], ['finished', 103], ['finished', 100], ['finished', 101], ['finished', 106], ['finished', 107], ['finished', 104], ['finished', 105], ['finished', 39], ['finished', 38], ['finished', 33], ['finished', 32], ['finished', 31], ['finished', 30], ['finished', 37], ['finished', 36], ['finished', 35], ['finished', 34], ['finished', 60], ['finished', 61], ['finished', 62], ['finished', 63], ['finished', 64], ['finished', 65], ['finished', 66], ['finished', 67], ['finished', 68], ['finished', 69], ['finished', 2], ['finished', 6], ['finished', 99], ['finished', 98], ['finished', 91], ['finished', 90], ['finished', 93], ['finished', 92], ['finished', 95], ['finished', 94], ['finished', 97], ['finished', 96], ['finished', 11], ['finished', 10], ['finished', 13], ['finished', 12], ['finished', 15], ['finished', 14], ['finished', 17], ['finished', 16], ['finished', 19], ['finished', 18], ['finished', 116], ['finished', 48], ['finished', 49], ['idle', 46], ['finished', 47], ['finished', 44], ['finished', 45], ['finished', 42], ['finished', 43], ['finished', 40], ['finished', 41], ['finished', 1], ['finished', 5], ['finished', 9], ['finished', 77], ['finished', 76], ['finished', 75], ['finished', 74], ['finished', 73], ['finished', 72], ['finished', 71], ['finished', 70], ['finished', 79], ['finished', 78]]}
+INFO 2015-11-23 16:21:45,389: 	 CRAB project directory:		/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-23 16:21:45,390: 	 Task name:			151119_113743:rshevche_crab_QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-23 16:21:45,390: 	 Grid scheduler:			crab3test-2@vocms095.cern.ch
+INFO 2015-11-23 16:21:45,390: 	 Task status:			SUBMITTED
+INFO 2015-11-23 16:21:45,390: 	 Dashboard monitoring URL:	http://dashb-cms-job.cern.ch/dashboard/templates/task-analysis/#user=crab&refresh=0&table=Jobs&p=1&records=25&activemenu=2&status=&site=&tid=151119_113743%3Arshevche_crab_QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8
+WARNING 2015-11-23 16:21:45,390: 	 Warning:			Extracting files from sandbox failed, ops monitor will not work.
+INFO 2015-11-23 16:21:45,390: 	 
+Jobs status:			finished       99.1% (115/116)
+INFO 2015-11-23 16:21:45,390: 	 				idle            0.9% (  1/116)
+INFO 2015-11-23 16:21:45,391: 	 
+No publication information (publication has been disabled in the CRAB configuration file)
+INFO 2015-11-23 16:21:45,395: 	 Log file is /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8/crab.log
+DEBUG 2015-11-23 16:23:42,028: 	 Executing command: 'status'
+DEBUG 2015-11-23 16:23:42,028: 	 Found CRAB cache file /afs/desy.de/user/s/shevchen/.crab3
+DEBUG 2015-11-23 16:23:42,037: 	 Checking credentials
+DEBUG 2015-11-23 16:23:42,037: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-11-23 16:23:42,037: 	 Getting proxy life time left
+DEBUG 2015-11-23 16:23:42,440: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 61726
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-23 16:23:42,843: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 61726
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-23 16:23:42,843: 	 Proxy valid for 17:08:46 hours
+DEBUG 2015-11-23 16:23:42,956: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-11-23 16:23:42,956: 	 Checking credentials
+DEBUG 2015-11-23 16:23:42,956: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-11-23 16:23:42,956: 	 Getting proxy life time left
+DEBUG 2015-11-23 16:23:43,359: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 61725
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-23 16:23:43,762: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 61725
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-23 16:23:43,763: 	 Proxy valid for 17:08:45 hours
+DEBUG 2015-11-23 16:23:44,319: 	 Registering user credentials for server /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+DEBUG 2015-11-23 16:23:44,429: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-11-23 16:23:44,430: 	 Getting myproxy life time left for myproxy.cern.ch
+DEBUG 2015-11-23 16:23:44,430: 	 Calculating hash of /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko_cmsweb.cern.ch for credential name
+DEBUG 2015-11-23 16:23:44,733: 	 Executing : 
+ command : myproxy-info -l 4bd1d453c3fff9872aebbf43cb3102690cbbeef6 -s myproxy.cern.ch
+ output : username: 4bd1d453c3fff9872aebbf43cb3102690cbbeef6
+owner: /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+  renewal policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  trusted retrieval policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  timeleft: 695:45:10  (29.0 days)
+
+ error: 
+ retcode : 0
+DEBUG 2015-11-23 16:23:44,735: 	 Myproxy is valid: 2504710
+DEBUG 2015-11-23 16:23:44,735: 	 Command use: status
+DEBUG 2015-11-23 16:23:44,735: 	 Options use: []
+DEBUG 2015-11-23 16:23:45,261: 	 CRABClient version: 3.3.1511
+DEBUG 2015-11-23 16:23:45,262: 	 Instance is prod
+DEBUG 2015-11-23 16:23:45,262: 	 Server base url is cmsweb.cern.ch
+DEBUG 2015-11-23 16:23:45,262: 	 Command url /crabserver/prod/workflow
+DEBUG 2015-11-23 16:23:45,262: 	 Looking up detailed status of task 151119_113743:rshevche_crab_QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8
+DEBUG 2015-11-23 16:23:49,683: 	 {'status': 'COMPLETED', 'schedd': 'crab3test-2@vocms095.cern.ch', 'saveLogs': 'F', 'jobsPerStatus': {'finished': 115, 'running': 1}, 'jobs': {'24': {'State': 'finished'}, '25': {'State': 'finished'}, '26': {'State': 'finished'}, '27': {'State': 'finished'}, '20': {'State': 'finished'}, '21': {'State': 'finished'}, '22': {'State': 'finished'}, '23': {'State': 'finished'}, '28': {'State': 'finished'}, '29': {'State': 'finished'}, '4': {'State': 'finished'}, '8': {'State': 'finished'}, '59': {'State': 'finished'}, '58': {'State': 'finished'}, '55': {'State': 'finished'}, '54': {'State': 'finished'}, '57': {'State': 'finished'}, '56': {'State': 'finished'}, '51': {'State': 'finished'}, '50': {'State': 'finished'}, '53': {'State': 'finished'}, '52': {'State': 'finished'}, '115': {'State': 'finished'}, '114': {'State': 'finished'}, '88': {'State': 'finished'}, '89': {'State': 'finished'}, '111': {'State': 'finished'}, '110': {'State': 'finished'}, '113': {'State': 'finished'}, '112': {'State': 'finished'}, '82': {'State': 'finished'}, '83': {'State': 'finished'}, '80': {'State': 'finished'}, '81': {'State': 'finished'}, '86': {'State': 'finished'}, '87': {'State': 'finished'}, '84': {'State': 'finished'}, '85': {'State': 'finished'}, '3': {'State': 'finished'}, '7': {'State': 'finished'}, '108': {'State': 'finished'}, '109': {'State': 'finished'}, '102': {'State': 'finished'}, '103': {'State': 'finished'}, '100': {'State': 'finished'}, '101': {'State': 'finished'}, '106': {'State': 'finished'}, '107': {'State': 'finished'}, '104': {'State': 'finished'}, '105': {'State': 'finished'}, '39': {'State': 'finished'}, '38': {'State': 'finished'}, '33': {'State': 'finished'}, '32': {'State': 'finished'}, '31': {'State': 'finished'}, '30': {'State': 'finished'}, '37': {'State': 'finished'}, '36': {'State': 'finished'}, '35': {'State': 'finished'}, '34': {'State': 'finished'}, '60': {'State': 'finished'}, '61': {'State': 'finished'}, '62': {'State': 'finished'}, '63': {'State': 'finished'}, '64': {'State': 'finished'}, '65': {'State': 'finished'}, '66': {'State': 'finished'}, '67': {'State': 'finished'}, '68': {'State': 'finished'}, '69': {'State': 'finished'}, '2': {'State': 'finished'}, '6': {'State': 'finished'}, '99': {'State': 'finished'}, '98': {'State': 'finished'}, '91': {'State': 'finished'}, '90': {'State': 'finished'}, '93': {'State': 'finished'}, '92': {'State': 'finished'}, '95': {'State': 'finished'}, '94': {'State': 'finished'}, '97': {'State': 'finished'}, '96': {'State': 'finished'}, '11': {'State': 'finished'}, '10': {'State': 'finished'}, '13': {'State': 'finished'}, '12': {'State': 'finished'}, '15': {'State': 'finished'}, '14': {'State': 'finished'}, '17': {'State': 'finished'}, '16': {'State': 'finished'}, '19': {'State': 'finished'}, '18': {'State': 'finished'}, '116': {'State': 'finished'}, '48': {'State': 'finished'}, '49': {'State': 'finished'}, '46': {'State': 'running'}, '47': {'State': 'finished'}, '44': {'State': 'finished'}, '45': {'State': 'finished'}, '42': {'State': 'finished'}, '43': {'State': 'finished'}, '40': {'State': 'finished'}, '41': {'State': 'finished'}, '1': {'State': 'finished'}, '5': {'State': 'finished'}, '9': {'State': 'finished'}, '77': {'State': 'finished'}, '76': {'State': 'finished'}, '75': {'State': 'finished'}, '74': {'State': 'finished'}, '73': {'State': 'finished'}, '72': {'State': 'finished'}, '71': {'State': 'finished'}, '70': {'State': 'finished'}, '79': {'State': 'finished'}, '78': {'State': 'finished'}}, 'publication': {'disabled': []}, 'taskWarningMsg': [], 'publicationFailures': {}, 'outdatasets': None, 'statusFailureMsg': '', 'taskFailureMsg': '', 'failedJobdefs': 0, 'ASOURL': 'https://cmsweb.cern.ch/couchdb', 'totalJobdefs': 0, 'jobSetID': '151121_113229:vmariani_crab_4b_MC13_4_noLsusigma', 'jobdefErrors': [], 'collector': 'cmssrv221.fnal.gov,vocms099.cern.ch', 'jobList': [['finished', 24], ['finished', 25], ['finished', 26], ['finished', 27], ['finished', 20], ['finished', 21], ['finished', 22], ['finished', 23], ['finished', 28], ['finished', 29], ['finished', 4], ['finished', 8], ['finished', 59], ['finished', 58], ['finished', 55], ['finished', 54], ['finished', 57], ['finished', 56], ['finished', 51], ['finished', 50], ['finished', 53], ['finished', 52], ['finished', 115], ['finished', 114], ['finished', 88], ['finished', 89], ['finished', 111], ['finished', 110], ['finished', 113], ['finished', 112], ['finished', 82], ['finished', 83], ['finished', 80], ['finished', 81], ['finished', 86], ['finished', 87], ['finished', 84], ['finished', 85], ['finished', 3], ['finished', 7], ['finished', 108], ['finished', 109], ['finished', 102], ['finished', 103], ['finished', 100], ['finished', 101], ['finished', 106], ['finished', 107], ['finished', 104], ['finished', 105], ['finished', 39], ['finished', 38], ['finished', 33], ['finished', 32], ['finished', 31], ['finished', 30], ['finished', 37], ['finished', 36], ['finished', 35], ['finished', 34], ['finished', 60], ['finished', 61], ['finished', 62], ['finished', 63], ['finished', 64], ['finished', 65], ['finished', 66], ['finished', 67], ['finished', 68], ['finished', 69], ['finished', 2], ['finished', 6], ['finished', 99], ['finished', 98], ['finished', 91], ['finished', 90], ['finished', 93], ['finished', 92], ['finished', 95], ['finished', 94], ['finished', 97], ['finished', 96], ['finished', 11], ['finished', 10], ['finished', 13], ['finished', 12], ['finished', 15], ['finished', 14], ['finished', 17], ['finished', 16], ['finished', 19], ['finished', 18], ['finished', 116], ['finished', 48], ['finished', 49], ['running', 46], ['finished', 47], ['finished', 44], ['finished', 45], ['finished', 42], ['finished', 43], ['finished', 40], ['finished', 41], ['finished', 1], ['finished', 5], ['finished', 9], ['finished', 77], ['finished', 76], ['finished', 75], ['finished', 74], ['finished', 73], ['finished', 72], ['finished', 71], ['finished', 70], ['finished', 79], ['finished', 78]]}
+INFO 2015-11-23 16:23:49,683: 	 CRAB project directory:		/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-23 16:23:49,683: 	 Task name:			151119_113743:rshevche_crab_QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-23 16:23:49,684: 	 Grid scheduler:			crab3test-2@vocms095.cern.ch
+INFO 2015-11-23 16:23:49,684: 	 Task status:			COMPLETED
+INFO 2015-11-23 16:23:49,684: 	 Dashboard monitoring URL:	http://dashb-cms-job.cern.ch/dashboard/templates/task-analysis/#user=crab&refresh=0&table=Jobs&p=1&records=25&activemenu=2&status=&site=&tid=151119_113743%3Arshevche_crab_QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-23 16:23:49,684: 	 
+Jobs status:			finished       99.1% (115/116)
+INFO 2015-11-23 16:23:49,684: 	 				running         0.9% (  1/116)
+INFO 2015-11-23 16:23:49,684: 	 
+No publication information (publication has been disabled in the CRAB configuration file)
+INFO 2015-11-23 16:23:49,687: 	 Log file is /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8/crab.log

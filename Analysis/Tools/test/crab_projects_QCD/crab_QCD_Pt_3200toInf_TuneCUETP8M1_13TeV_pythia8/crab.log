@@ -1,0 +1,1171 @@
+DEBUG 2015-11-19 12:38:56,004: 	 Executing command: 'submit'
+DEBUG 2015-11-19 12:38:56,005: 	 Found CRAB cache file /afs/desy.de/user/s/shevchen/.crab3
+DEBUG 2015-11-19 12:38:56,011: 	 Checking credentials
+DEBUG 2015-11-19 12:38:56,011: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-11-19 12:38:56,011: 	 Getting proxy life time left
+DEBUG 2015-11-19 12:38:56,413: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 337804
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 12:38:56,816: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 337804
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 12:38:56,817: 	 Proxy valid for 93:50:04 hours
+DEBUG 2015-11-19 12:38:56,817: 	 Will use CRAB Analysis plugin (i.e. will run an analysis job type).
+DEBUG 2015-11-19 12:38:56,878: 	 Using VO group 'dcms' as specified in the CRAB configuration file.
+DEBUG 2015-11-19 12:38:57,013: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-11-19 12:38:57,013: 	 Checking credentials
+DEBUG 2015-11-19 12:38:57,013: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-11-19 12:38:57,013: 	 Getting proxy life time left
+DEBUG 2015-11-19 12:38:57,416: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 337803
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 12:38:57,819: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 337803
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 12:38:57,819: 	 Proxy valid for 93:50:03 hours
+DEBUG 2015-11-19 12:38:58,222: 	 Executing : 
+ command : env X509_USER_PROXY=/tmp/x509up_u20182 voms-proxy-info -fqan
+ output : /cms/dcms/Role=NULL/Capability=NULL
+/cms/Role=NULL/Capability=NULL
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 12:38:58,660: 	 Registering user credentials for server /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+DEBUG 2015-11-19 12:38:58,768: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-11-19 12:38:58,769: 	 Getting myproxy life time left for myproxy.cern.ch
+DEBUG 2015-11-19 12:38:58,769: 	 Calculating hash of /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko_cmsweb.cern.ch for credential name
+DEBUG 2015-11-19 12:38:58,971: 	 Executing : 
+ command : myproxy-info -l 4bd1d453c3fff9872aebbf43cb3102690cbbeef6 -s myproxy.cern.ch
+ output : username: 4bd1d453c3fff9872aebbf43cb3102690cbbeef6
+owner: /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+  renewal policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  trusted retrieval policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  timeleft: 701:18:21  (29.2 days)
+
+ error: 
+ retcode : 0
+DEBUG 2015-11-19 12:38:58,971: 	 Myproxy is valid: 2524701
+DEBUG 2015-11-19 12:38:58,971: 	 Command use: submit
+DEBUG 2015-11-19 12:38:58,972: 	 Options use: ['--config', <WMCore.Configuration.Configuration object at 0x2b93cd0>]
+DEBUG 2015-11-19 12:38:59,461: 	 CRABClient version: 3.3.1511
+DEBUG 2015-11-19 12:38:59,461: 	 Instance is prod
+DEBUG 2015-11-19 12:38:59,461: 	 Server base url is cmsweb.cern.ch
+DEBUG 2015-11-19 12:38:59,461: 	 Command url /crabserver/prod/workflow
+DEBUG 2015-11-19 12:38:59,461: 	 Started submission
+DEBUG 2015-11-19 12:38:59,461: 	 Working on /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+DEBUG 2015-11-19 12:38:59,980: 	 Loading required information from the environment
+DEBUG 2015-11-19 12:38:59,981: 	 Found CMSSW_7_5_2 for slc6_amd64_gcc491 with base /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2
+DEBUG 2015-11-19 12:38:59,997: 	 UNIQUE NAME: tarUUID f5514541-59aa-4292-95ae-47c3ea93526e 
+DEBUG 2015-11-19 12:38:59,998: 	 self.config: from WMCore.Configuration import Configuration
+config = Configuration()
+config.section_('General')
+config.General.transferOutputs = True
+config.General.workArea = 'crab_projects_QCD'
+config.General.requestName = 'QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8'
+config.section_('JobType')
+config.JobType.psetName = '/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Ntuplizer/test/qcd_mc.py'
+config.JobType.pluginName = 'Analysis'
+config.JobType.outputFiles = ['output.root']
+config.section_('Data')
+config.Data.inputDataset = '/QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM'
+config.Data.outputDatasetTag = 'RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1'
+config.Data.publication = False
+config.Data.unitsPerJob = 1
+config.Data.splitting = 'FileBased'
+config.Data.outLFNDirBase = '/store/user/rshevche/Analysis/Ntuples/QCD/MINIAODSIM/Fall15.20151119/'
+config.Data.totalUnits = -1
+config.section_('User')
+config.User.voGroup = 'dcms'
+config.section_('Site')
+config.Site.storageSite = 'T2_DE_DESY'
+
+DEBUG 2015-11-19 12:38:59,998: 	 self.config.JobType.psetName: /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Ntuplizer/test/qcd_mc.py
+INFO 2015-11-19 12:38:59,998: 	 Importing CMSSW configuration /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Ntuplizer/test/qcd_mc.py
+INFO 2015-11-19 12:39:00,012: 	 Finished importing CMSSW configuration /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Ntuplizer/test/qcd_mc.py
+DEBUG 2015-11-19 12:39:00,013: 	 Writing CMSSW configuration to /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8/inputs/PSet.py
+DEBUG 2015-11-19 12:39:00,103: 	 The following EDM output files will be collected: []
+DEBUG 2015-11-19 12:39:00,103: 	 The following TFile output files will be collected: ['output.root']
+DEBUG 2015-11-19 12:39:00,103: 	 The following user output files will be collected: []
+DEBUG 2015-11-19 12:39:00,104: 	 Loading required information from the environment
+DEBUG 2015-11-19 12:39:00,104: 	 Found CMSSW_7_5_2 for slc6_amd64_gcc491 with base /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2
+DEBUG 2015-11-19 12:39:00,104: 	 Making tarball in /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8/inputs/f5514541-59aa-4292-95ae-47c3ea93526edefault.tgz
+DEBUG 2015-11-19 12:39:00,109: 	 Checking directory /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/lib
+DEBUG 2015-11-19 12:39:00,109: 	 Adding directory /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/lib to tarball
+DEBUG 2015-11-19 12:39:00,366: 	 Checking directory /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/biglib
+DEBUG 2015-11-19 12:39:00,366: 	 Adding directory /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/biglib to tarball
+DEBUG 2015-11-19 12:39:00,367: 	 Checking directory /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/module
+DEBUG 2015-11-19 12:39:00,398: 	 Adding data directory /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/MssmHbb/interface to tarball
+DEBUG 2015-11-19 12:39:00,403: 	 Adding data directory /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Ntuplizer/interface to tarball
+DEBUG 2015-11-19 12:39:00,411: 	 Adding data directory /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/interface to tarball
+DEBUG 2015-11-19 12:39:00,445: 	 Uploading archive /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8/inputs/f5514541-59aa-4292-95ae-47c3ea93526edefault.tgz to the CRAB cache. Using URI https://cmsweb.cern.ch/crabcache
+DEBUG 2015-11-19 12:39:01,205: 	 Result uploading input files: 6132bdabecf7f1debc0e4a15fda727869740776d1cf11132eefafebbc2884492.tar.gz 
+INFO 2015-11-19 12:39:01,205: 	 Sending the request to the server
+DEBUG 2015-11-19 12:39:01,205: 	 Submitting {'maxjobruntime': 1250, 'lfn': '/store/user/rshevche/Analysis/Ntuples/QCD/MINIAODSIM/Fall15.20151119/', 'savelogsflag': 0, 'useparent': 0, 'asyncdest': 'T2_DE_DESY', 'algoargs': 1, 'cachefilename': '6132bdabecf7f1debc0e4a15fda727869740776d1cf11132eefafebbc2884492.tar.gz', 'numcores': 1, 'addoutputfiles': [], 'generator': 'pythia', 'maxmemory': 2000, 'publishdbsurl': 'https://cmsweb.cern.ch/dbs/prod/phys03/DBSWriter', 'vogroup': 'dcms', 'priority': 10, 'jobsw': 'CMSSW_7_5_2', 'edmoutfiles': [], 'userfiles': [], 'primarydataset': '', 'inputdata': '/QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM', 'ignorelocality': 0, 'dryrun': 0, 'workflow': 'crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8', 'adduserfiles': [], 'nonprodsw': 0, 'tfileoutfiles': ['output.root'], 'oneEventMode': 0, 'cacheurl': 'https://cmsweb.cern.ch/crabcache', 'saveoutput': 1, 'publication': 0, 'jobarch': 'slc6_amd64_gcc491', 'totalunits': -1, 'splitalgo': 'FileBased', 'nonvaliddata': 0, 'dbsurl': 'https://cmsweb.cern.ch/dbs/prod/global/DBSReader', 'publishgroupname': 0, 'jobtype': 'Analysis', 'publishname2': 'RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1'} 
+DEBUG 2015-11-19 12:39:01,205: 	 Encoded submit request: maxjobruntime=1250&lfn=%2Fstore%2Fuser%2Frshevche%2FAnalysis%2FNtuples%2FQCD%2FMINIAODSIM%2FFall15.20151119%2F&savelogsflag=0&useparent=0&asyncdest=T2_DE_DESY&algoargs=1&cachefilename=6132bdabecf7f1debc0e4a15fda727869740776d1cf11132eefafebbc2884492.tar.gz&numcores=1&generator=pythia&maxmemory=2000&publishdbsurl=https%3A%2F%2Fcmsweb.cern.ch%2Fdbs%2Fprod%2Fphys03%2FDBSWriter&vogroup=dcms&priority=10&jobsw=CMSSW_7_5_2&primarydataset=&inputdata=%2FQCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8%2FRunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1%2FMINIAODSIM&ignorelocality=0&dryrun=0&workflow=crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8&nonprodsw=0&oneEventMode=0&cacheurl=https%3A%2F%2Fcmsweb.cern.ch%2Fcrabcache&saveoutput=1&publication=0&jobarch=slc6_amd64_gcc491&totalunits=-1&splitalgo=FileBased&nonvaliddata=0&dbsurl=https%3A%2F%2Fcmsweb.cern.ch%2Fdbs%2Fprod%2Fglobal%2FDBSReader&publishgroupname=0&jobtype=Analysis&publishname2=RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1&tfileoutfiles=output.root
+DEBUG 2015-11-19 12:39:02,399: 	 Result: {'result': [{'RequestName': '151119_113902:rshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8'}]}
+INFO 2015-11-19 12:39:02,401: 	 Success: Your task has been delivered to the CRAB3 server.
+INFO 2015-11-19 12:39:02,401: 	 Task name: 151119_113902:rshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-19 12:39:02,401: 	 Please use 'crab status' to check how the submission process proceeds.
+DEBUG 2015-11-19 12:39:02,402: 	 About to return
+DEBUG 2015-11-19 12:41:21,019: 	 Executing command: 'status'
+DEBUG 2015-11-19 12:41:21,019: 	 Found CRAB cache file /afs/desy.de/user/s/shevchen/.crab3
+DEBUG 2015-11-19 12:41:21,028: 	 Checking credentials
+DEBUG 2015-11-19 12:41:21,028: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-11-19 12:41:21,028: 	 Getting proxy life time left
+DEBUG 2015-11-19 12:41:21,431: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 337659
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 12:41:21,834: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 337659
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 12:41:21,834: 	 Proxy valid for 93:47:39 hours
+DEBUG 2015-11-19 12:41:21,945: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-11-19 12:41:21,945: 	 Checking credentials
+DEBUG 2015-11-19 12:41:21,945: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-11-19 12:41:21,945: 	 Getting proxy life time left
+DEBUG 2015-11-19 12:41:22,348: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 337658
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 12:41:22,750: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 337658
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 12:41:22,751: 	 Proxy valid for 93:47:38 hours
+DEBUG 2015-11-19 12:41:23,210: 	 Registering user credentials for server /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+DEBUG 2015-11-19 12:41:23,318: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-11-19 12:41:23,318: 	 Getting myproxy life time left for myproxy.cern.ch
+DEBUG 2015-11-19 12:41:23,318: 	 Calculating hash of /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko_cmsweb.cern.ch for credential name
+DEBUG 2015-11-19 12:41:23,821: 	 Executing : 
+ command : myproxy-info -l 4bd1d453c3fff9872aebbf43cb3102690cbbeef6 -s myproxy.cern.ch
+ output : username: 4bd1d453c3fff9872aebbf43cb3102690cbbeef6
+owner: /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+  renewal policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  trusted retrieval policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  timeleft: 701:15:56  (29.2 days)
+
+ error: 
+ retcode : 0
+DEBUG 2015-11-19 12:41:23,822: 	 Myproxy is valid: 2524556
+DEBUG 2015-11-19 12:41:23,822: 	 Command use: status
+DEBUG 2015-11-19 12:41:23,822: 	 Options use: []
+DEBUG 2015-11-19 12:41:24,304: 	 CRABClient version: 3.3.1511
+DEBUG 2015-11-19 12:41:24,304: 	 Instance is prod
+DEBUG 2015-11-19 12:41:24,304: 	 Server base url is cmsweb.cern.ch
+DEBUG 2015-11-19 12:41:24,304: 	 Command url /crabserver/prod/workflow
+DEBUG 2015-11-19 12:41:24,304: 	 Looking up detailed status of task 151119_113902:rshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+DEBUG 2015-11-19 12:41:28,744: 	 {'status': 'SUBMITTED', 'schedd': 'crab3-3@submit-4.t2.ucsd.edu', 'saveLogs': 'F', 'jobsPerStatus': {'idle': 4}, 'jobs': {'1': {'State': 'idle'}, '3': {'State': 'idle'}, '2': {'State': 'idle'}, '4': {'State': 'idle'}}, 'publication': {'disabled': []}, 'taskWarningMsg': [], 'publicationFailures': {}, 'outdatasets': None, 'statusFailureMsg': '', 'taskFailureMsg': '', 'failedJobdefs': 0, 'ASOURL': 'https://cmsweb.cern.ch/couchdb', 'totalJobdefs': 0, 'jobSetID': '151119_113902:rshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8', 'jobdefErrors': [], 'collector': 'cmssrv221.fnal.gov,vocms099.cern.ch', 'jobList': [['idle', 1], ['idle', 3], ['idle', 2], ['idle', 4]]}
+INFO 2015-11-19 12:41:28,744: 	 CRAB project directory:		/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-19 12:41:28,744: 	 Task name:			151119_113902:rshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-19 12:41:28,744: 	 Grid scheduler:			crab3-3@submit-4.t2.ucsd.edu
+INFO 2015-11-19 12:41:28,744: 	 Task status:			SUBMITTED
+INFO 2015-11-19 12:41:28,744: 	 Dashboard monitoring URL:	http://dashb-cms-job.cern.ch/dashboard/templates/task-analysis/#user=crab&refresh=0&table=Jobs&p=1&records=25&activemenu=2&status=&site=&tid=151119_113902%3Arshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-19 12:41:28,744: 	 
+Jobs status:			idle          100.0% (4/4)
+INFO 2015-11-19 12:41:28,745: 	 
+No publication information (publication has been disabled in the CRAB configuration file)
+INFO 2015-11-19 12:41:28,746: 	 Log file is /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8/crab.log
+DEBUG 2015-11-19 12:53:17,543: 	 Executing command: 'status'
+DEBUG 2015-11-19 12:53:17,543: 	 Found CRAB cache file /afs/desy.de/user/s/shevchen/.crab3
+DEBUG 2015-11-19 12:53:17,551: 	 Checking credentials
+DEBUG 2015-11-19 12:53:17,551: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-11-19 12:53:17,551: 	 Getting proxy life time left
+DEBUG 2015-11-19 12:53:17,954: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 336943
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 12:53:18,356: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 336942
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 12:53:18,356: 	 Proxy valid for 93:35:43 hours
+DEBUG 2015-11-19 12:53:18,467: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-11-19 12:53:18,467: 	 Checking credentials
+DEBUG 2015-11-19 12:53:18,467: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-11-19 12:53:18,467: 	 Getting proxy life time left
+DEBUG 2015-11-19 12:53:18,869: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 336942
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 12:53:19,272: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 336941
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 12:53:19,272: 	 Proxy valid for 93:35:42 hours
+DEBUG 2015-11-19 12:53:19,776: 	 Registering user credentials for server /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+DEBUG 2015-11-19 12:53:19,883: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-11-19 12:53:19,884: 	 Getting myproxy life time left for myproxy.cern.ch
+DEBUG 2015-11-19 12:53:19,884: 	 Calculating hash of /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko_cmsweb.cern.ch for credential name
+DEBUG 2015-11-19 12:53:20,386: 	 Executing : 
+ command : myproxy-info -l 4bd1d453c3fff9872aebbf43cb3102690cbbeef6 -s myproxy.cern.ch
+ output : username: 4bd1d453c3fff9872aebbf43cb3102690cbbeef6
+owner: /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+  renewal policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  trusted retrieval policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  timeleft: 701:03:59  (29.2 days)
+
+ error: 
+ retcode : 0
+DEBUG 2015-11-19 12:53:20,387: 	 Myproxy is valid: 2523839
+DEBUG 2015-11-19 12:53:20,387: 	 Command use: status
+DEBUG 2015-11-19 12:53:20,387: 	 Options use: []
+DEBUG 2015-11-19 12:53:20,837: 	 CRABClient version: 3.3.1511
+DEBUG 2015-11-19 12:53:20,837: 	 Instance is prod
+DEBUG 2015-11-19 12:53:20,837: 	 Server base url is cmsweb.cern.ch
+DEBUG 2015-11-19 12:53:20,837: 	 Command url /crabserver/prod/workflow
+DEBUG 2015-11-19 12:53:20,837: 	 Looking up detailed status of task 151119_113902:rshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+DEBUG 2015-11-19 12:53:25,504: 	 {'status': 'SUBMITTED', 'schedd': 'crab3-3@submit-4.t2.ucsd.edu', 'saveLogs': 'F', 'jobsPerStatus': {'running': 4}, 'jobs': {'1': {'State': 'running'}, '3': {'State': 'running'}, '2': {'State': 'running'}, '4': {'State': 'running'}}, 'publication': {'disabled': []}, 'taskWarningMsg': [], 'publicationFailures': {}, 'outdatasets': None, 'statusFailureMsg': '', 'taskFailureMsg': '', 'failedJobdefs': 0, 'ASOURL': 'https://cmsweb.cern.ch/couchdb', 'totalJobdefs': 0, 'jobSetID': '151119_113902:rshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8', 'jobdefErrors': [], 'collector': 'cmssrv221.fnal.gov,vocms099.cern.ch', 'jobList': [['running', 1], ['running', 3], ['running', 2], ['running', 4]]}
+INFO 2015-11-19 12:53:25,504: 	 CRAB project directory:		/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-19 12:53:25,504: 	 Task name:			151119_113902:rshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-19 12:53:25,504: 	 Grid scheduler:			crab3-3@submit-4.t2.ucsd.edu
+INFO 2015-11-19 12:53:25,504: 	 Task status:			SUBMITTED
+INFO 2015-11-19 12:53:25,504: 	 Dashboard monitoring URL:	http://dashb-cms-job.cern.ch/dashboard/templates/task-analysis/#user=crab&refresh=0&table=Jobs&p=1&records=25&activemenu=2&status=&site=&tid=151119_113902%3Arshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-19 12:53:25,504: 	 
+Jobs status:			running       100.0% (4/4)
+INFO 2015-11-19 12:53:25,504: 	 
+No publication information (publication has been disabled in the CRAB configuration file)
+INFO 2015-11-19 12:53:25,506: 	 Log file is /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8/crab.log
+DEBUG 2015-11-19 12:56:07,036: 	 Executing command: 'status'
+DEBUG 2015-11-19 12:56:07,036: 	 Found CRAB cache file /afs/desy.de/user/s/shevchen/.crab3
+DEBUG 2015-11-19 12:56:07,044: 	 Checking credentials
+DEBUG 2015-11-19 12:56:07,044: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-11-19 12:56:07,044: 	 Getting proxy life time left
+DEBUG 2015-11-19 12:56:07,446: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 336773
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 12:56:07,850: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 336773
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 12:56:07,850: 	 Proxy valid for 93:32:53 hours
+DEBUG 2015-11-19 12:56:07,961: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-11-19 12:56:07,961: 	 Checking credentials
+DEBUG 2015-11-19 12:56:07,961: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-11-19 12:56:07,961: 	 Getting proxy life time left
+DEBUG 2015-11-19 12:56:08,363: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 336772
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 12:56:08,766: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 336772
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 12:56:08,767: 	 Proxy valid for 93:32:52 hours
+DEBUG 2015-11-19 12:56:09,255: 	 Registering user credentials for server /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+DEBUG 2015-11-19 12:56:09,363: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-11-19 12:56:09,363: 	 Getting myproxy life time left for myproxy.cern.ch
+DEBUG 2015-11-19 12:56:09,363: 	 Calculating hash of /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko_cmsweb.cern.ch for credential name
+DEBUG 2015-11-19 12:56:09,866: 	 Executing : 
+ command : myproxy-info -l 4bd1d453c3fff9872aebbf43cb3102690cbbeef6 -s myproxy.cern.ch
+ output : username: 4bd1d453c3fff9872aebbf43cb3102690cbbeef6
+owner: /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+  renewal policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  trusted retrieval policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  timeleft: 701:01:10  (29.2 days)
+
+ error: 
+ retcode : 0
+DEBUG 2015-11-19 12:56:09,867: 	 Myproxy is valid: 2523670
+DEBUG 2015-11-19 12:56:09,867: 	 Command use: status
+DEBUG 2015-11-19 12:56:09,867: 	 Options use: []
+DEBUG 2015-11-19 12:56:10,371: 	 CRABClient version: 3.3.1511
+DEBUG 2015-11-19 12:56:10,371: 	 Instance is prod
+DEBUG 2015-11-19 12:56:10,372: 	 Server base url is cmsweb.cern.ch
+DEBUG 2015-11-19 12:56:10,372: 	 Command url /crabserver/prod/workflow
+DEBUG 2015-11-19 12:56:10,372: 	 Looking up detailed status of task 151119_113902:rshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+DEBUG 2015-11-19 12:56:13,888: 	 {'status': 'SUBMITTED', 'schedd': 'crab3-3@submit-4.t2.ucsd.edu', 'saveLogs': 'F', 'jobsPerStatus': {'running': 4}, 'jobs': {'1': {'State': 'running'}, '3': {'State': 'running'}, '2': {'State': 'running'}, '4': {'State': 'running'}}, 'publication': {'disabled': []}, 'taskWarningMsg': [], 'publicationFailures': {}, 'outdatasets': None, 'statusFailureMsg': '', 'taskFailureMsg': '', 'failedJobdefs': 0, 'ASOURL': 'https://cmsweb.cern.ch/couchdb', 'totalJobdefs': 0, 'jobSetID': '151119_113902:rshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8', 'jobdefErrors': [], 'collector': 'cmssrv221.fnal.gov,vocms099.cern.ch', 'jobList': [['running', 1], ['running', 3], ['running', 2], ['running', 4]]}
+INFO 2015-11-19 12:56:13,888: 	 CRAB project directory:		/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-19 12:56:13,888: 	 Task name:			151119_113902:rshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-19 12:56:13,889: 	 Grid scheduler:			crab3-3@submit-4.t2.ucsd.edu
+INFO 2015-11-19 12:56:13,889: 	 Task status:			SUBMITTED
+INFO 2015-11-19 12:56:13,889: 	 Dashboard monitoring URL:	http://dashb-cms-job.cern.ch/dashboard/templates/task-analysis/#user=crab&refresh=0&table=Jobs&p=1&records=25&activemenu=2&status=&site=&tid=151119_113902%3Arshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-19 12:56:13,889: 	 
+Jobs status:			running       100.0% (4/4)
+INFO 2015-11-19 12:56:13,889: 	 
+No publication information (publication has been disabled in the CRAB configuration file)
+INFO 2015-11-19 12:56:13,891: 	 Log file is /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8/crab.log
+DEBUG 2015-11-19 12:59:12,250: 	 Executing command: 'status'
+DEBUG 2015-11-19 12:59:12,250: 	 Found CRAB cache file /afs/desy.de/user/s/shevchen/.crab3
+DEBUG 2015-11-19 12:59:12,257: 	 Checking credentials
+DEBUG 2015-11-19 12:59:12,258: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-11-19 12:59:12,258: 	 Getting proxy life time left
+DEBUG 2015-11-19 12:59:12,660: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 336588
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 12:59:13,063: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 336587
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 12:59:13,063: 	 Proxy valid for 93:29:48 hours
+DEBUG 2015-11-19 12:59:13,173: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-11-19 12:59:13,174: 	 Checking credentials
+DEBUG 2015-11-19 12:59:13,174: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-11-19 12:59:13,174: 	 Getting proxy life time left
+DEBUG 2015-11-19 12:59:13,576: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 336587
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 12:59:13,979: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 336587
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 12:59:13,979: 	 Proxy valid for 93:29:47 hours
+DEBUG 2015-11-19 12:59:14,494: 	 Registering user credentials for server /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+DEBUG 2015-11-19 12:59:14,601: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-11-19 12:59:14,601: 	 Getting myproxy life time left for myproxy.cern.ch
+DEBUG 2015-11-19 12:59:14,601: 	 Calculating hash of /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko_cmsweb.cern.ch for credential name
+DEBUG 2015-11-19 12:59:15,103: 	 Executing : 
+ command : myproxy-info -l 4bd1d453c3fff9872aebbf43cb3102690cbbeef6 -s myproxy.cern.ch
+ output : username: 4bd1d453c3fff9872aebbf43cb3102690cbbeef6
+owner: /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+  renewal policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  trusted retrieval policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  timeleft: 700:58:04  (29.2 days)
+
+ error: 
+ retcode : 0
+DEBUG 2015-11-19 12:59:15,104: 	 Myproxy is valid: 2523484
+DEBUG 2015-11-19 12:59:15,104: 	 Command use: status
+DEBUG 2015-11-19 12:59:15,104: 	 Options use: []
+DEBUG 2015-11-19 12:59:15,580: 	 CRABClient version: 3.3.1511
+DEBUG 2015-11-19 12:59:15,580: 	 Instance is prod
+DEBUG 2015-11-19 12:59:15,580: 	 Server base url is cmsweb.cern.ch
+DEBUG 2015-11-19 12:59:15,580: 	 Command url /crabserver/prod/workflow
+DEBUG 2015-11-19 12:59:15,580: 	 Looking up detailed status of task 151119_113902:rshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+DEBUG 2015-11-19 12:59:20,276: 	 {'status': 'SUBMITTED', 'schedd': 'crab3-3@submit-4.t2.ucsd.edu', 'saveLogs': 'F', 'jobsPerStatus': {'running': 4}, 'jobs': {'1': {'State': 'running'}, '3': {'State': 'running'}, '2': {'State': 'running'}, '4': {'State': 'running'}}, 'publication': {'disabled': []}, 'taskWarningMsg': [], 'publicationFailures': {}, 'outdatasets': None, 'statusFailureMsg': '', 'taskFailureMsg': '', 'failedJobdefs': 0, 'ASOURL': 'https://cmsweb.cern.ch/couchdb', 'totalJobdefs': 0, 'jobSetID': '151119_113902:rshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8', 'jobdefErrors': [], 'collector': 'cmssrv221.fnal.gov,vocms099.cern.ch', 'jobList': [['running', 1], ['running', 3], ['running', 2], ['running', 4]]}
+INFO 2015-11-19 12:59:20,276: 	 CRAB project directory:		/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-19 12:59:20,276: 	 Task name:			151119_113902:rshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-19 12:59:20,276: 	 Grid scheduler:			crab3-3@submit-4.t2.ucsd.edu
+INFO 2015-11-19 12:59:20,277: 	 Task status:			SUBMITTED
+INFO 2015-11-19 12:59:20,277: 	 Dashboard monitoring URL:	http://dashb-cms-job.cern.ch/dashboard/templates/task-analysis/#user=crab&refresh=0&table=Jobs&p=1&records=25&activemenu=2&status=&site=&tid=151119_113902%3Arshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-19 12:59:20,277: 	 
+Jobs status:			running       100.0% (4/4)
+INFO 2015-11-19 12:59:20,277: 	 
+No publication information (publication has been disabled in the CRAB configuration file)
+INFO 2015-11-19 12:59:20,279: 	 Log file is /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8/crab.log
+DEBUG 2015-11-19 13:16:29,053: 	 Executing command: 'status'
+DEBUG 2015-11-19 13:16:29,053: 	 Found CRAB cache file /afs/desy.de/user/s/shevchen/.crab3
+DEBUG 2015-11-19 13:16:29,063: 	 Checking credentials
+DEBUG 2015-11-19 13:16:29,063: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-11-19 13:16:29,063: 	 Getting proxy life time left
+DEBUG 2015-11-19 13:16:30,066: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 335550
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 13:16:30,769: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 335550
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 13:16:30,770: 	 Proxy valid for 93:12:30 hours
+DEBUG 2015-11-19 13:16:30,882: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-11-19 13:16:30,882: 	 Checking credentials
+DEBUG 2015-11-19 13:16:30,882: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-11-19 13:16:30,882: 	 Getting proxy life time left
+DEBUG 2015-11-19 13:16:31,285: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 335549
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 13:16:31,888: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 335549
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 13:16:31,888: 	 Proxy valid for 93:12:29 hours
+DEBUG 2015-11-19 13:16:32,358: 	 Registering user credentials for server /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+DEBUG 2015-11-19 13:16:32,466: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-11-19 13:16:32,466: 	 Getting myproxy life time left for myproxy.cern.ch
+DEBUG 2015-11-19 13:16:32,466: 	 Calculating hash of /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko_cmsweb.cern.ch for credential name
+DEBUG 2015-11-19 13:16:32,969: 	 Executing : 
+ command : myproxy-info -l 4bd1d453c3fff9872aebbf43cb3102690cbbeef6 -s myproxy.cern.ch
+ output : username: 4bd1d453c3fff9872aebbf43cb3102690cbbeef6
+owner: /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+  renewal policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  trusted retrieval policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  timeleft: 700:40:47  (29.2 days)
+
+ error: 
+ retcode : 0
+DEBUG 2015-11-19 13:16:32,970: 	 Myproxy is valid: 2522447
+DEBUG 2015-11-19 13:16:32,970: 	 Command use: status
+DEBUG 2015-11-19 13:16:32,970: 	 Options use: []
+DEBUG 2015-11-19 13:16:33,483: 	 CRABClient version: 3.3.1511
+DEBUG 2015-11-19 13:16:33,483: 	 Instance is prod
+DEBUG 2015-11-19 13:16:33,483: 	 Server base url is cmsweb.cern.ch
+DEBUG 2015-11-19 13:16:33,483: 	 Command url /crabserver/prod/workflow
+DEBUG 2015-11-19 13:16:33,483: 	 Looking up detailed status of task 151119_113902:rshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+DEBUG 2015-11-19 13:16:36,958: 	 {'status': 'SUBMITTED', 'schedd': 'crab3-3@submit-4.t2.ucsd.edu', 'saveLogs': 'F', 'jobsPerStatus': {'transferring': 4}, 'jobs': {'1': {'State': 'transferring'}, '3': {'State': 'transferring'}, '2': {'State': 'transferring'}, '4': {'State': 'transferring'}}, 'publication': {'disabled': []}, 'taskWarningMsg': [], 'publicationFailures': {}, 'outdatasets': None, 'statusFailureMsg': '', 'taskFailureMsg': '', 'failedJobdefs': 0, 'ASOURL': 'https://cmsweb.cern.ch/couchdb', 'totalJobdefs': 0, 'jobSetID': '151119_113902:rshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8', 'jobdefErrors': [], 'collector': 'cmssrv221.fnal.gov,vocms099.cern.ch', 'jobList': [['transferring', 1], ['transferring', 3], ['transferring', 2], ['transferring', 4]]}
+INFO 2015-11-19 13:16:36,958: 	 CRAB project directory:		/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-19 13:16:36,958: 	 Task name:			151119_113902:rshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-19 13:16:36,959: 	 Grid scheduler:			crab3-3@submit-4.t2.ucsd.edu
+INFO 2015-11-19 13:16:36,959: 	 Task status:			SUBMITTED
+INFO 2015-11-19 13:16:36,959: 	 Dashboard monitoring URL:	http://dashb-cms-job.cern.ch/dashboard/templates/task-analysis/#user=crab&refresh=0&table=Jobs&p=1&records=25&activemenu=2&status=&site=&tid=151119_113902%3Arshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-19 13:16:36,959: 	 
+Jobs status:			transferring  100.0% (4/4)
+INFO 2015-11-19 13:16:36,959: 	 
+No publication information (publication has been disabled in the CRAB configuration file)
+INFO 2015-11-19 13:16:36,961: 	 Log file is /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8/crab.log
+DEBUG 2015-11-19 13:20:56,583: 	 Executing command: 'status'
+DEBUG 2015-11-19 13:20:56,583: 	 Found CRAB cache file /afs/desy.de/user/s/shevchen/.crab3
+DEBUG 2015-11-19 13:20:56,592: 	 Checking credentials
+DEBUG 2015-11-19 13:20:56,592: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-11-19 13:20:56,592: 	 Getting proxy life time left
+DEBUG 2015-11-19 13:20:57,796: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 335283
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 13:20:58,500: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 335282
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 13:20:58,500: 	 Proxy valid for 93:08:03 hours
+DEBUG 2015-11-19 13:20:58,611: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-11-19 13:20:58,611: 	 Checking credentials
+DEBUG 2015-11-19 13:20:58,611: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-11-19 13:20:58,611: 	 Getting proxy life time left
+DEBUG 2015-11-19 13:20:59,014: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 335282
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 13:20:59,617: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 335281
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 13:20:59,618: 	 Proxy valid for 93:08:02 hours
+DEBUG 2015-11-19 13:21:00,161: 	 Registering user credentials for server /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+DEBUG 2015-11-19 13:21:00,268: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-11-19 13:21:00,268: 	 Getting myproxy life time left for myproxy.cern.ch
+DEBUG 2015-11-19 13:21:00,268: 	 Calculating hash of /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko_cmsweb.cern.ch for credential name
+DEBUG 2015-11-19 13:21:00,771: 	 Executing : 
+ command : myproxy-info -l 4bd1d453c3fff9872aebbf43cb3102690cbbeef6 -s myproxy.cern.ch
+ output : username: 4bd1d453c3fff9872aebbf43cb3102690cbbeef6
+owner: /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+  renewal policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  trusted retrieval policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  timeleft: 700:36:19  (29.2 days)
+
+ error: 
+ retcode : 0
+DEBUG 2015-11-19 13:21:00,771: 	 Myproxy is valid: 2522179
+DEBUG 2015-11-19 13:21:00,771: 	 Command use: status
+DEBUG 2015-11-19 13:21:00,772: 	 Options use: []
+DEBUG 2015-11-19 13:21:01,239: 	 CRABClient version: 3.3.1511
+DEBUG 2015-11-19 13:21:01,239: 	 Instance is prod
+DEBUG 2015-11-19 13:21:01,239: 	 Server base url is cmsweb.cern.ch
+DEBUG 2015-11-19 13:21:01,239: 	 Command url /crabserver/prod/workflow
+DEBUG 2015-11-19 13:21:01,239: 	 Looking up detailed status of task 151119_113902:rshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+DEBUG 2015-11-19 13:21:05,799: 	 {'status': 'SUBMITTED', 'schedd': 'crab3test-3@vocms096.cern.ch', 'saveLogs': 'F', 'jobsPerStatus': {'transferring': 4}, 'jobs': {'1': {'State': 'transferring'}, '3': {'State': 'transferring'}, '2': {'State': 'transferring'}, '4': {'State': 'transferring'}}, 'publication': {'disabled': []}, 'taskWarningMsg': [], 'publicationFailures': {}, 'outdatasets': None, 'statusFailureMsg': '', 'taskFailureMsg': '', 'failedJobdefs': 0, 'ASOURL': 'https://cmsweb.cern.ch/couchdb', 'totalJobdefs': 0, 'jobSetID': '151117_153447:bmichlin_crab_DarkSUSY_mH_125_mGammaD_0400_cT_005_Evt_79k_PATANA_v4', 'jobdefErrors': [], 'collector': 'cmssrv221.fnal.gov,vocms099.cern.ch', 'jobList': [['transferring', 1], ['transferring', 3], ['transferring', 2], ['transferring', 4]]}
+INFO 2015-11-19 13:21:05,799: 	 CRAB project directory:		/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-19 13:21:05,799: 	 Task name:			151119_113902:rshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-19 13:21:05,799: 	 Grid scheduler:			crab3test-3@vocms096.cern.ch
+INFO 2015-11-19 13:21:05,799: 	 Task status:			SUBMITTED
+INFO 2015-11-19 13:21:05,799: 	 Dashboard monitoring URL:	http://dashb-cms-job.cern.ch/dashboard/templates/task-analysis/#user=crab&refresh=0&table=Jobs&p=1&records=25&activemenu=2&status=&site=&tid=151119_113902%3Arshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-19 13:21:05,799: 	 
+Jobs status:			transferring  100.0% (4/4)
+INFO 2015-11-19 13:21:05,799: 	 
+No publication information (publication has been disabled in the CRAB configuration file)
+INFO 2015-11-19 13:21:05,801: 	 Log file is /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8/crab.log
+DEBUG 2015-11-19 13:23:37,271: 	 Executing command: 'status'
+DEBUG 2015-11-19 13:23:37,272: 	 Found CRAB cache file /afs/desy.de/user/s/shevchen/.crab3
+DEBUG 2015-11-19 13:23:37,280: 	 Checking credentials
+DEBUG 2015-11-19 13:23:37,280: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-11-19 13:23:37,280: 	 Getting proxy life time left
+DEBUG 2015-11-19 13:23:37,682: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 335123
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 13:23:38,385: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 335122
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 13:23:38,386: 	 Proxy valid for 93:05:23 hours
+DEBUG 2015-11-19 13:23:38,531: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-11-19 13:23:38,532: 	 Checking credentials
+DEBUG 2015-11-19 13:23:38,532: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-11-19 13:23:38,532: 	 Getting proxy life time left
+DEBUG 2015-11-19 13:23:38,934: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 335122
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 13:23:39,337: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 335121
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 13:23:39,337: 	 Proxy valid for 93:05:22 hours
+DEBUG 2015-11-19 13:23:39,823: 	 Registering user credentials for server /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+DEBUG 2015-11-19 13:23:39,930: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-11-19 13:23:39,930: 	 Getting myproxy life time left for myproxy.cern.ch
+DEBUG 2015-11-19 13:23:39,931: 	 Calculating hash of /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko_cmsweb.cern.ch for credential name
+DEBUG 2015-11-19 13:23:40,433: 	 Executing : 
+ command : myproxy-info -l 4bd1d453c3fff9872aebbf43cb3102690cbbeef6 -s myproxy.cern.ch
+ output : username: 4bd1d453c3fff9872aebbf43cb3102690cbbeef6
+owner: /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+  renewal policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  trusted retrieval policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  timeleft: 700:33:39  (29.2 days)
+
+ error: 
+ retcode : 0
+DEBUG 2015-11-19 13:23:40,434: 	 Myproxy is valid: 2522019
+DEBUG 2015-11-19 13:23:40,434: 	 Command use: status
+DEBUG 2015-11-19 13:23:40,434: 	 Options use: []
+DEBUG 2015-11-19 13:23:40,924: 	 CRABClient version: 3.3.1511
+DEBUG 2015-11-19 13:23:40,924: 	 Instance is prod
+DEBUG 2015-11-19 13:23:40,924: 	 Server base url is cmsweb.cern.ch
+DEBUG 2015-11-19 13:23:40,924: 	 Command url /crabserver/prod/workflow
+DEBUG 2015-11-19 13:23:40,925: 	 Looking up detailed status of task 151119_113902:rshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+DEBUG 2015-11-19 13:23:46,856: 	 {'status': 'SUBMITTED', 'schedd': 'crab3-3@submit-4.t2.ucsd.edu', 'saveLogs': 'F', 'jobsPerStatus': {'transferring': 4}, 'jobs': {'1': {'State': 'transferring'}, '3': {'State': 'transferring'}, '2': {'State': 'transferring'}, '4': {'State': 'transferring'}}, 'publication': {'disabled': []}, 'taskWarningMsg': [], 'publicationFailures': {}, 'outdatasets': None, 'statusFailureMsg': '', 'taskFailureMsg': '', 'failedJobdefs': 0, 'ASOURL': 'https://cmsweb.cern.ch/couchdb', 'totalJobdefs': 0, 'jobSetID': '151119_113902:rshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8', 'jobdefErrors': [], 'collector': 'cmssrv221.fnal.gov,vocms099.cern.ch', 'jobList': [['transferring', 1], ['transferring', 3], ['transferring', 2], ['transferring', 4]]}
+INFO 2015-11-19 13:23:46,856: 	 CRAB project directory:		/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-19 13:23:46,856: 	 Task name:			151119_113902:rshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-19 13:23:46,856: 	 Grid scheduler:			crab3-3@submit-4.t2.ucsd.edu
+INFO 2015-11-19 13:23:46,856: 	 Task status:			SUBMITTED
+INFO 2015-11-19 13:23:46,856: 	 Dashboard monitoring URL:	http://dashb-cms-job.cern.ch/dashboard/templates/task-analysis/#user=crab&refresh=0&table=Jobs&p=1&records=25&activemenu=2&status=&site=&tid=151119_113902%3Arshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-19 13:23:46,856: 	 
+Jobs status:			transferring  100.0% (4/4)
+INFO 2015-11-19 13:23:46,856: 	 
+No publication information (publication has been disabled in the CRAB configuration file)
+INFO 2015-11-19 13:23:46,858: 	 Log file is /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8/crab.log
+DEBUG 2015-11-19 14:36:24,324: 	 Executing command: 'status'
+DEBUG 2015-11-19 14:36:24,325: 	 Found CRAB cache file /afs/desy.de/user/s/shevchen/.crab3
+DEBUG 2015-11-19 14:36:24,341: 	 Checking credentials
+DEBUG 2015-11-19 14:36:24,346: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-11-19 14:36:24,346: 	 Getting proxy life time left
+DEBUG 2015-11-19 14:36:24,849: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 330756
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 14:36:25,253: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 330755
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 14:36:25,253: 	 Proxy valid for 91:52:36 hours
+DEBUG 2015-11-19 14:36:25,381: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-11-19 14:36:25,381: 	 Checking credentials
+DEBUG 2015-11-19 14:36:25,381: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-11-19 14:36:25,381: 	 Getting proxy life time left
+DEBUG 2015-11-19 14:36:25,784: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 330755
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 14:36:26,188: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 330754
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 14:36:26,188: 	 Proxy valid for 91:52:35 hours
+DEBUG 2015-11-19 14:36:26,704: 	 Registering user credentials for server /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+DEBUG 2015-11-19 14:36:26,812: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-11-19 14:36:26,813: 	 Getting myproxy life time left for myproxy.cern.ch
+DEBUG 2015-11-19 14:36:26,813: 	 Calculating hash of /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko_cmsweb.cern.ch for credential name
+DEBUG 2015-11-19 14:36:27,115: 	 Executing : 
+ command : myproxy-info -l 4bd1d453c3fff9872aebbf43cb3102690cbbeef6 -s myproxy.cern.ch
+ output : username: 4bd1d453c3fff9872aebbf43cb3102690cbbeef6
+owner: /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+  renewal policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  trusted retrieval policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  timeleft: 699:20:52  (29.1 days)
+
+ error: 
+ retcode : 0
+DEBUG 2015-11-19 14:36:27,116: 	 Myproxy is valid: 2517652
+DEBUG 2015-11-19 14:36:27,116: 	 Command use: status
+DEBUG 2015-11-19 14:36:27,116: 	 Options use: []
+DEBUG 2015-11-19 14:36:27,622: 	 CRABClient version: 3.3.1511
+DEBUG 2015-11-19 14:36:27,622: 	 Instance is prod
+DEBUG 2015-11-19 14:36:27,622: 	 Server base url is cmsweb.cern.ch
+DEBUG 2015-11-19 14:36:27,622: 	 Command url /crabserver/prod/workflow
+DEBUG 2015-11-19 14:36:27,622: 	 Looking up detailed status of task 151119_113902:rshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+DEBUG 2015-11-19 14:36:41,718: 	 {'status': 'COMPLETED', 'schedd': 'crab3-3@submit-4.t2.ucsd.edu', 'saveLogs': 'F', 'jobsPerStatus': {'finished': 1, 'transferring': 3}, 'jobs': {'1': {'State': 'transferring'}, '3': {'State': 'finished'}, '2': {'State': 'transferring'}, '4': {'State': 'transferring'}}, 'publication': {'disabled': []}, 'taskWarningMsg': [], 'publicationFailures': {}, 'outdatasets': None, 'statusFailureMsg': '', 'taskFailureMsg': '', 'failedJobdefs': 0, 'ASOURL': 'https://cmsweb.cern.ch/couchdb', 'totalJobdefs': 0, 'jobSetID': '151119_113902:rshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8', 'jobdefErrors': [], 'collector': 'cmssrv221.fnal.gov,vocms099.cern.ch', 'jobList': [['transferring', 1], ['finished', 3], ['transferring', 2], ['transferring', 4]]}
+INFO 2015-11-19 14:36:41,718: 	 CRAB project directory:		/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-19 14:36:41,719: 	 Task name:			151119_113902:rshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-19 14:36:41,719: 	 Grid scheduler:			crab3-3@submit-4.t2.ucsd.edu
+INFO 2015-11-19 14:36:41,719: 	 Task status:			COMPLETED
+INFO 2015-11-19 14:36:41,719: 	 Dashboard monitoring URL:	http://dashb-cms-job.cern.ch/dashboard/templates/task-analysis/#user=crab&refresh=0&table=Jobs&p=1&records=25&activemenu=2&status=&site=&tid=151119_113902%3Arshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-19 14:36:41,719: 	 
+Jobs status:			finished       25.0% (1/4)
+INFO 2015-11-19 14:36:41,719: 	 				transferring   75.0% (3/4)
+INFO 2015-11-19 14:36:41,719: 	 
+No publication information (publication has been disabled in the CRAB configuration file)
+INFO 2015-11-19 14:36:41,731: 	 Log file is /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8/crab.log
+DEBUG 2015-11-19 14:54:30,350: 	 Executing command: 'status'
+DEBUG 2015-11-19 14:54:30,351: 	 Found CRAB cache file /afs/desy.de/user/s/shevchen/.crab3
+DEBUG 2015-11-19 14:54:30,362: 	 Checking credentials
+DEBUG 2015-11-19 14:54:30,363: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-11-19 14:54:30,363: 	 Getting proxy life time left
+DEBUG 2015-11-19 14:54:31,066: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 329669
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 14:54:31,469: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 329669
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 14:54:31,469: 	 Proxy valid for 91:34:29 hours
+DEBUG 2015-11-19 14:54:31,586: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-11-19 14:54:31,586: 	 Checking credentials
+DEBUG 2015-11-19 14:54:31,586: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-11-19 14:54:31,586: 	 Getting proxy life time left
+DEBUG 2015-11-19 14:54:31,990: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 329669
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 14:54:32,393: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 329668
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 14:54:32,393: 	 Proxy valid for 91:34:29 hours
+DEBUG 2015-11-19 14:54:32,940: 	 Registering user credentials for server /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+DEBUG 2015-11-19 14:54:33,049: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-11-19 14:54:33,049: 	 Getting myproxy life time left for myproxy.cern.ch
+DEBUG 2015-11-19 14:54:33,049: 	 Calculating hash of /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko_cmsweb.cern.ch for credential name
+DEBUG 2015-11-19 14:54:33,653: 	 Executing : 
+ command : myproxy-info -l 4bd1d453c3fff9872aebbf43cb3102690cbbeef6 -s myproxy.cern.ch
+ output : username: 4bd1d453c3fff9872aebbf43cb3102690cbbeef6
+owner: /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+  renewal policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  trusted retrieval policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  timeleft: 699:02:46  (29.1 days)
+
+ error: 
+ retcode : 0
+DEBUG 2015-11-19 14:54:33,654: 	 Myproxy is valid: 2516566
+DEBUG 2015-11-19 14:54:33,654: 	 Command use: status
+DEBUG 2015-11-19 14:54:33,654: 	 Options use: []
+DEBUG 2015-11-19 14:54:34,170: 	 CRABClient version: 3.3.1511
+DEBUG 2015-11-19 14:54:34,170: 	 Instance is prod
+DEBUG 2015-11-19 14:54:34,170: 	 Server base url is cmsweb.cern.ch
+DEBUG 2015-11-19 14:54:34,170: 	 Command url /crabserver/prod/workflow
+DEBUG 2015-11-19 14:54:34,170: 	 Looking up detailed status of task 151119_113902:rshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+DEBUG 2015-11-19 14:54:39,040: 	 {'status': 'SUBMITTED', 'schedd': 'crab3-3@submit-4.t2.ucsd.edu', 'saveLogs': 'F', 'jobsPerStatus': {'finished': 1, 'transferring': 3}, 'jobs': {'1': {'State': 'transferring'}, '3': {'State': 'finished'}, '2': {'State': 'transferring'}, '4': {'State': 'transferring'}}, 'publication': {'disabled': []}, 'taskWarningMsg': [], 'publicationFailures': {}, 'outdatasets': None, 'statusFailureMsg': '', 'taskFailureMsg': '', 'failedJobdefs': 0, 'ASOURL': 'https://cmsweb.cern.ch/couchdb', 'totalJobdefs': 0, 'jobSetID': '151119_113902:rshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8', 'jobdefErrors': [], 'collector': 'cmssrv221.fnal.gov,vocms099.cern.ch', 'jobList': [['transferring', 1], ['finished', 3], ['transferring', 2], ['transferring', 4]]}
+INFO 2015-11-19 14:54:39,040: 	 CRAB project directory:		/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-19 14:54:39,040: 	 Task name:			151119_113902:rshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-19 14:54:39,041: 	 Grid scheduler:			crab3-3@submit-4.t2.ucsd.edu
+INFO 2015-11-19 14:54:39,041: 	 Task status:			SUBMITTED
+INFO 2015-11-19 14:54:39,041: 	 Dashboard monitoring URL:	http://dashb-cms-job.cern.ch/dashboard/templates/task-analysis/#user=crab&refresh=0&table=Jobs&p=1&records=25&activemenu=2&status=&site=&tid=151119_113902%3Arshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-19 14:54:39,041: 	 
+Jobs status:			finished       25.0% (1/4)
+INFO 2015-11-19 14:54:39,041: 	 				transferring   75.0% (3/4)
+INFO 2015-11-19 14:54:39,041: 	 
+No publication information (publication has been disabled in the CRAB configuration file)
+INFO 2015-11-19 14:54:39,047: 	 Log file is /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8/crab.log
+DEBUG 2015-11-19 15:05:29,978: 	 Executing command: 'status'
+DEBUG 2015-11-19 15:05:29,979: 	 Found CRAB cache file /afs/desy.de/user/s/shevchen/.crab3
+DEBUG 2015-11-19 15:05:29,988: 	 Checking credentials
+DEBUG 2015-11-19 15:05:29,988: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-11-19 15:05:29,988: 	 Getting proxy life time left
+DEBUG 2015-11-19 15:05:30,390: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 329010
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 15:05:31,093: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 329009
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 15:05:31,094: 	 Proxy valid for 91:23:30 hours
+DEBUG 2015-11-19 15:05:31,221: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-11-19 15:05:31,222: 	 Checking credentials
+DEBUG 2015-11-19 15:05:31,222: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-11-19 15:05:31,222: 	 Getting proxy life time left
+DEBUG 2015-11-19 15:05:31,624: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 329009
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 15:05:32,127: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 329008
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 15:05:32,128: 	 Proxy valid for 91:23:29 hours
+DEBUG 2015-11-19 15:05:32,624: 	 Registering user credentials for server /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+DEBUG 2015-11-19 15:05:32,732: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-11-19 15:05:32,732: 	 Getting myproxy life time left for myproxy.cern.ch
+DEBUG 2015-11-19 15:05:32,732: 	 Calculating hash of /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko_cmsweb.cern.ch for credential name
+DEBUG 2015-11-19 15:05:33,238: 	 Executing : 
+ command : myproxy-info -l 4bd1d453c3fff9872aebbf43cb3102690cbbeef6 -s myproxy.cern.ch
+ output : username: 4bd1d453c3fff9872aebbf43cb3102690cbbeef6
+owner: /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+  renewal policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  trusted retrieval policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  timeleft: 698:51:46  (29.1 days)
+
+ error: 
+ retcode : 0
+DEBUG 2015-11-19 15:05:33,239: 	 Myproxy is valid: 2515906
+DEBUG 2015-11-19 15:05:33,239: 	 Command use: status
+DEBUG 2015-11-19 15:05:33,239: 	 Options use: []
+DEBUG 2015-11-19 15:05:33,705: 	 CRABClient version: 3.3.1511
+DEBUG 2015-11-19 15:05:33,705: 	 Instance is prod
+DEBUG 2015-11-19 15:05:33,705: 	 Server base url is cmsweb.cern.ch
+DEBUG 2015-11-19 15:05:33,705: 	 Command url /crabserver/prod/workflow
+DEBUG 2015-11-19 15:05:33,705: 	 Looking up detailed status of task 151119_113902:rshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+DEBUG 2015-11-19 15:05:38,754: 	 {'status': 'SUBMITTED', 'schedd': 'crab3-5@vocms059.cern.ch', 'saveLogs': 'T', 'jobsPerStatus': {'finished': 2, 'transferring': 2}, 'jobs': {'1': {'State': 'finished'}, '3': {'State': 'finished'}, '2': {'State': 'transferring'}, '4': {'State': 'transferring'}}, 'publication': {'disabled': []}, 'taskWarningMsg': [], 'publicationFailures': {}, 'outdatasets': None, 'statusFailureMsg': '', 'taskFailureMsg': '', 'failedJobdefs': 0, 'ASOURL': 'https://cmsweb.cern.ch/couchdb', 'totalJobdefs': 0, 'jobSetID': '151113_150420:srappocc_crab_b2gttbar74x_V8_TT_TuneCUETP8M1_13TeV-powheg-pythia8_jkarancs-B2GAnaFW_v74x_V8p4_RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2_ext3-v1-7b09a84a5c42d0a63b01d8e8e63c7a89', 'jobdefErrors': [], 'collector': 'cmssrv221.fnal.gov,vocms099.cern.ch', 'jobList': [['finished', 1], ['finished', 3], ['transferring', 2], ['transferring', 4]]}
+INFO 2015-11-19 15:05:38,754: 	 CRAB project directory:		/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-19 15:05:38,754: 	 Task name:			151119_113902:rshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-19 15:05:38,754: 	 Grid scheduler:			crab3-5@vocms059.cern.ch
+INFO 2015-11-19 15:05:38,754: 	 Task status:			SUBMITTED
+INFO 2015-11-19 15:05:38,754: 	 Dashboard monitoring URL:	http://dashb-cms-job.cern.ch/dashboard/templates/task-analysis/#user=crab&refresh=0&table=Jobs&p=1&records=25&activemenu=2&status=&site=&tid=151119_113902%3Arshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-19 15:05:38,754: 	 
+Jobs status:			finished       50.0% (2/4)
+INFO 2015-11-19 15:05:38,754: 	 				transferring   50.0% (2/4)
+INFO 2015-11-19 15:05:38,754: 	 
+No publication information (publication has been disabled in the CRAB configuration file)
+INFO 2015-11-19 15:05:38,756: 	 Log file is /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8/crab.log
+DEBUG 2015-11-19 18:09:21,417: 	 Executing command: 'status'
+DEBUG 2015-11-19 18:09:21,429: 	 Found CRAB cache file /afs/desy.de/user/s/shevchen/.crab3
+DEBUG 2015-11-19 18:09:21,478: 	 Checking credentials
+DEBUG 2015-11-19 18:09:21,481: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-11-19 18:09:21,481: 	 Getting proxy life time left
+DEBUG 2015-11-19 18:09:22,886: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 317978
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 18:09:23,390: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 317977
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 18:09:23,390: 	 Proxy valid for 88:19:38 hours
+DEBUG 2015-11-19 18:09:23,538: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-11-19 18:09:23,538: 	 Checking credentials
+DEBUG 2015-11-19 18:09:23,538: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-11-19 18:09:23,538: 	 Getting proxy life time left
+DEBUG 2015-11-19 18:09:24,042: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 317977
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 18:09:24,545: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 317976
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-19 18:09:24,546: 	 Proxy valid for 88:19:37 hours
+DEBUG 2015-11-19 18:09:25,083: 	 Registering user credentials for server /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+DEBUG 2015-11-19 18:09:25,192: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-11-19 18:09:25,192: 	 Getting myproxy life time left for myproxy.cern.ch
+DEBUG 2015-11-19 18:09:25,192: 	 Calculating hash of /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko_cmsweb.cern.ch for credential name
+DEBUG 2015-11-19 18:09:25,896: 	 Executing : 
+ command : myproxy-info -l 4bd1d453c3fff9872aebbf43cb3102690cbbeef6 -s myproxy.cern.ch
+ output : username: 4bd1d453c3fff9872aebbf43cb3102690cbbeef6
+owner: /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+  renewal policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  trusted retrieval policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  timeleft: 695:47:54  (29.0 days)
+
+ error: 
+ retcode : 0
+DEBUG 2015-11-19 18:09:25,897: 	 Myproxy is valid: 2504874
+DEBUG 2015-11-19 18:09:25,897: 	 Command use: status
+DEBUG 2015-11-19 18:09:25,897: 	 Options use: []
+DEBUG 2015-11-19 18:09:26,456: 	 CRABClient version: 3.3.1511
+DEBUG 2015-11-19 18:09:26,457: 	 Instance is prod
+DEBUG 2015-11-19 18:09:26,457: 	 Server base url is cmsweb.cern.ch
+DEBUG 2015-11-19 18:09:26,457: 	 Command url /crabserver/prod/workflow
+DEBUG 2015-11-19 18:09:26,457: 	 Looking up detailed status of task 151119_113902:rshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+DEBUG 2015-11-19 18:09:28,292: 	 {'status': 'COMPLETED', 'schedd': 'crab3-3@submit-4.t2.ucsd.edu', 'saveLogs': 'F', 'jobsPerStatus': {'finished': 4}, 'jobs': {'1': {'State': 'finished'}, '3': {'State': 'finished'}, '2': {'State': 'finished'}, '4': {'State': 'finished'}}, 'publication': {'disabled': []}, 'taskWarningMsg': [], 'publicationFailures': {}, 'outdatasets': None, 'statusFailureMsg': '', 'taskFailureMsg': '', 'failedJobdefs': 0, 'ASOURL': 'https://cmsweb.cern.ch/couchdb', 'totalJobdefs': 0, 'jobSetID': '151119_113902:rshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8', 'jobdefErrors': [], 'collector': 'cmssrv221.fnal.gov,vocms099.cern.ch', 'jobList': [['finished', 1], ['finished', 3], ['finished', 2], ['finished', 4]]}
+INFO 2015-11-19 18:09:28,292: 	 CRAB project directory:		/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-19 18:09:28,292: 	 Task name:			151119_113902:rshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-19 18:09:28,292: 	 Grid scheduler:			crab3-3@submit-4.t2.ucsd.edu
+INFO 2015-11-19 18:09:28,292: 	 Task status:			COMPLETED
+INFO 2015-11-19 18:09:28,292: 	 Dashboard monitoring URL:	http://dashb-cms-job.cern.ch/dashboard/templates/task-analysis/#user=crab&refresh=0&table=Jobs&p=1&records=25&activemenu=2&status=&site=&tid=151119_113902%3Arshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-19 18:09:28,292: 	 
+Jobs status:			finished      100.0% (4/4)
+INFO 2015-11-19 18:09:28,292: 	 
+No publication information (publication has been disabled in the CRAB configuration file)
+INFO 2015-11-19 18:09:28,320: 	 Log file is /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8/crab.log
+DEBUG 2015-11-20 10:17:20,573: 	 Executing command: 'status'
+DEBUG 2015-11-20 10:17:20,573: 	 Found CRAB cache file /afs/desy.de/user/s/shevchen/.crab3
+DEBUG 2015-11-20 10:17:20,606: 	 Checking credentials
+DEBUG 2015-11-20 10:17:20,606: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-11-20 10:17:20,606: 	 Getting proxy life time left
+DEBUG 2015-11-20 10:17:21,210: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 0
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-20 10:17:21,210: 	 Proxy valid for 00:00:00 hours
+DEBUG 2015-11-20 10:17:21,210: 	 Creating new proxy for 24:00 hours with VO group '' and VO role 'NULL'.
+DEBUG 2015-11-20 10:17:27,423: 	 Executing : 
+ command : voms-proxy-init -voms cms:/cms -valid 24:00 -rfc
+ output : None
+ error: None
+ retcode : 0
+DEBUG 2015-11-20 10:17:27,827: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 86398
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-20 10:17:28,230: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 86397
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-20 10:17:28,633: 	 Executing : 
+ command : env X509_USER_PROXY=/tmp/x509up_u20182 voms-proxy-info -fqan
+ output : /cms/Role=NULL/Capability=NULL
+/cms/dcms/Role=NULL/Capability=NULL
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-20 10:17:28,634: 	 Proxy created.
+DEBUG 2015-11-20 10:17:28,774: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-11-20 10:17:28,775: 	 Checking credentials
+DEBUG 2015-11-20 10:17:28,775: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-11-20 10:17:28,775: 	 Getting proxy life time left
+DEBUG 2015-11-20 10:17:29,178: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 86396
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-20 10:17:29,582: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 86396
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-11-20 10:17:29,582: 	 Proxy valid for 23:59:56 hours
+DEBUG 2015-11-20 10:17:30,002: 	 Registering user credentials for server /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+DEBUG 2015-11-20 10:17:30,113: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: WARNING: can't open config file: /build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/tmp/BUILDROOT/ef35842be28ecca6d10195ea8182a5ac/build/dmwmbld/srv/state/dmwmbld/builds/comp_gcc481/w/slc6_amd64_gcc481/external/openssl/1.0.1p/ssl/openssl.cnf
+
+ retcode : 0
+DEBUG 2015-11-20 10:17:30,114: 	 Getting myproxy life time left for myproxy.cern.ch
+DEBUG 2015-11-20 10:17:30,114: 	 Calculating hash of /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko_cmsweb.cern.ch for credential name
+DEBUG 2015-11-20 10:17:30,717: 	 Executing : 
+ command : myproxy-info -l 4bd1d453c3fff9872aebbf43cb3102690cbbeef6 -s myproxy.cern.ch
+ output : username: 4bd1d453c3fff9872aebbf43cb3102690cbbeef6
+owner: /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+  renewal policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  trusted retrieval policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  timeleft: 679:39:49  (28.3 days)
+
+ error: 
+ retcode : 0
+DEBUG 2015-11-20 10:17:30,719: 	 Myproxy is valid: 2446789
+DEBUG 2015-11-20 10:17:30,719: 	 Command use: status
+DEBUG 2015-11-20 10:17:30,719: 	 Options use: []
+DEBUG 2015-11-20 10:17:31,038: 	 CRABClient version: 3.3.1511
+DEBUG 2015-11-20 10:17:31,039: 	 Instance is prod
+DEBUG 2015-11-20 10:17:31,039: 	 Server base url is cmsweb.cern.ch
+DEBUG 2015-11-20 10:17:31,039: 	 Command url /crabserver/prod/workflow
+DEBUG 2015-11-20 10:17:31,039: 	 Looking up detailed status of task 151119_113902:rshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+DEBUG 2015-11-20 10:17:32,689: 	 {'status': 'COMPLETED', 'schedd': 'crab3-3@submit-4.t2.ucsd.edu', 'saveLogs': 'F', 'jobsPerStatus': {'finished': 4}, 'jobs': {'1': {'State': 'finished'}, '3': {'State': 'finished'}, '2': {'State': 'finished'}, '4': {'State': 'finished'}}, 'publication': {'disabled': []}, 'taskWarningMsg': [], 'publicationFailures': {}, 'outdatasets': None, 'statusFailureMsg': '', 'taskFailureMsg': '', 'failedJobdefs': 0, 'ASOURL': 'https://cmsweb.cern.ch/couchdb', 'totalJobdefs': 0, 'jobSetID': '151119_113902:rshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8', 'jobdefErrors': [], 'collector': 'cmssrv221.fnal.gov,vocms099.cern.ch', 'jobList': [['finished', 1], ['finished', 3], ['finished', 2], ['finished', 4]]}
+INFO 2015-11-20 10:17:32,689: 	 CRAB project directory:		/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-20 10:17:32,689: 	 Task name:			151119_113902:rshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-20 10:17:32,689: 	 Grid scheduler:			crab3-3@submit-4.t2.ucsd.edu
+INFO 2015-11-20 10:17:32,689: 	 Task status:			COMPLETED
+INFO 2015-11-20 10:17:32,690: 	 Dashboard monitoring URL:	http://dashb-cms-job.cern.ch/dashboard/templates/task-analysis/#user=crab&refresh=0&table=Jobs&p=1&records=25&activemenu=2&status=&site=&tid=151119_113902%3Arshevche_crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8
+INFO 2015-11-20 10:17:32,690: 	 
+Jobs status:			finished      100.0% (4/4)
+INFO 2015-11-20 10:17:32,690: 	 
+No publication information (publication has been disabled in the CRAB configuration file)
+INFO 2015-11-20 10:17:32,698: 	 Log file is /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_QCD/crab_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8/crab.log

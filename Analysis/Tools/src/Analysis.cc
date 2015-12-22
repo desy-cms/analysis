@@ -179,13 +179,19 @@ double Analysis::crossSection(const std::string & xs)
 
 double Analysis::luminosity()
 {
-	return (nevents_ / this -> crossSection() );
+	return (genfilter_.total / this -> crossSection() );
 }
 
 double Analysis::luminosity(const std::string & xs)
 {
 	if ( t_xsection_ == NULL ) return -1.;
-	return (nevents_ / this -> crossSection(xs));
+	return (genfilter_.total / this -> crossSection(xs));
+}
+
+double Analysis::luminosity(const double &xs)
+{
+	if ( t_xsection_ == NULL ) return -1.;
+	return (genfilter_.total / xs);
 }
 
 void   Analysis::listCrossSections()
@@ -216,10 +222,10 @@ FilterResults Analysis::generatorFilter(const std::string & path)
    t_genfilter_  = new TChain(path.c_str());
    t_genfilter_ -> AddFileInfoList(fileList_);
 
-   unsigned int ntotal;
-   unsigned int nfiltered;
-   unsigned int sumtotal = 0;
-   unsigned int sumfiltered = 0;
+   unsigned long int ntotal = 0;
+   unsigned long int nfiltered = 0;
+   unsigned long int sumtotal = 0;
+   unsigned long int sumfiltered = 0;
 
    t_genfilter_ -> SetBranchAddress("nEventsTotal", &ntotal);
    t_genfilter_ -> SetBranchAddress("nEventsFiltered", &nfiltered);
@@ -230,7 +236,6 @@ FilterResults Analysis::generatorFilter(const std::string & path)
       sumtotal += ntotal;
       sumfiltered += nfiltered;
    }
-
 
    genfilter_.total = sumtotal;
    genfilter_.filtered = sumfiltered;

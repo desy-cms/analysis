@@ -1,0 +1,34 @@
+DEBUG 2015-12-15 17:34:57,261: 	 Executing command: 'status'
+DEBUG 2015-12-15 17:34:57,261: 	 Found CRAB cache file /afs/desy.de/user/s/shevchen/.crab3
+DEBUG 2015-12-15 17:34:57,269: 	 Checking credentials
+DEBUG 2015-12-15 17:34:57,269: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2015-12-15 17:34:57,269: 	 Getting proxy life time left
+DEBUG 2015-12-15 17:34:57,672: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 86055
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-12-15 17:34:58,075: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 86054
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2015-12-15 17:34:58,075: 	 Proxy valid for 23:54:15 hours
+ERROR 2015-12-15 17:34:58,075: 	 Cannot find .requestcache file in CRAB project directory /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_JetHT/crab_JetHT_Run2015D-05Oct2015-v1
+ERROR 2015-12-15 17:34:58,075: 	 Caught exception
+Traceback (most recent call last):
+  File "/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc481/cms/crabclient/3.3.1512/bin/crab", line 159, in <module>
+    client()
+  File "/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc481/cms/crabclient/3.3.1512/bin/crab", line 145, in __call__
+    self.cmd = sub_cmd(self.logger, args[1:])
+  File "/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc481/cms/crabclient/3.3.1512/lib/python2.6/site-packages/CRABClient/Commands/SubCommand.py", line 318, in __init__
+    self.loadLocalCache(proxyOptsSetPlace)
+  File "/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc481/cms/crabclient/3.3.1512/lib/python2.6/site-packages/CRABClient/Commands/SubCommand.py", line 428, in loadLocalCache
+    self.cachedinfo, self.logfile = loadCache(self.requestarea, self.logger)
+  File "/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc481/cms/crabclient/3.3.1512/lib/python2.6/site-packages/CRABClient/ClientUtilities.py", line 445, in loadCache
+    raise CachefileNotFoundException(msg)
+CachefileNotFoundException: Cannot find .requestcache file in CRAB project directory /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_JetHT/crab_JetHT_Run2015D-05Oct2015-v1

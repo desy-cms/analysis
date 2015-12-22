@@ -17,7 +17,7 @@ def crabConfig():
    config.section_('JobType')
    config.JobType.psetName    = 'ntuplizer.py'
    config.JobType.pluginName  = 'Analysis'
-   config.JobType.outputFiles = ['ntuple.root']
+   config.JobType.outputFiles = ['output.root']
    
    # -- Data
    config.section_('Data')
