@@ -196,8 +196,11 @@ double BTagWeight(TH2F *histo, const double &pt, const double &eta)
 }
 
 double twoDPtWeight(TH2F *histo, const double &pt1, const double &pt2){
-	//TGraph2D *graph = new TGraph2D(histo);
-	//if(pt1<500) return graph -> Interpolate(pt2,pt1);
-	if(pt1<500) return histo -> Interpolate(pt2,pt1);
-	else return 1;
+	if (pt1 > 500) {
+		if (pt2 > 500){
+			return histo->Interpolate(499,499);
+		}
+		else return histo->Interpolate(pt2,499);
+	}
+	else return histo -> Interpolate(pt2,pt1);
 }
