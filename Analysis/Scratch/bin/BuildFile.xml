@@ -1,0 +1,12 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="root"/>
+<use name="rootmath"/>
+<use name="rootgraphics"/>
+<use name="boost" />
+<use name="Analysis/Tools" />
+<use name="Analysis/MssmHbb" />
+
+<bin   name="MonteCarloStudiesMssmHbb" file="MonteCarloStudiesMssmHbb.cc">
+<flags   LDFLAGS="-lCore -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lz -pthread -lm -ldl -rdynamic"/>
+</bin>
