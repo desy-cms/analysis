@@ -271,6 +271,14 @@ void Candidates<T>::Kinematics()
          }
       }
       
+      if ( is_trigobject_ )
+      {
+         pat::TriggerObject * to = dynamic_cast<pat::TriggerObject*> (&candidates_[i]);
+         type_[n] = 0;
+         if ( to->triggerObjectTypes().size() > 0 )
+            type_[n] = to->triggerObjectTypes().at(0);
+      }
+      
       ++n;
    }
    n_ = n;
@@ -358,6 +366,15 @@ void Candidates<T>::Branches()
             tree_->Branch("gen_pz",  gen_pz_,  "gen_pz[n]/F");
         }
       }
+      
+      if ( is_trigobject_ )
+      {
+         // there may be more than one type for an object, one has to be careful depending on the trigger
+         // for now only the first entry is used.
+         // definitions in DataFormats/HLTReco/interface/TriggerTypeDefs.h
+         tree_->Branch("type", type_, "type[n]/I");
+      }
+      
       
    }
       
