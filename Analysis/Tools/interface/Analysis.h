@@ -70,7 +70,16 @@ namespace analysis {
             template<class Object>
             std::shared_ptr< Collection<Object> > addCollection(const std::string & unique_name);
             template<class Object>
+            std::shared_ptr< Collection<Object> > addCollection(const Collection<Object> & collection);
+            template<class Object>
+            std::shared_ptr< Collection<Object> > addCollection(const std::vector<Object> & objects, const std::string & unique_name );
+            template<class Object>
             std::shared_ptr< Collection<Object> > collection(const std::string & unique_name);
+            
+            template<class Object>
+            void defaultCollection(const std::string & unique_name);
+            template<class Object>
+            std::string defaultCollection();
             
             // Cross sections
             void   crossSections(const std::string & path);
@@ -112,6 +121,9 @@ namespace analysis {
             std::map<std::string, bool> triggerResults_;
             std::map<int,std::vector<std::string> > goodLumi_;
             FilterResults genfilter_;
+            
+            // default collections
+            std::string defaultGenParticle_;
 
             int event_;
             int run_;
@@ -193,6 +205,28 @@ namespace analysis {
          
          return ret;
       }
+      
+      template <class Object>
+      std::shared_ptr< Collection<Object> >  Analysis::addCollection(const Collection<Object> & collection)
+      {
+         std::string unique_name = collection.name();
+         t_any_[unique_name] = nullptr;
+         c_any_[unique_name] = std::shared_ptr< Collection<Object> > ( new Collection<Object>(collection) );
+         std::shared_ptr< Collection<Object> > ret = boost::any_cast< std::shared_ptr< Collection<Object> > > (c_any_[unique_name]);
+         
+         return ret;
+      }
+      
+      template <class Object>
+      std::shared_ptr< Collection<Object> >  Analysis::addCollection(const std::vector<Object> & objects , const std::string & unique_name )
+      {
+         Collection<Object> collection(objects,unique_name);
+         t_any_[unique_name] = nullptr;
+         c_any_[unique_name] = std::shared_ptr< Collection<Object> > ( new Collection<Object>(collection) );
+         std::shared_ptr< Collection<Object> > ret = boost::any_cast< std::shared_ptr< Collection<Object> > > (c_any_[unique_name]);
+         return ret;
+      }
+      
       template <class Object>
       std::shared_ptr< Collection<Object> >  Analysis::collection(const std::string & unique_name)
       {
@@ -214,6 +248,18 @@ namespace analysis {
          for ( auto & mc : match_collections )
             this->match<Object1,Object2>(collection, mc, deltaR);
       }
+
+      template<class Object> void Analysis::defaultCollection(const std::string & unique_name)
+      { 
+         if ( std::is_same<Object,GenParticle>::value ) defaultGenParticle_ = unique_name; 
+      }
+      
+      template<class Object> std::string Analysis::defaultCollection()
+      { 
+         std::string ret;
+         if ( std::is_same<Object,GenParticle>::value ) ret = defaultGenParticle_ ;
+         return ret; 
+      }
       
 // ========================================================
 
@@ -223,6 +269,9 @@ namespace analysis {
       inline int  Analysis::run()          { return run_  ; }
       inline int  Analysis::lumiSection()  { return lumi_ ; }
       inline bool Analysis::isMC()         { return is_mc_ ; }
+      
+      
+//      inline std::string Analysis::getGenParticleCollection() { return genParticleCollection_; }
 
    }
 }
