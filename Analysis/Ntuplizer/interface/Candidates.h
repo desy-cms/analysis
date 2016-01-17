@@ -102,6 +102,9 @@ namespace analysis {
             float gen_px_[maxCandidates];
             float gen_py_[maxCandidates];
             float gen_pz_[maxCandidates];
+            
+            // type
+            int  type_[maxCandidates];
 
             
             TTree * tree_;
