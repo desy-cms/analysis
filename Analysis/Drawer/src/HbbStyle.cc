@@ -102,7 +102,7 @@ public:
     } else {
       leg = legendTR(nEntries,relWidth);
     }
-
+    std::cout<<position<<std::endl;
     return leg;
   }
   // Same but explicitly state position on pad
@@ -302,7 +302,7 @@ TPaveText* HbbStyle::title(const TString& txt) {
 
 // --------------------------------------------------------------
 TString HbbStyle::header(const PublicationStatus status) {
-  TString txt = "19.7 fb^{-1} (8 TeV)";
+  TString txt = "1.1 fb^{-1} (13 TeV)";
   if( status == INTERNAL_SIMULATION ) {
     txt = "Simulation (8 TeV)";
   } else if( status == PRELIMINARY ) {

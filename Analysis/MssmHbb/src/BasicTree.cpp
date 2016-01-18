@@ -32,13 +32,19 @@ void BasicTree::setNjets(const int &n){
 	Njets_ = n;
 }
 
-void BasicTree::setJetVariables(const analysis::tools::Jet & Jet, const int & iterator){
+void BasicTree::setJetCounter(const int &n){
+	jetCounter_ = n;
+}
 
-	LeadJet_[iterator] = Jet;
-	LeadPt_[iterator] = Jet.pt();
-	LeadEta_[iterator] = Jet.eta();
-	LeadPhi_[iterator] = Jet.phi();
-	LeadBTag_[iterator] = Jet.btag();
+void BasicTree::setJetVariables(const analysis::tools::Jet & Jet){
+
+	if(jetCounter_ == -100) {std::cerr<<"Error: Please setup jet counter with setJetCounter method"<<std::endl; exit(4);}
+
+	LeadJet_[jetCounter_] = Jet;
+	LeadPt_[jetCounter_] = Jet.pt();
+	LeadEta_[jetCounter_] = Jet.eta();
+	LeadPhi_[jetCounter_] = Jet.phi();
+	LeadBTag_[jetCounter_] = Jet.btag();
 
 }
 
@@ -138,7 +144,44 @@ void BasicTree::setBranches(){
 	OutTree_->Branch("BTagWeight",&BTagWeight_,"BTagWeight/D");
 	OutTree_->Branch("LumiWeight",&lumiWeight_,"LumiWeight/D");
 
+	//BTag SF variables:
+	OutTree_->Branch("BTagSFcentral",btagSFcentral_,"BTagSFcentral[20]/D");
+	OutTree_->Branch("BTagSFup",btagSFup_,"BTagSFup[20]/D");
+	OutTree_->Branch("BTagSFdown",btagSFdown_,"BTagSFdown[20]/D");
 
+	// Systematic errors:
+	OutTree_->Branch("SystUp",&systUp_,"SystUp/D");
+	OutTree_->Branch("SystDown",&systDown_,"SystDown/D");
+
+
+//        OutTree_->Branch("BTagSFL",&BTagSFL_,"BTa
+}
+
+void BasicTree::calculateBTagSF(const BTagCalibrationReader & reader, const BTagCalibrationReader &reader_up, const BTagCalibrationReader &reader_down){
+
+	double btagJetPt = 0;
+	btagJetPt = LeadPt_[jetCounter_];
+	bool DoubleUncertainty = false;
+	if(btagJetPt >= maxBJetPt__){
+		btagJetPt = maxBJetPt__ - 1; //Doesn't work at the limit, so that I add "-1"
+		DoubleUncertainty = true;
+	}
+
+	btagSFcentral_[jetCounter_] = reader.eval(BTagEntry::FLAV_B, LeadEta_[jetCounter_], btagJetPt);
+	btagSFup_[jetCounter_] = reader_up.eval(BTagEntry::FLAV_B, LeadEta_[jetCounter_], btagJetPt);
+	btagSFdown_[jetCounter_] = reader_down.eval(BTagEntry::FLAV_B, LeadEta_[jetCounter_], btagJetPt);
+
+	// If Pt > Maximum - uncertinties should be doubled and calculated with the extremum value
+	if(DoubleUncertainty){
+		btagSFup_[jetCounter_] = 2*(btagSFup_[jetCounter_] - btagSFcentral_[jetCounter_]) + btagSFcentral_[jetCounter_];
+		btagSFdown_[jetCounter_] = 2*(btagSFdown_[jetCounter_] - btagSFcentral_[jetCounter_]) + btagSFcentral_[jetCounter_];
+	}
+
+}
+
+void BasicTree::calculateBTagSF(const BTagCalibrationReader & reader){
+
+	btagSFcentral_[jetCounter_] = reader.eval(BTagEntry::FLAV_B, LeadEta_[jetCounter_], LeadPt_[jetCounter_]);
 }
 
 void BasicTree::cleanVariables(){
@@ -147,6 +190,10 @@ void BasicTree::cleanVariables(){
 	std::fill_n(LeadEta_,20,-100.);
 	std::fill_n(LeadPhi_,20,-100.);
 	std::fill_n(LeadBTag_,20,-100.);
+
+	std::fill_n(btagSFcentral_,20,-100.);
+	std::fill_n(btagSFdown_,20,-100);
+	std::fill_n(btagSFup_,20,-100);
 
 	Njets_ = -100;
 	dPhiFS_ = -100;
@@ -162,11 +209,29 @@ void BasicTree::cleanVariables(){
 	dEtaWeight_ = -100;
 	TwoDPtWeight_ = -100;
 	FactorizationPtWeight_ = -100;
+
+	systDown_ = -100;
+	systUp_ = -100;
 }
 
-/*double * BasicTree::getDoubleArray(const std::vector<analysis::tools::Candidate> &vectorCan){
+void BasicTree::calculateSystError(){
 
-}*/
+	double btagSFbUpperErrorJ1 = std::abs(btagSFcentral_[0] - btagSFup_[0]);
+	double btagSFbDownErrorJ1 = std::abs(btagSFcentral_[0] - btagSFdown_[0]);
+	double btagSFbUpperErrorJ2 = std::abs(btagSFcentral_[1] - btagSFup_[1]);
+	double btagSFbDownErrorJ2 = std::abs(btagSFcentral_[1] - btagSFdown_[1]);
+
+	double TwoDUpperError = std::abs(TwoDPtWeight_ - FactorizationPtWeight_);
+	double TwoDDownError = TwoDUpperError;
+	//Pt efficiency error and SFb error: N=W1*W2*W3 - uncorelated
+	systUp_ = TwoDPtWeight_ * btagSFcentral_[0] * btagSFcentral_[1] *std::sqrt( (btagSFbUpperErrorJ1/btagSFcentral_[0])*(btagSFbUpperErrorJ1/btagSFcentral_[0]) +
+																				(btagSFbUpperErrorJ2/btagSFcentral_[1])*(btagSFbUpperErrorJ2/btagSFcentral_[1]) +
+														 	 	 	 	 	 	(TwoDUpperError/TwoDPtWeight_)*(TwoDUpperError/TwoDPtWeight_));
+
+	systDown_ = TwoDPtWeight_ * btagSFcentral_[0] * btagSFcentral_[1]*std::sqrt((btagSFbDownErrorJ1/btagSFcentral_[0])*(btagSFbDownErrorJ1/btagSFcentral_[0]) +
+																				(btagSFbDownErrorJ2/btagSFcentral_[1])*(btagSFbDownErrorJ2/btagSFcentral_[1]) +
+																				(TwoDDownError/TwoDPtWeight_)*(TwoDDownError/TwoDPtWeight_));
+}
 
 void BasicTree::fillTree(){
 	OutTree_ ->Fill();
@@ -204,3 +269,4 @@ double twoDPtWeight(TH2F *histo, const double &pt1, const double &pt2){
 	}
 	else return histo -> Interpolate(pt2,pt1);
 }
+

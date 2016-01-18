@@ -12,6 +12,7 @@
 
 #include "Analysis/MssmHbb/interface/MssmHbb.h"
 #include "Analysis/MssmHbb/interface/json.h"
+#include "Analysis/MssmHbb/interface/BTagCalibrationStandalone.h"
 
 using namespace std;
 using namespace analysis::mssmhbb;
@@ -45,11 +46,22 @@ int main(int argc, char * argv[])
    // Also Trigger Results name will be stored, according to the trigger objects names
    if(!analysis.isMC()) analysis.addTriggerObjects();
 
+   // Process selected JSON file
    if(!analysis.isMC()) analysis.processJsonFile("goodJson.txt");
+
+   //Add BTagCalibration calculators:
+   BTagCalibration calib("csvv2", "SFbLib.csv");
+   BTagCalibrationReader reader(&calib,               // calibration instance
+                                BTagEntry::OP_LOOSE,  // operating point
+                                "mujets",               // measurement type
+                                "central");           // systematics type
+   BTagCalibrationReader reader_up(&calib, BTagEntry::OP_TIGHT, "mujets", "up");  // sys up
+   BTagCalibrationReader reader_down(&calib, BTagEntry::OP_TIGHT, "mujets", "down");  // sys down
 
    int nCand = 0;
    int counter = 0;
    bool goodLeadingJets = true;
+
    // Analysis of events
 
    std::cout<<"Number of Entries: "<<analysis.size()<<std::endl;
@@ -88,7 +100,9 @@ int main(int argc, char * argv[])
 		if(counter > 6) break;
 		LeadJet[counter - 1] = jet;
 
-		analysis.setJetVariables(jet,counter-1);
+		analysis.setJetCounter(counter-1);
+		analysis.setJetVariables(jet);
+		if(analysis.isMC()) analysis.calculateBTagSF(reader,reader_up,reader_down);
 		if(counter == 1 || counter == 2){
 
 			if(jet.pt() < 100) break;
@@ -109,6 +123,7 @@ int main(int argc, char * argv[])
     		  	  	  	  	 BTagWeight(btagEff0p9,btagEff0p9_1p4,btagEff1p4_2p5,LeadJet[0].pt(),LeadJet[0].eta()));
       analysis.setLumiWeight(1001.179266,analysis.luminosity());
       analysis.calculateWeights(btagEff0p9_1p4,PtEff);
+      if(analysis.isMC()) analysis.calculateSystError();
       ++nCand;
       analysis.fillTree();
 

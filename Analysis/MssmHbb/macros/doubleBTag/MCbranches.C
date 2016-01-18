@@ -1,4 +1,5 @@
 #include "Analysis/MssmHbb/src/HbbStyle.cc"
+#include "Analysis/Drawer/src/RatioPlots.cpp"
 #include "TCut.h"
 
 double erfFunction(double *x, double *par);
@@ -11,23 +12,29 @@ TCanvas *drawRatio(TH1F *, TF1 *,TF1 *,TH1F *, TCanvas *,std::string );
 TH1F *constructCombined(TH1F *, TFile * file,const int &,const int &);
 TH1F *constructCombined(TH1F *,const TCut &, TTree * tree,const int &,const int &);
 
+TH1F *calculatePtEffSyst(TH1F*,TH1F*);
+
 void MCbranches()
 {
 	gROOT -> Reset();
    //gStyle->SetOptFit(1111);
    //gROOT->ForceStyle();
 
-   TFile * fData = new TFile("/nfs/dust/cms/user/shevchen/output/SelectionLeavesRun2015D-PromptReco-v4.root");
-   TFile * fMonteCarlo = new TFile("/nfs/dust/cms/user/shevchen/output/DoubleBTagSelectionMC.root");
-   //TFile * fDoubleSelection = new TFile("/nfs/dust/cms/user/shevchen/output/ResultsTreesJetHTPromt-Reco-v4.root");//ResultsJetHT2015DPromptReco4.root");
+   TFile * fData = new TFile("/nfs/dust/cms/user/shevchen/output/DoubleBTagSelection.root");
+   TFile * fMonteCarlo = new TFile("/nfs/dust/cms/user/shevchen/output/DoubleBTagSelectionQCD_180116_LOOSE_SFb.root");
+
    TTree *dataTree, *mcTree;
    fMonteCarlo -> GetObject("MssmHbb",mcTree);
    fData -> GetObject("MssmHbb",dataTree);
+
+   //Setup style
    HbbStyle style;
    style.set(PUBLIC);
    TH1::SetDefaultSumw2();
 
-   //..............................Pt efficiency....................
+   //Setup ratio plots
+   RatioPlots *ratio = new RatioPlots(PUBLIC);
+
    int bin40to60 = 90;
    int bin60to80 = 115;
    TCut cut = "dPhiFS>2.7";// && Njets == 2 && NL1Object >= 2";//"ptVeto < 10 && ((fLeadPt - sLeadPt)/(fLeadPt + sLeadPt) <= 0.2) && abs(fLeadEta) <= 2. && abs(sLeadEta)<=2";
@@ -35,21 +42,127 @@ void MCbranches()
    TCut weightPt  = "TwoDPtWeight";
    TCut weightdEta = "dEtaWeight";
    TCut weightBTag = "BTagWeight";
-   TCut weight = "LumiWeight * dEtaWeight * BTagWeight * FactorizationPtWeight";
+   TCut weightPtFactorization = "FactorizationPtWeight";
+   TCut ptSystWeight = "abs(FactorizationPtWeight - TwoDPtWeight)";
+   TCut btagSFcentral = "BTagSFcentral[0] * BTagSFcentral[1]";
+   TCut btagSFup = "BTagSFup";
+   TCut btagSFdown = "BTagSFdown";
+   double SFb = 0.97*0.97;
 
-	 //Monte Carlo
-
-   TCanvas *canva00 = new TCanvas("canva00","",1000,800);
+   //..............................Pt1 ....................
+   TCanvas *canva00 = new TCanvas("canva00","Pt1",1000,800);
    TH1F *fLeadPtMC = new TH1F("fLeadPtMC","First Leading Jet Pt",100,0.,1000.);
+   TH1F *fLeadPtMCSyst = new TH1F("fLeadPtMCSyst","Systematic errors",100,0.,1000.);
    TH1F *fLeadPtData = new TH1F("fLeadPtData","First Leading Jet Pt",100,0.,1000.);
-   mcTree ->Draw("LeadPt[0]>>fLeadPtMC",weightLumi*weightBTag*weightPt*weightdEta,"E");
-   dataTree ->Draw("LeadPt[0]>>fLeadPtData");
-   fLeadPtMC ->SetMarkerStyle(20);
-   fLeadPtMC ->SetMarkerColor(2);
-   fLeadPtData -> SetMarkerStyle(21);
-   fLeadPtMC->Draw("E");
-   drawRatio(fLeadPtData,fLeadPtMC,canva00);
+   fLeadPtData->SetTitle(" ;p_{T1} , [GeV]; Events");
 
+   mcTree ->Draw("LeadPt[0]>>fLeadPtMC",weightLumi*weightBTag*weightPt*weightdEta*btagSFcentral,"E");
+   mcTree ->Draw("LeadPt[0]>>fLeadPtMCSyst",weightLumi*weightBTag*ptSystWeight*weightdEta*btagSFcentral,"E");
+   dataTree ->Draw("LeadPt[0]>>fLeadPtData");
+
+   fLeadPtMCSyst = calculatePtEffSyst(fLeadPtMC,fLeadPtMCSyst);
+   fLeadPtMC->Draw("E");
+
+   TLegend *leg_pt1 = new TLegend(0.55,0.5,0.8,0.8);
+   leg_pt1->AddEntry(fLeadPtData,"Run2015D-Prompt-Reco-v4","p");
+   leg_pt1->AddEntry(fLeadPtMC,"QCD 13 TeV pythia 8","p");
+   leg_pt1->AddEntry(fLeadPtMC,"stat.","l");
+   leg_pt1->AddEntry(fLeadPtMCSyst,"syst.","l");
+
+   TH1F *ratioPt = ratio->DrawRatio(fLeadPtData,fLeadPtMC,fLeadPtMCSyst,leg_pt1,canva00);
+   ratio->GetTopPad()->SetLogy();
+   ratioPt->SetAxisRange(0.,2.,"Y");
+   ratioPt->SetTitle(";p_{T1};Data/MC");
+
+   //..............................Pt2 ....................
+   TCanvas *canva01 = new TCanvas("canva01","Pt2",1000,800);
+   TH1F *fLeadPt2MC = new TH1F("fLeadPt2MC","First Leading Jet Pt",100,0.,1000.);
+   TH1F *fLeadPt2MCSyst = new TH1F("fLeadPt2MCSyst","Systematic errors",100,0.,1000.);
+   TH1F *fLeadPt2Data = new TH1F("fLeadPt2Data","First Leading Jet Pt",100,0.,1000.);
+   fLeadPt2Data->SetTitle(" ;p_{T2} , [GeV]; Events");
+
+   mcTree ->Draw("LeadPt[1]>>fLeadPt2MC",weightLumi*weightBTag*weightPt*weightdEta*btagSFcentral,"E");
+   mcTree ->Draw("LeadPt[1]>>fLeadPt2MCSyst",weightLumi*weightBTag*ptSystWeight*weightdEta*btagSFcentral,"E");
+   dataTree ->Draw("LeadPt[1]>>fLeadPt2Data");
+
+   fLeadPt2MCSyst->Draw("E");
+   fLeadPt2MCSyst = calculatePtEffSyst(fLeadPt2MC,fLeadPt2MCSyst);
+//   fLeadPt2MC->Draw("E");
+
+   TH1F *ratioPt2 = ratio->DrawRatio(fLeadPt2Data,fLeadPt2MC,fLeadPt2MCSyst,NULL,canva01);
+   ratio->GetTopPad()->SetLogy();
+   ratioPt2->SetAxisRange(0.,2.,"Y");
+   ratioPt2->SetTitle(";p_{T2};Data/MC");
+
+   //..............................dEta ....................
+   TCanvas *canva02 = new TCanvas("canva02","dEta",1000,800);
+   TH1F *fLeaddEtaMC = new TH1F("fLeaddEtaMC","First Leading Jet Pt",40,-2.,2.);
+   TH1F *fLeaddEtaMCSyst = new TH1F("fLeaddEtaMCSyst","Systematic errors",40,-2.,2.);
+   TH1F *fLeaddEtaData = new TH1F("fLeaddEtaData","First Leading Jet Pt",40,-2.,2.);
+   fLeaddEtaData->SetTitle(" ;#Delta #Eta; Events");
+
+   mcTree ->Draw("dEtaFS>>fLeaddEtaMC",weightLumi*weightBTag*weightPt*weightdEta*btagSFcentral,"E");
+   mcTree ->Draw("dEtaFS>>fLeaddEtaMCSyst",weightLumi*weightBTag*ptSystWeight*weightdEta*btagSFcentral,"E");
+   dataTree ->Draw("dEtaFS>>fLeaddEtaData");
+
+   fLeaddEtaMCSyst->Draw("E");
+   fLeaddEtaMCSyst = calculatePtEffSyst(fLeaddEtaMC,fLeaddEtaMCSyst);
+//   fLeaddEtaMC->Draw("E");
+
+   TH1F *ratiodEta = ratio->DrawRatio(fLeaddEtaData,fLeaddEtaMC,fLeaddEtaMCSyst,NULL,canva02);
+   ratiodEta->SetAxisRange(0.,2.,"Y");
+   ratiodEta->SetTitle(";#Delta #Eta;Data/MC");
+
+   //..............................M12 ....................
+   TCanvas *canva03 = new TCanvas("canva03","M12",1000,800);
+   TH1F *fLeadObjM12MC = new TH1F("fLeadObjM12MC","",80,0.,1000.);
+   TH1F *fLeadObjM12MCSyst = new TH1F("fLeadObjM12MCSyst","",80,0.,1000.);
+   TH1F *fLeadObjM12Data = new TH1F("fLeadObjM12Data","",80,0.,1000.);
+   fLeadObjM12Data->GetYaxis()->SetTitle("Events");
+
+   mcTree ->Draw("ObjM12>>fLeadObjM12MC",weightLumi*weightBTag*weightPt*weightdEta*btagSFcentral,"E");
+   mcTree ->Draw("ObjM12>>fLeadObjM12MCSyst",weightLumi*weightBTag*ptSystWeight*weightdEta*btagSFcentral,"E");
+   dataTree ->Draw("ObjM12>>fLeadObjM12Data");
+
+   fLeadObjM12MCSyst->Draw("E");
+   fLeadObjM12MCSyst = calculatePtEffSyst(fLeadObjM12MC,fLeadObjM12MCSyst);
+//   fLeadObjM12MC->Draw("E");
+
+   TH1F *ratioObjM12 = ratio->DrawRatio(fLeadObjM12Data,fLeadObjM12MC,fLeadObjM12MCSyst,NULL,canva03);
+   ratioObjM12->SetAxisRange(0.,2.,"Y");
+   ratioObjM12->SetTitle(";M_{12};Data/MC");
+
+   //..............................BTag discr ....................
+   TCanvas *canva04 = new TCanvas("canva04","BTagCSV",1000,800);
+   TH1F *fLeadBTagMC = new TH1F("fLeadBTagMC","",80,0.94,1.);
+   TH1F *fLeadBTagMCSyst = new TH1F("fLeadBTagMCSyst","",80,0.94,1.);
+   TH1F *fLeadBTagData = new TH1F("fLeadBTagData","",80,0.94,1.);
+   fLeadBTagData->GetYaxis()->SetTitle("Events");
+
+   mcTree ->Draw("LeadBTag[0]>>fLeadBTagMC",weightLumi*weightBTag*weightPt*weightdEta,"E");
+   mcTree ->Draw("LeadBTag[0]>>fLeadBTagMCSyst",weightLumi*weightBTag*ptSystWeight*weightdEta,"E");
+   dataTree ->Draw("LeadBTag[0]>>fLeadBTagData");
+
+   fLeadBTagMCSyst->Draw("E");
+   fLeadBTagMCSyst = calculatePtEffSyst(fLeadBTagMC,fLeadBTagMCSyst);
+   fLeadBTagMC->Scale(SFb);
+   fLeadBTagMCSyst->Scale(SFb);
+//   fLeadBTagMC->Draw("E");
+
+   TH1F *ratioBTag = ratio->DrawRatio(fLeadBTagData,fLeadBTagMC,fLeadBTagMCSyst,NULL,canva04);
+   ratioBTag->SetAxisRange(0.,2.,"Y");
+   ratioBTag->SetTitle(";BTag CSV discr J_{1};Data/MC");
+/**/
+}
+
+TH1F *calculatePtEffSyst(TH1F *D2Plot, TH1F *SystPlot){
+	TH1F *result = (TH1F*) D2Plot->Clone("result");
+	for(int bin = 1; bin < result->GetNbinsX();bin++){
+		result->SetBinContent(bin,D2Plot->GetBinContent(bin));
+		result->SetBinError(bin,D2Plot->GetBinError(bin)+abs(SystPlot->GetBinContent(bin)));
+	}
+
+	return result;
 }
 
 

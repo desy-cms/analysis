@@ -16,22 +16,30 @@
 #include "TFile.h"
 #include "TGraph2D.h"
 
+//For BTag SF calculation
+#include "Analysis/MssmHbb/interface/BTagCalibrationStandalone.h"
+
 class BasicTree {
 public:
 	BasicTree();
 	virtual ~BasicTree();
 
 	//Methods Declaration
+	void calculateBTagSF(const BTagCalibrationReader & reader, const BTagCalibrationReader &reader_up, const BTagCalibrationReader &reader_down);
+	void calculateBTagSF(const BTagCalibrationReader & reader);
+	void calculateSystError();
 
 	//Sets
 	void setNjets(const int &n);
+	void setJetCounter(const int &n);
+
 	void calculateJetVariables();
 	void calculateWeights(TH2F *btag,TH2F *pt);
 	void calculateWeights(TH2F *btag);
 	void setBTagWeight(const double & weight);
 	void setLumiWeight(const double & dataLumi, const double & mcLumi);
 
-	void setJetVariables(const analysis::tools::Jet & Jet, const int & iterator);
+	void setJetVariables(const analysis::tools::Jet & Jet);
 	void setPhysObjVariables(const TLorentzVector & Obj);
 	void cleanVariables();
 
@@ -103,10 +111,24 @@ private:
     double BTagWeight_;
     double lumiWeight_;
 
+    // BTag SF weight
+    double btagSFcentral_[20];
+    double btagSFup_[20];
+    double btagSFdown_[20];
+
     TFile *OutFile_;
     TTree *OutTree_;
+    int jetCounter_ = -100;
 
     //Functions:
+
+    // Systematic errors:
+    double systUp_;
+    double systDown_;
+
+protected:
+
+    double maxBJetPt__ = 670.; // For BTagCalibrationStandAlone
 
 
 
@@ -115,3 +137,4 @@ private:
 };
 
 #endif /* MSSMHBB_SRC_BASICTREE_H_ */
+
