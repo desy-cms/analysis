@@ -24,7 +24,7 @@ namespace analysis {
       void show() const;
 
     private:
-      std::string name_;
+      const std::string name_;
       bool constant_;
       bool floating_;
       float start_;

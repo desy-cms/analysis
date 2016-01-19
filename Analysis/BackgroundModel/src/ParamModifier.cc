@@ -1,3 +1,4 @@
+#include <regex>
 #include "Analysis/BackgroundModel/interface/ParamModifier.h"
 
 using namespace analysis::backgroundmodel;
@@ -44,7 +45,8 @@ ParamModifier& ParamModifier::floating() {
 
 
 bool ParamModifier::modify(RooRealVar& var) const {
-  if (var.GetName() != name_) return false;
+  const std::regex nameRegex(name_);
+  if (!std::regex_match(var.GetName(), nameRegex)) return false;
   if (changeMin_) {
     if (min_ > var.getMax()) var.setMax(min_);
     var.setMin(min_);
@@ -61,8 +63,8 @@ bool ParamModifier::modify(RooRealVar& var) const {
 
 
 void ParamModifier::show() const {
-  std::cout << "\nThe following properties of the parameter '" << name_
-	    << "' are modified:" << std::endl;
+  std::cout << "\nThe following properties of the parameters matching '"
+	    << name_ << "' are modified:" << std::endl;
   if (changeStart_) std::cout << "  -> start value = " << start_ << std::endl;
   if (changeMin_)   std::cout << "  -> minimum = " << min_ << std::endl;
   if (changeMax_)   std::cout << "  -> maximum = " << max_ << std::endl;

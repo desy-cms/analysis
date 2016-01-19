@@ -579,7 +579,6 @@ bool FitContainer::applyModifiers_(RooAbsPdf& pdf,
     for (const auto& m : modifiers) {
       if (m.modify(*parameter)) {
         modified = true;
-        break;
       }
     }
     parameter = static_cast<RooRealVar*>(iter->Next());
