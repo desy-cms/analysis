@@ -81,14 +81,18 @@ FitContainer& FitContainer::verbosity(int level) {
 
 FitContainer& FitContainer::fitRangeMin(float min) {
   fitRangeMin_ = min;
-  mbb_.setRange("fit_range", fitRangeMin_, fitRangeMax_);
+  mbb_.setMin(min);
+  mbb_.setRange(fullRangeId_.c_str(), mbb_.getMin(), mbb_.getMax());
+  mbb_.setRange(fitRangeId_.c_str(), fitRangeMin_, fitRangeMax_);
   return *this;
 }
 
 
 FitContainer& FitContainer::fitRangeMax(float max) {
   fitRangeMax_ = max;
-  mbb_.setRange("fit_range", fitRangeMin_, fitRangeMax_);
+  mbb_.setMax(max);
+  mbb_.setRange(fullRangeId_.c_str(), mbb_.getMin(), mbb_.getMax());
+  mbb_.setRange(fitRangeId_.c_str(), fitRangeMin_, fitRangeMax_);
   return *this;
 }
 
@@ -182,7 +186,8 @@ std::unique_ptr<RooFitResult> FitContainer::backgroundOnlyFit() {
              RooFit::Name("background_curve"),
              RooFit::NormRange(fullRangeId_.c_str()),
              RooFit::Range(fitRangeId_.c_str()),
-             RooFit::Normalization(data_.sumEntries(), RooAbsReal::NumEvent));
+             RooFit::Normalization(data_.sumEntries("1", fitRangeId_.c_str()),
+				   RooAbsReal::NumEvent));
 
   TCanvas canvas("canvas", "", 600, 600);
   canvas.cd();
