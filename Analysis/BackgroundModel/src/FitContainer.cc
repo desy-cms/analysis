@@ -27,9 +27,11 @@ using namespace analysis::backgroundmodel;
 
 
 FitContainer::FitContainer(const TH1& data, const TH1& signal, const TH1& background) :
-  verbosity_(1),
   plotDir_(getOutputPath_("plots")),
   workspaceDir_(getOutputPath_("workspace")),
+  fullRangeId_("full_range"),
+  fitRangeId_("fit_range"),
+  verbosity_(1),
   workspace_(RooWorkspace("workspace")),
   mbb_("mbb", "m_{bb}",
        data.GetXaxis()->GetXmin(), data.GetXaxis()->GetXmax(), "GeV"),
@@ -39,10 +41,13 @@ FitContainer::FitContainer(const TH1& data, const TH1& signal, const TH1& backgr
   fitRangeMin_(mbb_.getMin()),
   fitRangeMax_(mbb_.getMax()) {
 
+  // clean up possible pre-existing output:
   gSystem->Exec((std::string("rm -f "+plotDir_+"*").c_str()));
   gSystem->Exec((std::string("rm -f "+workspaceDir_+"*").c_str()));
-  mbb_.setRange("full_range", mbb_.getMin(), mbb_.getMax());
-  mbb_.setRange("fit_range", fitRangeMin_, fitRangeMax_);
+
+  // set range used for normalization of the pdf and a default fit range:
+  mbb_.setRange(fullRangeId_.c_str(), mbb_.getMin(), mbb_.getMax());
+  mbb_.setRange(fitRangeId_.c_str(), fitRangeMin_, fitRangeMax_);
 
   // plot the input data:
   std::unique_ptr<RooPlot> frame(mbb_.frame());
@@ -59,7 +64,7 @@ FitContainer::FitContainer(const TH1& data, const TH1& signal, const TH1& backgr
 
 
 FitContainer::FitContainer(const DataContainer& container) :
-  FitContainer(*(container.data()), *(container.bbH()), *(container.background())) {
+  FitContainer(*container.data(), *container.bbH(), *container.background()) {
 }
 
 
@@ -108,7 +113,18 @@ void FitContainer::setModel(const Type& type, const std::string& name,
   switch (nameSplitted.size()) {
   case 1: break;
   case 2:
-    numCoeffs = std::stoi(nameSplitted[1]);
+    try {
+      numCoeffs = std::stoi(nameSplitted[1]);
+    } catch (const std::invalid_argument& ex) {
+      if (std::string(ex.what()) == "stoi") {
+	std::cerr << "Conversion of '" << nameSplitted[1]
+		  << "' to an integral value for the number of coefficients "
+		  << "failed. Using the default value of " << numCoeffs << "."
+		  << std::endl;
+      } else {
+	throw;
+      }
+    }
     break;
   default:
     std::stringstream msg;
@@ -150,7 +166,8 @@ std::unique_ptr<RooFitResult> FitContainer::backgroundOnlyFit() {
     fitResult(bkg.fitTo(data_,
                         RooFit::Save(),
                         RooFit::PrintLevel(verbosity_),
-                        RooFit::Range("fit_range")));
+                        RooFit::Range(fitRangeId_.c_str())
+));
 
   std::cout << "\nconstant parameters:" << std::endl;
   fitResult->constPars().Print("v");
@@ -163,9 +180,10 @@ std::unique_ptr<RooFitResult> FitContainer::backgroundOnlyFit() {
   data_.plotOn(frame.get(), RooFit::Name("data_curve"));
   bkg.plotOn(frame.get(),
              RooFit::Name("background_curve"),
-             RooFit::NormRange("full_range"),
-             RooFit::Range("fit_range"),
+             RooFit::NormRange(fullRangeId_.c_str()),
+             RooFit::Range(fitRangeId_.c_str()),
              RooFit::Normalization(data_.sumEntries(), RooAbsReal::NumEvent));
+
   TCanvas canvas("canvas", "", 600, 600);
   canvas.cd();
   prepareCanvas_(canvas);

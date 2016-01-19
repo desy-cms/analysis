@@ -78,9 +78,11 @@ namespace analysis {
 
       // data member
       static const int defaultNumberOfCoefficients_;
+      const std::string plotDir_;
+      const std::string workspaceDir_;
+      const std::string fullRangeId_;
+      const std::string fitRangeId_;
       int verbosity_;
-      std::string plotDir_;
-      std::string workspaceDir_;
       RooWorkspace workspace_;
       RooRealVar mbb_;
       RooDataHist data_;

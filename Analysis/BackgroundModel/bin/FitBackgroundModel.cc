@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
 	    .allow_unregistered().run(), vm);
 
 
-  po::options_description allOptions ("Allowed arguments");
+  po::options_description allOptions("Allowed arguments");
   allOptions.add(cmdLineOptions).add(requiredOptions);
 
   // check for help flag before checking for required options
@@ -65,13 +65,12 @@ int main(int argc, char *argv[]) {
 
   try {
     po::notify(vm);
-  }
-  catch (const po::required_option& ex) {
+  } catch (const po::required_option& ex) {
     std::cerr << ex.what() << std::endl;
     return 1;
   }
 
-  int verbosity(vm["verbose"].as<int>());
+  auto verbosity = vm["verbose"].as<int>();
   if (verbosity < 1) {
     RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
   } else if (verbosity == 1) {
