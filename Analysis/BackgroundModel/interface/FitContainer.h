@@ -36,6 +36,8 @@ namespace analysis {
       virtual ~FitContainer();
 
       FitContainer& verbosity(int level);
+      FitContainer& fitRangeMin(float min);
+      FitContainer& fitRangeMax(float max);
 
       inline static const std::vector<std::string>& availableModels() {
 	return availableModels_; };
@@ -84,6 +86,8 @@ namespace analysis {
       RooDataHist data_;
       RooDataHist signal_;
       RooDataHist background_;
+      float fitRangeMin_;
+      float fitRangeMax_;
     };
 
   }

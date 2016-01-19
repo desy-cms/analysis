@@ -35,10 +35,14 @@ FitContainer::FitContainer(const TH1& data, const TH1& signal, const TH1& backgr
        data.GetXaxis()->GetXmin(), data.GetXaxis()->GetXmax(), "GeV"),
   data_("data_container", "", mbb_, &data),
   signal_("signal_container", "", mbb_, &signal),
-  background_("background_container", "", mbb_, &background) {
+  background_("background_container", "", mbb_, &background),
+  fitRangeMin_(mbb_.getMin()),
+  fitRangeMax_(mbb_.getMax()) {
 
   gSystem->Exec((std::string("rm -f "+plotDir_+"*").c_str()));
   gSystem->Exec((std::string("rm -f "+workspaceDir_+"*").c_str()));
+  mbb_.setRange("full_range", mbb_.getMin(), mbb_.getMax());
+  mbb_.setRange("fit_range", fitRangeMin_, fitRangeMax_);
 
   // plot the input data:
   std::unique_ptr<RooPlot> frame(mbb_.frame());
@@ -66,6 +70,20 @@ FitContainer::~FitContainer() {
 
 FitContainer& FitContainer::verbosity(int level) {
   verbosity_ = level;
+  return *this;
+}
+
+
+FitContainer& FitContainer::fitRangeMin(float min) {
+  fitRangeMin_ = min;
+  mbb_.setRange("fit_range", fitRangeMin_, fitRangeMax_);
+  return *this;
+}
+
+
+FitContainer& FitContainer::fitRangeMax(float max) {
+  fitRangeMax_ = max;
+  mbb_.setRange("fit_range", fitRangeMin_, fitRangeMax_);
   return *this;
 }
 
@@ -129,7 +147,10 @@ std::unique_ptr<RooFitResult> FitContainer::backgroundOnlyFit() {
     throw std::logic_error("No background model has been set.");
   }
   std::unique_ptr<RooFitResult>
-    fitResult(bkg.fitTo(data_, RooFit::Save(), RooFit::PrintLevel(verbosity_)));
+    fitResult(bkg.fitTo(data_,
+                        RooFit::Save(),
+                        RooFit::PrintLevel(verbosity_),
+                        RooFit::Range("fit_range")));
 
   std::cout << "\nconstant parameters:" << std::endl;
   fitResult->constPars().Print("v");
@@ -139,9 +160,12 @@ std::unique_ptr<RooFitResult> FitContainer::backgroundOnlyFit() {
   fitResult->floatParsFinal().Print("v");
 
   std::unique_ptr<RooPlot> frame(mbb_.frame());
-  // data_.plotOn(frame.get(), RooFit::Name("data_curve"));
-  data_.plotOn(frame.get(), RooFit::Name("data_curve"), RooFit::DrawOption("p e6"));
-  bkg.plotOn(frame.get(), RooFit::Name("background_curve"));
+  data_.plotOn(frame.get(), RooFit::Name("data_curve"));
+  bkg.plotOn(frame.get(),
+             RooFit::Name("background_curve"),
+             RooFit::NormRange("full_range"),
+             RooFit::Range("fit_range"),
+             RooFit::Normalization(data_.sumEntries(), RooAbsReal::NumEvent));
   TCanvas canvas("canvas", "", 600, 600);
   canvas.cd();
   prepareCanvas_(canvas);
@@ -200,9 +224,9 @@ void FitContainer::profileModel(const Type& type) {
       std::unique_ptr<RooAbsReal> profile(nll->createProfile(*parameter));
       std::unique_ptr<RooPlot> frame(parameter->frame());
       if (frame == nullptr) {
-	std::stringstream msg;
-	msg << "Problems creating frame for '" << parameter->GetName() << "'.";
-	throw std::runtime_error(msg.str());
+        std::stringstream msg;
+        msg << "Problems creating frame for '" << parameter->GetName() << "'.";
+        throw std::runtime_error(msg.str());
       }
       profile->plotOn(frame.get());
       TCanvas canvas("canvas", "", 600, 600);
@@ -210,10 +234,10 @@ void FitContainer::profileModel(const Type& type) {
       prepareFrame_(*frame);
       frame->Draw();
       canvas.SaveAs((plotDir_+toString(type)+"_profile_"+
-		     parameter->GetName()+".pdf").c_str());
+                     parameter->GetName()+".pdf").c_str());
       canvas.SetLogy();
       canvas.SaveAs((plotDir_+toString(type)+"_profile_"+
-		     parameter->GetName()+"_log.pdf").c_str());
+                     parameter->GetName()+"_log.pdf").c_str());
     }
     parameter = static_cast<RooRealVar*>(iter->Next());
   }
@@ -493,7 +517,9 @@ int FitContainer::getNonZeroBins_(const RooDataHist& data) {
   std::unique_ptr<TH1> hist(data.createHistogram("mbb", mbb_));
   int nonZeroBins = 0;
   for (int i = 1; i <= hist->GetNbinsX(); ++i) {
-    if (hist->GetBinContent(i) > 0) ++nonZeroBins;
+    double center = hist->GetBinCenter(i);
+    if (hist->GetBinContent(i) > 0 &&
+center > fitRangeMin_ && center < fitRangeMax_) ++nonZeroBins;
   }
   return nonZeroBins;
 }
@@ -505,10 +531,12 @@ double FitContainer::chiSquare_(const RooDataHist& data, const RooCurve& fit) {
   double avgBinSize = hist->GetXaxis()->GetXmax() - hist->GetXaxis()->GetXmin();
   avgBinSize /= hist->GetNbinsX();
   for (int i = 1; i <= hist->GetNbinsX(); ++i) {
-    if (hist->GetBinContent(i) > 0.0) {
+    double center = hist->GetBinCenter(i);
+    double content = hist->GetBinContent(i);
+    if (content > 0.0 && center > fitRangeMin_ && center < fitRangeMax_) {
       double densityCorrection = avgBinSize/hist->GetBinWidth(i);
-      double model = fit.interpolate(hist->GetBinCenter(i));
-      double dataPoint = hist->GetBinContent(i)*densityCorrection;
+      double model = fit.interpolate(center);
+      double dataPoint = content*densityCorrection;
       double pull = (dataPoint - model)/hist->GetBinError(i)/densityCorrection;
       chi2 += pull*pull;
     }

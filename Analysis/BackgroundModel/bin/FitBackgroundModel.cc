@@ -15,7 +15,7 @@ namespace ab = analysis::backgroundmodel;
 
 
 int main(int argc, char *argv[]) {
-  const std::string cmsswBase(gSystem->Getenv("CMSSW_BASE"));
+  const auto cmsswBase = static_cast<std::string>(gSystem->Getenv("CMSSW_BASE"));
 
   // general command line options
   po::options_description cmdLineOptions("Optional arguments");
@@ -28,6 +28,8 @@ int main(int argc, char *argv[]) {
      ->default_value(cmsswBase+"/src/Analysis/BackgroundModel/"
 		     "data/HIG14017_HighMass2012_Packed_M350_inputs.root"),
      "ROOT file from which input histograms are retrieved.")
+    ("fit_min", po::value<float>(), "Lower bound of the fit range.")
+    ("fit_max", po::value<float>(), "Upper bound of the fit range.")
     ("modify_param,m", po::value<std::vector<std::string> >()->composing()
      ->default_value(std::vector<std::string>(), ""),
      "Modify parameters as follows: "
@@ -64,7 +66,7 @@ int main(int argc, char *argv[]) {
   try {
     po::notify(vm);
   }
-  catch(const boost::program_options::required_option& ex) {
+  catch (const po::required_option& ex) {
     std::cerr << ex.what() << std::endl;
     return 1;
   }
@@ -84,6 +86,8 @@ int main(int argc, char *argv[]) {
   input.show();
 
   ab::FitContainer fitter = ab::FitContainer(input).verbosity(verbosity - 1);
+  if (!vm["fit_min"].empty()) fitter.fitRangeMin(vm["fit_min"].as<float>());
+  if (!vm["fit_max"].empty()) fitter.fitRangeMax(vm["fit_max"].as<float>());
   std::vector<ab::ParamModifier> bkgModifiers =
     ab::parseModifiers(vm["modify_param"].as<std::vector<std::string> >());
   fitter.setModel(ab::FitContainer::Type::background,
