@@ -21,7 +21,7 @@ void MCbranches()
    //gROOT->ForceStyle();
 
    TFile * fData = new TFile("/nfs/dust/cms/user/shevchen/output/DoubleBTagSelection.root");
-   TFile * fMonteCarlo = new TFile("/nfs/dust/cms/user/shevchen/output/DoubleBTagSelectionQCD_180116_LOOSE_SFb.root");
+   TFile * fMonteCarlo = new TFile("/nfs/dust/cms/user/shevchen/output/DoubleBTagSelectionQCD_180116.root");
 
    TTree *dataTree, *mcTree;
    fMonteCarlo -> GetObject("MssmHbb",mcTree);
@@ -60,7 +60,9 @@ void MCbranches()
    mcTree ->Draw("LeadPt[0]>>fLeadPtMCSyst",weightLumi*weightBTag*ptSystWeight*weightdEta*btagSFcentral,"E");
    dataTree ->Draw("LeadPt[0]>>fLeadPtData");
 
+   std::cout<<fLeadPtMCSyst->GetBinContent(11)<<std::endl;
    fLeadPtMCSyst = calculatePtEffSyst(fLeadPtMC,fLeadPtMCSyst);
+   std::cout<<fLeadPtMCSyst->GetBinContent(11)<<" +/- "<<fLeadPtMCSyst->GetBinError(11)<<std::endl;
    fLeadPtMC->Draw("E");
 
    TLegend *leg_pt1 = new TLegend(0.55,0.5,0.8,0.8);

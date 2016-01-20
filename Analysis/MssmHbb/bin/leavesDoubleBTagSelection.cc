@@ -52,7 +52,7 @@ int main(int argc, char * argv[])
    //Add BTagCalibration calculators:
    BTagCalibration calib("csvv2", "SFbLib.csv");
    BTagCalibrationReader reader(&calib,               // calibration instance
-                                BTagEntry::OP_LOOSE,  // operating point
+                                BTagEntry::OP_TIGHT,  // operating point
                                 "mujets",               // measurement type
                                 "central");           // systematics type
    BTagCalibrationReader reader_up(&calib, BTagEntry::OP_TIGHT, "mujets", "up");  // sys up
@@ -123,7 +123,7 @@ int main(int argc, char * argv[])
     		  	  	  	  	 BTagWeight(btagEff0p9,btagEff0p9_1p4,btagEff1p4_2p5,LeadJet[0].pt(),LeadJet[0].eta()));
       analysis.setLumiWeight(1001.179266,analysis.luminosity());
       analysis.calculateWeights(btagEff0p9_1p4,PtEff);
-      if(analysis.isMC()) analysis.calculateSystError();
+      if(analysis.isMC()) analysis.calculateFlavourComposition();
       ++nCand;
       analysis.fillTree();
 

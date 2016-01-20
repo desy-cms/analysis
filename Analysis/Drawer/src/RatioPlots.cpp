@@ -62,7 +62,6 @@ inline TPad *RatioPlots::GetBottomPad(){ return pad2_;}
 RatioPlots::RatioPlots(const PublicationStatus status) {
 	// TODO Auto-generated constructor stub
 	style_.set(status);
-
 	// Setup style file
 	TH1::SetDefaultSumw2();
 
@@ -88,9 +87,10 @@ TGraphAsymmErrors * RatioPlots::CreateSystTGraph(TH1 *central, TH1 *up, TH1* dow
 
 TH1F* RatioPlots::DrawRatio(TH1 *numerator, TH1 *denumerator, TH1 *systErr, TLegend *leg, TCanvas *can){
 
+	TH1::SetDefaultSumw2();
 	//Create Top pad for this canva
 	pad1_ = new TPad("pad1","pad1",0,0.3,1,1);
-	pad1_ -> SetBottomMargin(0.05);
+	pad1_ -> SetBottomMargin(0.0);
 	pad1_ -> Draw();
 	pad1_ -> cd();
 
@@ -111,15 +111,15 @@ TH1F* RatioPlots::DrawRatio(TH1 *numerator, TH1 *denumerator, TH1 *systErr, TLeg
 	systErr->SetLineColor(2);
 	systErr->SetLineWidth(2);
 	systErr->SetLineStyle(3);
-	systErr -> Draw("same");
+	systErr -> Draw("E1 same");
 	}
 	if(leg) leg->Draw();
 	style_.standardTitle()->Draw();
 
 	can->cd();
 	pad2_ = new TPad("pad2","pad2",0,0.0,1,0.3);
-	pad2_ -> SetTopMargin(0.05);
-	pad2_ -> SetBottomMargin(0.2);
+	pad2_ -> SetTopMargin(0.0);
+	pad2_ -> SetBottomMargin(0.25);
 	pad2_ -> Draw();
 	pad2_ -> cd();
 
@@ -136,7 +136,7 @@ TH1F* RatioPlots::DrawRatio(TH1 *numerator, TH1 *denumerator, TH1 *systErr, TLeg
 
 	hRatio -> GetYaxis() -> SetRangeUser(ratioRange_.first,ratioRange_.second);
 	hRatio -> GetYaxis() -> SetTitle(ratioTitle_.c_str());
-
+	hRatio -> GetXaxis() -> SetTitle(numerator->GetXaxis()->GetTitle());
 	//Add Systematic errors:
 	if(systErr){
 	TH1 *RatioSyst = (TH1*) systErr->Clone("RatioSyst");
@@ -152,7 +152,7 @@ TH1F* RatioPlots::DrawRatio(TH1 *numerator, TH1 *denumerator, TGraphAsymmErrors 
 
 	//Create Top pad for this canva
 	pad1_ = new TPad("pad1","pad1",0,0.3,1,1);
-	pad1_ -> SetBottomMargin(0.05);
+	pad1_ -> SetBottomMargin(0.0);
 	pad1_ -> Draw();
 	pad1_ -> cd();
 
@@ -180,7 +180,7 @@ TH1F* RatioPlots::DrawRatio(TH1 *numerator, TH1 *denumerator, TGraphAsymmErrors 
 
 	can->cd();
 	pad2_ = new TPad("pad2","pad2",0,0.0,1,0.3);
-	pad2_ -> SetTopMargin(0.05);
+	pad2_ -> SetTopMargin(0.0);
 	pad2_ -> SetBottomMargin(0.25);
 	pad2_ -> Draw();
 	pad2_ -> cd();
@@ -231,14 +231,16 @@ void RatioPlots::SetBottomStyle(TH1 *hRatio){
    hRatio -> GetYaxis() -> SetTitleSize(0.1);
 //   hRatio -> GetYaxis() -> SetTitleFont(60);
    hRatio -> GetYaxis() -> SetTitleOffset(0.9);
-   hRatio -> GetYaxis() -> SetLabelFont(43); // Absolute font size in pixel (precision 3)
-   hRatio -> GetYaxis() -> SetLabelSize(20);
+   hRatio -> GetYaxis() -> SetLabelFont(44); // Absolute font size in pixel (precision 3)
+   hRatio -> GetYaxis() -> SetLabelSize(23);
 
    // X axis ratio plot settings
    hRatio -> GetXaxis() -> SetTitleSize(0.1);
-   hRatio -> GetXaxis() -> SetTitleOffset(1.);
-   hRatio -> GetXaxis() -> SetLabelFont(43); // Absolute font size in pixel (precision 3)
-   hRatio -> GetXaxis() -> SetLabelSize(20);
+   hRatio -> GetXaxis() -> SetTitleOffset(0.95);
+   hRatio -> GetXaxis() -> SetLabelFont(44); // Absolute font size in pixel (precision 3)
+   hRatio -> GetXaxis() -> SetLabelSize(23);
+
+   hRatio -> SetTickLength(0.1,"XZ");
 }
 
 void RatioPlots::DrawPhaseSpaceDescription(float x1, float y1, float x2, float y2){

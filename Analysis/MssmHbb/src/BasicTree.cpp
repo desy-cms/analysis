@@ -149,9 +149,15 @@ void BasicTree::setBranches(){
 	OutTree_->Branch("BTagSFup",btagSFup_,"BTagSFup[20]/D");
 	OutTree_->Branch("BTagSFdown",btagSFdown_,"BTagSFdown[20]/D");
 
-	// Systematic errors:
-	OutTree_->Branch("SystUp",&systUp_,"SystUp/D");
-	OutTree_->Branch("SystDown",&systDown_,"SystDown/D");
+	//Flavour composition
+	OutTree_->Branch("cc",&cc_,"cc/I");
+	OutTree_->Branch("bb",&bb_,"bb/I");
+	OutTree_->Branch("qq",&qq_,"qq/I");
+	OutTree_->Branch("bc",&bc_,"bc/I");
+	OutTree_->Branch("bq",&bq_,"bq/I");
+	OutTree_->Branch("qc",&qc_,"qc/I");
+
+
 
 
 //        OutTree_->Branch("BTagSFL",&BTagSFL_,"BTa
@@ -176,6 +182,10 @@ void BasicTree::calculateBTagSF(const BTagCalibrationReader & reader, const BTag
 		btagSFup_[jetCounter_] = 2*(btagSFup_[jetCounter_] - btagSFcentral_[jetCounter_]) + btagSFcentral_[jetCounter_];
 		btagSFdown_[jetCounter_] = 2*(btagSFdown_[jetCounter_] - btagSFcentral_[jetCounter_]) + btagSFcentral_[jetCounter_];
 	}
+
+	//For 2 Sigma variation:
+	btagSFup_[jetCounter_] = 2*(btagSFup_[jetCounter_] - btagSFcentral_[jetCounter_]) + btagSFcentral_[jetCounter_];
+	btagSFdown_[jetCounter_] = 2*(btagSFdown_[jetCounter_] - btagSFcentral_[jetCounter_]) + btagSFcentral_[jetCounter_];
 
 }
 
@@ -210,27 +220,27 @@ void BasicTree::cleanVariables(){
 	TwoDPtWeight_ = -100;
 	FactorizationPtWeight_ = -100;
 
-	systDown_ = -100;
-	systUp_ = -100;
+	qq_ = 0;
+	bb_ = 0;
+	cc_ = 0;
+	bq_ = 0;
+	bc_ = 0;
+	qc_ = 0;
+
 }
 
-void BasicTree::calculateSystError(){
+void BasicTree::calculateFlavourComposition(){
 
-	double btagSFbUpperErrorJ1 = std::abs(btagSFcentral_[0] - btagSFup_[0]);
-	double btagSFbDownErrorJ1 = std::abs(btagSFcentral_[0] - btagSFdown_[0]);
-	double btagSFbUpperErrorJ2 = std::abs(btagSFcentral_[1] - btagSFup_[1]);
-	double btagSFbDownErrorJ2 = std::abs(btagSFcentral_[1] - btagSFdown_[1]);
-
-	double TwoDUpperError = std::abs(TwoDPtWeight_ - FactorizationPtWeight_);
-	double TwoDDownError = TwoDUpperError;
-	//Pt efficiency error and SFb error: N=W1*W2*W3 - uncorelated
-	systUp_ = TwoDPtWeight_ * btagSFcentral_[0] * btagSFcentral_[1] *std::sqrt( (btagSFbUpperErrorJ1/btagSFcentral_[0])*(btagSFbUpperErrorJ1/btagSFcentral_[0]) +
-																				(btagSFbUpperErrorJ2/btagSFcentral_[1])*(btagSFbUpperErrorJ2/btagSFcentral_[1]) +
-														 	 	 	 	 	 	(TwoDUpperError/TwoDPtWeight_)*(TwoDUpperError/TwoDPtWeight_));
-
-	systDown_ = TwoDPtWeight_ * btagSFcentral_[0] * btagSFcentral_[1]*std::sqrt((btagSFbDownErrorJ1/btagSFcentral_[0])*(btagSFbDownErrorJ1/btagSFcentral_[0]) +
-																				(btagSFbDownErrorJ2/btagSFcentral_[1])*(btagSFbDownErrorJ2/btagSFcentral_[1]) +
-																				(TwoDDownError/TwoDPtWeight_)*(TwoDDownError/TwoDPtWeight_));
+	if (LeadJet_[0].flavour("Hadron") == 0 && LeadJet_[1].flavour("Hadron") == 0	)   qq_ = 1; //qq
+	else if (LeadJet_[0].flavour("Hadron") == 4 && LeadJet_[1].flavour("Hadron") == 4 ) cc_ = 1; //cc
+	else if (LeadJet_[0].flavour("Hadron") == 5 && LeadJet_[1].flavour("Hadron") == 5 ) bb_ = 1;
+	else if ((LeadJet_[0].flavour("Hadron") == 0 || LeadJet_[1].flavour("Hadron") == 0) && ( LeadJet_[0].flavour("Hadron") == 4 || LeadJet_[1].flavour("Hadron") == 4 )) qc_ = 1;
+	else if ((LeadJet_[0].flavour("Hadron") == 5 || LeadJet_[1].flavour("Hadron") == 5) && ( LeadJet_[0].flavour("Hadron") == 0 || LeadJet_[1].flavour("Hadron") == 0 )) bq_ = 1;
+	else if ((LeadJet_[0].flavour("Hadron") == 5 || LeadJet_[1].flavour("Hadron") == 5) && ( LeadJet_[0].flavour("Hadron") == 4 || LeadJet_[1].flavour("Hadron") == 4 )) bc_ = 1;
+	else {
+		std::cerr<<"Error: Undefined color. Interrupt!"<<std::endl;
+		exit(5);
+	}
 }
 
 void BasicTree::fillTree(){

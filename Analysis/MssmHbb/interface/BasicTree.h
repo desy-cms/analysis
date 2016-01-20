@@ -27,7 +27,7 @@ public:
 	//Methods Declaration
 	void calculateBTagSF(const BTagCalibrationReader & reader, const BTagCalibrationReader &reader_up, const BTagCalibrationReader &reader_down);
 	void calculateBTagSF(const BTagCalibrationReader & reader);
-	void calculateSystError();
+	void calculateFlavourComposition();
 
 	//Sets
 	void setNjets(const int &n);
@@ -120,11 +120,16 @@ private:
     TTree *OutTree_;
     int jetCounter_ = -100;
 
+    // Flavour composition:
+    int cc_;
+    int bb_;
+    int qq_;
+    int bc_;
+    int qc_;
+    int bq_;
+
     //Functions:
 
-    // Systematic errors:
-    double systUp_;
-    double systDown_;
 
 protected:
 
