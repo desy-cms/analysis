@@ -55,18 +55,7 @@ void TwoDEff()
    TwoDEffTrueMC_Num ->Divide(TwoDEffTrueMC_Num,TwoDEffTrueMC_Denum,1,1,"b");
    TwoDEffTrueMC_Num ->Draw("E");
 
-   //Perform a 2D Fit
-   const int npar = 8;
-   double f2param[npar] = {1.06207e-01,1.06026e+02,2.87048e-01,1.00032e+02,
-		   7.65279e-03,-5.96585e+02,1.36849e-01,1.07257e+02};
 
-	 //double f2param[npar] = {9.98407e-01,-7.82433e+01,1.38176e+00,9.98407e-01,
-		//   	   	   	   	   		9.98407e-01,1.38176e+00,1.38176e+00,9.98407e-01,-9.26433e+01,1.38176e+00,-7.43802e+06,1.00000e+00};
-   TF2 *fit = new TF2("fit",twoDFit,90,500,90,500,npar);
-   fit->SetParameters(f2param);
-   //TwoDEffTrueMC_Num->Fit("fit","R");
-   std::cout<<"Chi2 = "<<fit->GetChisquare()<<" Ndf = "<<fit->GetNDF()<<" : "<<fit->GetChisquare()/fit->GetNDF()<<std::endl;
-   std::cout<<"Get correlation Factor = "<<TwoDEffTrueMC_Num->GetCorrelationFactor()<<std::endl;
 /*
    TCanvas *can3 = new TCanvas("can3","Canva with Histo/Fit",800,800);
    TH2F *Ratio = (TH2F*) Ratio -> Clone("TwoDEffTrueMC_Num");
@@ -76,6 +65,7 @@ void TwoDEff()
    //Ratio->Draw("LEGO");
    Ratio->Draw("E");
 */
+   /*
    TCanvas *can2 = new TCanvas("can2","Symetry Canva",1000,800);
    TH2F *TwoDEffTrueMC_NumSym = new TH2F("TwoDEffTrueMC_NumSym","2D Efficiency with True method",size,Bins,size,Bins);
    TwoDEffTrueMC_NumSym ->SetMarkerStyle(20);

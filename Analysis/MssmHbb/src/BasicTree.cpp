@@ -189,6 +189,10 @@ void BasicTree::calculateBTagSF(const BTagCalibrationReader & reader, const BTag
 
 }
 
+
+//104.991 central: 0.907225 up: 0.938664 down: 0.875786
+//0.823057 0.0570449 0.0693086
+
 void BasicTree::calculateBTagSF(const BTagCalibrationReader & reader){
 
 	btagSFcentral_[jetCounter_] = reader.eval(BTagEntry::FLAV_B, LeadEta_[jetCounter_], LeadPt_[jetCounter_]);

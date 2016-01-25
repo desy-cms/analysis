@@ -9,7 +9,8 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(-1)
 ##  Using MINIAOD. GlobalTag just in case jet re-clustering, L1 trigger filter  etc is needed to be done
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag as customiseGlobalTag
-process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = '74X_dataRun2_Prompt_v1')
+#process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = '74X_dataRun2_Prompt_v1')
+process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = '74X_dataRun2_v5')
 process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_CONDITIONS'
 process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
 for pset in process.GlobalTag.toGet.value():
@@ -73,18 +74,18 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
     TotalEvents     = cms.InputTag("TotalEvents"),
     FilteredEvents  = cms.InputTag("FilteredEvents"),
     PatJets         = cms.VInputTag(
-                                    cms.InputTag("slimmedJetsPuppi","","RECO"),
-                                    cms.InputTag("slimmedJetsAK8PFCHSSoftDropPacked","SubJets","RECO")
+                                    cms.InputTag("slimmedJetsPuppi","","PAT"),
+                                    cms.InputTag("slimmedJetsAK8PFCHSSoftDropPacked","SubJets","PAT")
                                     ), 
     PatMETs         = cms.VInputTag(
-                                    cms.InputTag("slimmedMETs","","RECO"),
-                                    cms.InputTag("slimmedMETsPuppi","","RECO")
+                                    cms.InputTag("slimmedMETs","","PAT"),
+                                    cms.InputTag("slimmedMETsPuppi","","PAT")
                                     ), 
     PatMuons        = cms.VInputTag(
-                                    cms.InputTag("slimmedMuons","","RECO")
+                                    cms.InputTag("slimmedMuons","","PAT")
                                     ), 
     PrimaryVertices = cms.VInputTag(
-                                    cms.InputTag("offlineSlimmedPrimaryVertices","","RECO")
+                                    cms.InputTag("offlineSlimmedPrimaryVertices","","PAT")
                                     ), 
     BTagAlgorithms = cms.vstring   (
                                     "pfCombinedInclusiveSecondaryVertexV2BJetTags",
@@ -130,7 +131,7 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
                                     "HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq500_v",
                                    ),
     TriggerObjectStandAlone  = cms.VInputTag(
-                                             cms.InputTag("selectedPatTrigger","","RECO"),
+                                             cms.InputTag("selectedPatTrigger","","PAT"),
                                              ),
     TriggerObjectLabels    = cms.vstring  (
     											"hltL1sL1DoubleJetC100",
@@ -169,9 +170,14 @@ secFiles = cms.untracked.vstring()
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 
 readFiles.extend( [
-       '/store/data/Run2015C/BTagCSV/MINIAOD/PromptReco-v1/000/254/905/00000/1877CA80-B64B-E511-BE62-02163E013611.root',
-       '/store/data/Run2015C/BTagCSV/MINIAOD/PromptReco-v1/000/254/906/00000/2E43AE21-D74B-E511-B642-02163E011AC9.root',
-       '/store/data/Run2015C/BTagCSV/MINIAOD/PromptReco-v1/000/254/907/00000/FA67011D-DE4B-E511-A6B5-02163E01437C.root'
+
+       '/store/data/Run2015D/BTagCSV/MINIAOD/05Oct2015-v1/30000/0887DF7D-766F-E511-A040-0025905A6136.root',
+       '/store/data/Run2015D/BTagCSV/MINIAOD/05Oct2015-v1/30000/0CD9A7F9-726F-E511-9BB0-0025905A60A6.root',
+       '/store/data/Run2015D/BTagCSV/MINIAOD/05Oct2015-v1/30000/0E2F6212-7A6F-E511-88FB-00261894387C.root',
+       '/store/data/Run2015D/BTagCSV/MINIAOD/05Oct2015-v1/30000/10258F15-7A6F-E511-9633-002590593878.root',
+       '/store/data/Run2015D/BTagCSV/MINIAOD/05Oct2015-v1/30000/14C59C7B-766F-E511-B494-003048FFD7C2.root',
+       '/store/data/Run2015D/BTagCSV/MINIAOD/05Oct2015-v1/30000/187A1DD3-7B6F-E511-A2F0-002590596498.root',
+       '/store/data/Run2015D/BTagCSV/MINIAOD/05Oct2015-v1/30000/1A46877D-766F-E511-B79A-0025905B8590.root'
 ] );
 
 

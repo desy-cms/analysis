@@ -228,15 +228,15 @@ bool RatioPlots::FindMaximum(TH1* first, TH1 *second){
 void RatioPlots::SetBottomStyle(TH1 *hRatio){
 
    hRatio -> GetYaxis() -> SetNdivisions(505);
-   hRatio -> GetYaxis() -> SetTitleSize(0.1);
+   hRatio -> GetYaxis() -> SetTitleSize(0.13);
 //   hRatio -> GetYaxis() -> SetTitleFont(60);
-   hRatio -> GetYaxis() -> SetTitleOffset(0.9);
+   hRatio -> GetYaxis() -> SetTitleOffset(0.7);
    hRatio -> GetYaxis() -> SetLabelFont(44); // Absolute font size in pixel (precision 3)
    hRatio -> GetYaxis() -> SetLabelSize(23);
 
    // X axis ratio plot settings
-   hRatio -> GetXaxis() -> SetTitleSize(0.1);
-   hRatio -> GetXaxis() -> SetTitleOffset(0.95);
+   hRatio -> GetXaxis() -> SetTitleSize(0.13);
+   hRatio -> GetXaxis() -> SetTitleOffset(0.85);
    hRatio -> GetXaxis() -> SetLabelFont(44); // Absolute font size in pixel (precision 3)
    hRatio -> GetXaxis() -> SetLabelSize(23);
 

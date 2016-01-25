@@ -24,7 +24,7 @@ void DataTwoDEff()
 
    TFile * fMonteCarlo = new TFile("/nfs/dust/cms/user/shevchen/output/ResultsTreesMCQCD.root");
    TFile * fDoubleSelection = new TFile("/nfs/dust/cms/user/shevchen/output/ResultsTreesJetHTFull.root");//ResultsJetHT2015DPromptReco4.root");
-//   TFile *f = new TFile("TwoDimEff.root","RECREATE");
+   TFile *f = new TFile("TwoDimEff.root","RECREATE");
    TTree *dataTree, *mcTree;
    fDoubleSelection->GetObject("OutTree",dataTree);
    fMonteCarlo -> GetObject("OutTree",mcTree);
@@ -51,7 +51,7 @@ void DataTwoDEff()
    TH2F *TwoDEffRefMC_Num = new TH2F("TwoDEffRefMC_Num","2D Efficiency with Ref method",size,Bins,size,Bins);
    TwoDEffRefMC_Num ->SetMarkerStyle(20);
    TH2F *TwoDEffRefMC_Denum = new TH2F("TwoDEffRefMC_Denum","2D Efficiency with Ref method",size,Bins,size,Bins);
-   TwoDEffRefMC_Num ->SetTitle("2D Efficiency with Ref method;p_{T2};p_{T1}");
+   TwoDEffRefMC_Num ->SetTitle("2D Efficiency;sub-leading jet p_{T};leading jet p_{T}; #epsilon");
    dataTree ->Draw("hpf100_Num[0]:hpf100_Num[1]>>TwoDEffRefMC_Num",cut+cutPfJet100Match);
    dataTree ->Draw("hpf100_Denum[0]:hpf100_Denum[1]>>TwoDEffRefMC_Denum",cut);
    TwoDEffRefMC_Num ->Divide(TwoDEffRefMC_Num,TwoDEffRefMC_Denum,1,1,"b");
@@ -61,7 +61,7 @@ void DataTwoDEff()
    TH2F *TwoDEffRefMC_NumSym = new TH2F("TwoDEffRefMC_NumSym","2D Efficiency with True method",size,Bins,size,Bins);
    TwoDEffRefMC_NumSym ->SetMarkerStyle(20);
    TH2F *TwoDEffTrueMC_DenumSym = new TH2F("TwoDEffTrueMC_DenumSym","2D Efficiency with True method",size,Bins,size,Bins);
-   TwoDEffRefMC_NumSym ->SetTitle("2D Efficiency with True method;p_{T2};p_{T1}");
+   TwoDEffRefMC_NumSym ->SetTitle("2D Efficiency with True method;sub-leading jet p_{T};leading jet p_{T}");
    dataTree ->Draw("hpf100_Num[1]:hpf100_Num[0]>>TwoDEffRefMC_NumSym",cut+cutPfJet100Match);
    dataTree ->Draw("hpf100_Denum[1]:hpf100_Denum[0]>>TwoDEffTrueMC_DenumSym",(cut));
    TwoDEffRefMC_NumSym ->Divide(TwoDEffRefMC_NumSym,TwoDEffTrueMC_DenumSym,1,1,"b");
@@ -80,7 +80,8 @@ void DataTwoDEff()
 
    TwoDEffRefMC_Num->Add(TwoDEffRefMC_NumSym);
    TwoDEffRefMC_Num->Draw("");
-
+   TwoDEffRefMC_Num->Write();
+/*
 	 //Slices
    	TCanvas *first4 =  new TCanvas("first4","First 4 Slices",1000,800);
 	TPad *pad41 = new TPad("pad41","pad1",0,0.3,1,1);

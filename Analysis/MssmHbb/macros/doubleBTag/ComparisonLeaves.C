@@ -3,6 +3,7 @@
 #include "Analysis/Drawer/src/SystematicErrorsCalculator.cpp"
 #include "TCut.h"
 #include "TGraphAsymmErrors.h"
+#include "THStack.h"
 
 double M12FitFunction(double *x, double *par);
 
@@ -12,8 +13,8 @@ void ComparisonLeaves()
    //gStyle->SetOptFit(1111);
    //gROOT->ForceStyle();
 
-   TFile * fData = new TFile("/nfs/dust/cms/user/shevchen/output/DoubleBTagSelection.root");
-   TFile * fMonteCarlo = new TFile("/nfs/dust/cms/user/shevchen/output/DoubleBTagSelectionQCD_180116.root");
+   TFile * fData = new TFile("/nfs/dust/cms/user/shevchen/output/DoubleBTagSelection22012016.root");
+   TFile * fMonteCarlo = new TFile("/nfs/dust/cms/user/shevchen/output/DoubleBTagSelectionQCD_220116.root");
 
    TTree *dataTree, *mcTree;
    fMonteCarlo -> GetObject("MssmHbb",mcTree);
@@ -101,8 +102,14 @@ void ComparisonLeaves()
    systCalc->CalculateSingleSystError(fLeadPtSystSFbCentral,fLeadPtSystSFbUp,fLeadPtSystSFbDown);
    systCalc->AddUncorelatedSystErrors(fLeadPtMCSyst);
 
-   TLegend *leg_pt1 = new TLegend(0.55,0.75,0.8,0.9);
-   leg_pt1->AddEntry(fLeadPtData,"Run2015D-Prompt-Reco-v4","p");
+   std::cout<<"Table of values:"<<std::endl;
+   for (int bin = 1; bin<=NumberOfPtBins;++bin){
+	   std::cout<<"Data: "<<fLeadPtData->GetBinContent(bin)<<" +/- "<<fLeadPtData->GetBinError(bin)<<std::endl;
+	   std::cout<<"MC  : "<<fLeadPtMC->GetBinContent(bin)<<" +/- "<<fLeadPtMC->GetBinError(bin)<<" (stat.) "<<" +/- "<<std::sqrt(fLeadPtMCSyst->GetBinError(bin)*fLeadPtMCSyst->GetBinError(bin) - fLeadPtMC->GetBinError(bin)*fLeadPtMC->GetBinError(bin))<<" (syst.) "<<" +/- "<<fLeadPtMCSyst->GetBinError(bin)<<" (tot.)"<<std::endl;
+   }
+
+   TLegend *leg_pt1 = new TLegend(0.55,0.65,0.8,0.9);
+   leg_pt1->AddEntry(fLeadPtData,"Data","p");
    leg_pt1->AddEntry(fLeadPtMC,"QCD 13 TeV pythia 8","p");
 
 //   TH1F *ratioPt = (TH1F*) fLeadPtData->Clone("ratioPt");
@@ -110,10 +117,7 @@ void ComparisonLeaves()
    TH1F *ratioPt = ratio->DrawRatio(fLeadPtData,fLeadPtMC,fLeadPtMCSyst,leg_pt1,canva00);
    ratio->GetTopPad()->SetLogy();
    ratioPt->GetXaxis()->SetRangeUser(0.,1000.);
-   ratio->DrawPhaseSpaceDescription(100.,0.1,400.,2.);
-
-
-
+   ratio->DrawPhaseSpaceDescription(100.,0.1,450.,3.);
 
    //..............................Pt2 ....................
    TCanvas *canva01 = new TCanvas("canva01","Pt2",1000,800);
@@ -174,7 +178,7 @@ void ComparisonLeaves()
    TH1F *ratioPt2 = ratio->DrawRatio(sLeadPtData,sLeadPtMC,sLeadPtMCSyst,leg_pt1,canva01);
    ratio->GetTopPad()->SetLogy();
    ratioPt2->GetXaxis()->SetRangeUser(0.,1000.);
-   ratio->DrawPhaseSpaceDescription(100.,0.01,400.,.2);
+   ratio->DrawPhaseSpaceDescription(100.,0.01,450.,.3);
 
    //.........................(Pt1-Pt2)/(Pt1+Pt2)..................
    TCanvas *canva02 = new TCanvas("canva02","PtAsym",1000,800);
@@ -237,7 +241,7 @@ void ComparisonLeaves()
    ratioPtAssym = ratio->DrawRatio(AssymPtData,AssymPtMC,AssymPtMCSyst,leg_pt1,canva02);
    ratio->GetTopPad()->SetLogy();
    ratioPtAssym->GetXaxis()->SetRangeUser(0.,0.6);
-   ratio->DrawPhaseSpaceDescription(0.02,300,0.2,7000);
+   ratio->DrawPhaseSpaceDescription(0.03,500,0.22,9000);
 
    //........................dEta plot.............................
    TCanvas *canva03 = new TCanvas("canva03","dEta",1000,800);
@@ -293,22 +297,25 @@ void ComparisonLeaves()
    systCalc->CalculateSingleSystError(dEtaSystSFbCentral,dEtaSystSFbUp,dEtaSystSFbDown);
    systCalc->AddUncorelatedSystErrors(dEtaMCSyst);
 
+   TLegend *leg_pt2 = new TLegend(0.55,0.03,0.8,0.2);
+   leg_pt2->AddEntry(fLeadPtData,"Data","p");
+   leg_pt2->AddEntry(fLeadPtMC,"QCD 13 TeV pythia 8","p");
 
    TH1F *ratioDEta;
-   ratioDEta = ratio->DrawRatio(dEtaData,dEtaMC,dEtaMCSyst,leg_pt1,canva03);
+   ratioDEta = ratio->DrawRatio(dEtaData,dEtaMC,dEtaMCSyst,leg_pt2,canva03);
    ratioDEta->GetXaxis()->SetRangeUser(-2.,2.);
-   ratio->DrawPhaseSpaceDescription(-1.6,10000,-0.5,30000);
+   ratio->DrawPhaseSpaceDescription(-1.6,10000,-0.5,70000);
 
    //..............................M12 ....................
    TCanvas *canva04 = new TCanvas("canva04","M12",1000,800);
-   double M12Bins[] = {120,160,200,220,240,260,280,300,320,340,360,380,400,420,440,460,480,500,520,540,560,580,600,620,640,660,700,750,800,850,900,1000};
+   double M12Bins[] = {200,220,240,260,280,300,320,340,360,380,400,420,440,460,480,500,520,540,560,580,600,620,640,660,700,750,800,850,900,1000};
    const int NumberM12Bins = sizeof(M12Bins)/sizeof(double) -1;
    //Central values
    //Main Histograms
    TH1F *M12MC = new TH1F("M12MC","First Leading Jet Pt",NumberM12Bins,M12Bins);
    TH1F *M12MCSyst = new TH1F("M12MCSyst","First Leading Jet Pt",NumberM12Bins,M12Bins);
-   TH1F *M12Data = new TH1F("M12Data",";sub-leading b jet pT (GeV); dN / d(di-jet Mass) (1/GeV)",NumberM12Bins,M12Bins);
-   M12Data->GetXaxis()->SetRangeUser(0.,1000.);
+   TH1F *M12Data = new TH1F("M12Data",";di-jet Mass (GeV); dN / d(di-jet Mass) (1/GeV)",NumberM12Bins,M12Bins);
+   M12Data->GetXaxis()->SetRangeUser(200.,1000.);
 
    mcTree ->Draw("ObjM12>>M12MCSyst",weightLumi*weightBTag*weightPt*weightdEta*btagSFcentral,"E");
    mcTree ->Draw("ObjM12>>M12MC",weightLumi*weightBTag*weightPt*weightdEta*btagSFcentral,"E");
@@ -358,104 +365,205 @@ void ComparisonLeaves()
    TH1F *ratioM12;
    ratioM12 = ratio->DrawRatio(M12Data,M12MC,M12MCSyst,leg_pt1,canva04);
    ratio->GetTopPad()->SetLogy();
-   ratioM12->GetXaxis()->SetRangeUser(0.,1000.);
+   ratioM12->GetXaxis()->SetRangeUser(200.,1000.);
    ratioM12->SetTitle(";di-jet Mass (GeV);Data / MC");
-   ratio->DrawPhaseSpaceDescription(200.,2,450.,19);
+   ratio->DrawPhaseSpaceDescription(240.,3,480.,30);
 
-   /*
+
    //........................Eta1 plot.............................
    TCanvas *canva10 = new TCanvas("canva10","Eta1",1000,800);
 
-   //Central values
-   TH1F *fEtaMC = new TH1F("fEtaMC","Assym pt",20,-1.6,1.6);
-   TH1F *fEtaData = new TH1F("fEtaData"," ;leading b jet #eta; dN / d #eta",20,-1.6,1.6);
-   fEtaData->GetXaxis()->SetRangeUser(-2.,2.);
+   TH1F *fEtaMC = new TH1F("fEtaMC","First Leading Jet Pt",30,-2.2,2.2);
+   TH1F *fEtaMCSyst = new TH1F("fEtaMCSyst","First Leading Jet Pt",30,-2.2,2.2);
+   TH1F *fEtaData = new TH1F("fEtaData",";leading b jet #eta; dN / d #eta",30,-2.2,2.2);
+   fEtaData->GetXaxis()->SetRangeUser(-2.4,2.4);
+   fEtaData->SetMinimum(10.);
 
+   mcTree ->Draw("LeadEta[0]>>fEtaMCSyst",weightLumi*weightBTag*weightPt*weightdEta*btagSFcentral,"E");
    mcTree ->Draw("LeadEta[0]>>fEtaMC",weightLumi*weightBTag*weightPt*weightdEta*btagSFcentral,"E");
    dataTree ->Draw("LeadEta[0]>>fEtaData");
 
    //Systematic errors
-   TH1F *fEtaMCSystUp = new TH1F("fEtaMCSystUp","Systematic errors up",20,-1.6,1.6);
-   TH1F *fEtaMCSystDown = new TH1F("fEtaMCSystDown","Systematic errors down",20,-1.6,1.6);
+   // Syst. for SFb
+   TH1F *fEtaSystSFbUp = new TH1F("fEtaSystSFbUp","Systematic errors up",30,-2.2,2.2);
+   TH1F *fEtaSystSFbCentral = new TH1F("fEtaSystSFbCentral","Systematic errors central",30,-2.2,2.2);
+   TH1F *fEtaSystSFbDown = new TH1F("fEtaSystSFbDown","Systematic errors down",30,-2.2,2.2);
 
-   mcTree ->Draw("LeadEta[0]>>fEtaMCSystUp",weightLumi*weightBTag*weightdEta*SystUp,"E");
-   mcTree ->Draw("LeadEta[0]>>fEtaMCSystDown",weightLumi*weightBTag*weightdEta*SystDown,"E");
+   mcTree ->Draw("LeadEta[0]>>fEtaSystSFbUp",weightLumi*weightBTag*weightPt*weightdEta*btagSFup,"E");
+   mcTree ->Draw("LeadEta[0]>>fEtaSystSFbCentral",weightLumi*weightBTag*weightPt*weightdEta*btagSFcentral,"E");
+   mcTree ->Draw("LeadEta[0]>>fEtaSystSFbDown",weightLumi*weightBTag*weightPt*weightdEta*btagSFdown,"E");
+
+   //Syst. for 2D Pt trigger efficiency
+   TH1F *fEtaSyst2DError = new TH1F("fEtaSyst2DError","Systematic errors up",30,-2.2,2.2);
+   TH1F *fEtaSyst2DCentral = new TH1F("fEtaSyst2DCentral","Systematic errors central",30,-2.2,2.2);
+
+   mcTree ->Draw("LeadEta[0]>>fEtaSyst2DError",weightLumi*weightBTag*weightdEta*btagSFcentral*ptSystWeight,"E");
+   mcTree ->Draw("LeadEta[0]>>fEtaSyst2DCentral",weightLumi*weightBTag*weightdEta*btagSFcentral*weightPt,"E");
 
    //Normalization:
 
-   for(int i = 1;i<=20;++i){
+   for(int i = 1;i<=30;++i){
 	   fEtaData->SetBinContent(i,fEtaData->GetBinContent(i)/(fEtaData->GetBinWidth(20)));
 	   fEtaData->SetBinError(i,fEtaData->GetBinError(i)/(fEtaData->GetBinWidth(20)));
 
 	   fEtaMC->SetBinContent(i,fEtaMC->GetBinContent(i)/(fEtaData->GetBinWidth(20)));
 	   fEtaMC->SetBinError(i,fEtaMC->GetBinError(i)/(fEtaData->GetBinWidth(20)));
 
-	   fEtaMCSystUp->SetBinContent(i,fEtaMCSystUp->GetBinContent(i)/(fEtaData->GetBinWidth(20)));
-	   fEtaMCSystUp->SetBinError(i,fEtaMCSystUp->GetBinError(i)/(fEtaData->GetBinWidth(20)));
+	   fEtaMCSyst->SetBinContent(i,fEtaMCSyst->GetBinContent(i)/(fEtaData->GetBinWidth(20)));
+	   fEtaMCSyst->SetBinError(i,fEtaMCSyst->GetBinError(i)/(fEtaData->GetBinWidth(20)));
 
-	   fEtaMCSystDown->SetBinContent(i,fEtaMCSystDown->GetBinContent(i)/(fEtaData->GetBinWidth(20)));
-	   fEtaMCSystDown->SetBinError(i,fEtaMCSystDown->GetBinError(i)/(fEtaData->GetBinWidth(20)));
+	   fEtaSystSFbUp->SetBinContent(i,fEtaSystSFbUp->GetBinContent(i)/(fEtaData->GetBinWidth(20)));
+	   fEtaSystSFbCentral->SetBinContent(i,fEtaSystSFbCentral->GetBinContent(i)/(fEtaData->GetBinWidth(20)));
+	   fEtaSystSFbDown->SetBinContent(i,fEtaSystSFbDown->GetBinContent(i)/(fEtaData->GetBinWidth(20)));
+
+	   fEtaSyst2DError->SetBinContent(i,fEtaSyst2DError->GetBinContent(i)/(fEtaData->GetBinWidth(20)));
+	   fEtaSyst2DCentral->SetBinContent(i,fEtaSyst2DCentral->GetBinContent(i)/(fEtaData->GetBinWidth(20)));
+
    }
+   std::cout<<"LOL = "<<fEtaData->GetBinContent(1)<<" "<<fEtaMC->GetBinContent(1)<<std::endl;
+   systCalc->CalculateSingleSystError(fEtaSyst2DCentral,fEtaSyst2DError);
+   systCalc->CalculateSingleSystError(fEtaSystSFbCentral,fEtaSystSFbUp,fEtaSystSFbDown);
+   systCalc->AddUncorelatedSystErrors(fEtaMCSyst);
 
-   TGraphAsymmErrors *fEtaMCSyst;
-   fEtaMCSyst = ratio->CreateSystTGraph(fEtaMC,fEtaMCSystUp,fEtaMCSystDown);
+   TLegend *leg_pt3 = new TLegend(0.57,0.03,0.8,0.2);
+   leg_pt3->AddEntry(fLeadPtData,"Data","p");
+   leg_pt3->AddEntry(fLeadPtMC,"QCD 13 TeV pythia 8","p");
 
    TH1F *ratiofEta;
-   ratiofEta = ratio->DrawRatio(fEtaData,fEtaMC,fEtaMCSyst,leg_pt1,canva10);
-   ratiofEta->SetAxisRange(0.,2.,"Y");
-   ratiofEta->GetXaxis()->SetRangeUser(-2.,2.);
-   ratio->DrawPhaseSpaceDescription(-1.2,10000,-0.2,30000);
+   ratiofEta = ratio->DrawRatio(fEtaData,fEtaMC,fEtaMCSyst,leg_pt3,canva10);
+   ratiofEta->GetXaxis()->SetRangeUser(-2.4,2.4);
+   ratio->DrawPhaseSpaceDescription(-1.45,10000,0.2,70000);
 
-   //..............................M12 ....................
-   TCanvas *canva11 = new TCanvas("canva11","M12 FIT",1000,800);
+   //..............BTag Discriminant................
+
+   TCanvas *canva05 = new TCanvas("canva05","BTagDiscr",1000,800);
    //Central values
-   TH1F *M12FitMC = new TH1F("M12FitMC","M12Fit",100,300,1300);
-   TH1F *M12FitData = new TH1F("M12FitData","M12Fit",100,300,1300);
-   M12FitData->SetTitle(" ;di-jet Mass (GeV); dN / d(di-jet Mass) (1/GeV)");
-   M12FitData->GetXaxis()->SetRangeUser(300.,1300.);
+   //Main Histograms
+   TH1F *BTagDiscrMC = new TH1F("BTagDiscrMC","First Leading Jet Pt",30,0.94,1.);
+   TH1F *BTagDiscrMCSyst = new TH1F("BTagDiscrMCSyst","First Leading Jet Pt",30,0.94,1.);
+   TH1F *BTagDiscrData = new TH1F("BTagDiscrData",";BTagCSV discr. ; dN / dD_{BTagCSV} ",30,0.94,1.);
+   BTagDiscrData->GetXaxis()->SetRangeUser(0.93,1.);
 
-   mcTree ->Draw("ObjM12>>M12FitMC",weightLumi*weightBTag*weightPt*weightdEta*btagSFcentral,"E");
-   dataTree ->Draw("ObjM12>>M12FitData");
+   mcTree ->Draw("LeadBTag[0]>>BTagDiscrMCSyst",weightLumi*weightBTag*weightPt*weightdEta*btagSFcentral,"E");
+   mcTree ->Draw("LeadBTag[0]>>BTagDiscrMC",weightLumi*weightBTag*weightPt*weightdEta*btagSFcentral,"E");
+   dataTree ->Draw("LeadBTag[0]>>BTagDiscrData");
 
    //Systematic errors
-   TH1F *M12FitMCSystUp = new TH1F("M12FitMCSystUp","Systematic errors up",100,300,1300);
-   TH1F *M12FitMCSystDown = new TH1F("M12FitMCSystDown","Systematic errors down",100,300,1300);
+   // Syst. for SFb
+   TH1F *BTagDiscrSystSFbUp = new TH1F("BTagDiscrSystSFbUp","Systematic errors up",30,0.94,1.);
+   TH1F *BTagDiscrSystSFbCentral = new TH1F("BTagDiscrSystSFbCentral","Systematic errors central",30,0.94,1.);
+   TH1F *BTagDiscrSystSFbDown = new TH1F("BTagDiscrSystSFbDown","Systematic errors down",30,0.94,1.);
 
-   mcTree ->Draw("ObjM12>>M12FitMCSystUp",weightLumi*weightBTag*weightdEta*SystUp,"E");
-   mcTree ->Draw("ObjM12>>M12FitMCSystDown",weightLumi*weightBTag*weightdEta*SystDown,"E");
+   mcTree ->Draw("LeadBTag[0]>>BTagDiscrSystSFbUp",weightLumi*weightBTag*weightPt*weightdEta*btagSFup,"E");
+   mcTree ->Draw("LeadBTag[0]>>BTagDiscrSystSFbCentral",weightLumi*weightBTag*weightPt*weightdEta*btagSFcentral,"E");
+   mcTree ->Draw("LeadBTag[0]>>BTagDiscrSystSFbDown",weightLumi*weightBTag*weightPt*weightdEta*btagSFdown,"E");
+
+   //Syst. for 2D Pt trigger efficiency
+   TH1F *BTagDiscrSyst2DError = new TH1F("BTagDiscrSyst2DError","Systematic errors up",30,0.94,1.);
+   TH1F *BTagDiscrSyst2DCentral = new TH1F("BTagDiscrSyst2DCentral","Systematic errors central",30,0.94,1.);
+
+   mcTree ->Draw("LeadBTag[0]>>BTagDiscrSyst2DError",weightLumi*weightBTag*weightdEta*btagSFcentral*ptSystWeight,"E");
+   mcTree ->Draw("LeadBTag[0]>>BTagDiscrSyst2DCentral",weightLumi*weightBTag*weightdEta*btagSFcentral*weightPt,"E");
 
    //Normalization:
 
-   for(int i = 1;i<=100;++i){
-	   M12FitData->SetBinContent(i,M12FitData->GetBinContent(i)/(M12FitData->GetBinWidth(20)));
-	   M12FitData->SetBinError(i,M12FitData->GetBinError(i)/(M12FitData->GetBinWidth(20)));
+   for(int i = 1;i<=30;++i){
+	   BTagDiscrData->SetBinContent(i,BTagDiscrData->GetBinContent(i)/(BTagDiscrData->GetBinWidth(10)));
+	   BTagDiscrData->SetBinError(i,BTagDiscrData->GetBinError(i)/(BTagDiscrData->GetBinWidth(10)));
 
-	   M12FitMC->SetBinContent(i,M12FitMC->GetBinContent(i)/(M12FitData->GetBinWidth(20)));
-	   M12FitMC->SetBinError(i,M12FitMC->GetBinError(i)/(M12FitData->GetBinWidth(20)));
+	   BTagDiscrMC->SetBinContent(i,BTagDiscrMC->GetBinContent(i)/(BTagDiscrData->GetBinWidth(10)));
+	   BTagDiscrMC->SetBinError(i,BTagDiscrMC->GetBinError(i)/(BTagDiscrData->GetBinWidth(10)));
 
-	   M12FitMCSystUp->SetBinContent(i,M12FitMCSystUp->GetBinContent(i)/(M12FitData->GetBinWidth(20)));
-	   M12FitMCSystUp->SetBinError(i,M12FitMCSystUp->GetBinError(i)/(M12FitData->GetBinWidth(20)));
+	   BTagDiscrMCSyst->SetBinContent(i,BTagDiscrMCSyst->GetBinContent(i)/(BTagDiscrData->GetBinWidth(10)));
+	   BTagDiscrMCSyst->SetBinError(i,BTagDiscrMCSyst->GetBinError(i)/(BTagDiscrData->GetBinWidth(10)));
 
-	   M12FitMCSystDown->SetBinContent(i,M12FitMCSystDown->GetBinContent(i)/(M12FitData->GetBinWidth(20)));
-	   M12FitMCSystDown->SetBinError(i,M12FitMCSystDown->GetBinError(i)/(M12FitData->GetBinWidth(20)));
+	   BTagDiscrSystSFbUp->SetBinContent(i,BTagDiscrSystSFbUp->GetBinContent(i)/(BTagDiscrData->GetBinWidth(10)));
+	   BTagDiscrSystSFbCentral->SetBinContent(i,BTagDiscrSystSFbCentral->GetBinContent(i)/(BTagDiscrData->GetBinWidth(10)));
+	   BTagDiscrSystSFbDown->SetBinContent(i,BTagDiscrSystSFbDown->GetBinContent(i)/(BTagDiscrData->GetBinWidth(10)));
+
+	   BTagDiscrSyst2DError->SetBinContent(i,BTagDiscrSyst2DError->GetBinContent(i)/(BTagDiscrData->GetBinWidth(10)));
+	   BTagDiscrSyst2DCentral->SetBinContent(i,BTagDiscrSyst2DCentral->GetBinContent(i)/(BTagDiscrData->GetBinWidth(10)));
    }
 
-   TGraphAsymmErrors *M12FitMCSyst;
-   M12FitMCSyst = ratio->CreateSystTGraph(M12FitMC,M12FitMCSystUp,M12FitMCSystDown);
+   systCalc->CalculateSingleSystError(BTagDiscrSyst2DCentral,BTagDiscrSyst2DError);
+   systCalc->CalculateSingleSystError(BTagDiscrSystSFbCentral,BTagDiscrSystSFbUp,BTagDiscrSystSFbDown);
+   systCalc->AddUncorelatedSystErrors(BTagDiscrMCSyst);
 
-   TH1F *ratioM12Fit;
-   ratioM12Fit = ratio->DrawRatio(M12FitData,M12FitMC,M12FitMCSyst,leg_pt1,canva11);
-   ratio->GetTopPad()->SetLogy();
-   ratioM12Fit->SetAxisRange(0.,2.,"Y");
-   ratioM12Fit->GetXaxis()->SetRangeUser(300.,1300.);
-   ratio->DrawPhaseSpaceDescription(200.,3,450.,15);
+   TH1F *ratioBTagDiscr;
+   ratioBTagDiscr = ratio->DrawRatio(BTagDiscrData,BTagDiscrMC,BTagDiscrMCSyst,leg_pt1,canva05);
+   ratioBTagDiscr->GetXaxis()->SetRangeUser(0.93,1.);
+   ratioBTagDiscr->SetTitle(";BTagCSV discr. ;Data / MC");
+   ratio->DrawPhaseSpaceDescription(0.942,45000000,0.96,62000000);
 
-   //Fit M12 Data:
-   TF1 *M12Fit = new TF1("M12Fit",M12FitFunction,300,1300,3);
-   M12Fit->SetParameters(1,1,1);
-   //F1 *M12Fit = new TF1("M12Fit","expo(0)*pol6",300,1300);
-   M12FitData->Fit(M12Fit);
+   // ..........Flavour Composition..........
+   TCanvas *canva11 = new TCanvas("canva11","Flavour Comp",1000,800);
+   TH1F *DataFlav = (TH1F*)M12Data->Clone("DataFlav");
 
+   TH1F *cc = new TH1F("cc","",NumberM12Bins,M12Bins);
+   TH1F *bb = new TH1F("bb","",NumberM12Bins,M12Bins);
+   TH1F *qq = new TH1F("qq","",NumberM12Bins,M12Bins);
+   TH1F *bc = new TH1F("bc","",NumberM12Bins,M12Bins);
+   TH1F *bq = new TH1F("bq","",NumberM12Bins,M12Bins);
+   TH1F *qc = new TH1F("qc","",NumberM12Bins,M12Bins);
+
+   mcTree ->Draw("ObjM12>>cc",weightLumi*weightBTag*weightPt*weightdEta*btagSFcentral*"cc==1","E");
+   mcTree ->Draw("ObjM12>>bb",weightLumi*weightBTag*weightPt*weightdEta*btagSFcentral*"bb==1","E");
+   mcTree ->Draw("ObjM12>>qq",weightLumi*weightBTag*weightPt*weightdEta*btagSFcentral*"qq==1","E");
+   mcTree ->Draw("ObjM12>>bc",weightLumi*weightBTag*weightPt*weightdEta*btagSFcentral*"bc==1","E");
+   mcTree ->Draw("ObjM12>>bq",weightLumi*weightBTag*weightPt*weightdEta*btagSFcentral*"bq==1","E");
+   mcTree ->Draw("ObjM12>>qc",weightLumi*weightBTag*weightPt*weightdEta*btagSFcentral*"qc==1","E");
+
+   std::vector<TH1F*> flavours;
+   flavours.push_back(bb);
+   flavours.push_back(cc);
+   flavours.push_back(qq);
+   flavours.push_back(bc);
+   flavours.push_back(bq);
+   flavours.push_back(qc);
+
+   for(int i = 1; i<=NumberM12Bins;++i){
+	   for(const auto &ih : flavours ){
+		   ih->SetBinContent(i,ih->GetBinContent(i) / (M12Bins[i]-M12Bins[i-1]));
+	   }
+   }
+
+   THStack *flavourComposition = new THStack("flavourComposition","");
+   flavourComposition->SetTitle(";di-jet Mass (GeV); dN / d(di-jet Mass) (1/GeV)");
+   //flavourComposition->GetXaxis()->SetRangeUser(0.,1000.);
+
+   TLegend *flavourCompLegend = new TLegend(0.6,0.65,0.9,0.85);
+
+   int colors[]= {kCyan+2,kYellow-6,kMagenta+2,kRed+2,kYellow+2,kGreen+2,kBlue-6};
+   int counter = 0;
+   double Flavourfraction[10];
+   char name[200];
+   for(const auto &ih : flavours ){
+	   ih->SetFillColor(colors[counter]);
+	   ih->SetLineColor(colors[counter]);
+	   flavourComposition->Add(ih);
+
+	   counter ++;
+   }
+
+   counter = 0;
+   flavourCompLegend->AddEntry(DataFlav,"Data","p");
+   for(const auto &ih : flavours ){
+	   Flavourfraction[counter] = ih->Integral()/ ((TH1*)flavourComposition -> GetStack() -> Last()) -> Integral();
+	   sprintf(name,"%s, %.2f",(ih->GetName()),Flavourfraction[counter]);
+	   flavourCompLegend->AddEntry(ih,name,"la");
+	   counter ++;
+   }
+
+   flavourComposition->Draw("hist");
+   DataFlav->Draw("same");
+   flavourCompLegend->Draw();
+
+   //..............bb/ALL..............
+   TCanvas *canva12 = new TCanvas("canva12","",1000,800);
+   TH1F *bb_all = (TH1F*) bb -> Clone("bb_all");
+   bb_all->Divide((TH1*)flavourComposition -> GetStack() -> Last());
+   bb_all->SetMarkerStyle(20);
+   bb_all->Draw();
 
 /**/
 }

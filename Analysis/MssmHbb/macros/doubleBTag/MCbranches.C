@@ -1,4 +1,4 @@
-#include "Analysis/MssmHbb/src/HbbStyle.cc"
+#include "Analysis/Drawer/src/HbbStyle.cc"
 #include "Analysis/Drawer/src/RatioPlots.cpp"
 #include "TCut.h"
 
@@ -60,21 +60,18 @@ void MCbranches()
    mcTree ->Draw("LeadPt[0]>>fLeadPtMCSyst",weightLumi*weightBTag*ptSystWeight*weightdEta*btagSFcentral,"E");
    dataTree ->Draw("LeadPt[0]>>fLeadPtData");
 
-   std::cout<<fLeadPtMCSyst->GetBinContent(11)<<std::endl;
    fLeadPtMCSyst = calculatePtEffSyst(fLeadPtMC,fLeadPtMCSyst);
-   std::cout<<fLeadPtMCSyst->GetBinContent(11)<<" +/- "<<fLeadPtMCSyst->GetBinError(11)<<std::endl;
    fLeadPtMC->Draw("E");
 
    TLegend *leg_pt1 = new TLegend(0.55,0.5,0.8,0.8);
    leg_pt1->AddEntry(fLeadPtData,"Run2015D-Prompt-Reco-v4","p");
    leg_pt1->AddEntry(fLeadPtMC,"QCD 13 TeV pythia 8","p");
-   leg_pt1->AddEntry(fLeadPtMC,"stat.","l");
-   leg_pt1->AddEntry(fLeadPtMCSyst,"syst.","l");
 
+   fLeadPtMCSyst = NULL;
    TH1F *ratioPt = ratio->DrawRatio(fLeadPtData,fLeadPtMC,fLeadPtMCSyst,leg_pt1,canva00);
    ratio->GetTopPad()->SetLogy();
    ratioPt->SetAxisRange(0.,2.,"Y");
-   ratioPt->SetTitle(";p_{T1};Data/MC");
+   ratioPt->SetTitle(";leading b jet p_{T} (GeV);Data/MC");
 
    //..............................Pt2 ....................
    TCanvas *canva01 = new TCanvas("canva01","Pt2",1000,800);

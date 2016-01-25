@@ -19,7 +19,7 @@ void branches()
 
    TFile * fOldSelection = new TFile("~/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/MssmHbb/bin/outputFiles/ResultsSingleSelectionJetHTPromt-Reco-v4.root");
 	 TFile * fMonteCarlo = new TFile("/nfs/dust/cms/user/shevchen/output/ResultsTreesMCQCD.root");
-   TFile * fDoubleSelection = new TFile("/nfs/dust/cms/user/shevchen/output/ResultsTreesJetHTPromt-Reco-v4.root");//ResultsJetHT2015DPromptReco4.root");
+   TFile * fDoubleSelection = new TFile("/nfs/dust/cms/user/shevchen/output/ResultsTreesJetHTFull.root");//ResultsJetHT2015DPromptReco4.root");
    TTree *dataTree, *mcTree;
    fDoubleSelection->GetObject("OutTree",dataTree);
 	 fMonteCarlo -> GetObject("OutTree",mcTree);
@@ -56,12 +56,13 @@ void branches()
    fit0 -> SetLineColor(4);
    hpf100_Num ->Fit("fit0");
    drawRatio(hpf100_Num,newTnP100,canva3);
+   std::string fitName;
 
    // Fit histograms:
-   TCanvas *canva5 = new TCanvas("canva5","Fit to TnP",1000,800);
-   fit1 -> SetParameters(1.06207e-01,1.06026e+02,2.87048e-01,1.00032e+02);
-   fit1 -> SetLineColor(4);
-   drawRatio(newTnP100,fit1,canva5,fitName);
+ /*  TCanvas *canva5 = new TCanvas("canva5","Fit to TnP",1000,800);
+   fit0 -> SetParameters(1.06207e-01,1.06026e+02,2.87048e-01,1.00032e+02);
+   fit0 -> SetLineColor(4);
+   drawRatio(newTnP100,fit0,canva5); */
 
    //Comparison of the Data/Data distribution
    TCut cutPFJet80Match, cutRefRew, cutPfJet100Match, cutTnPRew;
@@ -75,11 +76,11 @@ void branches()
    TH1F *pt1RefRew = new TH1F("pt1RefRew","Pt1 with Ref Rew",100,0.,1000.);
    pt1RefRew->SetMarkerStyle(21);
    pt1RefRew->SetMarkerColor(1);
-   dataTree ->Draw("fLeadPt >> pt1RefRew",cutPFJet80Match*cutRefRew,"E");
+   dataTree ->Draw("LeadPt[0] >> pt1RefRew",cutPFJet80Match*cutRefRew,"E");
    TH1F *pt1PF100Match = new TH1F("pt1PF100Match","Pt1 with PFJet100 matching",100,0.,1000.);
    pt1PF100Match ->SetMarkerStyle(20);
    pt1PF100Match ->SetMarkerColor(2);
-   dataTree->Draw("fLeadPt >> pt1PF100Match",cutPfJet100Match,"E same");
+   dataTree->Draw("LeadPt[0] >> pt1PF100Match",cutPfJet100Match,"E same");
    gPad->SetLogy();
    drawRatio(pt1RefRew,pt1PF100Match,can1);
 
@@ -87,7 +88,7 @@ void branches()
    TH1F *pt1TnPRew = new TH1F("pt1TnPRew","Pt1 with TnP Rew",100,0.,1000.);
    pt1TnPRew->SetMarkerStyle(21);
    pt1TnPRew->SetMarkerColor(1);
-   dataTree ->Draw("fLeadPt >> pt1TnPRew",cutPFJet80Match*cutTnPRew,"E");
+   dataTree ->Draw("LeadPt[0] >> pt1TnPRew",cutPFJet80Match*cutTnPRew,"E");
    gPad->SetLogy();
    drawRatio(pt1TnPRew,pt1PF100Match,can2);
 
@@ -96,11 +97,11 @@ void branches()
    TH1F *pt2RefRew = new TH1F("pt2RefRew","Pt2 with Ref Rew",100,0.,1000.);
    pt2RefRew->SetMarkerStyle(21);
    pt2RefRew->SetMarkerColor(1);
-   dataTree ->Draw("sLeadPt >> pt2RefRew",cutPFJet80Match*cutRefRew,"E");
+   dataTree ->Draw("LeadPt[1] >> pt2RefRew",cutPFJet80Match*cutRefRew,"E");
    TH1F *pt2PF100Match = new TH1F("pt2PF100Match","Pt2 with PFJet100 matching",100,0.,1000.);
    pt2PF100Match ->SetMarkerStyle(20);
    pt2PF100Match ->SetMarkerColor(2);
-   dataTree->Draw("sLeadPt >> pt2PF100Match",cutPfJet100Match,"E same");
+   dataTree->Draw("LeadPt[1] >> pt2PF100Match",cutPfJet100Match,"E same");
    gPad->SetLogy();
    drawRatio(pt2RefRew,pt2PF100Match,can12);
 
@@ -108,7 +109,7 @@ void branches()
    TH1F *pt2TnPRew = new TH1F("pt2TnPRew","Pt2 with TnP Rew",100,0.,1000.);
    pt2TnPRew->SetMarkerStyle(21);
    pt2TnPRew->SetMarkerColor(1);
-   dataTree ->Draw("sLeadPt >> pt2TnPRew",cutPFJet80Match*cutTnPRew,"E");
+   dataTree ->Draw("LeadPt[1] >> pt2TnPRew",cutPFJet80Match*cutTnPRew,"E");
    gPad->SetLogy();
    drawRatio(pt2TnPRew,pt2PF100Match,can22);
 

@@ -7,14 +7,14 @@ from WMCore.Configuration import Configuration
 
 # ---
 # Some parameter steering
-PROCESS         = 'JetHT'
+PROCESS         = 'BTagCSVData'
 TYPE            = 'DATA'
 if TYPE == 'DATA':
 	UNITS_PER_JOB   = 1000
 if TYPE == 'MC':
 	UNITS_PER_JOB   = 10
-PSET            = '/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Ntuplizer/test/jetHT_data.py'
-CAMPAIGN        = 'Fall15.20151215'
+PSET            = '/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Ntuplizer/test/btag_data.py'
+CAMPAIGN        = 'Fall15.20160121'
 BASEOUTDIR      = '/store/user/rshevche/Analysis/Ntuples/' + PROCESS
 URL             = '/nfs/dust/cms/user/shevchen/samples/miniaod'
 #URL             = 'http://www.desy.de/~walsh/cms/analysis/samples/miniaod'
@@ -40,7 +40,7 @@ if __name__ == '__main__':
       config.JobType.psetName = '/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Ntuplizer/test/qcd_mc.py'
    if TYPE == 'DATA':
       config.Data.splitting   = 'LumiBased'
-      config.JobType.psetName = '/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Ntuplizer/test/jetHT_data.py'
+      config.JobType.psetName = '/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Ntuplizer/test/btag_data.py'
       
    config.General.workArea += '_' + PROCESS
    config.Data.unitsPerJob = UNITS_PER_JOB

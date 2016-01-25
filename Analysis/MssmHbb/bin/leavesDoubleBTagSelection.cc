@@ -39,7 +39,7 @@ int main(int argc, char * argv[])
    MssmHbb analysis(inputList);
 
    //Setup process that you would like to study
-   std::string fileName = "/nfs/dust/cms/user/shevchen/output/DoubleBTagSelection";
+   std::string fileName = "/nfs/dust/cms/user/shevchen/output/DoubleBTagSelection22012016";
    analysis.setupDoubleBTagStudy(fileName);
 
    // Add std::vector<<std::string> of the Trigger Objects that you would like to apply.
@@ -75,7 +75,6 @@ int main(int argc, char * argv[])
 
       //Trigger Selection
       if( !analysis.isMC() && !analysis.getTriggerResult()) continue;
-
       //Used to clean values of the variables for the new event
       analysis.cleanVariables();
 
@@ -121,7 +120,7 @@ int main(int argc, char * argv[])
       analysis.calculateJetVariables();
       analysis.setBTagWeight(BTagWeight(btagEff0p9,btagEff0p9_1p4,btagEff1p4_2p5,LeadJet[0].pt(),LeadJet[0].eta())*
     		  	  	  	  	 BTagWeight(btagEff0p9,btagEff0p9_1p4,btagEff1p4_2p5,LeadJet[0].pt(),LeadJet[0].eta()));
-      analysis.setLumiWeight(1001.179266,analysis.luminosity());
+      analysis.setLumiWeight(2182.680439,analysis.luminosity());
       analysis.calculateWeights(btagEff0p9_1p4,PtEff);
       if(analysis.isMC()) analysis.calculateFlavourComposition();
       ++nCand;
