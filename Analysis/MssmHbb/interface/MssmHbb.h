@@ -24,6 +24,7 @@
 #include <vector>
 #include <string>
 #include <boost/filesystem.hpp>
+#include "time.h"
 // 
 // user include files
 
@@ -50,9 +51,11 @@ namespace analysis {
                       																	"hltDoublePFJetsC100MaxDeta1p6"},
         		   	   	   	   	  const std::string & path = "MssmHbb/Events/selectedPatTrigger/");
            void setupDoubleBTagStudy(const std::string & outputFileName);
+           void SetupStandardOutputFile(const std::string & outputFileName);
 
            //returns
            std::vector<std::string> getTriggerObjectNames();
+           void ShowMCInformation(); // Show MC information
            std::string getOutPutFileName();
            const char * getTriggerLogicName();
            int getTriggerResult();
@@ -63,9 +66,11 @@ namespace analysis {
            std::vector<std::string> triggerObjectName_;
            std::string outPutName_;
            std::string triggerLogicName_;
-           bool lowMSelection_;
+           bool lowMSelection_ = false;
                
          private:
+
+           std::string get_date();
 
       };
 

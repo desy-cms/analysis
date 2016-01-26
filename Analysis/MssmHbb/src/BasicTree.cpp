@@ -26,6 +26,8 @@ void BasicTree::createOutputFile(const std::string &name){
 	OutTree_ = new TTree("MssmHbb","");
 
 	this->setBranches();
+
+	std::cout<<"File: "<<name<<" was created"<<std::endl;
 }
 
 void BasicTree::setNjets(const int &n){
