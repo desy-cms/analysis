@@ -1,6 +1,11 @@
 *.pyc
 *~
+<<<<<<< HEAD
 *.cproject
 *.project
 *.DS_Store
 *._.DS_Store
+=======
+
+*.png
+>>>>>>> 738059430338ee2ba9db49a9213cbd5a7f8fcfc8
