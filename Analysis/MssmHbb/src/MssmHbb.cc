@@ -35,7 +35,7 @@ MssmHbb::MssmHbb(const std::string & inputFilelist, const std::string & evtinfo)
 		// Add MC information:
 		this->crossSections("MssmHbb/Metadata/CrossSections");
 		this->generatorFilter("MssmHbb/Metadata/GeneratorFilter");
-		ShowMCInformation();
+		this->ShowMCInformation();
 	}
 
 	this->addTree<Jet> ("Jets","MssmHbb/Events/slimmedJetsPuppi");
@@ -100,8 +100,49 @@ void MssmHbb::addTriggerObjects(const std::vector<std::string> &triggerObjectNam
 
 }
 
+//For double BTag Selection
+bool MssmHbb::OnlineSelection(const analysis::tools::Jet &fLeadOfflineJet,
+							  const analysis::tools::Jet &sLeadOfflineJet){
 
+	for(const auto & triggerObject : triggerObjectName_){
 
+		const Candidate *onlineJet1 = fLeadOfflineJet.matched(triggerObject);
+		const Candidate *onlineJet2 = sLeadOfflineJet.matched(triggerObject);
+
+		if(!onlineJet1 || !onlineJet2 || onlineJet1 == onlineJet2) return false;
+		//Check dEta condition
+		if(triggerObject.find("MaxDeta1p6") != std::string::npos){
+			if(std::abs(onlineJet1->eta() - onlineJet2-> eta()) > 1.6) return false;
+		}
+	}
+
+	return true;
+}
+
+//For triple BTag Selection
+bool MssmHbb::OnlineSelection(const analysis::tools::Jet &fLeadOfflineJet,
+							  const analysis::tools::Jet &sLeadOfflineJet,
+							  const analysis::tools::Jet &thLeadOfflineJet){
+
+	for(const auto & triggerObject : triggerObjectName_){
+
+		const Candidate *onlineJet1 = fLeadOfflineJet.matched(triggerObject);
+		const Candidate *onlineJet2 = sLeadOfflineJet.matched(triggerObject);
+		const Candidate *onlineJet3 = thLeadOfflineJet.matched(triggerObject);
+
+		if(!onlineJet1 || !onlineJet2 || !onlineJet3 || onlineJet1 == onlineJet2 ||
+														onlineJet1 == onlineJet3 ||
+														onlineJet2 == onlineJet3) return false;
+		//Check dEta condition
+		if(triggerObject.find("MaxDeta1p6") != std::string::npos){
+			if(std::abs(onlineJet1->eta() - onlineJet2->eta()) > 1.6 &&
+			   std::abs(onlineJet1->eta() - onlineJet3->eta()) > 1.6 &&
+			   std::abs(onlineJet2->eta() - onlineJet3->eta()) > 1.6) return false;
+		}
+	}
+
+	return true;
+}
 
 bool MssmHbb::lowMOnlineSelection(const analysis::tools::Jet &fLeadOfflineJet,const analysis::tools::Jet &sLeadOfflineJet)
 {

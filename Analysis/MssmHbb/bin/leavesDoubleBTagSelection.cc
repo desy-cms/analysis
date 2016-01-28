@@ -34,20 +34,23 @@ int main(int argc, char * argv[])
    TFile * filePtEff = new TFile("~/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/MssmHbb/macros/triggerEfficiency/latest/TwoDimEff.root");
    TH2F *PtEff = (TH2F*) filePtEff ->Get("TwoDEffRefMC_Num");
 
-   // Input files list MonteCarloStudies
+   // Input files list
    std::string inputList = "rootFileListBTagCSV.txt";
+   //std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/HT_QCD/QCD_HT2000toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt";
    MssmHbb analysis(inputList);
-
-   //Setup process that you would like to study
-   std::string fileName = "/nfs/dust/cms/user/shevchen/output/DoubleBTagSelection22012016";
-   analysis.setupDoubleBTagStudy(fileName);
-
-   // Add std::vector<<std::string> of the Trigger Objects that you would like to apply.
-   // Also Trigger Results name will be stored, according to the trigger objects names
-   if(!analysis.isMC()) analysis.addTriggerObjects();
 
    // Process selected JSON file
    if(!analysis.isMC()) analysis.processJsonFile("goodJson.txt");
+
+   //Setup output file name
+   //name can me specified explicitly with method: createOutputFile(fileName);
+   std::string fileName = "/nfs/dust/cms/user/shevchen/output/TEST";
+   analysis.SetupStandardOutputFile(fileName);
+
+   // Add std::vector<<std::string> of the Trigger Objects that you would like to apply.
+   // Also Trigger Results name will be stored, according to the trigger objects names
+   // By default - LowM MssmHbb trigger objects is used
+   if(!analysis.isMC()) analysis.addTriggerObjects();
 
    //Add BTagCalibration calculators:
    BTagCalibration calib("csvv2", "SFbLib.csv");
@@ -96,21 +99,20 @@ int main(int argc, char * argv[])
       	Jet jet = offlineJets -> at(iJet);
 		if(!jet.idLoose()) continue;
 		counter++;
-		if(counter > 6) break;
+		if(counter > 5) break;
 		LeadJet[counter - 1] = jet;
 
 		analysis.setJetCounter(counter-1);
 		analysis.setJetVariables(jet);
 		if(analysis.isMC()) analysis.calculateBTagSF(reader,reader_up,reader_down);
 		if(counter == 1 || counter == 2){
-
 			if(jet.pt() < 100) break;
 			if(abs(jet.eta()) > 2.2) break;
 			if(jet.btag() < 0.941) break;
 			if(counter == 2){
 				if(LeadJet[0].deltaR(LeadJet[1]) <= 1) break;
 				if(abs(LeadJet[0].eta() - LeadJet[1].eta()) > 1.6) break;
-				if(!analysis.isMC() && !analysis.lowMOnlineSelection(LeadJet[0],LeadJet[1])) break;
+				if(!analysis.isMC() && !analysis.OnlineSelection(LeadJet[0],LeadJet[1])) break;
 				goodLeadingJets = true;
 			}
 		}

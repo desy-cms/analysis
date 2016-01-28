@@ -44,6 +44,11 @@ namespace analysis {
            ~MssmHbb();
            
            bool lowMOnlineSelection(const analysis::tools::Jet &fLeadOfflineJet,const analysis::tools::Jet &sLeadOfflineJet);
+           //For double BTag study
+           bool OnlineSelection(const analysis::tools::Jet &fLeadOfflineJet,const analysis::tools::Jet &sLeadOfflineJet);
+
+           //For triple BTag study
+           bool OnlineSelection(const analysis::tools::Jet &fLeadOfflineJet,const analysis::tools::Jet &sLeadOfflineJet,const analysis::tools::Jet &thLeadOfflineJet);
            void addTriggerObjects(const std::vector<std::string> & triggerObjectName = {"hltL1sL1DoubleJetC100",
                       																	"hltDoubleJetsC100",
                       																	"hltDoublePFJetsC100",
@@ -54,8 +59,8 @@ namespace analysis {
            void SetupStandardOutputFile(const std::string & outputFileName);
 
            //returns
-           std::vector<std::string> getTriggerObjectNames();
            void ShowMCInformation(); // Show MC information
+           std::vector<std::string> getTriggerObjectNames();
            std::string getOutPutFileName();
            const char * getTriggerLogicName();
            int getTriggerResult();
