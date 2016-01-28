@@ -13,11 +13,11 @@ ClassImp(RooExpGausExp)
 
 
 RooExpGausExp::RooExpGausExp(const char *name, const char *title,
-			     RooAbsReal& x,
-			     RooAbsReal& mean,
-			     RooAbsReal& sigma,
-			     RooAbsReal& left,
-			     RooAbsReal& right) :
+                             RooAbsReal& x,
+                             RooAbsReal& mean,
+                             RooAbsReal& sigma,
+                             RooAbsReal& left,
+                             RooAbsReal& right) :
   RooAbsPdf(name, title),
   x_("x", "x", this, x),
   mean_("mean", "mean", this, mean),
@@ -45,7 +45,7 @@ TObject* RooExpGausExp::clone(const char* newname) const {
 double RooExpGausExp::evaluate() const {
   double std = (x_ - mean_) / sigma_;
   double result = 0.0;
-  
+
   if (std < -left_) {
     result = std::exp(0.5*left_*left_ + left_*std);
   } else if (!(std > right_) && !(std < -left_)) {

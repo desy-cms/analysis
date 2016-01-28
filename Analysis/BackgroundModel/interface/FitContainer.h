@@ -13,7 +13,8 @@
 #include "RooDataHist.h"
 #include "RooWorkspace.h"
 #include "RooFitResult.h"
-#include "Analysis/BackgroundModel/interface/DataContainer.h"
+#include "Analysis/BackgroundModel/interface/HistContainer.h"
+#include "Analysis/BackgroundModel/interface/TreeContainer.h"
 #include "Analysis/BackgroundModel/interface/ParamModifier.h"
 
 
@@ -24,26 +25,34 @@ namespace analysis {
     public:
       enum class Type { signal, background };
       inline static std::string toString(const Type& type) {
-	switch (type) {
-	case Type::signal: return "signal";
-	case Type::background: return "background";
-	};
-	return "";		// to silence compiler
+        switch (type) {
+        case Type::signal: return "signal";
+        case Type::background: return "background";
+        };
+        return "";              // to silence compiler
       };
 
       FitContainer(const TH1& data, const TH1& signal, const TH1& background);
-      FitContainer(const DataContainer& container);
+      FitContainer(TTree& data);
+      FitContainer(const HistContainer& container);
+      FitContainer(const TreeContainer& container);
       virtual ~FitContainer();
+      void initialize();
+
+      FitContainer(const FitContainer&) = default;
+      FitContainer& operator=(const FitContainer&) = default;
+      FitContainer(FitContainer&&) = default;
+      FitContainer& operator=(FitContainer&&) = default;
 
       FitContainer& verbosity(int level);
       FitContainer& fitRangeMin(float min);
       FitContainer& fitRangeMax(float max);
 
       inline static const std::vector<std::string>& availableModels() {
-	return availableModels_; };
+        return availableModels_; };
       void setModel(const Type& type, const std::string& model);
       void setModel(const Type& type, const std::string& model,
-		    const std::vector<ParamModifier>& modifiers);
+                    const std::vector<ParamModifier>& modifiers);
       std::unique_ptr<RooFitResult> backgroundOnlyFit();
       void profileModel(const Type& type);
       void showModels() const;
@@ -70,24 +79,28 @@ namespace analysis {
       static std::string getOutputPath_(const std::string& subdirectory = "");
       static void prepareCanvas_(TCanvas& raw);
       static void prepareFrame_(RooPlot& raw);
-      double getMaxPosition_(const RooDataHist& data);
-      int getNonZeroBins_(const RooDataHist& data);
-      double chiSquare_(const RooDataHist& data, const RooCurve& fit);
+      double getPeakStart_(const Type& type);
+      double getPeakStart_(const Type& type, double max);
+      double getMaxPosition_(const RooAbsData& data);
+      int getNonZeroBins_(const RooAbsData& data);
+      double chiSquare_(const RooAbsData& data, const RooCurve& fit);
       bool applyModifiers_(RooAbsPdf& pdf,
-			   const std::vector<ParamModifier>& modifiers);
+                           const std::vector<ParamModifier>& modifiers);
 
       // data member
       static const int defaultNumberOfCoefficients_;
-      const std::string plotDir_;
-      const std::string workspaceDir_;
-      const std::string fullRangeId_;
-      const std::string fitRangeId_;
+      bool initialized_;
+      std::string plotDir_;
+      std::string workspaceDir_;
+      std::string fullRangeId_;
+      std::string fitRangeId_;
       int verbosity_;
       RooWorkspace workspace_;
-      RooRealVar mbb_;
-      RooDataHist data_;
-      RooDataHist signal_;
-      RooDataHist background_;
+      std::string mbb_;
+      std::string weight_;
+      std::string data_;
+      std::string signal_;
+      std::string bkg_;
       float fitRangeMin_;
       float fitRangeMax_;
     };

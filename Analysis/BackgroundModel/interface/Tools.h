@@ -10,6 +10,8 @@
 namespace analysis {
   namespace backgroundmodel {
 
+    std::string uniquify(const std::string& original);
+    TObject* uniqueClone(const TObject* original);
     std::vector<ParamModifier> parseModifiers(const std::vector<std::string>& input);
 
     template <typename T>

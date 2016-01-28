@@ -12,19 +12,19 @@ namespace analysis {
     public:
       inline RooDoubleCB() = default;
       RooDoubleCB(const char* name, const char* title,
-		  RooAbsReal& x,
-		  RooAbsReal& mean,
-		  RooAbsReal& width,
-		  RooAbsReal& alpha1,
-		  RooAbsReal& n1,
-		  RooAbsReal& alpha2,
-		  RooAbsReal& n2
-		  );
+                  RooAbsReal& x,
+                  RooAbsReal& mean,
+                  RooAbsReal& width,
+                  RooAbsReal& alpha1,
+                  RooAbsReal& n1,
+                  RooAbsReal& alpha2,
+                  RooAbsReal& n2
+                  );
       RooDoubleCB(const RooDoubleCB& other, const char* name = 0) ;
       virtual TObject* clone(const char* newname) const;
       inline virtual ~RooDoubleCB() {};
       int getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars,
-				const char* name = 0) const;
+                                const char* name = 0) const;
       double analyticalIntegral(int code, const char* rangeName = 0) const;
 
     protected:

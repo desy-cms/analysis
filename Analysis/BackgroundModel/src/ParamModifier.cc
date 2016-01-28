@@ -64,7 +64,7 @@ bool ParamModifier::modify(RooRealVar& var) const {
 
 void ParamModifier::show() const {
   std::cout << "\nThe following properties of the parameters matching '"
-	    << name_ << "' are modified:" << std::endl;
+            << name_ << "' are modified:" << std::endl;
   if (changeStart_) std::cout << "  -> start value = " << start_ << std::endl;
   if (changeMin_)   std::cout << "  -> minimum = " << min_ << std::endl;
   if (changeMax_)   std::cout << "  -> maximum = " << max_ << std::endl;
