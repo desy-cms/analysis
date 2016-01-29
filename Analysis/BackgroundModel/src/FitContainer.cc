@@ -208,6 +208,7 @@ void FitContainer::setModel(const Type& type, const std::string& name,
   else if (nameSplitted[0] == "bernstein") setBernstein_(type, numCoeffs);
   else if (nameSplitted[0] == "chebychev") setChebychev_(type, numCoeffs);
   else if (nameSplitted[0] == "berneffprod") setBernEffProd_(type, numCoeffs);
+  else if (nameSplitted[0] == "chebeffprod") setChebEffProd_(type, numCoeffs);
   else {
     std::stringstream msg;
     msg << "Model '" << name
@@ -398,7 +399,8 @@ void FitContainer::setNovoEffProd_(const Type& type) {
                       mbb, peak, width, tail);
 
   RooRealVar slope("slope", "slope", 0.01, 0.0, 0.1);
-  RooRealVar turnon("turnon", "turnon", 5.0, mbb.getMin(), mbb.getMax());
+  RooRealVar turnon("turnon", "turnon",
+                    mbb.getMin()+ 5.0, mbb.getMin(), mbb.getMax());
   RooFormulaVar eff((toString(type)+"_eff").c_str(),
                     "0.5*(TMath::Erf(slope*(mbb-turnon)) + 1)",
                     RooArgSet(mbb, slope, turnon));
@@ -420,7 +422,8 @@ void FitContainer::setCBEffProd_(const Type& type) {
                 mbb, m0, sigma, alpha, n);
 
   RooRealVar slope("slope", "slope", 0.01, 0.0, 0.1);
-  RooRealVar turnon("turnon", "turnon", 5.0, mbb.getMin(), mbb.getMax());
+  RooRealVar turnon("turnon", "turnon",
+                    mbb.getMin()+ 5.0, mbb.getMin(), mbb.getMax());
   RooFormulaVar eff((toString(type)+"_eff").c_str(),
                     "0.5*(TMath::Erf(slope*(mbb-turnon)) + 1)",
                     RooArgSet(mbb, slope, turnon));
@@ -439,7 +442,8 @@ void FitContainer::setExpEffProd_(const Type& type) {
                      (toString(type)+"_exp").c_str(), mbb, tau);
 
   RooRealVar slope("slope", "slope", 0.01, 0.0, 0.1);
-  RooRealVar turnon("turnon", "turnon", 5.0, mbb.getMin(), mbb.getMax());
+  RooRealVar turnon("turnon", "turnon",
+                    mbb.getMin() + 5.0, mbb.getMin(), mbb.getMax());
   RooFormulaVar eff((toString(type)+"_eff").c_str(),
                     "0.5*(TMath::Erf(slope*(mbb-turnon)) + 1)",
                     RooArgSet(mbb, slope, turnon));
@@ -534,21 +538,39 @@ void FitContainer::setBernEffProd_(const Type& type, const int numCoeffs) {
                     (toString(type)+"_bernstein").c_str(),
                     mbb, *coeffs);
 
-  RooRealVar slope1("slope1", "slope1", 0.01, 0.0, 0.1);
-  RooRealVar turnon1("turnon1", "turnon1", 5.0, mbb.getMin(), mbb.getMax());
-  RooRealVar slope2("slope2", "slope2", 0.04, 0.0, 0.1);
-  RooRealVar turnon2("turnon2", "turnon2", 10.0, mbb.getMin(), mbb.getMax());
-  // RooFormulaVar eff((toString(type)+"_eff").c_str(),
-  //                   "0.5*(TMath::Erf(slope1*(mbb-turnon1)) + 1)*"
-  //                   "0.5*(TMath::Erf(slope2*(mbb-turnon2)) + 1)",
-  //                   RooArgSet(mbb, slope1, turnon1, slope2, turnon2));
+  RooRealVar slope("slope", "slope", 0.01, 0.0, 0.1);
+  RooRealVar turnon("turnon", "turnon",
+                     mbb.getMin() + 10.0, mbb.getMin(), mbb.getMax());
   RooFormulaVar eff((toString(type)+"_eff").c_str(),
-                    "0.5*(TMath::Erf(slope2*(mbb-turnon2)) + 1)",
-                    RooArgSet(mbb, slope2, turnon2));
+                    "0.5*(TMath::Erf(slope*(mbb-turnon)) + 1)",
+                    RooArgSet(mbb, slope, turnon));
 
   RooEffProd bernEffProd(toString(type).c_str(),
                          (toString(type)+"_berneffprod").c_str(), bern, eff);
   workspace_.import(bernEffProd);
+}
+
+
+void FitContainer::setChebEffProd_(const Type& type, const int numCoeffs) {
+  if (numCoeffs > 7) {
+    throw std::invalid_argument
+      ("Chebychev polynomials support not more than 7 coefficients.");
+  }
+  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
+  std::unique_ptr<RooArgList> coeffs(getCoefficients_(numCoeffs, "chebychev"));
+  RooChebychev cheb((toString(type)+"_chebychev").c_str(),
+                    (toString(type)+"_chebychev").c_str(), mbb, *coeffs);
+
+  RooRealVar slope("slope", "slope", 0.01, 0.0, 0.1);
+  RooRealVar turnon("turnon", "turnon",
+                    mbb.getMin()+ 5.0, mbb.getMin(), mbb.getMax());
+  RooFormulaVar eff((toString(type)+"_eff").c_str(),
+                    "0.5*(TMath::Erf(slope*(mbb-turnon)) + 1)",
+                    RooArgSet(mbb, slope, turnon));
+
+  RooEffProd chebEffProd(toString(type).c_str(),
+                         (toString(type)+"_chebeffprod").c_str(), cheb, eff);
+  workspace_.import(chebEffProd);
 }
 
 
@@ -700,6 +722,7 @@ const std::vector<std::string> FitContainer::availableModels_ =
    "bukin",
    "bernstein",
    "chebychev",
-   "berneffprod"};
+   "berneffprod",
+   "chebeffprod"};
 
 const int FitContainer::defaultNumberOfCoefficients_ = 7;

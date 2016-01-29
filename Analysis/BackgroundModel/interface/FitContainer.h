@@ -73,6 +73,7 @@ namespace analysis {
       void setBernstein_(const Type& type, const int numCoeffs);
       void setChebychev_(const Type& type, const int numCoeffs);
       void setBernEffProd_(const Type& type, const int numCoeffs);
+      void setChebEffProd_(const Type& type, const int numCoeffs);
       static const std::vector<std::string> availableModels_;
 
       // internal methods
