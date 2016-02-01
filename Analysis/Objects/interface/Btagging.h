@@ -25,8 +25,10 @@
 #include <string>
 // 
 // user include files
+#include "TH1.h" 
+#include "TH2.h" 
 
-#include "Analysis/Tools/interface/Analysis.h"
+#include "Analysis/Objects/interface/Object.h"
 
 //
 // class declaration
@@ -35,18 +37,39 @@
 namespace analysis {
    namespace objects {
 
-      class Btagging : public analysis::tools::Analysis {
+      class Btagging : public analysis::objects::Object {
          public:
             Btagging(const std::string & inputFilelist, const std::string & evtinfo = "MssmHbb/Events/EventInfo");
            ~Btagging();
+           
+            void efficiencies();
+            void efficiencies(const std::string &);
+            void jetsCollection(const std::string &);
+            void efficiencyHistograms();
+            void workingPoint(const float &);
+            void ptBinning(const int & , const float *);
+            void etaBinning(const  int & , const float * );
            
          
             // ----------member data ---------------------------
          protected:
                
          private:
+            std::string coll_;
+            float wp_;
+            std::map<std::string,TH2F *> h2d_eff_;
+            int nptbins_;
+            const float * ptbins_;
+            int netabins_;
+            const float * etabins_;
+            
 
       };
+      
+      inline void  Btagging::jetsCollection(const std::string & coll) { coll_ = coll; }
+      inline void  Btagging::workingPoint(const float & wp) { wp_ = wp; }
+      inline void  Btagging::ptBinning(const int & nbins,  const float * bins) { nptbins_ = nbins; ptbins_ = bins; }
+      inline void  Btagging::etaBinning(const int & nbins,  const float * bins) { netabins_ = nbins; etabins_ = bins; }
    }
 }
 
