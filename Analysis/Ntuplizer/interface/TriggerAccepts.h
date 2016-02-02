@@ -1,3 +1,4 @@
+//#define CMSSWOLD
 #ifndef Analysis_Ntuplizer_TriggerAccepts_h
 #define Analysis_Ntuplizer_TriggerAccepts_h 1
 
@@ -30,6 +31,10 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
+#ifndef CMSSWOLD
+#include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
+#endif            
+
 #include "TTree.h"
 
 //
@@ -42,6 +47,9 @@ namespace analysis {
       class TriggerAccepts {
          public:
             TriggerAccepts();
+#ifndef CMSSWOLD        
+            TriggerAccepts(const edm::InputTag&, TTree*, const std::vector<std::string> &, const std::shared_ptr<HLTPrescaleProvider> hltPrescale , const bool & testmode = false);
+#endif            
             TriggerAccepts(const edm::InputTag&, TTree*, const std::vector<std::string> &, const bool & testmode = false);
            ~TriggerAccepts();
             void Fill(const edm::Event & event, const edm::EventSetup & setup);
@@ -53,6 +61,9 @@ namespace analysis {
             
             edm::InputTag input_collection_;
             HLTConfigProvider hlt_config_;
+#ifndef CMSSWOLD       
+            std::shared_ptr<HLTPrescaleProvider> hlt_prescale_;
+#endif            
             std::vector<std::string> paths_;
             std::vector<std::string> inpaths_;
             bool accept_[1000];

@@ -34,6 +34,7 @@ using namespace analysis::ntuple;
 namespace analysis {
    namespace ntuple {
       template <> void EventFilter<edm::MergeableCounter>::Increment(edm::LuminosityBlock const&);
+      template <> void EventFilter<edm::MergeableCounter>::Fill();
  }
 }   
 
@@ -59,6 +60,13 @@ EventFilter<T>::EventFilter(edm::Service<TFileService> & fs, const std::vector<e
    tree_ -> Branch("nEventsFiltered" , &this->nFiltr_     , "nEventsFiltered/i");
    tree_ -> Branch("filterEfficiency", &this->efficiency_ , "filterEfficiency/D");
 
+   if ( category == "GeneratorFilter" )
+   {
+      tree_ -> Branch("nEventsTried"     , &this->nTried_      , "nEventsTried/i");
+      tree_ -> Branch("weightsTotal"     , &this->wTotal_      , "weightsTotal/D");
+      tree_ -> Branch("weightsFiltered"  , &this->wFiltr_      , "weightsTotal/D");
+      tree_ -> Branch("weightsEfficiency", &this->wEfficiency_ , "weightsEfficiency/D");
+   }
    
 }
 
@@ -76,6 +84,13 @@ EventFilter<T>::EventFilter(TFileDirectory & subDir, const std::vector<edm::Inpu
    tree_ -> Branch("nEventsFiltered" , &this->nFiltr_     , "nEventsFiltered/i");
    tree_ -> Branch("filterEfficiency", &this->efficiency_ , "filterEfficiency/D");
 
+   if ( category == "GeneratorFilter" )
+   {
+      tree_ -> Branch("nEventsTried"     , &this->nTried_      , "nEventsTried/i");
+      tree_ -> Branch("weightsTotal"     , &this->wTotal_      , "weightsTotal/D");
+      tree_ -> Branch("weightsFiltered"  , &this->wFiltr_      , "weightsTotal/D");
+      tree_ -> Branch("weightsEfficiency", &this->wEfficiency_ , "weightsEfficiency/D");
+   }
 }
 
 template <typename T>
@@ -107,6 +122,14 @@ void EventFilter<T>::Fill()
    tree_ -> Fill();
 }
 
+template <>
+void EventFilter<edm::MergeableCounter>::Fill()
+{
+   efficiency_  = this -> Results().efficiency;
+   wEfficiency_ = this -> WeightedResults().efficiency;
+   tree_ -> Fill();
+}
+
 
 //
 // member functions
@@ -124,6 +147,19 @@ FilterResults EventFilter<T>::Results()
    return res;
 }
 
+template <typename T>
+WeightedFilterResults EventFilter<T>::WeightedResults()
+{
+   WeightedFilterResults res;
+   double eff = wTotal_ > 0  ? wFiltr_ / wTotal_ : 0.;
+
+   res.total = wTotal_;
+   res.filtered =  wFiltr_;
+   res.efficiency = eff;
+   
+   return res;
+}
+
 
 // ------------ method called for each lumi  ------------
 template <typename T>
@@ -136,8 +172,12 @@ void EventFilter<T>::Increment(edm::LuminosityBlock const& lumi)
       Handle<T> handler;
       lumi.getByLabel(collections_[0], handler);
        
-      nTotal_  += handler->sumWeights();
-      nFiltr_  += handler->sumPassWeights();
+      nTotal_  += handler->numEventsTotal();
+      nFiltr_  += handler->numEventsPassed();
+      nTried_  += handler->numEventsTried();
+      
+      wTotal_  += handler->sumWeights();
+      wFiltr_  += handler->sumPassWeights();
    }
    
 }
