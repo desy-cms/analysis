@@ -7,14 +7,14 @@ from WMCore.Configuration import Configuration
 
 # ---
 # Some parameter steering
-PROCESS         = 'BTagCSVData'
-TYPE            = 'DATA'
+PROCESS         = 'MSSMHbb'
+TYPE            = 'MC'
 if TYPE == 'DATA':
 	UNITS_PER_JOB   = 1000
 if TYPE == 'MC':
 	UNITS_PER_JOB   = 10
 PSET            = '/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Ntuplizer/test/btag_data.py'
-CAMPAIGN        = 'Fall15.20160121'
+CAMPAIGN        = 'Fall15.20160130'
 BASEOUTDIR      = '/store/user/rshevche/Analysis/Ntuples/' + PROCESS
 URL             = '/nfs/dust/cms/user/shevchen/samples/miniaod'
 #URL             = 'http://www.desy.de/~walsh/cms/analysis/samples/miniaod'
@@ -41,7 +41,7 @@ if __name__ == '__main__':
    if TYPE == 'DATA':
       config.Data.splitting   = 'LumiBased'
       config.JobType.psetName = '/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Ntuplizer/test/btag_data.py'
-      
+
    config.General.workArea += '_' + PROCESS
    config.Data.unitsPerJob = UNITS_PER_JOB
    
@@ -53,9 +53,11 @@ if __name__ == '__main__':
       print dataset_name, dataset_cond, dataset_tier
       config.Data.inputDataset    = dataset
       config.Data.outputDatasetTag = dataset_cond
+      # CRABClient.ClientExceptions.ConfigurationException: Invalid CRAB configuration: Parameter General.requestName should not be longer than 100 characters.
       config.General.requestName  = dataset_name+ '_' + dataset_cond
+      config.General.requestName = config.General.requestName[:100]
       config.Data.outLFNDirBase   = BASEOUTDIR + '/' + dataset_tier + '/' + CAMPAIGN + '/'
-      config.JobType.psetName    = PSET
+      #      config.JobType.psetName    = PSET
       crabCommand('submit', config = config)
 
 # _________________________________________________________________________

@@ -68,10 +68,6 @@ void MssmHbb::SetupStandardOutputFile(const std::string & outputFileName){
 
 }
 
-void MssmHbb::setupDoubleBTagStudy(const std::string & outputFileName){
-
-}
-
 void MssmHbb::addTriggerObjects(const std::vector<std::string> &triggerObjectName, const std::string & path)
 {
 

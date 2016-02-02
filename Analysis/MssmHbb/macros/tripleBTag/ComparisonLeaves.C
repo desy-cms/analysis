@@ -13,10 +13,10 @@ void ComparisonLeaves()
    //gStyle->SetOptFit(1111);
    //gROOT->ForceStyle();
 
-   TFile * fData = new TFile("/nfs/dust/cms/user/shevchen/output/DoubleBTagSelection30_01_2016.root");
+   TFile * fData = new TFile("/nfs/dust/cms/user/shevchen/output/TripleBTagSelection30_01_2016.root");
 //   TFile * fMonteCarlo = new TFile("/nfs/dust/cms/user/shevchen/output/DoubleBTagSelectionPythia8_30_01_2016.root");
-   TFile * fMonteCarlo = new TFile("/nfs/dust/cms/user/shevchen/output/DoubleBTagSelectionQCDHT.root");
-   std::string mcName = "QCD HT 13 TeV MadgraphMLM+Pythia8";
+   TFile * fMonteCarlo = new TFile("/nfs/dust/cms/user/shevchen/output/TripleBTagSelectionMCoutput_101_02_2016.root");
+   std::string mcName = "SUSYGluGluToBBHToBB M-300 13 TeV";
 
    TTree *dataTree, *mcTree;
    fMonteCarlo -> GetObject("MssmHbb",mcTree);
@@ -37,14 +37,14 @@ void ComparisonLeaves()
 
    //TCut section
    TCut weightLumi = "LumiWeight";
-   TCut weightPt  = "(Njets>4)*TwoDPtWeight";
+   TCut weightPt  = "TwoDPtWeight";
    TCut weightdEta = "dEtaWeight";
    TCut weightBTag = "BTagWeight";
    TCut weightPtFactorization = "FactorizationPtWeight";
    TCut ptSystWeight = "abs(FactorizationPtWeight - TwoDPtWeight)";
-   TCut btagSFcentral = "BTagSFcentral[0] * BTagSFcentral[1]";
-   TCut btagSFup = "BTagSFup[0] * BTagSFup[1]";
-   TCut btagSFdown = "BTagSFdown[0] * BTagSFdown[1]";
+   TCut btagSFcentral = "BTagSFcentral[0] * BTagSFcentral[1] * BTagSFcentral[2]";
+   TCut btagSFup = "BTagSFup[0] * BTagSFup[1] * BTagSFup[2]";
+   TCut btagSFdown = "BTagSFdown[0] * BTagSFdown[1] * BTagSFdown[2]";
 
    //Start drawing
    //..............................Pt1 ....................
@@ -61,7 +61,7 @@ void ComparisonLeaves()
 
    mcTree ->Draw("LeadPt[0]>>fLeadPtMCSyst",weightLumi*weightBTag*weightPt*weightdEta*btagSFcentral,"E");
    mcTree ->Draw("LeadPt[0]>>fLeadPtMC",weightLumi*weightBTag*weightPt*weightdEta*btagSFcentral,"E");
-   dataTree ->Draw("LeadPt[0]>>fLeadPtData","Njets>4");
+   dataTree ->Draw("LeadPt[0]>>fLeadPtData");
 
    //Systematic errors
    // Syst. for SFb
@@ -120,6 +120,7 @@ void ComparisonLeaves()
    ratio->GetTopPad()->SetLogy();
    ratioPt->GetXaxis()->SetRangeUser(0.,1000.);
    ratio->DrawPhaseSpaceDescription(100.,0.1,450.,3.);
+
    /*
    //..............................Pt2 ....................
    TCanvas *canva01 = new TCanvas("canva01","Pt2",1000,800);

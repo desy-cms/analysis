@@ -16,7 +16,7 @@
 //
 // Original Author:  Roberval Walsh Bastos Rangel
 //         Created:  Mon, 20 Oct 2014 14:24:08 GMT
-//
+// Modified by: Rostyslav Shevchenko
 //
 
 // system include files
@@ -55,7 +55,6 @@ namespace analysis {
                       																	"hltDoubleBTagCSV0p9",
                       																	"hltDoublePFJetsC100MaxDeta1p6"},
         		   	   	   	   	  const std::string & path = "MssmHbb/Events/selectedPatTrigger/");
-           void setupDoubleBTagStudy(const std::string & outputFileName);
            void SetupStandardOutputFile(const std::string & outputFileName);
 
            //returns

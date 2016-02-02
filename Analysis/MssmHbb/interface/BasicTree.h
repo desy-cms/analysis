@@ -32,6 +32,7 @@ public:
 	//Sets
 	void setNjets(const int &n);
 	void setJetCounter(const int &n);
+	void addHt(const double &pt);
 
 	void calculateJetVariables();
 	void calculateWeights(TH2F *btag,TH2F *pt);
@@ -54,12 +55,15 @@ public:
 
 	//Gets
 	void getdPhi();
+	int getNumberOfCandidates();
+	int getNcand();
 
 private:
 
 	//Methods Declaration
 
 	// Declare Variables
+	int NCand_ = 0;
 	analysis::tools::Jet LeadJet_[20];
 	//Jet Variables
 	int Njets_;
@@ -69,6 +73,7 @@ private:
     double LeadBTag_[20];
     double dPhiFS_;
     double dEtaFS_;
+    double Ht_;
 
     //Trigger and Matching variables
     int lowMTriggerFired_;
@@ -140,6 +145,11 @@ protected:
 
 
 };
+
+inline int BasicTree::getNumberOfCandidates(){return NCand_;}
+inline int BasicTree::getNcand(){return NCand_;}
+inline void BasicTree::addHt(const double &pt) {Ht_ += pt;}
+
 
 #endif /* MSSMHBB_SRC_BASICTREE_H_ */
 

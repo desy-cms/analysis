@@ -104,6 +104,7 @@ void BasicTree::setBranches(){
 
 	OutTree_->Branch("dPhiFS",&dPhiFS_,"dPhiFS/D");
 	OutTree_->Branch("dEtaFS",&dEtaFS_,"dEtaFS/D");
+	OutTree_->Branch("Ht",&Ht_,"Ht/D");
 
 	//Trigger and Matching Objects
 	/*
@@ -214,6 +215,7 @@ void BasicTree::cleanVariables(){
 	Njets_ = -100;
 	dPhiFS_ = -100;
 	dEtaFS_ = -100;
+	Ht_ = 0;
 
 	ObjM12_ = -100;
 	ObjPt_ = -100;
@@ -250,6 +252,7 @@ void BasicTree::calculateFlavourComposition(){
 }
 
 void BasicTree::fillTree(){
+	NCand_ ++;
 	OutTree_ ->Fill();
 }
 
