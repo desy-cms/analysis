@@ -1,3 +1,10 @@
 *.pyc
 *~
+*.root
+*.project
+*.DS_Store
+*._.DS_Store
+*.log
+*.cproject
+*.png
 Analysis/*/python/__init__.py
