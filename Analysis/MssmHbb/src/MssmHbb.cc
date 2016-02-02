@@ -31,14 +31,16 @@ using namespace analysis::mssmhbb;
 //
 MssmHbb::MssmHbb(const std::string & inputFilelist, const std::string & evtinfo) : Analysis(inputFilelist,evtinfo)
 {
-	//Show MC information
 	if(this->isMC()){
+		// Add MC information:
 		this->crossSections("MssmHbb/Metadata/CrossSections");
-		this->listCrossSections();
-
 		this->generatorFilter("MssmHbb/Metadata/GeneratorFilter");
-		this->listGeneratorFilter();
+		this->ShowMCInformation();
 	}
+
+	this->addTree<Jet> ("Jets","MssmHbb/Events/slimmedJetsPuppi");
+	this->triggerResults("MssmHbb/Events/TriggerResults");
+
 
 }
 
@@ -48,20 +50,22 @@ MssmHbb::~MssmHbb()
    // (e.g. close files, deallocate resources etc.)
 }
 
-void MssmHbb::setupDoubleBTagStudy(const std::string & outputFileName){
-
-	this->addTree<Jet> ("Jets","MssmHbb/Events/slimmedJetsPuppi");
-	this->triggerResults("MssmHbb/Events/TriggerResults");
+void MssmHbb::SetupStandardOutputFile(const std::string & outputFileName){
 
 	if(this->isMC()){
-			outPutName_ = this->tree<Jet>("Jets")->PhysicsObjectTree<Jet>::PhysicsObjectTreeBase::TreeBase::tree()->GetFile()->GetName();
-			outPutName_ = outputFileName + boost::filesystem::basename(outPutName_) + ".root";
-		}
+		// This add to the file name name of Pt-hat bin
+		outPutName_ = this->tree<Jet>("Jets")->PhysicsObjectTree<Jet>::PhysicsObjectTreeBase::TreeBase::tree()->GetFile()->GetName();
+		outPutName_ = outputFileName + boost::filesystem::basename(outPutName_);
+	}
 	else{
-		outPutName_ = outputFileName + ".root";
+		outPutName_ = outputFileName;
 	}
 
+	outPutName_ = outPutName_ + this->get_date()  + ".root";
+
+	//Create output TFile
 	this->createOutputFile(outPutName_);
+
 }
 
 void MssmHbb::addTriggerObjects(const std::vector<std::string> &triggerObjectName, const std::string & path)
@@ -74,26 +78,67 @@ void MssmHbb::addTriggerObjects(const std::vector<std::string> &triggerObjectNam
 		exit(0);
 	}
 
-	//TODO: implement switcher from LowM to HighM triggers!!
-	triggerLogicName_ = "HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v"; lowMSelection_ = true;
+	//Add trees with different Trigger Objects and specify Trigger Logic name
 	for(const auto & triggerObject : triggerObjectName_)
 	{
 		this->addTree<TriggerObject>(triggerObject,(path + triggerObject).c_str());
-		/*
+
 		if(triggerObject.find("MaxDeta1p6") != std::string::npos) {
-			triggerLogicName_ = "HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v"; lowMSelection_ = true;
+			triggerLogicName_ = "HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v";
+			lowMSelection_ = true;
 		}
-		else {
-			triggerLogicName_ = "HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v";
-			lowMSelection_ = false;
-		}
-		*/
+
+	}
+
+	if(!lowMSelection_){
+		triggerLogicName_ = "HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v";
 	}
 
 }
 
+//For double BTag Selection
+bool MssmHbb::OnlineSelection(const analysis::tools::Jet &fLeadOfflineJet,
+							  const analysis::tools::Jet &sLeadOfflineJet){
 
+	for(const auto & triggerObject : triggerObjectName_){
 
+		const Candidate *onlineJet1 = fLeadOfflineJet.matched(triggerObject);
+		const Candidate *onlineJet2 = sLeadOfflineJet.matched(triggerObject);
+
+		if(!onlineJet1 || !onlineJet2 || onlineJet1 == onlineJet2) return false;
+		//Check dEta condition
+		if(triggerObject.find("MaxDeta1p6") != std::string::npos){
+			if(std::abs(onlineJet1->eta() - onlineJet2-> eta()) > 1.6) return false;
+		}
+	}
+
+	return true;
+}
+
+//For triple BTag Selection
+bool MssmHbb::OnlineSelection(const analysis::tools::Jet &fLeadOfflineJet,
+							  const analysis::tools::Jet &sLeadOfflineJet,
+							  const analysis::tools::Jet &thLeadOfflineJet){
+
+	for(const auto & triggerObject : triggerObjectName_){
+
+		const Candidate *onlineJet1 = fLeadOfflineJet.matched(triggerObject);
+		const Candidate *onlineJet2 = sLeadOfflineJet.matched(triggerObject);
+		const Candidate *onlineJet3 = thLeadOfflineJet.matched(triggerObject);
+
+		if(!onlineJet1 || !onlineJet2 || !onlineJet3 || onlineJet1 == onlineJet2 ||
+														onlineJet1 == onlineJet3 ||
+														onlineJet2 == onlineJet3) return false;
+		//Check dEta condition
+		if(triggerObject.find("MaxDeta1p6") != std::string::npos){
+			if(std::abs(onlineJet1->eta() - onlineJet2->eta()) > 1.6 &&
+			   std::abs(onlineJet1->eta() - onlineJet3->eta()) > 1.6 &&
+			   std::abs(onlineJet2->eta() - onlineJet3->eta()) > 1.6) return false;
+		}
+	}
+
+	return true;
+}
 
 bool MssmHbb::lowMOnlineSelection(const analysis::tools::Jet &fLeadOfflineJet,const analysis::tools::Jet &sLeadOfflineJet)
 {
@@ -125,6 +170,33 @@ bool MssmHbb::lowMOnlineSelection(const analysis::tools::Jet &fLeadOfflineJet,co
 	return status;
 }
 
+void MssmHbb::ShowMCInformation(){
+
+	//Show MC information
+	if(this->isMC()){
+		this->listCrossSections();
+		this->listGeneratorFilter();
+	}
+	else {
+		std::cout<<"This is not MC"<<std::endl;
+	}
+}
+
+std::string MssmHbb::get_date(){
+
+	time_t now;
+	char the_date[12];
+	the_date[0] = '\0';
+
+	now = time(NULL);
+
+   if (now != -1)
+   {
+      std::strftime(the_date, 12, "%d_%m_%Y", gmtime(&now));
+   }
+
+   return std::string(the_date);
+}
 
 
 //

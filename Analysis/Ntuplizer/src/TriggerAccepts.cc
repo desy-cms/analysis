@@ -90,7 +90,6 @@ void TriggerAccepts::Fill(const edm::Event& event, const edm::EventSetup & setup
    {
       for (size_t i = 0; i < paths_.size() ; ++i )
       {
-//    	  std::cout<<" Names = "<<hlt_config_.triggerName(j)<<" paths = "<<paths_[i]<<std::endl;
          if ( hlt_config_.triggerName(j).find(paths_[i]) == 0 && triggers.accept(j) )
          {
 #ifndef CMSSWOLD          

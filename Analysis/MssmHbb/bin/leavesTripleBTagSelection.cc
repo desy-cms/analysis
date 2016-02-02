@@ -37,8 +37,8 @@ int main(int argc, char * argv[])
    TH2F *PtEff = (TH2F*) filePtEff ->Get("TwoDEffRefMC_Num"); // 2D
 
    // Input files list
-   //std::string inputList = "rootFileListBTagCSV.txt";
-   std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/HT_QCD/QCD_HT300to500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt";
+   std::string inputList = "rootFileListBTagCSV.txt";
+   //std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/MSSMHbb/SUSYGluGluToBBHToBB_M-300_TuneCUETP8M1_13TeV-pythia8.txt";
    MssmHbb analysis(inputList);
 
    // Process selected JSON file
@@ -46,7 +46,7 @@ int main(int argc, char * argv[])
 
    //Setup output file name
    //name can me specified explicitly with method: createOutputFile(fileName);
-   std::string fileName = "/nfs/dust/cms/user/shevchen/output/DoubleBTagSelectionHT300500";
+   std::string fileName = "/nfs/dust/cms/user/shevchen/output/TripleBTagSelectionQCD_MC";
    analysis.SetupStandardOutputFile(fileName);
 
    // Add std::vector<std::string> of the Trigger Objects that you would like to apply.
@@ -62,6 +62,11 @@ int main(int argc, char * argv[])
                                 "central");           // systematics type
    BTagCalibrationReader reader_up(&calib, BTagEntry::OP_TIGHT, "mujets", "up");  // sys up
    BTagCalibrationReader reader_down(&calib, BTagEntry::OP_TIGHT, "mujets", "down");  // sys down
+
+   //For the third jet with lower WP
+   BTagCalibrationReader reader_j3(&calib, BTagEntry::OP_LOOSE, "mujets", "central");  // sys up
+   BTagCalibrationReader reader_j3_up(&calib, BTagEntry::OP_LOOSE, "mujets", "up");  // sys up
+   BTagCalibrationReader reader_j3_down(&calib, BTagEntry::OP_LOOSE, "mujets", "down");  // sys down
 
    int counter = 0;
    bool goodLeadingJets = true;
@@ -86,7 +91,7 @@ int main(int argc, char * argv[])
       //Define Jet Collection
       auto offlineJets = analysis.collection<Jet>("Jets");
 
-      if (offlineJets -> size() < 2) continue;
+      if (offlineJets -> size() < 3) continue;
 
       //Match offline Jets to online Objects
       if (!analysis.isMC()) analysis.match<Jet,TriggerObject>("Jets",analysis.getTriggerObjectNames());
@@ -102,7 +107,7 @@ int main(int argc, char * argv[])
       {
       	Jet jet = offlineJets -> at(iJet);
 
-      	//Calculate HT
+      	//Calculate Ht
       	analysis.addHt(jet.pt());
 
       	//Only jets that pass Loose identification will be considered
@@ -117,17 +122,35 @@ int main(int argc, char * argv[])
 		analysis.setJetCounter(counter-1);
 		analysis.setJetVariables(jet);
 
-		//Selection cuts for first two leading jets
-		if(counter == 1 || counter == 2){
-			if(jet.pt() < 100) break;
-			if(abs(jet.eta()) > 2.2) break;
-			if(jet.btag() < 0.941) break;
-			if(analysis.isMC()) analysis.calculateBTagSF(reader,reader_up,reader_down);
+		//Selection cuts for first three leading jets
+		if(counter == 1 || counter == 2 || counter == 3 ){
 
-			if(counter == 2){
+			if(counter == 1 || counter == 2){
+				if(jet.pt() < 100) break;
+				if(abs(jet.eta()) > 2.2) break;
+				if(jet.btag() < 0.941) break;
+
+				if(counter == 2){
+					if(abs(LeadJet[0].eta() - LeadJet[1].eta()) > 1.6) break;
+
+					// Online selection is applied only at the first 2 leading jets
+					if(!analysis.isMC() && !analysis.OnlineSelection(LeadJet[0],LeadJet[1])) break;
+				}
+				if(analysis.isMC()) analysis.calculateBTagSF(reader,reader_up,reader_down);
+			}
+			//Selection cuts for the third leading jet
+			if(counter == 3){
+				if(jet.pt() < 30 ) break;
+				if(abs(jet.eta()) > 2.2 ) break;
+				if( jet.btag() < 0.605 ) break; // Loose WP
+
+				// Delta R cuts
 				if(LeadJet[0].deltaR(LeadJet[1]) <= 1) break;
-				if(abs(LeadJet[0].eta() - LeadJet[1].eta()) > 1.6) break;
-				if(!analysis.isMC() && !analysis.OnlineSelection(LeadJet[0],LeadJet[1])) break;
+				if(LeadJet[0].deltaR(LeadJet[2]) <= 1) break;
+				if(LeadJet[1].deltaR(LeadJet[2]) <= 1) break;
+
+				if(analysis.isMC()) analysis.calculateBTagSF(reader_j3,reader_j3_up,reader_j3_down);
+
 				goodLeadingJets = true;
 			}
 		}
@@ -180,4 +203,4 @@ double BTagWeight(TH2F*region1,TH2F* region2,TH2F* region3, const double &pt, co
 /nfs/dust/cms/user/shevchen/samples/miniaod/BTagCSVData/Run2015D-PromptReco-v4.root
 /nfs/dust/cms/user/shevchen/samples/miniaod/BTagCSVData/Run2015C_25ns-05Oct2015-v1.root
 /nfs/dust/cms/user/shevchen/samples/miniaod/BTagCSVData/Run2015D-05Oct2015-v1.root
-*/
+ */

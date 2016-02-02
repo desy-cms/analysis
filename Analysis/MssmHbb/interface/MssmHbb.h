@@ -16,7 +16,7 @@
 //
 // Original Author:  Roberval Walsh Bastos Rangel
 //         Created:  Mon, 20 Oct 2014 14:24:08 GMT
-//
+// Modified by: Rostyslav Shevchenko
 //
 
 // system include files
@@ -24,6 +24,7 @@
 #include <vector>
 #include <string>
 #include <boost/filesystem.hpp>
+#include "time.h"
 // 
 // user include files
 
@@ -43,15 +44,21 @@ namespace analysis {
            ~MssmHbb();
            
            bool lowMOnlineSelection(const analysis::tools::Jet &fLeadOfflineJet,const analysis::tools::Jet &sLeadOfflineJet);
+           //For double BTag study
+           bool OnlineSelection(const analysis::tools::Jet &fLeadOfflineJet,const analysis::tools::Jet &sLeadOfflineJet);
+
+           //For triple BTag study
+           bool OnlineSelection(const analysis::tools::Jet &fLeadOfflineJet,const analysis::tools::Jet &sLeadOfflineJet,const analysis::tools::Jet &thLeadOfflineJet);
            void addTriggerObjects(const std::vector<std::string> & triggerObjectName = {"hltL1sL1DoubleJetC100",
                       																	"hltDoubleJetsC100",
                       																	"hltDoublePFJetsC100",
                       																	"hltDoubleBTagCSV0p9",
                       																	"hltDoublePFJetsC100MaxDeta1p6"},
         		   	   	   	   	  const std::string & path = "MssmHbb/Events/selectedPatTrigger/");
-           void setupDoubleBTagStudy(const std::string & outputFileName);
+           void SetupStandardOutputFile(const std::string & outputFileName);
 
            //returns
+           void ShowMCInformation(); // Show MC information
            std::vector<std::string> getTriggerObjectNames();
            std::string getOutPutFileName();
            const char * getTriggerLogicName();
@@ -63,9 +70,11 @@ namespace analysis {
            std::vector<std::string> triggerObjectName_;
            std::string outPutName_;
            std::string triggerLogicName_;
-           bool lowMSelection_;
+           bool lowMSelection_ = false;
                
          private:
+
+           std::string get_date();
 
       };
 

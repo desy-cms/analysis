@@ -496,3 +496,139 @@ Traceback (most recent call last):
   File "/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc481/cms/crabclient/3.3.1512/lib/python2.6/site-packages/CRABClient/ClientUtilities.py", line 596, in validateJobids
     raise ConfigurationException(msg)
 ConfigurationException: The command line option --jobids takes a comma separated list of integers or ranges, without whitespaces.
+DEBUG 2016-01-27 16:54:22,736: 	 Executing command: 'submit'
+DEBUG 2016-01-27 16:54:22,849: 	 Found CRAB cache file /afs/desy.de/user/s/shevchen/.crab3
+DEBUG 2016-01-27 16:54:22,924: 	 Checking credentials
+DEBUG 2016-01-27 16:54:22,924: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2016-01-27 16:54:22,924: 	 Getting proxy life time left
+DEBUG 2016-01-27 16:54:24,529: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 0
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2016-01-27 16:54:24,529: 	 Proxy valid for 00:00:00 hours
+DEBUG 2016-01-27 16:54:24,529: 	 Creating new proxy for 24:00 hours with VO group '' and VO role 'NULL'.
+DEBUG 2016-01-27 16:54:36,446: 	 Executing : 
+ command : voms-proxy-init -voms cms:/cms -valid 24:00 -rfc
+ output : None
+ error: None
+ retcode : 0
+DEBUG 2016-01-27 16:54:36,849: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 86399
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2016-01-27 16:54:37,252: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 86397
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2016-01-27 16:54:37,655: 	 Executing : 
+ command : env X509_USER_PROXY=/tmp/x509up_u20182 voms-proxy-info -fqan
+ output : /cms/Role=NULL/Capability=NULL
+/cms/dcms/Role=NULL/Capability=NULL
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2016-01-27 16:54:37,655: 	 Proxy created.
+DEBUG 2016-01-27 16:55:40,619: 	 Executing command: 'submit'
+DEBUG 2016-01-27 16:55:40,626: 	 Found CRAB cache file /afs/desy.de/user/s/shevchen/.crab3
+DEBUG 2016-01-27 16:55:40,791: 	 Checking credentials
+DEBUG 2016-01-27 16:55:40,791: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2016-01-27 16:55:40,791: 	 Getting proxy life time left
+DEBUG 2016-01-27 16:55:41,194: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 86334
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2016-01-27 16:55:41,597: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 86333
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2016-01-27 16:55:41,597: 	 Proxy valid for 23:58:54 hours
+DEBUG 2016-01-27 17:04:30,720: 	 Executing command: 'submit'
+DEBUG 2016-01-27 17:04:30,720: 	 Found CRAB cache file /afs/desy.de/user/s/shevchen/.crab3
+DEBUG 2016-01-27 17:04:30,728: 	 Checking credentials
+DEBUG 2016-01-27 17:04:30,728: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2016-01-27 17:04:30,728: 	 Getting proxy life time left
+DEBUG 2016-01-27 17:04:31,131: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 86382
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2016-01-27 17:06:03,822: 	 Executing command: 'submit'
+DEBUG 2016-01-27 17:06:03,831: 	 Found CRAB cache file /afs/desy.de/user/s/shevchen/.crab3
+DEBUG 2016-01-27 17:06:03,838: 	 Checking credentials
+DEBUG 2016-01-27 17:06:03,839: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2016-01-27 17:06:03,839: 	 Getting proxy life time left
+DEBUG 2016-01-27 17:06:04,341: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 86289
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2016-01-27 17:06:04,744: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 86288
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2016-01-27 17:06:04,745: 	 Proxy valid for 23:58:09 hours
+DEBUG 2016-01-27 17:06:04,745: 	 Will use CRAB Analysis plugin (i.e. will run an analysis job type).
+DEBUG 2016-01-27 17:08:59,048: 	 Executing command: 'submit'
+DEBUG 2016-01-27 17:08:59,074: 	 Found CRAB cache file /afs/desy.de/user/s/shevchen/.crab3
+DEBUG 2016-01-27 17:08:59,098: 	 Checking credentials
+DEBUG 2016-01-27 17:08:59,098: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2016-01-27 17:08:59,098: 	 Getting proxy life time left
+DEBUG 2016-01-30 17:55:52,462: 	 Executing command: 'resubmit'
+DEBUG 2016-01-30 17:55:52,462: 	 Found CRAB cache file /afs/desy.de/user/s/shevchen/.crab3
+DEBUG 2016-01-30 17:55:52,472: 	 Checking credentials
+DEBUG 2016-01-30 17:55:52,472: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2016-01-30 17:55:52,472: 	 Getting proxy life time left
+DEBUG 2016-01-30 17:55:52,875: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 85368
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2016-01-30 17:55:53,479: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 85367
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2016-01-30 17:55:53,479: 	 Proxy valid for 23:42:48 hours
+ERROR 2016-01-30 17:55:53,479: 	 Cannot find .requestcache file in CRAB project directory /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_HT_QCD
+ERROR 2016-01-30 17:55:53,480: 	 Caught exception
+Traceback (most recent call last):
+  File "/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc481/cms/crabclient/3.3.1512/bin/crab", line 159, in <module>
+    client()
+  File "/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc481/cms/crabclient/3.3.1512/bin/crab", line 145, in __call__
+    self.cmd = sub_cmd(self.logger, args[1:])
+  File "/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc481/cms/crabclient/3.3.1512/lib/python2.6/site-packages/CRABClient/Commands/resubmit.py", line 26, in __init__
+    SubCommand.__init__(self, logger, cmdargs)
+  File "/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc481/cms/crabclient/3.3.1512/lib/python2.6/site-packages/CRABClient/Commands/SubCommand.py", line 318, in __init__
+    self.loadLocalCache(proxyOptsSetPlace)
+  File "/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc481/cms/crabclient/3.3.1512/lib/python2.6/site-packages/CRABClient/Commands/SubCommand.py", line 428, in loadLocalCache
+    self.cachedinfo, self.logfile = loadCache(self.requestarea, self.logger)
+  File "/cvmfs/cms.cern.ch/crab3/slc6_amd64_gcc481/cms/crabclient/3.3.1512/lib/python2.6/site-packages/CRABClient/ClientUtilities.py", line 445, in loadCache
+    raise CachefileNotFoundException(msg)
+CachefileNotFoundException: Cannot find .requestcache file in CRAB project directory /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Tools/test/crab_projects_HT_QCD
