@@ -43,6 +43,31 @@ template <class Object> Collection<Object>  PhysicsObjectTree<Object>::collectio
    return obj;
 }
 
+// Candidate
+// Constructors and destructor
+PhysicsObjectTree<Candidate>::PhysicsObjectTree() : PhysicsObjectTreeBase<Candidate>()
+{
+}
+PhysicsObjectTree<Candidate>::PhysicsObjectTree(TChain * tree, const std::string & name) : PhysicsObjectTreeBase<Candidate>(tree, name)
+{
+}
+PhysicsObjectTree<Candidate>::~PhysicsObjectTree() {}
+
+// Member functions
+Collection<Candidate>  PhysicsObjectTree<Candidate>::collection()
+{
+   std::vector<Candidate> candidates;
+   for ( int i = 0 ; i < n_ ; ++i )
+   {
+      Candidate cand(pt_[i], eta_[i], phi_[i], e_[i], q_[i]);
+      candidates.push_back(cand);
+   }
+   Collection<Candidate> CandidateCollection(candidates, name_);
+   return CandidateCollection;
+
+}
+
+
 // JETS
 // Constructors and destructor
 PhysicsObjectTree<Jet>::PhysicsObjectTree(TChain * tree, const std::string & name) : PhysicsObjectTreeBase<Jet>(tree, name)
@@ -88,6 +113,32 @@ Collection<Jet>  PhysicsObjectTree<Jet>::collection()
 
 }
 
+// GENPARTICLE
+// Constructors and destructor
+PhysicsObjectTree<GenParticle>::PhysicsObjectTree(TChain * tree, const std::string & name) : PhysicsObjectTreeBase<GenParticle>(tree, name)
+{
+   tree_  -> SetBranchAddress( "pdg"   , pdgid_  );
+   tree_  -> SetBranchAddress( "status", status_ );
+   tree_  -> SetBranchAddress( "higgs_dau", higgs_dau_ );
+}
+PhysicsObjectTree<GenParticle>::~PhysicsObjectTree() {}
+
+// Member functions
+Collection<GenParticle>  PhysicsObjectTree<GenParticle>::collection()
+{
+   std::vector<GenParticle> particles;
+   for ( int i = 0 ; i < n_ ; ++i )
+   {
+      GenParticle p(pt_[i], eta_[i], phi_[i], e_[i], q_[i]);
+      p.pdgId(pdgid_[i]);
+      p.status(status_[i]);
+      p.higgsDaughter(higgs_dau_[i]);
+      particles.push_back(p);
+   }
+   Collection<GenParticle> genPartCollection(particles, name_);
+   return genPartCollection;
+
+}
 
 // MET
 // Constructors and destructor
@@ -202,3 +253,4 @@ template class PhysicsObjectTree<MET>;
 template class PhysicsObjectTree<Muon>;
 template class PhysicsObjectTree<Vertex>;
 template class PhysicsObjectTree<TriggerObject>;
+template class PhysicsObjectTree<GenParticle>;

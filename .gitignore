@@ -1,2 +1,3 @@
 *.pyc
 *~
+Analysis/*/python/__init__.py

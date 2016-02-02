@@ -43,6 +43,12 @@ namespace analysis {
          unsigned int filtered;
          double efficiency;
       };
+      
+      struct WeightedFilterResults {
+         double total;
+         double filtered;
+         double efficiency;
+      };
 
       template <typename T>
       class EventFilter {
@@ -53,6 +59,7 @@ namespace analysis {
             void SetCollections(const std::vector<edm::InputTag> &);
             void Increment(edm::LuminosityBlock const& );
             FilterResults Results();
+            WeightedFilterResults WeightedResults();
             TTree * Tree();
             void Fill();
       
@@ -61,6 +68,11 @@ namespace analysis {
             unsigned int    nTotal_;
             unsigned int    nFiltr_;
             double          efficiency_;
+            unsigned int    nTried_;
+            double          wTotal_;
+            double          wFiltr_;
+            double          wEfficiency_;
+            
             std::vector<edm::InputTag> collections_;
             
             // Output tree

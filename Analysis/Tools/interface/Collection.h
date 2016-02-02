@@ -48,10 +48,10 @@ namespace analysis {
            Object & at(const int & index);
            void add(const Object & object);
            
-           void matchTo( const std::vector<Candidate>* vectorcandidates, const std::string & name );
-           void matchTo( const Collection<Candidate> & collection );
-           void matchTo( const Collection<TriggerObject> & collection );
-           void matchTo( const std::shared_ptr<Collection<TriggerObject> > collection );
+           void matchTo( const std::vector<Candidate>* vectorcandidates, const std::string & name , const float & deltaR = 0.5 );
+           void matchTo( const Collection<Candidate> & collection, const float & deltaR = 0.5 );
+           void matchTo( const Collection<TriggerObject> & collection, const float & deltaR = 0.5 );
+           void matchTo( const std::shared_ptr<Collection<TriggerObject> > collection, const float & deltaR = 0.5 );
            Objects* vector();
            std::vector<Candidate>* vectorCandidates() const;
            

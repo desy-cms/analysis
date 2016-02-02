@@ -70,7 +70,16 @@ namespace analysis {
             template<class Object>
             std::shared_ptr< Collection<Object> > addCollection(const std::string & unique_name);
             template<class Object>
+            std::shared_ptr< Collection<Object> > addCollection(const Collection<Object> & collection);
+            template<class Object>
+            std::shared_ptr< Collection<Object> > addCollection(const std::vector<Object> & objects, const std::string & unique_name );
+            template<class Object>
             std::shared_ptr< Collection<Object> > collection(const std::string & unique_name);
+            
+            template<class Object>
+            void defaultCollection(const std::string & unique_name);
+            template<class Object>
+            std::string defaultCollection();
             
             // Cross sections
             void   crossSections(const std::string & path);
@@ -93,9 +102,9 @@ namespace analysis {
             
             // Matching to trigger objects
             template <class Object1, class Object2>
-            void match(const std::string & collection, const std::string & match_collection);
+            void match(const std::string & collection, const std::string & match_collection, const float & deltaR = 0.5);
             template <class Object1, class Object2>
-            void match(const std::string & collection, const std::vector<std::string> & match_collections);
+            void match(const std::string & collection, const std::vector<std::string> & match_collections, const float & deltaR = 0.5);
             
             // good Json files
             void processJsonFile(const std::string & fileName = "goodJson.txt");
@@ -113,6 +122,9 @@ namespace analysis {
             std::map<std::string, bool> triggerResults_;
             std::map<int,std::vector<std::string> > goodLumi_;
             FilterResults genfilter_;
+            
+            // default collections
+            std::string defaultGenParticle_;
 
             int event_;
             int run_;
@@ -173,7 +185,6 @@ namespace analysis {
          std::map<std::string, boost::any >::iterator it = t_any_.find(unique_name);
          if ( it == t_any_.end() )
             return nullptr;
-         
          return boost::any_cast< std::shared_ptr< PhysicsObjectTree<Object> > > (t_any_[unique_name]);
       }
 // -------------------------------------------------------
@@ -191,11 +202,32 @@ namespace analysis {
          
          auto tree = boost::any_cast< std::shared_ptr< PhysicsObjectTree<Object> > > (t_any_[unique_name]);
          c_any_[unique_name] = std::shared_ptr< Collection<Object> > ( new Collection<Object>(tree -> collection()));
-         
          std::shared_ptr< Collection<Object> > ret = boost::any_cast< std::shared_ptr< Collection<Object> > > (c_any_[unique_name]);
          
          return ret;
       }
+      
+      template <class Object>
+      std::shared_ptr< Collection<Object> >  Analysis::addCollection(const Collection<Object> & collection)
+      {
+         std::string unique_name = collection.name();
+         t_any_[unique_name] = nullptr;
+         c_any_[unique_name] = std::shared_ptr< Collection<Object> > ( new Collection<Object>(collection) );
+         std::shared_ptr< Collection<Object> > ret = boost::any_cast< std::shared_ptr< Collection<Object> > > (c_any_[unique_name]);
+         
+         return ret;
+      }
+      
+      template <class Object>
+      std::shared_ptr< Collection<Object> >  Analysis::addCollection(const std::vector<Object> & objects , const std::string & unique_name )
+      {
+         Collection<Object> collection(objects,unique_name);
+         t_any_[unique_name] = nullptr;
+         c_any_[unique_name] = std::shared_ptr< Collection<Object> > ( new Collection<Object>(collection) );
+         std::shared_ptr< Collection<Object> > ret = boost::any_cast< std::shared_ptr< Collection<Object> > > (c_any_[unique_name]);
+         return ret;
+      }
+      
       template <class Object>
       std::shared_ptr< Collection<Object> >  Analysis::collection(const std::string & unique_name)
       {
@@ -204,18 +236,30 @@ namespace analysis {
       }
       //--
       template <class Object1, class Object2>
-      void Analysis::match(const std::string & collection, const std::string & match_collection)
+      void Analysis::match(const std::string & collection, const std::string & match_collection, const float & deltaR)
       {
          auto o1 = boost::any_cast< std::shared_ptr< Collection<Object1> > > (c_any_[collection]);
          auto o2 = boost::any_cast< std::shared_ptr< Collection<Object2> > > (c_any_[match_collection]);
-         o1->matchTo(o2->vectorCandidates(),o2->name());
+         o1->matchTo(o2->vectorCandidates(),o2->name(), deltaR);
       }
       //--
       template <class Object1, class Object2>
-      void Analysis::match(const std::string & collection, const std::vector<std::string> & match_collections)
+      void Analysis::match(const std::string & collection, const std::vector<std::string> & match_collections, const float & deltaR)
       {
          for ( auto & mc : match_collections )
-            this->match<Object1,Object2>(collection,mc);
+            this->match<Object1,Object2>(collection, mc, deltaR);
+      }
+
+      template<class Object> void Analysis::defaultCollection(const std::string & unique_name)
+      { 
+         if ( std::is_same<Object,GenParticle>::value ) defaultGenParticle_ = unique_name; 
+      }
+      
+      template<class Object> std::string Analysis::defaultCollection()
+      { 
+         std::string ret;
+         if ( std::is_same<Object,GenParticle>::value ) ret = defaultGenParticle_ ;
+         return ret; 
       }
       
 // ========================================================
@@ -226,6 +270,9 @@ namespace analysis {
       inline int  Analysis::run()          { return run_  ; }
       inline int  Analysis::lumiSection()  { return lumi_ ; }
       inline bool Analysis::isMC()         { return is_mc_ ; }
+      
+      
+//      inline std::string Analysis::getGenParticleCollection() { return genParticleCollection_; }
 
    }
 }

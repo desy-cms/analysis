@@ -19,6 +19,7 @@
 #include "Analysis/Tools/interface/MET.h"
 #include "Analysis/Tools/interface/Muon.h"
 #include "Analysis/Tools/interface/Vertex.h"
+#include "Analysis/Tools/interface/GenParticle.h"
 
 #include "Analysis/Tools/interface/Collection.h"
 
@@ -28,10 +29,10 @@ namespace analysis {
    namespace tools {
       template <> Collection<Vertex>::Collection(const Objects & objects, const std::string & name);
       template <> std::vector<Candidate> * Collection<Vertex>::vectorCandidates() const;
-      template <> void Collection<Vertex>::matchTo( const std::vector<Candidate>* vectorcandidates, const std::string & name );
-      template <> void Collection<Vertex>::matchTo( const Collection<Candidate> & collection );
-      template <> void Collection<Vertex>::matchTo( const Collection<TriggerObject> & collection );
-      template <> void Collection<Vertex>::matchTo( const std::shared_ptr<Collection<TriggerObject> > collection );
+      template <> void Collection<Vertex>::matchTo( const std::vector<Candidate>* vectorcandidates, const std::string & name, const float & deltaR );
+      template <> void Collection<Vertex>::matchTo( const Collection<Candidate> & collection, const float & deltaR );
+      template <> void Collection<Vertex>::matchTo( const Collection<TriggerObject> & collection, const float & deltaR );
+      template <> void Collection<Vertex>::matchTo( const std::shared_ptr<Collection<TriggerObject> > collection, const float & deltaR );
    }
 }
 //
@@ -87,30 +88,30 @@ std::vector<Object> * Collection<Object>::vector()
 }
 
 template <class Object>
-void Collection<Object>::matchTo( const std::vector<Candidate>* vectorcandidates, const std::string & name )
+void Collection<Object>::matchTo( const std::vector<Candidate>* vectorcandidates, const std::string & name, const float & deltaR )
 {
    for ( auto & obj : objects_ )
-      obj.matchTo(vectorcandidates,name);
+      obj.matchTo(vectorcandidates,name,deltaR);
 }
 
 template <class Object>
-void Collection<Object>::matchTo( const Collection<Candidate> & collection )
+void Collection<Object>::matchTo( const Collection<Candidate> & collection, const float & deltaR )
 {
    for ( auto & obj : objects_ )
-      obj.matchTo(collection.vectorCandidates(),collection.name());
+      obj.matchTo(collection.vectorCandidates(),collection.name(), deltaR);
 }
 
 template <class Object>
-void Collection<Object>::matchTo( const Collection<TriggerObject> & collection )
+void Collection<Object>::matchTo( const Collection<TriggerObject> & collection, const float & deltaR )
 {
    for ( auto & obj : objects_ )
-      obj.matchTo(collection.vectorCandidates(),collection.name());
+      obj.matchTo(collection.vectorCandidates(),collection.name(),deltaR);
 }
 
 template <class Object>
-void Collection<Object>::matchTo( const std::shared_ptr<Collection<TriggerObject> > collection )
+void Collection<Object>::matchTo( const std::shared_ptr<Collection<TriggerObject> > collection, const float & deltaR )
 {
-   this->matchTo(*collection);
+   this->matchTo(*collection, deltaR);
 }
 
 template <class Object>
@@ -137,3 +138,4 @@ template class Collection<MET>;
 template class Collection<Muon>;
 template class Collection<Vertex>;
 template class Collection<TriggerObject>;
+template class Collection<GenParticle>;
