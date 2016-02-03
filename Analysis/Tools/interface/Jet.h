@@ -37,7 +37,7 @@ namespace analysis {
             Jet(const float & pt, const float & eta, const float & phi, const float & e);
            ~Jet();
            
-            float btag();
+            float btag() const;
             int   flavour();
             int   flavour(const std::string & definition = "Hadron");
             bool  idLoose();
@@ -76,7 +76,7 @@ namespace analysis {
       // INLINE IMPLEMENTATIONS
          
       // Gets
-      inline float Jet::btag()    { return btag_;    }                   
+      inline float Jet::btag()    const { return btag_;    }                   
       inline int   Jet::flavour() { return flavour_["Hadron"]; }                   
       inline int   Jet::flavour(const std::string & definition) { return flavour_[definition]; }                   
       inline bool  Jet::idLoose() { return idloose_; }                   
