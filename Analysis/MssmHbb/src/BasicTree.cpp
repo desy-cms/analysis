@@ -95,6 +95,7 @@ void BasicTree::setBTagWeight(const double & weight){
 
 void BasicTree::setBranches(){
 
+	OutTree_->Branch("TotalNumberOfEvents",&Ntot_,"TotalNumberOfEvents/I");
 
 	OutTree_->Branch("Njets",&Njets_,"Njets/I");
 	OutTree_->Branch("LeadPt", LeadPt_,"LeadPt[20]/D");

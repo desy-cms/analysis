@@ -1,1 +1,1 @@
-/nfs/dust/cms/user/shevchen/samples/miniaod/QCD/samples/QCD_Pt_80to120_TuneCUETP8M1_13TeV_pythia8.root
+/pnfs/desy.de/cms/tier2/store/user/rshevche/Analysis/Ntuples/MSSMHbb/MINIAODSIM/Fall15.20160130/SUSYGluGluToBBHToBB_M-1100_TuneCUETP8M1_13TeV-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/160130_163907/0000/output_1.root

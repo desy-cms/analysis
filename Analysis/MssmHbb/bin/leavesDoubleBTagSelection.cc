@@ -37,8 +37,8 @@ int main(int argc, char * argv[])
    TH2F *PtEff = (TH2F*) filePtEff ->Get("TwoDEffRefMC_Num"); // 2D
 
    // Input files list
-   //std::string inputList = "rootFileListBTagCSV.txt";
-   std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/HT_QCD/QCD_HT300to500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt";
+   std::string inputList = "rootFileListBTagCSV.txt";
+   //std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/HT_QCD/QCD_HT300to500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt";
    MssmHbb analysis(inputList);
 
    // Process selected JSON file
