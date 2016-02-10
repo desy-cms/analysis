@@ -46,7 +46,7 @@ int main(int argc, char * argv[])
 
    //Setup output file name
    //name can me specified explicitly with method: createOutputFile(fileName);
-   std::string fileName = "/nfs/dust/cms/user/shevchen/output/TripleBTagSelection_M1100_";
+   std::string fileName = "/nfs/dust/cms/user/shevchen/output/TripleBTagSelection_QCD_";
    analysis.SetupStandardOutputFile(fileName);
 
    // Add std::vector<std::string> of the Trigger Objects that you would like to apply.

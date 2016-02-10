@@ -36,9 +36,14 @@ int main(int argc, char * argv[])
    TFile * filePtEff = new TFile("~/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/MssmHbb/macros/triggerEfficiency/latest/TwoDimEff.root");
    TH2F *PtEff = (TH2F*) filePtEff ->Get("TwoDEffRefMC_Num"); // 2D
 
+   // Add Branch for Ht reweighting:
+   double WeightHt;
+   TFile *fHtWeight = new TFile("~/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/MssmHbb/macros/doubleBTag/HtRatio.root");
+   TH1F *HtRatio = (TH1F*) fHtWeight->Get("hRatio");
+
    // Input files list
-   std::string inputList = "rootFileListBTagCSV.txt";
-   //std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/HT_QCD/QCD_HT300to500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt";
+   //std::string inputList = "rootFileListBTagCSV.txt";
+   std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/HT_QCD/QCD_HT2000toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt";
    MssmHbb analysis(inputList);
 
    // Process selected JSON file
@@ -46,7 +51,7 @@ int main(int argc, char * argv[])
 
    //Setup output file name
    //name can me specified explicitly with method: createOutputFile(fileName);
-   std::string fileName = "/nfs/dust/cms/user/shevchen/output/DoubleBTagSelectionHT300500";
+   std::string fileName = "/nfs/dust/cms/user/shevchen/output/DoubleBTagSelectionHT2000Inf";
    analysis.SetupStandardOutputFile(fileName);
 
    // Add std::vector<std::string> of the Trigger Objects that you would like to apply.
@@ -65,7 +70,6 @@ int main(int argc, char * argv[])
 
    int counter = 0;
    bool goodLeadingJets = true;
-
    // Analysis of events
 
    std::cout<<"Number of Entries: "<<analysis.size()<<std::endl;
@@ -104,6 +108,7 @@ int main(int argc, char * argv[])
 
       	//Calculate HT
       	analysis.addHt(jet.pt());
+
 
       	//Only jets that pass Loose identification will be considered
 		if(!jet.idLoose()) continue;
@@ -151,6 +156,13 @@ int main(int argc, char * argv[])
 
     	  //Calculation of the flavour composition, based on HadronFlavours
     	  analysis.calculateFlavourComposition();
+    	  if(analysis.getHt() >= 2600) {
+    		  WeightHt = HtRatio->Interpolate(2550);
+    	  }
+    	  else {
+    		  WeightHt = HtRatio->Interpolate(analysis.getHt());
+    	  }
+    	  analysis.setHtWeight(WeightHt);
       }
 
       analysis.fillTree();

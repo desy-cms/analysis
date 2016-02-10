@@ -40,6 +40,7 @@ public:
 	void calculateWeights(TH2F *btag);
 	void setBTagWeight(const double & weight);
 	void setLumiWeight(const double & dataLumi, const double & mcLumi);
+	void setHtWeight(const double & weight);
 
 	void setJetVariables(const analysis::tools::Jet & Jet);
 	void setPhysObjVariables(const TLorentzVector & Obj);
@@ -56,6 +57,7 @@ public:
 
 	//Gets
 	void getdPhi();
+	double getHt();
 	int getNumberOfCandidates();
 	int getNcand();
 	TTree * getOutputTree();
@@ -118,6 +120,7 @@ private:
     double dEtaWeight_;
     double BTagWeight_;
     double lumiWeight_;
+    double WeightHt_;
 
     // BTag SF weight
     double btagSFcentral_[20];
@@ -152,9 +155,12 @@ protected:
 inline int BasicTree::getNumberOfCandidates(){return NCand_;}
 inline int BasicTree::getNcand(){return NCand_;}
 inline void BasicTree::addHt(const double &pt) {Ht_ += pt;}
+inline double BasicTree::getHt(){ return Ht_;}
 inline TTree * BasicTree::getOutputTree() {return OutTree_;}
 
 inline void BasicTree::setTotalNumberOfEvents(const int &n){ Ntot_ = n;}
+
+inline void BasicTree::setHtWeight(const double &weight) {WeightHt_ = weight;}
 
 
 

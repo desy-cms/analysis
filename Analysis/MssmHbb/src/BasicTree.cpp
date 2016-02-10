@@ -147,6 +147,7 @@ void BasicTree::setBranches(){
 	OutTree_->Branch("dEtaWeight",&dEtaWeight_,"dEtaWeight/D");
 	OutTree_->Branch("BTagWeight",&BTagWeight_,"BTagWeight/D");
 	OutTree_->Branch("LumiWeight",&lumiWeight_,"LumiWeight/D");
+	OutTree_->Branch("WeightHt",&WeightHt_,"WeightHt/D");
 
 	//BTag SF variables:
 	OutTree_->Branch("BTagSFcentral",btagSFcentral_,"BTagSFcentral[20]/D");
