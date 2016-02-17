@@ -5,9 +5,8 @@
 <use name="rootgraphics"/>
 <use name="boost" />
 <use name="Analysis/Tools" />
-<use name="Analysis/MssmHbb" />
+<use name="Analysis/Objects" />
 
-
-<bin   name="leavesTripleBTagSelection" file="leavesTripleBTagSelection.cc">
+<bin   name="BtaggingEfficiencies" file="BtaggingEfficiencies.cc">
 <flags   LDFLAGS="-lCore -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lz -pthread -lm -ldl -rdynamic"/>
 </bin>
