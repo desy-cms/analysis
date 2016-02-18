@@ -192,7 +192,8 @@ class Ntuplizer : public edm::EDAnalyzer {
       std::vector< std::string > btagAlgos_;
       std::vector< std::string > btagAlgosAlias_;
       std::vector< std::string > triggerObjectLabels_;
-      std::vector<TitleAlias> btagVars_;
+      std::vector< TitleAlias >  btagVars_;
+      std::vector< std::string > jecRecords_;
       
       std::map<std::string, edm::EDGetTokenT<l1extra::L1JetParticleCollection> > l1JetTokens_;
       std::map<std::string, edm::EDGetTokenT<l1extra::L1MuonParticleCollection> > l1MuonTokens_;
@@ -384,7 +385,7 @@ void Ntuplizer::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
       // Pat jets (pat)
       for ( auto & collection : patjets_collections_ )
-         collection -> Fill(event);
+         collection -> Fill(event, iSetup);
    
       // Pat mets (pat)
       for ( auto & collection : patmets_collections_ )
@@ -492,6 +493,22 @@ Ntuplizer::beginJob()
 //      btagVars_[btagAlgosAlias_[it]] = {btagAlgos_[it],(unsigned int)it};
    }
    
+   // JEC Record (from CondDB)
+   jecRecords_.clear();
+   if ( do_patjets_ && config_.exists("JECRecords") )
+   {
+      jecRecords_ = config_.getParameter< std::vector<std::string> >("JECRecords");
+   }
+   //
+   size_t nPatJets = 0;
+   if ( do_patjets_ )
+      nPatJets = config_.getParameter<InputTags>("PatJets").size();
+   
+   if ( nPatJets > jecRecords_.size() && jecRecords_.size() != 0 )
+   {
+      std::cout << "*** ERROR ***  Ntuplizer: Number of JEC Records less than the number of PatJet collections." << std::endl;;
+      exit(-1);
+   }
    
    // Event info tree
    eventinfo_ = pEventInfo (new EventInfo(eventsDir));
@@ -509,6 +526,7 @@ Ntuplizer::beginJob()
    for ( auto & inputTags : inputTagsVec_ )
    {
       InputTags collections = config_.getParameter<InputTags>(inputTags);
+      int patJetCounter = 0;
       for ( auto & collection : collections )
       {
          // Names for the trees, from inputs
@@ -569,8 +587,19 @@ Ntuplizer::beginJob()
          // Pat Jets
          if ( inputTags == "PatJets" )
          {
+            if ( patJetCounter == 0 && jecRecords_.size() > 0  ) std::cout << "*** Jet Energy Corrections Records - PatJets ***" << std::endl;
             patjets_collections_.push_back( pPatJetCandidates( new PatJetCandidates(collection, tree_[name], is_mc_ ) ));
-            patjets_collections_.back() -> Init(btagVars_);
+            if ( jecRecords_.size() > 0 )
+            {
+               patjets_collections_.back() -> Init(btagVars_,jecRecords_[patJetCounter]);
+               if ( jecRecords_[patJetCounter] != "" )
+                  std::cout << name << " => "  << jecRecords_[patJetCounter] << std::endl;
+            }
+            else
+            {
+               patjets_collections_.back() -> Init(btagVars_);
+            }
+            ++patJetCounter;
          }
          // Pat METs
          if ( inputTags == "PatMETs" )

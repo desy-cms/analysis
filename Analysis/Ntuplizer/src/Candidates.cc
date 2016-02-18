@@ -51,6 +51,8 @@
 
 #include "Analysis/Ntuplizer/interface/Candidates.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
+
 #include "TTree.h"
 
 
@@ -65,6 +67,7 @@ using namespace analysis::ntuple;
 namespace analysis {
    namespace ntuple {
       template <> void Candidates<pat::TriggerObject>::ReadFromEvent(const edm::Event& event);
+      template <> void Candidates<pat::Jet>::JECRecord(const std::string & jr);
  }
 }   
 //
@@ -116,6 +119,9 @@ Candidates<T>::Candidates(const edm::InputTag& tag, TTree* tree, const bool & mc
    id_vars_.push_back({"chargedEmEnergyFraction",     "id_cEmFrac" });
    id_vars_.push_back({"chargedMultiplicity",         "id_cMult"   });
    id_vars_.push_back({"muonEnergyFraction",          "id_muonFrac"});
+   
+   // init
+   btag_vars_.clear();
     
 }
 
@@ -243,6 +249,19 @@ void Candidates<T>::Kinematics()
             if (jet->genParton())
             physicsFlavour_[n] = jet->genParton()->pdgId();
          }
+         
+         // JEC Uncertainties
+         if ( jecRecord_ != "" )
+         {
+            jecUnc_->setJetEta(eta_[n]);
+            jecUnc_->setJetPt(pt_[n]);
+            jecUncert_[n] = jecUnc_->getUncertainty(true);
+//            std::cout << pt_[n] << " +- " << jecUncert_[n] << std::endl;
+         }
+         else
+         {
+            jecUncert_[n] = -1.;
+         }
       }
       if ( is_pfjet_ )
       {
@@ -284,6 +303,18 @@ void Candidates<T>::Kinematics()
    n_ = n;
 
 }
+template <typename T>
+void Candidates<T>::JECRecord(const std::string& jr)
+{
+   jecRecord_ = "";
+}
+
+template <>
+void Candidates<pat::Jet>::JECRecord(const std::string& jr)
+{
+   jecRecord_ = jr;
+}
+
 
 template <typename T>
 void Candidates<T>::MinPt(const float& minPt)
@@ -310,6 +341,20 @@ void Candidates<T>::Fill(const edm::Event& event)
    ReadFromEvent(event);
    if ( do_kinematics_ ) Kinematics();
    Fill();
+}
+
+template <typename T>
+void Candidates<T>::Fill(const edm::Event& event, const edm::EventSetup& setup)
+{
+   if ( jecRecord_ != "" )
+   {
+      edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
+      setup.get<JetCorrectionsRecord>().get(jecRecord_,JetCorParColl); 
+      JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
+      jecUnc_ = std::unique_ptr<JetCorrectionUncertainty>(new JetCorrectionUncertainty(JetCorPar));
+   }
+   
+   Fill(event);
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -347,6 +392,10 @@ void Candidates<T>::Branches()
          tree_->Branch("hadronFlavour",  hadronFlavour_,   "hadronFlavour[n]/I" );
          tree_->Branch("partonFlavour",  partonFlavour_,   "partonFlavour[n]/I" );
          tree_->Branch("physicsFlavour", physicsFlavour_,  "physicsFlavour[n]/I");
+         
+         if ( jecRecord_ != "" )
+            tree_->Branch("jecUncert", jecUncert_, "jecUncert[n]/F");
+         
       }
       if ( is_pfjet_ || is_patjet_ )
       {
@@ -380,6 +429,13 @@ void Candidates<T>::Branches()
       
    
 }
+template <typename T>
+void Candidates<T>::Init( const std::vector<TitleAlias> & btagVars, const std::string & jr )
+{
+   jecRecord_ = jr;
+   Init(btagVars);
+}
+
 
 template <typename T>
 void Candidates<T>::Init( const std::vector<TitleAlias> & btagVars )
@@ -387,9 +443,14 @@ void Candidates<T>::Init( const std::vector<TitleAlias> & btagVars )
    btag_vars_ = btagVars;
    if ( btag_vars_.size() > 15 )
       btag_vars_.erase(btag_vars_.begin()+15,btag_vars_.end());
+   Init();
    
+}
+
+template <typename T>
+void Candidates<T>::Init()
+{
    Branches();
-   
 }
 
 // Need to declare all possible template classes here
