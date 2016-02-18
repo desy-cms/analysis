@@ -393,7 +393,7 @@ void Candidates<T>::Branches()
          tree_->Branch("partonFlavour",  partonFlavour_,   "partonFlavour[n]/I" );
          tree_->Branch("physicsFlavour", physicsFlavour_,  "physicsFlavour[n]/I");
          
-         if ( jecRecord_ != "" )
+//         if ( jecRecord_ != "" )
             tree_->Branch("jecUncert", jecUncert_, "jecUncert[n]/F");
          
       }
