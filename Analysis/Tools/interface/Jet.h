@@ -42,12 +42,14 @@ namespace analysis {
             int   flavour(const std::string & definition = "Hadron");
             bool  idLoose();
             bool  idTight();
+            float jecUncert();
             
             void btag(const float &);
             void flavour(const int &);
             void flavour(const std::string & definition, const int & value);
             void idLoose(const bool &);
             void idTight(const bool &);
+            void jecUncert(const float &);
             
             void id(const float & nHadFrac,
                     const float & nEmFrac ,
@@ -67,6 +69,7 @@ namespace analysis {
             std::map<std::string, int> flavour_;
             bool  idloose_;
             bool  idtight_;
+            float jecUnc_;
          private:
             // ----------member data ---------------------------
             
@@ -76,18 +79,20 @@ namespace analysis {
       // INLINE IMPLEMENTATIONS
          
       // Gets
-      inline float Jet::btag()    const { return btag_;    }                   
-      inline int   Jet::flavour() { return flavour_["Hadron"]; }                   
+      inline float Jet::btag() const { return btag_;    }                   
+      inline int   Jet::flavour()   { return flavour_["Hadron"]; }                   
       inline int   Jet::flavour(const std::string & definition) { return flavour_[definition]; }                   
-      inline bool  Jet::idLoose() { return idloose_; }                   
-      inline bool  Jet::idTight() { return idtight_; }         
+      inline bool  Jet::idLoose()   { return idloose_; }                   
+      inline bool  Jet::idTight()   { return idtight_; }         
+      inline float Jet::jecUncert() { return jecUnc_;    }                   
                 
       // Sets                                                             
-      inline void Jet::btag    (const float & btag) { btag_    = btag; } 
-      inline void Jet::flavour (const int   & flav) { flavour_["Hadron"] = flav; } 
-      inline void Jet::flavour (const std::string & definition, const int   & flav) { flavour_[definition] = flav; } 
-      inline void Jet::idLoose (const bool  & loos) { idloose_ = loos; } 
-      inline void Jet::idTight (const bool  & tigh) { idtight_ = tigh; } 
+      inline void Jet::btag     (const float & btag) { btag_    = btag; } 
+      inline void Jet::flavour  (const int   & flav) { flavour_["Hadron"] = flav; } 
+      inline void Jet::flavour  (const std::string & definition, const int   & flav) { flavour_[definition] = flav; } 
+      inline void Jet::idLoose  (const bool  & loos) { idloose_ = loos; } 
+      inline void Jet::idTight ( const bool  & tigh) { idtight_ = tigh; } 
+      inline void Jet::jecUncert(const float & ju)   { jecUnc_  = ju; } 
    }
 }
 

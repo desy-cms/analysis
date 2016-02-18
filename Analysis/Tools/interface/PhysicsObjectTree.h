@@ -80,6 +80,7 @@ namespace analysis {
             float muFrac_  [max_];
             bool  idLoose_ [max_];
             bool  idTight_ [max_];
+            float jecUnc_  [max_];
 
          private:
 
