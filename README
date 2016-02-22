@@ -14,8 +14,8 @@ cmsenv
 git clone https://github.com/desy-cms/analysis.git .
 scram b -j4
 
-## If you want to use a frozen tag (latest one is winter15-pre1 from 22 Feb 2016)
-git checkout tags/winter15-pre1 -b winter15-pre1
+## If you want to use a frozen tag (latest one is winter15-pre2 from 22 Feb 2016)
+git checkout tags/winter15-pre2 -b winter15-pre2
 scram b distclean
 scram b -j4
 
