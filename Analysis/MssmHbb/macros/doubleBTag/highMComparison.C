@@ -7,16 +7,15 @@
 
 double M12FitFunction(double *x, double *par);
 
-void ComparisonLeaves()
+void highMComparison()
 {
 	gROOT -> Reset();
    //gStyle->SetOptFit(1111);
    //gROOT->ForceStyle();
 
-   TFile * fData = new TFile("/nfs/dust/cms/user/shevchen/output/DoubleBTagSelection_samples_12_02_2016.root");
-//   TFile * fMonteCarlo = new TFile("/nfs/dust/cms/user/shevchen/output/DoubleBTagSelectionPythia8_30_01_2016.root");
-   TFile * fMonteCarlo = new TFile("/nfs/dust/cms/user/shevchen/output/DoubleBTagSelection_QCD_Pt_12_02_2016.root");
-   std::string mcName = "QCD #hat{p_{T}}, 13 TeV Pythia8";
+   TFile * fData = new TFile("/nfs/dust/cms/user/shevchen/output/DoubleBTagSelection_HighMass_samples_14_02_2016.root");
+   TFile * fMonteCarlo = new TFile("/nfs/dust/cms/user/shevchen/output/DoubleBTagSelection_HighMass_QCD_14_02_2016.root");
+   std::string mcName = "QCD HT 13 TeV Pythia8";
 
    TTree *dataTree, *mcTree;
    fMonteCarlo -> GetObject("MssmHbb",mcTree);
@@ -24,11 +23,11 @@ void ComparisonLeaves()
 
    //Setup style
    HbbStyle style;
-   style.set(PRIVATE);
+   style.set(PUBLIC);
    TH1::SetDefaultSumw2();
 
    //Setup ratio plots
-   RatioPlots *ratio = new RatioPlots(PRIVATE);
+   RatioPlots *ratio = new RatioPlots(PUBLIC);
    ratio->SetRatioTitle("Data / MC"); // Default Title for Ratio plot Y-axis
    ratio->SetRatioRange(0.2,1.8);	// Default Y-axis range for Ratio plot
 
@@ -38,11 +37,11 @@ void ComparisonLeaves()
    //TCut section
    TCut weightLumi = "LumiWeight";
    TCut weightPt  = "TwoDPtWeight";
-   TCut weightdEta = "dEtaWeight";
-   TCut weightBTag = "BTagWeight";
+   TCut weightdEta = "";
+   TCut weightBTag = "";
    TCut weightPtFactorization = "FactorizationPtWeight";
    TCut ptSystWeight = "abs(FactorizationPtWeight - TwoDPtWeight)";
-   TCut btagSFcentral = "BTagSFcentral[0] * BTagSFcentral[1]";
+   TCut btagSFcentral = "";
    TCut btagSFup = "BTagSFup[0] * BTagSFup[1]";
    TCut btagSFdown = "BTagSFdown[0] * BTagSFdown[1]";
 
@@ -50,15 +49,15 @@ void ComparisonLeaves()
    //.....................Ht bins.........................
    TCanvas *canva001 = new TCanvas("canva001","Jet multiplicity",1000,800);
 
-   const int NumberofHtBins = 37;
-   double HtBins[NumberofHtBins+1]={200,205,210,215,220,
-		   	   	   	   	   	   	    240,260,280,300,330,
+
+   double HtBins[]={320,330,
 									360,390,420,450,480,
 									510,550,600,650,700,
 									750,800,850,900,950,
 									1000,1100,1200,1300,1400,
 									1500,1600,1700,1800,1900,
    	   	   	   	   	   	   	   	   	2000,2200,2600};
+   const int NumberofHtBins = sizeof(HtBins)/sizeof(double) -1;
 
    //Main Histograms
    TH1F *fHtMC = new TH1F("fHtMC","First Leading Jet Pt",NumberofHtBins,HtBins);
@@ -123,10 +122,11 @@ void ComparisonLeaves()
 
 //   TH1F *ratioPt = (TH1F*) fHtData->Clone("ratioPt");
 
-   TH1F *ratioHt = ratio->DrawRatio(fHtData,fHtMC,fHtMCSyst,leg_pt1,canva001);
+   TH1F *null_ptr = NULL;
+
+   TH1F *ratioHt = ratio->DrawRatio(fHtData,fHtMC,null_ptr,leg_pt1,canva001);
    ratio->GetTopPad()->SetLogy();
    ratioHt->GetXaxis()->SetRangeUser(0.,2600.);
-   canva001->SaveAs("pictures/ht.png");
 
    TFile *Htratio = new TFile("HtRatio.root","recreate");
    ratioHt->Write();
@@ -198,17 +198,17 @@ void ComparisonLeaves()
 
 //   TH1F *ratioPt = (TH1F*) fNjetsData->Clone("ratioPt");
 
-   TH1F *ratioN = ratio->DrawRatio(fNjetsData,fNjetsMC,fNjetsMCSyst,leg_pt1,canva000);
+   TH1F *ratioN = ratio->DrawRatio(fNjetsData,fNjetsMC,null_ptr,leg_pt1,canva000);
    ratio->GetTopPad()->SetLogy();
    ratioN->GetXaxis()->SetRangeUser(0.,14.);
-   canva000->SaveAs("pictures/Multiplicity.png");
    //ratio->DrawPhaseSpaceDescription(100.,0.1,450.,3.);
 
    //..............................Pt1 ....................
    TCanvas *canva00 = new TCanvas("canva00","Pt1",1000,800);
 
-   const int NumberOfPtBins = 24;
-   double PtBins[NumberOfPtBins+1]={100,110,120,130,140,150,160,170,180,190,200,225,250,275,300,325,350,375,400,450,500,575,650,750,1000};
+
+   double PtBins[]={160,170,180,190,200,225,250,275,300,325,350,375,400,450,500,575,650,750,1000};
+   const int NumberOfPtBins = sizeof(PtBins)/sizeof(double)-1;
 
    //Main Histograms
    TH1F *fLeadPtMC = new TH1F("fLeadPtMC","First Leading Jet Pt",NumberOfPtBins,PtBins);
@@ -273,12 +273,11 @@ void ComparisonLeaves()
 
 //   TH1F *ratioPt = (TH1F*) fLeadPtData->Clone("ratioPt");
 
-   TH1F *ratioPt = ratio->DrawRatio(fLeadPtData,fLeadPtMC,fLeadPtMCSyst,leg_pt1,canva00);
+   TH1F *ratioPt = ratio->DrawRatio(fLeadPtData,fLeadPtMC,null_ptr,leg_pt1,canva00);
    ratio->GetTopPad()->SetLogy();
    ratioPt->GetXaxis()->SetRangeUser(0.,1000.);
-   canva00->SaveAs("pictures/pt1.png");
    //ratio->DrawPhaseSpaceDescription(100.,0.1,450.,3.);
-
+/*
    //..............................Pt2 ....................
    TCanvas *canva01 = new TCanvas("canva01","Pt2",1000,800);
 
@@ -339,7 +338,6 @@ void ComparisonLeaves()
    ratio->GetTopPad()->SetLogy();
    ratioPt2->GetXaxis()->SetRangeUser(0.,1000.);
    ratio->DrawPhaseSpaceDescription(100.,0.01,450.,.3);
-   canva01->SaveAs("pictures/pt2.png");
 
    //.........................(Pt1-Pt2)/(Pt1+Pt2)..................
    TCanvas *canva02 = new TCanvas("canva02","PtAsym",1000,800);
@@ -403,7 +401,6 @@ void ComparisonLeaves()
    ratio->GetTopPad()->SetLogy();
    ratioPtAssym->GetXaxis()->SetRangeUser(0.,0.6);
    ratio->DrawPhaseSpaceDescription(0.03,500,0.22,9000);
-   canva02->SaveAs("pictures/pt_asym.png");
 
    //........................dEta plot.............................
    TCanvas *canva03 = new TCanvas("canva03","dEta",1000,800);
@@ -467,11 +464,10 @@ void ComparisonLeaves()
    ratioDEta = ratio->DrawRatio(dEtaData,dEtaMC,dEtaMCSyst,leg_pt2,canva03);
    ratioDEta->GetXaxis()->SetRangeUser(-2.,2.);
    ratio->DrawPhaseSpaceDescription(-1.6,10000,-0.5,70000);
-   canva03->SaveAs("pictures/dEta.png");
 
    //..............................M12 ....................
    TCanvas *canva04 = new TCanvas("canva04","M12",1000,800);
-   double M12Bins[] = {200,220,240,260,280,300,320,340,360,380,400,420,440,460,480,500,520,540,560,580,600,620,640,660,700,750,800,850,940,1100};
+   double M12Bins[] = {200,220,240,260,280,300,320,340,360,380,400,420,440,460,480,500,520,540,560,580,600,620,640,660,700,750,800,850,900,1000};
    const int NumberM12Bins = sizeof(M12Bins)/sizeof(double) -1;
    //Central values
    //Main Histograms
@@ -507,11 +503,6 @@ void ComparisonLeaves()
 	   M12Data->SetBinContent(i,M12Data->GetBinContent(i)/(M12Bins[i]-M12Bins[i-1]));
 	   M12Data->SetBinError(i,M12Data->GetBinError(i)/(M12Bins[i]-M12Bins[i-1]));
 
-	   if( M12Data->GetBinLowEdge(i) > 540 && (M12Data->GetBinLowEdge(i) + M12Data->GetBinWidth(i)) <= 940 ){
-		   M12Data->SetBinContent(i,0);
-		   M12Data->SetBinError(i,0);
-	   }
-
 	   M12MC->SetBinContent(i,M12MC->GetBinContent(i)/(M12Bins[i]-M12Bins[i-1]));
 	   M12MC->SetBinError(i,M12MC->GetBinError(i)/(M12Bins[i]-M12Bins[i-1]));
 
@@ -536,7 +527,6 @@ void ComparisonLeaves()
    ratioM12->GetXaxis()->SetRangeUser(200.,1000.);
    ratioM12->SetTitle(";di-jet Mass (GeV);Data / MC");
    ratio->DrawPhaseSpaceDescription(240.,3,480.,30);
-   canva04->SaveAs("pictures/M12.png");
 
 
    //........................Eta1 plot.............................
@@ -602,17 +592,16 @@ void ComparisonLeaves()
    ratiofEta = ratio->DrawRatio(fEtaData,fEtaMC,fEtaMCSyst,leg_pt3,canva10);
    ratiofEta->GetXaxis()->SetRangeUser(-2.4,2.4);
    ratio->DrawPhaseSpaceDescription(-1.45,10000,0.2,70000);
-   canva10->SaveAs("pictures/eta1.png");
-
+*/
    //..............BTag Discriminant................
 
    TCanvas *canva05 = new TCanvas("canva05","BTagDiscr",1000,800);
    //Central values
    //Main Histograms
-   TH1F *BTagDiscrMC = new TH1F("BTagDiscrMC","First Leading Jet Pt",30,0.94,1.);
-   TH1F *BTagDiscrMCSyst = new TH1F("BTagDiscrMCSyst","First Leading Jet Pt",30,0.94,1.);
-   TH1F *BTagDiscrData = new TH1F("BTagDiscrData",";BTagCSV discr. ; dN / dD_{BTagCSV} ",30,0.94,1.);
-   BTagDiscrData->GetXaxis()->SetRangeUser(0.93,1.);
+   TH1F *BTagDiscrMC = new TH1F("BTagDiscrMC","First Leading Jet Pt",30,0.85,1.);
+   TH1F *BTagDiscrMCSyst = new TH1F("BTagDiscrMCSyst","First Leading Jet Pt",30,0.85,1.);
+   TH1F *BTagDiscrData = new TH1F("BTagDiscrData",";BTagCSV discr. ; dN / dD_{BTagCSV} ",30,0.85,1.);
+   BTagDiscrData->GetXaxis()->SetRangeUser(0.85,1.);
 
    mcTree ->Draw("LeadBTag[0]>>BTagDiscrMCSyst",weightLumi*weightBTag*weightPt*weightdEta*btagSFcentral,"E");
    mcTree ->Draw("LeadBTag[0]>>BTagDiscrMC",weightLumi*weightBTag*weightPt*weightdEta*btagSFcentral,"E");
@@ -660,12 +649,11 @@ void ComparisonLeaves()
    systCalc->AddUncorelatedSystErrors(BTagDiscrMCSyst);
 
    TH1F *ratioBTagDiscr;
-   ratioBTagDiscr = ratio->DrawRatio(BTagDiscrData,BTagDiscrMC,BTagDiscrMCSyst,leg_pt1,canva05);
-   ratioBTagDiscr->GetXaxis()->SetRangeUser(0.93,1.);
+   ratioBTagDiscr = ratio->DrawRatio(BTagDiscrData,BTagDiscrMC,null_ptr,leg_pt1,canva05);
+   ratioBTagDiscr->GetXaxis()->SetRangeUser(0.85,1.);
    ratioBTagDiscr->SetTitle(";BTagCSV discr. ;Data / MC");
-   ratio->DrawPhaseSpaceDescription(0.942,45000000,0.96,62000000);
-   canva05->SaveAs("pictures/Btag1.png");
-
+   ratio->DrawPhaseSpaceDescription(0.85,45000000,0.96,62000000);
+/*
    // ..........Flavour Composition..........
    TCanvas *canva11 = new TCanvas("canva11","Flavour Comp",1000,800);
    TH1F *DataFlav = (TH1F*)M12Data->Clone("DataFlav");

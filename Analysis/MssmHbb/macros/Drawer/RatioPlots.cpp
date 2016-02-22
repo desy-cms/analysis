@@ -24,8 +24,8 @@ public:
 	RatioPlots(const PublicationStatus status);
 	virtual ~RatioPlots();
 
-	TH1F *DrawRatio(TH1 *numerator, TH1 *denumerator, TH1 *systErr, TLegend *leg, TCanvas *can);
-	TH1F *DrawRatio(TH1 *numerator, TH1 *denumerator, TGraphAsymmErrors *systErr, TLegend *leg, TCanvas *can);
+	TH1F *DrawRatio(TH1 *numerator, TH1 *denumerator, TH1 *systErr = 0, TLegend *leg = 0, TCanvas *can = 0);
+	TH1F *DrawRatio(TH1 *numerator, TH1 *denumerator, TGraphAsymmErrors *systErr = NULL, TLegend *leg = NULL, TCanvas *can = NULL);
 	void DrawPhaseSpaceDescription(float x1, float y1, float x2, float y2);
 	bool FindMaximum(TH1*,TH1*);
 	TGraphAsymmErrors * CreateSystTGraph(TH1 *central, TH1 *up, TH1 *down);
@@ -141,10 +141,11 @@ TH1F* RatioPlots::DrawRatio(TH1 *numerator, TH1 *denumerator, TH1 *systErr, TLeg
 	if(systErr){
 	TH1 *RatioSyst = (TH1*) systErr->Clone("RatioSyst");
 	RatioSyst->Divide(numerator,RatioSyst);
-	RatioSyst->SetFillColor(1);
+	RatioSyst->SetFillColor(kMagenta-10);
 	RatioSyst->SetFillStyle(3001);
 	RatioSyst->Draw("E5 same");
 	}
+
 	return hRatio;
 }
 
@@ -211,7 +212,7 @@ TH1F* RatioPlots::DrawRatio(TH1 *numerator, TH1 *denumerator, TGraphAsymmErrors 
 		RatioSyst->SetPointError(i-1,0,0,eyl,eyh);
 
 	}
-	RatioSyst->SetFillColor(1);
+	RatioSyst->SetFillColor(kGreen-9);
 	RatioSyst->SetFillStyle(3001);
 	RatioSyst->Draw("3");
 	}
@@ -227,20 +228,35 @@ bool RatioPlots::FindMaximum(TH1* first, TH1 *second){
 
 void RatioPlots::SetBottomStyle(TH1 *hRatio){
 
+	/*
    hRatio -> GetYaxis() -> SetNdivisions(505);
    hRatio -> GetYaxis() -> SetTitleSize(0.13);
 //   hRatio -> GetYaxis() -> SetTitleFont(60);
    hRatio -> GetYaxis() -> SetTitleOffset(0.7);
-   hRatio -> GetYaxis() -> SetLabelFont(44); // Absolute font size in pixel (precision 3)
+   hRatio -> GetYaxis() -> SetLabelFont(43); // Absolute font size in pixel (precision 3)
    hRatio -> GetYaxis() -> SetLabelSize(23);
 
    // X axis ratio plot settings
    hRatio -> GetXaxis() -> SetTitleSize(0.13);
    hRatio -> GetXaxis() -> SetTitleOffset(0.85);
-   hRatio -> GetXaxis() -> SetLabelFont(44); // Absolute font size in pixel (precision 3)
+   hRatio -> GetXaxis() -> SetLabelFont(43); // Absolute font size in pixel (precision 3)
    hRatio -> GetXaxis() -> SetLabelSize(23);
+   */
 
-   hRatio -> SetTickLength(0.1,"XZ");
+	hRatio -> SetNdivisions(505,"XYZ");
+	hRatio -> SetTickLength(0.04,"YZ");
+	hRatio -> SetTickLength(0.07,"X");
+	hRatio -> SetTitleSize(0.06*7/3,"XYZ");
+	hRatio -> SetTitleFont(42,"XYZ");
+
+	hRatio -> SetLabelFont(42,"XYZ");
+	hRatio -> SetLabelSize(0.05*7/3,"XYZ");
+	hRatio -> SetLabelOffset(0.01,"XYZ");
+
+	hRatio -> GetYaxis() -> SetTitleOffset(0.6);
+	hRatio -> GetXaxis() -> SetTitleOffset(0.8);
+
+
 }
 
 void RatioPlots::DrawPhaseSpaceDescription(float x1, float y1, float x2, float y2){

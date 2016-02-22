@@ -29,9 +29,9 @@ using namespace analysis::mssmhbb;
 //
 // constructors and destructor
 //
-TriggerEfficiency::TriggerEfficiency(const std::string & inputFilelist, const std::string & evtinfo) : Analysis(inputFilelist,evtinfo)
+TriggerEfficiency::TriggerEfficiency(const std::string & inputFilelist, const std::string & evtinfo) : MssmHbb(inputFilelist,evtinfo)
 {
-	OutTree = new TTree("OutTree","");
+
 }
 
 TriggerEfficiency::~TriggerEfficiency()
@@ -40,41 +40,72 @@ TriggerEfficiency::~TriggerEfficiency()
    // (e.g. close files, deallocate resources etc.)
 }
 
-//......Add your methods ......
+void TriggerEfficiency::setBranches(){
 
-void TriggerEfficiency::addTriggerObjects(const std::vector<std::string> &triggerObjectName, const std::string & path)
-{
-	if(triggerObjectName.size() == 0)
-	{
-		std::cerr<<"Error: Empty vector of triggerObjectNames were sepcified. Interupt!"<<std::endl;
-		exit(0);
+	//Set number of the trigger objects;
+	int i = 0;
+	for(const auto & triggerObject : triggerObjectName_){
+		OutTree_->Branch(("N_"+triggerObject).c_str(),&NTrigObj_[i],("N_"+triggerObject+"/I").c_str());
+		++i;
 	}
-	
-	triggerObjectName_ = triggerObjectName;
-	for(const auto & triggerObject : triggerObjectName)
-	{
-		this->addTree<TriggerObject>(triggerObject,(path + triggerObject).c_str());
-	}
-	
+
+	OutTree_->Branch("PFJet80",&PFJet80_,"PFJet80/I");
+	OutTree_->Branch("PFJet60",&PFJet60_,"PFJet60/I");
+
+	OutTree_->Branch("LeadMatch60",LeadMatch60_,"LeadMatch60[20]/I");
+	OutTree_->Branch("LeadMatch80",LeadMatch80_,"LeadMatch80[20]/I");
+	OutTree_->Branch("LeadMatch100",LeadMatch100_,"LeadMatch100[20]/I");
+	OutTree_->Branch("LeadMatch160",LeadMatch160_,"LeadMatch160[20]/I");
+	OutTree_->Branch("LeadMatch100dEta1p6",LeadMatch100dEta1p6_,"LeadMatch100dEta1p6[20]/I");
+	OutTree_->Branch("doubleJetTopology",&doubleJetTolopogy_,"doubleJetTopology/I");
+
+	BasicTree::setBranches();
 }
 
-void TriggerEfficiency::fillTree(){
-	OutTree ->Fill();
+
+void TriggerEfficiency::cleanVariables(){
+
+	//Clean Basic variables
+	BasicTree::cleanVariables();
+
+	//Clean Specific for MssmHbb analysis variables
+	std::fill_n(NTrigObj_,20,-100);
+	std::fill_n(LeadMatch60_,20,-100);
+	std::fill_n(LeadMatch80_,20,-100);
+	std::fill_n(LeadMatch100_,20,-100);
+	std::fill_n(LeadMatch160_,20,-100);
+	std::fill_n(LeadMatch100dEta1p6_,20,-100);
+	doubleJetTolopogy_ = -100;
+
+	if(isMC()){
+
+	}
 }
 
-void TriggerEfficiency::writeTree(){
-	OutTree ->Write();
+void TriggerEfficiency::setTriggerObjectVars(){
+
+	int i = 0;
+	for(const auto & triggerObject : triggerObjectName_){
+		NTrigObj_[i] = this->collection<TriggerObject>(triggerObject)->size();
+		++i;
+	}
+
+	PFJet60_ = this->triggerResult("HLT_PFJet60_v");
+	PFJet80_ = this->triggerResult("HLT_PFJet80_v");
+
 }
 
 bool TriggerEfficiency::matchToPF60(const Jet &jet){
 	bool matched = false;
 	if(jet.matched("hltL1sL1SingleJet36") && jet.matched("hltSingleCaloJet40") &&jet.matched("hltSinglePFJet60") ) matched = true;
+	LeadMatch60_[jetCounter_] = matched;
 	return matched;
 }
 
 bool TriggerEfficiency::matchToPF80(const Jet &jet){
 	bool matched = false;
 	if(jet.matched("hltL1sL1SingleJet52") && jet.matched("hltSingleCaloJet50") &&jet.matched("hltSinglePFJet80") ) matched = true;
+	LeadMatch80_[jetCounter_] = matched;
 	return matched;
 }
 
@@ -84,110 +115,30 @@ bool TriggerEfficiency::matchToPF100(const Jet &jet){
 	const Candidate * l2 = jet.matched("hltSingleCaloJet50");
 	const Candidate * l3 = jet.matched("hltSinglePFJet80");
 	if( l1 && l2 && l3 && l1->pt() > 100 && l2->pt() > 100  && l3->pt() > 100) matched = true;
+	LeadMatch100_[jetCounter_] = matched;
 	return matched;
 }
 
-void TriggerEfficiency::setBranches(){
-
-	OutTree->Branch("LeadPt", LeadPt,"LeadPt[4]/D");
-	OutTree->Branch("LeadEta", LeadEta,"LeadEta[4]/D");
-	OutTree->Branch("LeadPhi", LeadPhi,"LeadPhi[4]/D");
-	OutTree->Branch("LeadBTag", LeadBTag,"LeadBTag[4]/D");
-	OutTree->Branch("dPhiFS",&dPhiFS,"dPhiFS/D");
-	OutTree->Branch("dEtaFS",&dEtaFS,"dEtaFS/D");
-	OutTree->Branch("Njets",&Njets,"Njets/I");
-
-	OutTree->Branch("Njets80",&Njets80,"Njets80/I");
-
-	OutTree->Branch("hpf60for100_Num",&hpf60for100_Num,"hpf60for100_Num/D");
-	OutTree->Branch("hpf60for100_Denum",&hpf60for100_Denum,"hpf60for100_Denum/D");
-	OutTree->Branch("hpf60for80_Num",&hpf60for80_Num,"hpf60for80_Num/D");
-	OutTree->Branch("hpf60for80_Denum",&hpf60for80_Denum,"hpf60for80_Denum/D");
-	OutTree->Branch("hpf100_Num",hpf100_Num,"hpf100_Num[4]/D");
-	OutTree->Branch("hpf100_Denum",hpf100_Denum,"hpf100_Denum[4]/D");
-
-	OutTree->Branch("TnP40_tag",&TnP40_tag,"TnP40_tag/D");
-	OutTree->Branch("TnP40_probe",&TnP40_probe,"TnP40_probe/D");
-	OutTree->Branch("TnP60_tag",&TnP60_tag,"TnP60_tag/D");
-	OutTree->Branch("TnP60_probe",&TnP60_probe,"TnP60_probe/D");
-	OutTree->Branch("TnP80_tag",&TnP80_tag,"TnP80_tag/D");
-	OutTree->Branch("TnP80_probe",&TnP80_probe,"TnP80_probe/D");
-	OutTree->Branch("TnP100_tag",TnP100_tag,"TnP100_tag[4]/D");
-	OutTree->Branch("TnP100_probe",TnP100_probe,"TnP100_probe[4]/D");
-
-	OutTree->Branch("LeadMatch60",LeadMatch60,"LeadMatch60[4]/I");
-	OutTree->Branch("LeadMatch80",LeadMatch80,"LeadMatch80[4]/I");
-	OutTree->Branch("LeadMatch100",LeadMatch100,"LeadMatch100[4]/I");
-
-	OutTree->Branch("NL1Object",&NL1Object,"NL1Object/I");
-	OutTree->Branch("NL2Object",&NL2Object,"NL2Object/I");
-	OutTree->Branch("NL3Object",&NL3Object,"NL3Object/I");
-
-	OutTree->Branch("weightPtTnP",&weightPtTnP,"weightPtTnP/D");
-	OutTree->Branch("weightPtRef",&weightPtRef,"weightPtRef/D");
-	OutTree->Branch("weightPtComb",&weightPtComb,"weightPtComb/D");
-
-	OutTree->Branch("ptVeto",&ptVeto,"ptVeto/D");
-	OutTree->Branch("M12",&M12,"M12/D");
-	if(this->isMC()){
-		OutTree->Branch("mcModel_Num",mcModel_Num,"mcModel_Num[4]/D");
-		OutTree->Branch("mcModel_Denum",mcModel_Denum,"mcModel_Denum[4]/D");
-		OutTree->Branch("weightLumi",&weightLumi,"weightLumi/D");
-	}
+bool TriggerEfficiency::matchToPF160(const Jet &jet){
+	bool matched = false;
+	const Candidate * l1 = jet.matched("hltL1sL1SingleJet52");
+	const Candidate * l2 = jet.matched("hltSingleCaloJet50");
+	const Candidate * l3 = jet.matched("hltSinglePFJet80");
+	if( l1 && l2 && l3 && l1->pt() > 100 && l2->pt() > 100  && l3->pt() > 160) matched = true;
+	LeadMatch160_[jetCounter_] = matched;
+	return matched;
 }
 
-void TriggerEfficiency::zeroingBranches(){
+bool TriggerEfficiency::matchToPF100dEta1p6(const Jet &jet1 , const Jet &jet2){
+	bool matched = false;
+	const Candidate * J1l1 = jet1.matched("hltL1sL1SingleJet52");
+	const Candidate * J1l2 = jet1.matched("hltSingleCaloJet50");
+	const Candidate * J1l3 = jet1.matched("hltSinglePFJet80");
 
-	std::fill_n(LeadPt,4,-100.);
-	std::fill_n(LeadEta,4,-100.);
-	std::fill_n(LeadPhi,4,-100.);
-	std::fill_n(LeadBTag,4,-100.);
-
-    Njets = -100;
-    Njets80 = -100;
-
-    dPhiFS 	= -100;
-    dEtaFS 	= -100;
-    Njets = -100;
-
-    // Reference efficiency variables:
-    hpf60for100_Num = -100;
-    hpf60for100_Denum = -100;
-    hpf60for80_Num = -100;
-    hpf60for80_Denum = -100;
-    std::fill_n(hpf100_Num,4,-100);
-    std::fill_n(hpf100_Denum,4,-100);
-
-    // T&P efficiency variables:
-    TnP60_tag = -100;
-    TnP60_probe = -100;
-    TnP80_tag = -100;
-    TnP80_probe = -100;
-    std::fill_n(TnP100_tag,4,-100.);
-    std::fill_n(TnP100_probe,4,-100);
-
-    //Trigger Matching variables:
-    std::fill_n(LeadMatch60,4,0);
-    std::fill_n(LeadMatch80,4,0);
-    std::fill_n(LeadMatch100,4,0);
-
-    //Trigger Object variables:
-    	   //L1
-    NL1Object = -100;
-    	   //L2
-    NL2Object = -100;
-    	   //L3
-    NL3Object = -100;
-    //Other variables
-    ptVeto = -100;
-    M12 = -100;
-
-    //Only MC variables:
-    std::fill_n(mcModel_Num,4,-100);
-    std::fill_n(mcModel_Denum,4,-100);
-    weightPtTnP = -100;
-    weightPtRef = -100;
-    weightPtComb = -100;
-    weightLumi = -100;
+	const Candidate * J2l1 = jet2.matched("hltL1sL1SingleJet52");
+	const Candidate * J2l2 = jet2.matched("hltSingleCaloJet50");
+	const Candidate * J2l3 = jet2.matched("hltSinglePFJet80");
+	if( J1l1 && J1l2 && J1l3 && J2l1 && J2l2 && J2l3&& abs(J1l3->eta() - J2l3->eta()) <= 1.6) matched = true;
+	LeadMatch100dEta1p6_[jetCounter_] = matched;
+	return matched;
 }
-
