@@ -1,4 +1,4 @@
-#include "Analysis/MssmHbb/src/HbbStyle.cc"
+#include "Analysis/MssmHbb/macros/Drawer/HbbStyle.cc"
 #include "TCut.h"
 #include "TF2.h"
 #include "TGraph.h"
@@ -35,7 +35,7 @@ void DataTwoDEff()
    //..............................Pt efficiency....................
    int bin40to60 = 90;
    int bin60to80 = 115;
-   TCut cut = "dPhiFS>2.7";// && Njets == 2 && NL1Object >= 2";//"ptVeto < 10 && ((fLeadPt - sLeadPt)/(fLeadPt + sLeadPt) <= 0.2) && abs(fLeadEta) <= 2. && abs(sLeadEta)<=2";
+   TCut cut = "dPhiFS>2.7 && abs(LeadEta[0]) < 2.2 && abs(LeadEta[1]) < 2.2";// && Njets == 2 && NL1Object >= 2";//"ptVeto < 10 && ((fLeadPt - sLeadPt)/(fLeadPt + sLeadPt) <= 0.2) && abs(fLeadEta) <= 2. && abs(sLeadEta)<=2";
    TCut cutPFJet80Match, cutRefRew, cutPfJet100Match, cutTnPRew;
    cutPFJet80Match = "LeadMatch80[0] == 1 && LeadMatch80[1] == 1";
    cutRefRew = "weightPtRef";

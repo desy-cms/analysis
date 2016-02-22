@@ -26,7 +26,7 @@
 
 
 // Publication status: determines what is plotted in title
-enum PublicationStatus { INTERNAL, INTERNAL_SIMULATION, PRELIMINARY, PUBLIC, SIMULATION, UNPUBLISHED };
+enum PublicationStatus { INTERNAL, INTERNAL_SIMULATION, PRELIMINARY, PUBLIC, SIMULATION, UNPUBLISHED, PRIVATE };
 TString toTString(const PublicationStatus status) {
   TString str = "";
   if(      status == INTERNAL )            str = "internal";
@@ -35,6 +35,7 @@ TString toTString(const PublicationStatus status) {
   else if( status == PUBLIC      )         str = "public";
   else if( status == SIMULATION  )         str = "simulation (public)";
   else if( status == UNPUBLISHED )         str = "unpublished";
+  else if( status == PRIVATE )			   str = "Private work";
 
   return str;
 }
@@ -313,6 +314,8 @@ TString HbbStyle::header(const PublicationStatus status) {
     txt = "CMS Simulation (8 TeV)";
   } else if( status == UNPUBLISHED ) {
     txt = "CMS (unpublished),  "+txt;
+  } else if( status == PRIVATE ) {
+	  txt = "Work in progress,  " + txt;
   }
 
   return txt;
@@ -394,16 +397,18 @@ void HbbStyle::set(const PublicationStatus status) {
   gStyle->SetPadTickY(1);
   gStyle->SetStripDecimals(kFALSE);
   
-  //  For the axis labels and titles
+    //  For the axis labels and titles
   gStyle->SetTitleColor(1,"XYZ");
   gStyle->SetLabelColor(1,"XYZ");
   gStyle->SetLabelFont(42,"XYZ");
   gStyle->SetLabelOffset(0.007,"XYZ");
-  gStyle->SetLabelSize(0.04,"XYZ");
+  gStyle->SetLabelSize(0.05,"XYZ");
   gStyle->SetTitleFont(42,"XYZ");
-  gStyle->SetTitleSize(0.047,"XYZ");
+  gStyle->SetTitleSize(0.06,"XYZ");
   gStyle->SetTitleXOffset(1.5);
-  gStyle->SetTitleYOffset(1.9);
+  gStyle->SetTitleYOffset(1.4);
+
+
 
   //  For the legend
   gStyle->SetLegendBorderSize(0);
