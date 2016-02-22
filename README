@@ -1,22 +1,29 @@
 ##############################################################################
-INSTRUCTIONS FOR INSTALLATION INTENDED FOR CODE DEVELOPMENT
+INSTRUCTIONS FOR INSTALLATION 
 
 ## On NAF
 module load cmssw
-## Create a CMSSW project
-scram p -s CMSSW CMSSW_7_5_2
-cd CMSSW_7_5_2/src
+## Create a CMSSW project, e.g.
+scram p -s CMSSW CMSSW_7_6_3
+cd CMSSW_7_6_3/src
 cmsenv
-## Clone a release from the repository
-git init
-git remote add analysis https://github.com/robervalwalsh/analysis.git
-git fetch analysis
-git checkout <branch>
+
+## Installing the head
+## Clone the head (branch develop) of the repository (notice the dot at the end,
+## it helps preserve the directory structure of CMSSW)
+git clone https://github.com/desy-cms/analysis.git .
 scram b -j4
 
-##############################################################################
-INSTRUCTIONS TO SYNC THE FORK WITH THE UPSTREAM REPOSITORY
-git remote add analysis-upstream https://github.com/desy-cms/analysis.git
-git fetch analysis-upstream
-git checkout develop
+## If you want to use a frozen tag (latest one is winter15-pre1 from 22 Feb 2016)
+git checkout tags/winter15-pre1 -b winter15-pre1
+scram b distclean
+scram b -j4
+
+
+## CMSSW_7_4_X 
+## If you are using CMSSW_7_4_X you need to uncomment the first line of
+## Analysis/Ntuplizer/interface/TriggerAccepts.h
+## That's a workaround to be able to save the trigger pre-scales that
+## changed in CMSSW_7_6_X
+
 
