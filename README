@@ -4,6 +4,7 @@ INSTRUCTIONS FOR INSTALLATION
 ## On NAF
 module load cmssw
 ## Create a CMSSW project, e.g.
+setenv SCRAM_ARCH slc6_amd64_gcc493
 scram p -s CMSSW CMSSW_7_6_3
 cd CMSSW_7_6_3/src
 cmsenv
