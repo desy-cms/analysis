@@ -42,8 +42,8 @@ int main(int argc, char * argv[])
    TH1F *HtRatio = (TH1F*) fHtWeight->Get("hRatio");
 
    // Input files list
-//   std::string inputList = "rootFileListBTagCSV.txt";
-   std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/QCD/QCD_Pt_80to120_TuneCUETP8M1_13TeV_pythia8.txt";
+   std::string inputList = "rootFileListBTagCSV.txt";
+   //std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/QCD/QCD_Pt_80to120_TuneCUETP8M1_13TeV_pythia8.txt";
 
    MssmHbb analysis(inputList);
 
@@ -59,7 +59,7 @@ int main(int argc, char * argv[])
    // Also Trigger Results name will be stored, according to the trigger objects names
    // By default - LowM MssmHbb trigger objects is used
    std::vector<std::string> triggerObjects = {"hltL1sL1DoubleJetC100","hltDoubleJetsC100","hltDoubleBTagCSV0p85","hltDoublePFJetsC160"};
-   if(!analysis.isMC()) analysis.addTriggerObjects(triggerObjects);
+   if(!analysis.isMC()) analysis.addTriggerObjects();
 
    //Select which sets of cuts should be applied:for Low mass selection = true; for High M = false.
    if(analysis.isMC()) analysis.setLowMSelection(true);
