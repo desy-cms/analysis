@@ -25,8 +25,14 @@
 // user include files
 #include "FWCore/Framework/interface/Event.h"
 // 
+#include "FWCore/Framework/interface/EventSetup.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
- 
+
+#include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
+#include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
+#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
+
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -51,13 +57,18 @@ namespace analysis {
             void BTagAlgorithms(const std::vector<std::string> &, const std::vector<std::string> &);
 //            void Init(const std::vector<std::string> &btagAlgos = std::vector<std::string>(), const std::vector<std::string> & btagAlgosAlias = std::vector<std::string>()	);
 //            void Init(const std::map<std::string, TitleIndex> & btagVars = std::map<std::string,TitleIndex>()	);
-            void Init(const std::vector<TitleAlias> & btagVars = std::vector<TitleAlias>()	);
+//            void Init(const std::vector<TitleAlias> & btagVars = std::vector<TitleAlias>()	);
+            void Init(const std::vector<TitleAlias> & , const std::string &	);
+            void Init(const std::vector<TitleAlias> &	);
+            void Init();
             void Branches();
             void Fill(const edm::Event&);
+            void Fill(const edm::Event&, const edm::EventSetup&);
             void Fill();
             void Kinematics();
             void MinPt(const float& minPt = -1.);
             void MaxEta(const float& maxEta = -1.);
+            void JECRecord(const std::string &);
             static const int maxCandidates = 200;
       
          protected:
@@ -66,6 +77,8 @@ namespace analysis {
             std::string configParameter_;
             edm::InputTag input_collection_;
             
+            std::string jecRecord_;
+            std::unique_ptr<JetCorrectionUncertainty> jecUnc_;
             
             // particles kinematics for the ntuple
             int   n_;
@@ -86,6 +99,8 @@ namespace analysis {
             int   physicsFlavour_[maxCandidates];
             
             float jetid_[15][maxCandidates];
+            
+            float jecUncert_[maxCandidates];
             
             int pdg_[maxCandidates];
             int status_[maxCandidates];

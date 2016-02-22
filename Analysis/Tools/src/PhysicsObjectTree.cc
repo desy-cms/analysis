@@ -84,6 +84,10 @@ PhysicsObjectTree<Jet>::PhysicsObjectTree(TChain * tree, const std::string & nam
    tree_  -> SetBranchAddress( "id_cEmFrac" , cEmFrac_ );
    tree_  -> SetBranchAddress( "id_cMult"   , cMult_   );
    tree_  -> SetBranchAddress( "id_muonFrac", muFrac_  );
+   tree_  -> SetBranchAddress( "jecUncert"  , jecUnc_);
+//   std::vector<std::string>::iterator it;
+//   it = std::find(branches_.begin(),branches_.end(),"jecUncert");  if ( it != branches_.end() ) tree_  -> SetBranchAddress( (*it).c_str(), jecUnc_);
+
 }
 PhysicsObjectTree<Jet>::~PhysicsObjectTree() {}
 
@@ -99,6 +103,7 @@ Collection<Jet>  PhysicsObjectTree<Jet>::collection()
       jet.flavour("Hadron",hadrflavour_[i]);
       jet.flavour("Parton",partflavour_[i]);
       jet.flavour("Physics",physflavour_[i]);
+      jet.jecUncert(jecUnc_[i]);
       jet.id(nHadFrac_[i],
              nEmFrac_[i] ,
              nMult_[i]   ,
