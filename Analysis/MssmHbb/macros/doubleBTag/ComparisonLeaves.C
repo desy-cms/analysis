@@ -126,7 +126,7 @@ void ComparisonLeaves()
    TH1F *ratioHt = ratio->DrawRatio(fHtData,fHtMC,fHtMCSyst,leg_pt1,canva001);
    ratio->GetTopPad()->SetLogy();
    ratioHt->GetXaxis()->SetRangeUser(0.,2600.);
-   canva001->SaveAs("pictures/ht.png");
+   canva001->SaveAs("pictures/ht.pdf");
 
    TFile *Htratio = new TFile("HtRatio.root","recreate");
    ratioHt->Write();
@@ -201,7 +201,7 @@ void ComparisonLeaves()
    TH1F *ratioN = ratio->DrawRatio(fNjetsData,fNjetsMC,fNjetsMCSyst,leg_pt1,canva000);
    ratio->GetTopPad()->SetLogy();
    ratioN->GetXaxis()->SetRangeUser(0.,14.);
-   canva000->SaveAs("pictures/Multiplicity.png");
+   canva000->SaveAs("pictures/Multiplicity.pdf");
    //ratio->DrawPhaseSpaceDescription(100.,0.1,450.,3.);
 
    //..............................Pt1 ....................
@@ -276,7 +276,7 @@ void ComparisonLeaves()
    TH1F *ratioPt = ratio->DrawRatio(fLeadPtData,fLeadPtMC,fLeadPtMCSyst,leg_pt1,canva00);
    ratio->GetTopPad()->SetLogy();
    ratioPt->GetXaxis()->SetRangeUser(0.,1000.);
-   canva00->SaveAs("pictures/pt1.png");
+   canva00->SaveAs("pictures/pt1.pdf");
    //ratio->DrawPhaseSpaceDescription(100.,0.1,450.,3.);
 
    //..............................Pt2 ....................
@@ -339,7 +339,7 @@ void ComparisonLeaves()
    ratio->GetTopPad()->SetLogy();
    ratioPt2->GetXaxis()->SetRangeUser(0.,1000.);
    ratio->DrawPhaseSpaceDescription(100.,0.01,450.,.3);
-   canva01->SaveAs("pictures/pt2.png");
+   canva01->SaveAs("pictures/pt2.pdf");
 
    //.........................(Pt1-Pt2)/(Pt1+Pt2)..................
    TCanvas *canva02 = new TCanvas("canva02","PtAsym",1000,800);
@@ -403,7 +403,7 @@ void ComparisonLeaves()
    ratio->GetTopPad()->SetLogy();
    ratioPtAssym->GetXaxis()->SetRangeUser(0.,0.6);
    ratio->DrawPhaseSpaceDescription(0.03,500,0.22,9000);
-   canva02->SaveAs("pictures/pt_asym.png");
+   canva02->SaveAs("pictures/pt_asym.pdf");
 
    //........................dEta plot.............................
    TCanvas *canva03 = new TCanvas("canva03","dEta",1000,800);
@@ -467,7 +467,7 @@ void ComparisonLeaves()
    ratioDEta = ratio->DrawRatio(dEtaData,dEtaMC,dEtaMCSyst,leg_pt2,canva03);
    ratioDEta->GetXaxis()->SetRangeUser(-2.,2.);
    ratio->DrawPhaseSpaceDescription(-1.6,10000,-0.5,70000);
-   canva03->SaveAs("pictures/dEta.png");
+   canva03->SaveAs("pictures/dEta.pdf");
 
    //..............................M12 ....................
    TCanvas *canva04 = new TCanvas("canva04","M12",1000,800);
@@ -536,7 +536,7 @@ void ComparisonLeaves()
    ratioM12->GetXaxis()->SetRangeUser(200.,1000.);
    ratioM12->SetTitle(";di-jet Mass (GeV);Data / MC");
    ratio->DrawPhaseSpaceDescription(240.,3,480.,30);
-   canva04->SaveAs("pictures/M12.png");
+   canva04->SaveAs("pictures/M12.pdf");
 
 
    //........................Eta1 plot.............................
@@ -602,7 +602,7 @@ void ComparisonLeaves()
    ratiofEta = ratio->DrawRatio(fEtaData,fEtaMC,fEtaMCSyst,leg_pt3,canva10);
    ratiofEta->GetXaxis()->SetRangeUser(-2.4,2.4);
    ratio->DrawPhaseSpaceDescription(-1.45,10000,0.2,70000);
-   canva10->SaveAs("pictures/eta1.png");
+   canva10->SaveAs("pictures/eta1.pdf");
 
    //..............BTag Discriminant................
 
@@ -664,7 +664,7 @@ void ComparisonLeaves()
    ratioBTagDiscr->GetXaxis()->SetRangeUser(0.93,1.);
    ratioBTagDiscr->SetTitle(";BTagCSV discr. ;Data / MC");
    ratio->DrawPhaseSpaceDescription(0.942,45000000,0.96,62000000);
-   canva05->SaveAs("pictures/Btag1.png");
+   canva05->SaveAs("pictures/Btag1.pdf");
 
    // ..........Flavour Composition..........
    TCanvas *canva11 = new TCanvas("canva11","Flavour Comp",1000,800);
