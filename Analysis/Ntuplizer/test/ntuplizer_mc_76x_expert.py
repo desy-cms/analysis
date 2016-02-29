@@ -105,6 +105,7 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
     GenRunInfo      = cms.InputTag("generator"),
     GenJets         = cms.VInputTag(cms.InputTag("slimmedGenJets")),
     GenParticles    = cms.VInputTag(cms.InputTag("prunedGenParticles")),
+    PileupInfo      = cms.InputTag("slimmedAddPileupInfo"),
     ###################
     TotalEvents     = cms.InputTag("TotalEvents"),
     FilteredEvents  = cms.InputTag("FilteredEvents"),
