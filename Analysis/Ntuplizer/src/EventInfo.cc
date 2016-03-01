@@ -49,10 +49,6 @@ EventInfo::EventInfo(edm::Service<TFileService> & fs)
    tree_->Branch("bx"   , &bx_   , "bx/I");
    tree_->Branch("orbit", &orbit_, "orbit/I");
 
-      
-   tree_->Branch("nPileup"     , &n_pu_     , "nPileup/I");
-   tree_->Branch("nTruePileup" , &n_true_pu_, "nTruePileup/F");
-   
    do_pu_ = false;
    
    
@@ -70,10 +66,6 @@ EventInfo::EventInfo(TFileDirectory & dir)
    tree_->Branch("bx"   , &bx_   , "bx/I");
    tree_->Branch("orbit", &orbit_, "orbit/I");
 
-      
-   tree_->Branch("nPileup"     , &n_pu_     , "nPileup/I");
-   tree_->Branch("nTruePileup" , &n_true_pu_, "nTruePileup/F");
-   
    do_pu_ = false;
    
 }
@@ -133,6 +125,10 @@ void EventInfo::PileupInfo(const edm::InputTag& tag)
    do_pu_ = true;
    
    puInfo_ = tag;
+      
+   tree_->Branch("nPileup"     , &n_pu_     , "nPileup/I");
+   tree_->Branch("nTruePileup" , &n_true_pu_, "nTruePileup/F");
+   
 }
 
 void EventInfo::ReadPileupInfo(const edm::Event& event)
