@@ -42,6 +42,8 @@ Analysis::Analysis(const std::string & inputFilelist, const std::string & evtinf
    t_event_ -> SetBranchAddress("event", &event_);
    t_event_ -> SetBranchAddress("run", &run_);
    t_event_ -> SetBranchAddress("lumisection", &lumi_);
+   t_event_ -> SetBranchAddress("nPileup", &n_pu_);
+   t_event_ -> SetBranchAddress("nTruePileup", &n_true_pu_);
 
    nevents_ = t_event_ -> GetEntries();
 
