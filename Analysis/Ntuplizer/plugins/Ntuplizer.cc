@@ -368,8 +368,8 @@ void Ntuplizer::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
    // Event info
    eventinfo_ -> Fill(event);
    
-   if ( do_pileupinfo_ )
-      pileupinfo_ -> Fill(event);
+//    if ( do_pileupinfo_ )
+//       pileupinfo_ -> Fill(event);
 
    if ( is_mc_ )
    {
@@ -521,6 +521,8 @@ Ntuplizer::beginJob()
    
    // Event info tree
    eventinfo_ = pEventInfo (new EventInfo(eventsDir));
+   if ( do_pileupinfo_ )
+      eventinfo_ -> PileupInfo(config_.getParameter<edm::InputTag>("PileupInfo"));
    
     // Metadata 
    metadata_ = pMetadata (new Metadata(fs,is_mc_));
@@ -706,13 +708,13 @@ Ntuplizer::beginJob()
          if ( nCounters == 2 ) metadata_ -> SetEventFilter(eventCounters_);
       }
       // Pileup Info
-      if ( inputTag == "PileupInfo" && is_mc_ )
-      {
-         tree_[name] = eventsDir.make<TTree>(name.c_str(),fullname.c_str());
-         pileupinfo_ = pPileupInfo( new PileupInfo(collection, tree_[name]) );
-         pileupinfo_ -> Branches();
-
-      }
+//       if ( inputTag == "PileupInfo" && is_mc_ )
+//       {
+//          tree_[name] = eventsDir.make<TTree>(name.c_str(),fullname.c_str());
+//          pileupinfo_ = pPileupInfo( new PileupInfo(collection, tree_[name]) );
+//          pileupinfo_ -> Branches();
+// 
+//       }
          
 
 
