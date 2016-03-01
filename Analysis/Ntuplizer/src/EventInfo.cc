@@ -19,6 +19,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
  
 #include "Analysis/Ntuplizer/interface/EventInfo.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
 
 //
@@ -47,6 +48,12 @@ EventInfo::EventInfo(edm::Service<TFileService> & fs)
    tree_->Branch("lumisection" , &lumi_ , "lumisection/I");
    tree_->Branch("bx"   , &bx_   , "bx/I");
    tree_->Branch("orbit", &orbit_, "orbit/I");
+
+      
+   tree_->Branch("nPileup"     , &n_pu_     , "nPileup/I");
+   tree_->Branch("nTruePileup" , &n_true_pu_, "nTruePileup/F");
+   
+   do_pu_ = false;
    
    
 }
@@ -62,7 +69,12 @@ EventInfo::EventInfo(TFileDirectory & dir)
    tree_->Branch("lumisection" , &lumi_ , "lumisection/I");
    tree_->Branch("bx"   , &bx_   , "bx/I");
    tree_->Branch("orbit", &orbit_, "orbit/I");
+
+      
+   tree_->Branch("nPileup"     , &n_pu_     , "nPileup/I");
+   tree_->Branch("nTruePileup" , &n_true_pu_, "nTruePileup/F");
    
+   do_pu_ = false;
    
 }
 
@@ -90,7 +102,16 @@ void EventInfo::Fill(const edm::Event& event)
    orbit_ = evt.orbitNumber();
    bx_    = evt.bunchCrossing();
    
-   
+   if ( do_pu_ )
+   {
+      ReadPileupInfo(event);
+   }
+   else
+   {
+      n_pu_ = -1;
+      n_true_pu_ = -1;
+   }
+      
    tree_ -> Fill();
 
    
@@ -105,5 +126,30 @@ void EventInfo::Init()
 TTree * EventInfo::Tree()
 {
    return tree_;
+}
+
+void EventInfo::PileupInfo(const edm::InputTag& tag)
+{
+   do_pu_ = true;
+   
+   puInfo_ = tag;
+}
+
+void EventInfo::ReadPileupInfo(const edm::Event& event)
+{
+   using namespace edm;
+   
+   // 
+   edm::Handle<std::vector<PileupSummaryInfo> > handler;
+   event.getByLabel(puInfo_, handler);
+
+   std::vector<PileupSummaryInfo> pileup_infos = *(handler.product());
+   
+// Take the first entry - should be enough
+   PileupSummaryInfo pileup_info = pileup_infos.at(0);
+   n_true_pu_ = pileup_info.getTrueNumInteractions();
+   n_pu_      = pileup_info.getPU_NumInteractions();
+    
+   
 }
 
