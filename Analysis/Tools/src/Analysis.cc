@@ -39,11 +39,23 @@ Analysis::Analysis(const std::string & inputFilelist, const std::string & evtinf
    // event info (must be in the tree always)
    t_event_ = new TChain(evtinfo.c_str());
    t_event_ -> AddFileInfoList(fileList_);
+   
+   std::vector<std::string> branches;
+   TObjArray * treeBranches = t_event_->GetListOfBranches();
+   for ( int i = 0 ; i < treeBranches->GetEntries() ; ++i )
+      branches.push_back(treeBranches->At(i)->GetName());
+   
    t_event_ -> SetBranchAddress("event", &event_);
    t_event_ -> SetBranchAddress("run", &run_);
    t_event_ -> SetBranchAddress("lumisection", &lumi_);
-   t_event_ -> SetBranchAddress("nPileup", &n_pu_);
-   t_event_ -> SetBranchAddress("nTruePileup", &n_true_pu_);
+   
+   // For backward compatibility
+   std::vector<std::string>::iterator it;
+   it = std::find(branches.begin(),branches.end(),"nPileup");      if ( it != branches.end() ) t_event_  -> SetBranchAddress( (*it).c_str(), &n_pu_);
+   it = std::find(branches.begin(),branches.end(),"nTruePileup");  if ( it != branches.end() ) t_event_  -> SetBranchAddress( (*it).c_str(), &n_true_pu_);
+   
+//   t_event_ -> SetBranchAddress("nPileup", &n_pu_);
+//   t_event_ -> SetBranchAddress("nTruePileup", &n_true_pu_);
 
    nevents_ = t_event_ -> GetEntries();
 
@@ -71,6 +83,10 @@ Analysis::~Analysis()
 // ------------ method called for each event  ------------
 void Analysis::event(const int & event, const bool & addCollections)
 {
+   // Initialisation for backward compatibility
+   n_pu_ = -1;
+   n_true_pu_ = -1;
+   
    t_event_ -> GetEntry(event);
    if ( !addCollections) return;
    
