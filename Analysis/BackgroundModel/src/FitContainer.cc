@@ -164,6 +164,8 @@ void FitContainer::setModel(const Type& type, const std::string& name) {
 
 void FitContainer::setModel(const Type& type, const std::string& name,
                             const std::vector<ParamModifier>& modifiers) {
+  if (!initialized_) initialize();
+
   if (workspace_.allPdfs().find(toString(type).c_str())) {
     std::stringstream msg;
     msg << "Model for " << toString(type) << " has already been set!";
