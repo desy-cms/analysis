@@ -47,6 +47,21 @@ Jet::~Jet()
 //
 // member functions
 //
+// Gets
+float Jet::btag()                                  const { return btag_;                   }                   
+int   Jet::flavour()                               const { return flavour_.at("Hadron");   }                   
+int   Jet::flavour(const std::string & definition) const { return flavour_.at(definition); }                   
+bool  Jet::idLoose()                               const { return idloose_;                }                   
+bool  Jet::idTight()                               const { return idtight_;                }         
+float Jet::jecUncert()                             const { return jecUnc_;                 }                   
+   
+// Sets                                                             
+void Jet::btag     (const float & btag)                               { btag_    = btag; } 
+void Jet::flavour  (const int   & flav)                               { flavour_["Hadron"] = flav; } 
+void Jet::flavour  (const std::string & definition, const int & flav) { flavour_[definition] = flav; } 
+void Jet::idLoose  (const bool  & loos)                               { idloose_ = loos; } 
+void Jet::idTight  (const bool  & tigh)                               { idtight_ = tigh; } 
+void Jet::jecUncert(const float & ju)                                 { jecUnc_  = ju; } 
 
 // ------------ methods  ------------
 void Jet::id      (const float & nHadFrac,

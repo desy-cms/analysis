@@ -33,24 +33,42 @@ namespace analysis {
       
       class Jet : public Candidate {
          public:
+            /// default constructor
             Jet();
+            /// constructor from 4-momentum information
             Jet(const float & pt, const float & eta, const float & phi, const float & e);
+            /// destructor
            ~Jet();
            
-            float btag()                                  const;
-            int   flavour()                               const;
-            int   flavour(const std::string & definition) const;
-            bool  idLoose()                               const;;
-            bool  idTight()                               const;;
-            float jecUncert()                             const;;
+            // Gets
+            /// returns the btag value of btag_csvivf
+            float btag()                        const;
+            /// returns the flavour with the Hadron definition (=0 for data)
+            int   flavour()                     const;
+            /// returns the flavour given a definition (=0 for data)
+            int   flavour(const std::string & ) const;
+            /// returns if jet has id loose working point
+            bool  idLoose()                     const;
+            /// returns if jet has id tight working point
+            bool  idTight()                     const;
+            /// returns the jet energy correction uncertainty
+            float jecUncert()                   const;
             
-            void btag(const float &);
-            void flavour(const int &);
-            void flavour(const std::string & definition, const int & value);
-            void idLoose(const bool &);
-            void idTight(const bool &);
-            void jecUncert(const float &);
+            // Sets
+            /// sets the btag value
+            void  btag(const float &);
+            /// sets flavour
+            void  flavour(const int &);
+            /// sets flavour for a given definition
+            void  flavour(const std::string & definition, const int & value);
+            /// sets if jet id is loose or not
+            void  idLoose(const bool &);
+            /// sets if jet id is tight or not
+            void  idTight(const bool &);
+            /// sets the jet energy correction uncertainty
+            void  jecUncert(const float &);
             
+            /// calculates the jet id
             void id(const float & nHadFrac,
                     const float & nEmFrac ,
                     const float & nMult   ,
@@ -63,35 +81,21 @@ namespace analysis {
             
          protected:
             // ----------member data ---------------------------
-            // 
+            //
+            /// btag value 
             float btag_ ;
+            /// map of flavour to a given definition
             std::map<std::string, int> flavour_;
+            /// jet id loose working point
             bool  idloose_;
+            /// jet id tight working point
             bool  idtight_;
+            /// jet energy correction uncertainty
             float jecUnc_;
          private:
             // ----------member data ---------------------------
             
       };
-         
-      // ===============================================
-      // INLINE IMPLEMENTATIONS
-         
-      // Gets
-      inline float Jet::btag()                                  const { return btag_;                   }                   
-      inline int   Jet::flavour()                               const { return flavour_.at("Hadron");   }                   
-      inline int   Jet::flavour(const std::string & definition) const { return flavour_.at(definition); }                   
-      inline bool  Jet::idLoose()                               const { return idloose_;                }                   
-      inline bool  Jet::idTight()                               const { return idtight_;                }         
-      inline float Jet::jecUncert()                             const { return jecUnc_;                 }                   
-                
-      // Sets                                                             
-      inline void Jet::btag     (const float & btag)                               { btag_    = btag; } 
-      inline void Jet::flavour  (const int   & flav)                               { flavour_["Hadron"] = flav; } 
-      inline void Jet::flavour  (const std::string & definition, const int & flav) { flavour_[definition] = flav; } 
-      inline void Jet::idLoose  (const bool  & loos)                               { idloose_ = loos; } 
-      inline void Jet::idTight  (const bool  & tigh)                               { idtight_ = tigh; } 
-      inline void Jet::jecUncert(const float & ju)                                 { jecUnc_  = ju; } 
    }
 }
 
