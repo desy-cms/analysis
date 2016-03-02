@@ -52,26 +52,18 @@ Vertex::~Vertex()
 
 // ------------ methods  ------------
 // Get
-float Vertex::x()  { return x_ ; }
-float Vertex::y()  { return y_ ; }
-float Vertex::z()  { return z_ ; }
-float Vertex::xe() { return xe_; }
-float Vertex::ye() { return ye_; }
-float Vertex::ze() { return ze_; }
-
-float Vertex::chi2() { return chi2_; }
-float Vertex::ndof() { return ndof_; }
-float Vertex::rho()  { return rho_ ; }
-
-bool  Vertex::fake() { return fake_; }
+float Vertex::x()    const { return x_ ; }
+float Vertex::y()    const { return y_ ; }
+float Vertex::z()    const { return z_ ; }
+float Vertex::xe()   const { return xe_; }
+float Vertex::ye()   const { return ye_; }
+float Vertex::ze()   const { return ze_; }
+float Vertex::chi2() const { return chi2_; }
+float Vertex::ndof() const { return ndof_; }
+float Vertex::rho()  const { return rho_ ; }
+bool  Vertex::fake() const { return fake_; }
 
 // Set
-void  Vertex::set (const float & x, const float & y, const float & z)
-{
-   x_  = x ;
-   y_  = y ;
-   z_  = z ;
-}
 void  Vertex::x   (const float & x ) { x_  = x ; }
 void  Vertex::y   (const float & y ) { y_  = y ; }
 void  Vertex::z   (const float & z ) { z_  = z ; }
