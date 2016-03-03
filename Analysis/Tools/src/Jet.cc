@@ -54,7 +54,10 @@ int   Jet::flavour(const std::string & definition) const { return flavour_.at(de
 bool  Jet::idLoose()                               const { return idloose_;                }                   
 bool  Jet::idTight()                               const { return idtight_;                }         
 float Jet::jecUncert()                             const { return jecUnc_;                 }                   
-   
+std::vector<int> Jet::flavours()                   const { return flavours_;               }
+std::vector< std::shared_ptr<GenParticle> > Jet::partons() const { return partons_;        }
+std::string Jet::extendedFlavour()                 const { return extendedFlavour_;        }
+
 // Sets                                                             
 void Jet::btag     (const float & btag)                               { btag_    = btag; } 
 void Jet::flavour  (const int   & flav)                               { flavour_["Hadron"] = flav; } 
@@ -62,8 +65,49 @@ void Jet::flavour  (const std::string & definition, const int & flav) { flavour_
 void Jet::idLoose  (const bool  & loos)                               { idloose_ = loos; } 
 void Jet::idTight  (const bool  & tigh)                               { idtight_ = tigh; } 
 void Jet::jecUncert(const float & ju)                                 { jecUnc_  = ju; } 
+void Jet::addParton(const std::shared_ptr<GenParticle> & parton)      { partons_.push_back(parton);
+                                                                        flavours_.push_back(parton->pdgId());  }
 
 // ------------ methods  ------------
+void Jet::associatePartons(const std::vector< std::shared_ptr<GenParticle> > & particles, const float & dRmax, const bool & pythia8 )
+{
+   int flavour = this->flavour();
+   extendedFlavour_ = "udsg";
+   if ( abs(flavour) == 5 ) extendedFlavour_ = "b";
+   if ( abs(flavour) == 4 ) extendedFlavour_ = "c";
+   
+   int flavCounter = 0;
+   for ( auto & particle : particles )
+   {
+      int pdg = particle->pdgId();
+      int status = particle->status();
+      if ( pythia8 )
+      {
+         if ( status != 71 && status != 72 ) continue;
+      }
+      else
+      {
+         if ( status != 3 ) continue;
+      }
+      if ( abs(pdg) > 5 && pdg != 21 ) continue;
+      if ( this->p4().DeltaR(particle->p4()) > dRmax ) continue;
+      
+      addParton (particle);
+      
+      if ( abs(pdg) == abs(flavour) ) ++flavCounter;
+      
+   }
+   
+   // Need to check for ambiguities!!!
+   
+   // extendedFlavour re-definition
+   if ( flavour == 4 && flavCounter > 1 ) extendedFlavour_ == "cc";
+   if ( flavour == 5 && flavCounter > 1 ) extendedFlavour_ == "bb";
+   
+}
+                                                                        
+                                                                        
+                                                                        
 void Jet::id      (const float & nHadFrac,
                    const float & nEmFrac ,
                    const float & nMult   ,

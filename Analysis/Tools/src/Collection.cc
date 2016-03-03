@@ -81,10 +81,18 @@ Collection<Object>::~Collection()
 //
 // member functions
 //
+//template <class Object>
+//std::vector<Object> * Collection<Object>::vector()
 template <class Object>
-std::vector<Object> * Collection<Object>::vector()
+std::vector< std::shared_ptr<Object> >  Collection<Object>::vector()
 {
-   return &objects_;
+   std::vector< std::shared_ptr<Object> > objects;
+   for ( auto & obj : objects_ )
+   {
+      std::shared_ptr<Object> sp_obj = std::shared_ptr<Object> ( new Object(obj));
+      objects.push_back(sp_obj);
+   }
+   return objects;
 }
 
 template <class Object>
