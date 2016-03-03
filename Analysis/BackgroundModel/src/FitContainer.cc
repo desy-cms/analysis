@@ -27,8 +27,10 @@
 using namespace analysis::backgroundmodel;
 
 
-FitContainer::FitContainer(const TH1& data, const TH1& signal, const TH1& bkg) :
+FitContainer::FitContainer(const TH1& data, const TH1& signal, const TH1& bkg,
+			   const std::string& outputDir) :
   initialized_(false),
+  outputDir_(outputDir+"/"),
   plotDir_(getOutputPath_("plots")),
   workspaceDir_(getOutputPath_("workspace")),
   fullRangeId_("full_range"),
@@ -55,13 +57,16 @@ FitContainer::FitContainer(const TH1& data, const TH1& signal, const TH1& bkg) :
 }
 
 
-FitContainer::FitContainer(const HistContainer& container) :
-  FitContainer(*container.data(), *container.bbH(), *container.background()) {
+FitContainer::FitContainer(const HistContainer& container,
+			   const std::string& outputDir) :
+  FitContainer(*container.data(), *container.bbH(), *container.background(),
+	       outputDir) {
 }
 
 
-FitContainer::FitContainer(TTree& data) :
+FitContainer::FitContainer(TTree& data, const std::string& outputDir) :
   initialized_(false),
+  outputDir_(outputDir+"/"),
   plotDir_(getOutputPath_("plots")),
   workspaceDir_(getOutputPath_("workspace")),
   fullRangeId_("full_range"),
@@ -87,8 +92,9 @@ FitContainer::FitContainer(TTree& data) :
 }
 
 
-FitContainer::FitContainer(const TreeContainer& container) :
-  FitContainer(*container.data()) {
+FitContainer::FitContainer(const TreeContainer& container,
+			   const std::string& outputDir) :
+  FitContainer(*container.data(), outputDir) {
 }
 
 
@@ -577,8 +583,7 @@ void FitContainer::setChebEffProd_(const Type& type, const int numCoeffs) {
 
 
 std::string FitContainer::getOutputPath_(const std::string& subdirectory) {
-  std::string path(gSystem->Getenv("CMSSW_BASE"));
-  path += "/src/Analysis/BackgroundModel/test/"+subdirectory;
+  std::string path = outputDir_ + subdirectory;
   gSystem->mkdir(path.c_str(), true);
   path += "/FitContainer_";
   return path;
@@ -728,3 +733,6 @@ const std::vector<std::string> FitContainer::availableModels_ =
    "chebeffprod"};
 
 const int FitContainer::defaultNumberOfCoefficients_ = 7;
+
+const std::string FitContainer::defaultOutputDir_ =
+  std::string(gSystem->Getenv("CMSSW_BASE"))+"/src/Analysis/BackgroundModel/test/";

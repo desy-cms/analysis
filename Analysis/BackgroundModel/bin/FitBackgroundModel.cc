@@ -35,6 +35,9 @@ int main(int argc, char* argv[]) {
     ("input_tree_file,t", po::value<std::string>(),
      "ROOT file from which input tree is retrieved. If this parameter is not "
      "given a binned fit is performed using 'input_file'.")
+    ("output_directory,o", po::value<std::string>()
+     ->default_value(cmsswBase+"/src/Analysis/BackgroundModel/test/"),
+     "Directory where the output is stored.")
     ("fit_min", po::value<float>(), "Lower bound of the fit range.")
     ("fit_max", po::value<float>(), "Upper bound of the fit range.")
     ("modify_param,m", po::value<std::vector<std::string> >()->composing()
@@ -117,12 +120,14 @@ int main(int argc, char* argv[]) {
   if (vm["input_tree_file"].empty()) {
     ab::HistContainer input(vm["input_file"].as<std::string>());
     input.show();
-    ab::FitContainer fitter = ab::FitContainer(input).verbosity(verbosity - 1);
+    ab::FitContainer fitter(input, vm["output_directory"].as<std::string>());
+    fitter.verbosity(verbosity - 1);
     return backgroundOnlyFit(fitter, vm);
   } else {
     ab::TreeContainer input(vm["input_tree_file"].as<std::string>());
     input.show();
-    ab::FitContainer fitter = ab::FitContainer(input).verbosity(verbosity - 1);
+    ab::FitContainer fitter(input, vm["output_directory"].as<std::string>());
+    fitter.verbosity(verbosity - 1);
     return backgroundOnlyFit(fitter, vm);
   }
 }

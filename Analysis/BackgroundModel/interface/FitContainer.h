@@ -32,10 +32,13 @@ namespace analysis {
         return "";              // to silence compiler
       };
 
-      FitContainer(const TH1& data, const TH1& signal, const TH1& background);
-      FitContainer(TTree& data);
-      FitContainer(const HistContainer& container);
-      FitContainer(const TreeContainer& container);
+      FitContainer(const TH1& data, const TH1& signal, const TH1& background,
+		   const std::string& outputDir = defaultOutputDir_);
+      FitContainer(TTree& data, const std::string& outputDir = defaultOutputDir_);
+      FitContainer(const HistContainer& container,
+		   const std::string& outputDir = defaultOutputDir_);
+      FitContainer(const TreeContainer& container,
+		   const std::string& outputDir = defaultOutputDir_);
       virtual ~FitContainer();
       void initialize();
 
@@ -77,9 +80,9 @@ namespace analysis {
       static const std::vector<std::string> availableModels_;
 
       // internal methods
-      static std::string getOutputPath_(const std::string& subdirectory = "");
       static void prepareCanvas_(TCanvas& raw);
       static void prepareFrame_(RooPlot& raw);
+      std::string getOutputPath_(const std::string& subdirectory = "");
       double getPeakStart_(const Type& type);
       double getPeakStart_(const Type& type, double max);
       double getMaxPosition_(const RooAbsData& data);
@@ -90,7 +93,9 @@ namespace analysis {
 
       // data member
       static const int defaultNumberOfCoefficients_;
+      static const std::string defaultOutputDir_;
       bool initialized_;
+      std::string outputDir_;
       std::string plotDir_;
       std::string workspaceDir_;
       std::string fullRangeId_;
