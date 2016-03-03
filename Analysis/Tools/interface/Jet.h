@@ -24,6 +24,7 @@
 // 
 // user include files
 #include "Analysis/Tools/interface/Candidate.h"
+#include "Analysis/Tools/interface/GenParticle.h"
 //
 // class declaration
 //
@@ -53,6 +54,12 @@ namespace analysis {
             bool  idTight()                     const;
             /// returns the jet energy correction uncertainty
             float jecUncert()                   const;
+            /// returns the vector containing flavours inside the jet
+            std::vector<int> flavours()         const;
+            /// returns the extended flavour definition
+            std::string extendedFlavour()       const;
+            /// returns the vector of pointers to the generated partons
+            std::vector< std::shared_ptr<GenParticle> > partons() const;
             
             // Sets
             /// sets the btag value
@@ -68,6 +75,9 @@ namespace analysis {
             /// sets the jet energy correction uncertainty
             void  jecUncert(const float &);
             
+            /// add parton that gave rise to jet
+            void addParton(const std::shared_ptr<GenParticle> &);
+            
             /// calculates the jet id
             void id(const float & nHadFrac,
                     const float & nEmFrac ,
@@ -76,6 +86,9 @@ namespace analysis {
                     const float & cEmFrac ,
                     const float & cMult   ,
                     const float & muFrac  );
+            
+            /// associate partons to the jet
+            void associatePartons(const std::vector< std::shared_ptr<GenParticle> > &, const float & dRmax = 0.5, const bool & pythi8 = true );
             
 //            using Candidate::set; // in case needed to overload the function set
             
@@ -86,6 +99,12 @@ namespace analysis {
             float btag_ ;
             /// map of flavour to a given definition
             std::map<std::string, int> flavour_;
+            /// flavours inside the jet
+            std::vector<int> flavours_;
+            /// extended flavour identification for merged jets
+            std::string extendedFlavour_;
+            /// vector of pointers to Genparticles from merged jets
+            std::vector< std::shared_ptr<GenParticle> > partons_;
             /// jet id loose working point
             bool  idloose_;
             /// jet id tight working point
