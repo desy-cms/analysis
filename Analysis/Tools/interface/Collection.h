@@ -26,6 +26,7 @@
 // user include files
 #include "Analysis/Tools/interface/Candidate.h"
 #include "Analysis/Tools/interface/TriggerObject.h"
+#include "Analysis/Tools/interface/GenParticle.h"
 
 //
 // class declaration
@@ -56,6 +57,8 @@ namespace analysis {
            std::vector<Candidate>* vectorCandidates() const;
            
            std::string name() const;
+           
+           void associatePartons(const std::shared_ptr<Collection<GenParticle> > & , const float & deltaR = 0.5);
            
             // ----------member data ---------------------------
          protected:

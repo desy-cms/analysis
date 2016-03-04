@@ -33,6 +33,7 @@ namespace analysis {
       template <> void Collection<Vertex>::matchTo( const Collection<Candidate> & collection, const float & deltaR );
       template <> void Collection<Vertex>::matchTo( const Collection<TriggerObject> & collection, const float & deltaR );
       template <> void Collection<Vertex>::matchTo( const std::shared_ptr<Collection<TriggerObject> > collection, const float & deltaR );
+      template <> void Collection<Jet>::associatePartons( const std::shared_ptr<Collection<GenParticle> > & particles, const float & deltaR  );
    }
 }
 //
@@ -94,6 +95,18 @@ std::vector< std::shared_ptr<Object> >  Collection<Object>::vector()
    }
    return objects;
 }
+template <class Object>
+void Collection<Object>::associatePartons(const std::shared_ptr<Collection<GenParticle> > & particles, const float & deltaR )
+{
+}
+
+template <>
+void Collection<Jet>::associatePartons(const std::shared_ptr<Collection<GenParticle> > & particles, const float & deltaR )
+{
+   for ( auto & obj : objects_ )
+      obj.associatePartons(particles->vector(),deltaR);
+}
+
 
 template <class Object>
 void Collection<Object>::matchTo( const std::vector<Candidate>* vectorcandidates, const std::string & name, const float & deltaR )
