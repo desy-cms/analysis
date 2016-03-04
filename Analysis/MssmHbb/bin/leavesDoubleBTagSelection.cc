@@ -1,4 +1,3 @@
-#include <string>
 #include <iostream>
 #include <vector>
 #include <boost/filesystem.hpp>
@@ -13,6 +12,7 @@
 #include "Analysis/MssmHbb/interface/MssmHbb.h"
 #include "Analysis/MssmHbb/interface/json.h"
 #include "Analysis/MssmHbb/interface/BTagCalibrationStandalone.h"
+#include "Analysis/MssmHbb/interface/Weights.h"
 
 using namespace std;
 using namespace analysis::mssmhbb;
@@ -24,36 +24,16 @@ double BTagWeight(TH2F*,TH2F*,TH2F*,const double &, const double &);
 int main(int argc, char * argv[])
 {
    TH1::SetDefaultSumw2();  // proper treatment of errors when scaling histograms
-   //For btag efficiency:
-
-   //Online BTag Trigger Efficiency produced by Ye Chen
-   TFile * fileBTagEff = new TFile("~/Downloads/efficiency_online_btagcsv0p9.root");
-   TH2F *btagEff0p9 = (TH2F*) fileBTagEff ->Get("heh4");	 // eta <0.9
-   TH2F *btagEff0p9_1p4 = (TH2F*) fileBTagEff ->Get("heh3"); // 1.4 > eta >0.9
-   TH2F *btagEff1p4_2p5 = (TH2F*) fileBTagEff ->Get("heh2"); // 2.5 > eta > 1.4
-
-   //Online Pt trigger efficiency:
-   TFile * filePtEff = new TFile("~/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/MssmHbb/bin/input_corrections/TwoDPtHighMassEfficiency.root");
-   TH2F *hPtEff = (TH2F*) filePtEff ->Get("TwoDEff_Num"); // 2D
-
-   // Add Ht reweighting:
-   double WeightHt;
-   TFile *fHtWeight = new TFile("~/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/MssmHbb/macros/doubleBTag/HtRatio.root");
-   TH1F *HtRatio = (TH1F*) fHtWeight->Get("hRatio");
 
    // Input files list
    std::string inputList = "rootFileListBTagCSV.txt";
-   //std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/QCD/QCD_Pt_80to120_TuneCUETP8M1_13TeV_pythia8.txt";
+   //std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/QCD/QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8.txt";
 
+   // Initialisation of MssmHbb class
    MssmHbb analysis(inputList);
 
    // Process selected JSON file
    if(!analysis.isMC()) analysis.processJsonFile("goodJson.txt");
-
-   //Setup output file name
-   //name can me specified explicitly with method: createOutputFile(fileName);
-   std::string fileName = "/nfs/dust/cms/user/shevchen/output/DoubleBTagSelection_LowMass_";
-   analysis.SetupStandardOutputFile(fileName);
 
    // Add std::vector<std::string> of the Trigger Objects that you would like to apply.
    // Also Trigger Results name will be stored, according to the trigger objects names
@@ -64,11 +44,60 @@ int main(int argc, char * argv[])
    //Select which sets of cuts should be applied:for Low mass selection = true; for High M = false.
    if(analysis.isMC()) analysis.setLowMSelection(true);
 
-   //Setup Branches
-   analysis.setBranches();
+   //Create Object to calculate the weights:
+   Weights weightCalc(analysis.getLowMSelection());
+   std::map<std::string, double> weight;
+
+
+
+   //.................................Input corrections.................................
+   TFile *fBTagEff = 0, *fPtEff = 0, *fHtWeight = 0;
+   TH1F *btagEff0p9 = 0, *btagEff0p9_1p4 = 0, *btagEff1p4_2p5 = 0, *HtRatio = 0;
+   TH2F *btag2DEff0p85 = 0, *hPtEff = 0;
+
+   if(analysis.getLowMSelection()){
+	   //Online BTag Trigger Efficiency produced by Ye Chen
+	   fBTagEff = new TFile("input_corrections/RelOnlineBTagCSV0p9Eff_PtEta.root","read");
+	   btagEff0p9 = (TH1F*) fBTagEff ->Get("heh4");	 // eta <0.9
+	   btagEff0p9_1p4 = (TH1F*) fBTagEff ->Get("heh3"); // 1.4 > eta >0.9
+	   btagEff1p4_2p5 = (TH1F*) fBTagEff ->Get("heh2"); // 2.5 > eta > 1.4
+
+	   //Online Pt trigger efficiency:
+	   fPtEff = new TFile("input_corrections/TwoDPtLowMassEfficiency.root","read");
+	   hPtEff = (TH2F*) fPtEff ->Get("TwoDEff_Num"); // 2D
+
+	   // Add Ht reweighting:
+	   fHtWeight = new TFile("input_corrections/HtRatio.root","read");
+	   HtRatio = (TH1F*) fHtWeight->Get("hRatio");
+   }
+   else {
+
+	   // For high mass trigger only 2D efficiency were provided
+	   fBTagEff = new TFile("input_corrections/TwoDBTagCSV0p85_2D_PtEta.root");
+	   btag2DEff0p85 = (TH2F*) fBTagEff->Get("h2ehn");
+
+	   fPtEff = new TFile("input_corrections/TwoDPtHighMassEfficiency.root","read");
+	   hPtEff = (TH2F*) fPtEff ->Get("TwoDEff_Num");
+
+	   fHtWeight = new TFile("input_corrections/HtRatio.root","read"); // Useless for the timebinning.
+	   HtRatio = (TH1F*) fHtWeight->Get("hRatio");
+
+   }
+
+   // Add PileUp reweighting
+   std::map<std::string, TFile*> fPileUpData;
+   std::map<std::string, TH1F* > hPileUpData;
+   fPileUpData["central"] = new TFile("input_corrections/Data_Pileup_2015D_Nov17.root","read");
+   hPileUpData["central"] = (TH1F*) fPileUpData["central"]->Get("pileup");
+   fPileUpData["down"] = new TFile("input_corrections/PileUpData_down_26_02_2016.root","read");
+   hPileUpData["down"] = (TH1F*) fPileUpData["down"]->Get("pileup");
+   fPileUpData["up"] = new TFile("input_corrections/PileUpData_up_26_02_2016.root","read");
+   hPileUpData["up"] = (TH1F*) fPileUpData["up"]->Get("pileup");
+   TFile *fPileUpMC = new TFile("input_corrections/PileUpMC_26_02_2016.root","read");
+   TH1F *hPileUpMC = (TH1F*) fPileUpMC->Get("pileup");
 
    //Add BTagCalibration calculators needed for Offline BTag SF:
-   BTagCalibration calib("csvv2", "SFbLib.csv");
+   BTagCalibration calib("csvv2", "input_corrections/SFbLib.csv");
    BTagCalibrationReader reader(&calib,               // calibration instance
                                 BTagEntry::OP_TIGHT,  // operating point
                                 "mujets",               // measurement type
@@ -76,9 +105,18 @@ int main(int argc, char * argv[])
    BTagCalibrationReader reader_up(&calib, BTagEntry::OP_TIGHT, "mujets", "up");  // sys up
    BTagCalibrationReader reader_down(&calib, BTagEntry::OP_TIGHT, "mujets", "down");  // sys down
 
+   //Setup output file name
+   //name can me specified explicitly with method: createOutputFile(fileName);
+   std::string fileName = "/nfs/dust/cms/user/shevchen/output/DoubleBTagSelection_NoTriggerMatching";
+   analysis.SetupStandardOutputFile(fileName);
+
+   //Setup Branches
+   analysis.setBranches();
+
    int counter = 0;
    bool goodLeadingJets = true;
    // Analysis of events
+
 
    std::cout<<"Number of Entries: "<<analysis.size()<<std::endl;
    for ( int i = 0 ; i < analysis.size() ; ++i )
@@ -97,6 +135,8 @@ int main(int argc, char * argv[])
 
       //Define Jet Collection
       auto offlineJets = analysis.collection<Jet>("Jets");
+      //Define Vertex collection
+      auto offlinePrimaryVertices = analysis.collection<Vertex>("Vertices");
 
       if (offlineJets -> size() < 2) continue;
 
@@ -147,47 +187,70 @@ int main(int argc, char * argv[])
       }
       if(!goodLeadingJets) continue;
 
-      // Method that calculates dEta, dPhi between frist t2o leading jets
+      //Vertices study
+      for(int iVtx = 0; iVtx < offlinePrimaryVertices->size(); ++iVtx){
+    	  Vertex vertex = offlinePrimaryVertices->at(iVtx);
+    	  analysis.addVertexInfo(vertex);
+      }
+
+      // Method that calculates dEta, dPhi between frist two leading jets
       // Also all parameters of di-jet object is calculated
       analysis.calculateJetVariables();
 
       if(analysis.isMC()){
-    	  //Calculate other weights
-    	  analysis.calculateWeights(btagEff0p9,btagEff0p9_1p4,btagEff1p4_2p5,hPtEff,2182.680439);
 
-    	  if(analysis.getHt() >= 2600) {
-    		  WeightHt = HtRatio->Interpolate(2550);
+    	  //.........................Calculate weights...............
+    	  // general weights which is independent of selection type OR already includes
+    	  // selection depends criterias inside.
+    	  weight["FactorPt"] = weightCalc.FactorizationPtWeight(LeadJet[0].pt(), LeadJet[1].pt());
+    	  weight["dEta"]     = weightCalc.dEtaWeight(abs(LeadJet[0].eta() - LeadJet[1].eta()));
+    	  weight["2DPt"]     = weightCalc.TwoDPtWeight(hPtEff,LeadJet[0].pt(),LeadJet[1].pt());
+    	  weight["Lumi"]     = weightCalc.LumiWeight(2182.680439,analysis.luminosity());
+    	  weight["Ht"]       = weightCalc.HtWeight(HtRatio,analysis.getHt());
+    	  //TODO: PileUp reweighting is wrong (truePileUp distribution should be used)!!!
+    	  //weight["PileUpCentral"] = weightCalc.PileUpWeight(hPileUpData["central"],hPileUpMC,offlinePrimaryVertices->size());
+    	  //weight["PileUpDown"]    = weightCalc.PileUpWeight(hPileUpData["down"],hPileUpMC,offlinePrimaryVertices->size());
+    	  //weight["PileUpUp"]      = weightCalc.PileUpWeight(hPileUpData["up"],hPileUpMC,offlinePrimaryVertices->size());
+
+
+    	  //Selection depending weights
+    	  if(analysis.getLowMSelection()){
+        	  weight["BTag"] = weightCalc.BTagWeight(btagEff0p9,btagEff0p9_1p4,btagEff1p4_2p5,LeadJet[0].pt(),LeadJet[0].eta()) *
+        			  	  	   weightCalc.BTagWeight(btagEff0p9,btagEff0p9_1p4,btagEff1p4_2p5,LeadJet[1].pt(),LeadJet[1].eta());
     	  }
     	  else {
-    		  WeightHt = HtRatio->Interpolate(analysis.getHt());
+        	  weight["BTag"] = weightCalc.BTagWeight(btag2DEff0p85, LeadJet[0].pt(),LeadJet[0].eta())*
+        			  	  	   weightCalc.BTagWeight(btag2DEff0p85, LeadJet[1].pt(), LeadJet[1].eta());
     	  }
-    	  analysis.setHtWeight(WeightHt);
+
+    	  //
+    	  analysis.setPtFactorizationWeight(weight["FactorPt"]);
+    	  analysis.setdEtaWeight(weight["dEta"]);
+    	  analysis.setBTagWeight(weight["BTag"]);
+    	  analysis.setPt2DWeight(weight["2DPt"]);
+    	  analysis.setLumiWeight(weight["Lumi"]);
+    	  analysis.setHtWeight(weight["Ht"]);
+    	  //analysis.setPileUpWeight(weight["PileUpCentral"],weight["PileUpUp"],weight["PileUpDown"]);
 
     	  //Calculation of the flavour composition, based on HadronFlavours
     	  analysis.calculateFlavourComposition();
+
       }
 
+
+      // Fill the output Tree
       analysis.fillTree();
 
 
    }
    std::cout<<"Number of Candidates: "<<analysis.getNumberOfCandidates()<<std::endl;
+
    analysis.writeTree();
 
    return 0;
 //
  /*
  */
-}
-
-double BTagWeight(TH2F*region1,TH2F* region2,TH2F* region3, const double &pt, const double &eta){
-	if(pt <1000) {
-		if(eta < 0.9) return region1 -> Interpolate(pt);
-		else if (eta > 0.9 &&eta < 1.4) return region2 -> Interpolate(pt);
-		else return region3 -> Interpolate(pt);
-
-	}
-	else return 1;
 }
 
 /*

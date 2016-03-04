@@ -39,9 +39,12 @@ MssmHbb::MssmHbb(const std::string & inputFilelist, const std::string & evtinfo)
 		this->ShowMCInformation();
 	}
 
+	// Tree for Jets
 	this->addTree<Jet> ("Jets","MssmHbb/Events/slimmedJetsPuppi");
 	this->triggerResults("MssmHbb/Events/TriggerResults");
 
+	// Tree for Vertices
+	this->addTree<Vertex> ("Vertices","MssmHbb/Events/offlineSlimmedPrimaryVertices");
 
 }
 
@@ -55,9 +58,9 @@ void MssmHbb::SetupStandardOutputFile(const std::string & outputFileName){
 	//get the full file name and path from the Tree
 	std::string outputFileName__ = this->tree<Jet>("Jets")->PhysicsObjectTree<Jet>::PhysicsObjectTreeBase::TreeBase::tree()->GetFile()->GetName();
 	std::string outputName = outputFileName;
-	if(lowMSelection_) outputName = outputFileName + "lowMTrigger_";
-	else if(!lowMSelection_) outputName = outputFileName + "highMTrigger_";
-	BasicTree::SetupStandardOutputFile(outputFileName,outputFileName__);
+	if(lowMSelection_) outputName = outputFileName + "_lowMTrigger_";
+	else if(!lowMSelection_) outputName = outputFileName + "_highMTrigger_";
+	BasicTree::SetupStandardOutputFile(outputName,outputFileName__);
 //	this->setBranches();
 
 }
@@ -71,6 +74,7 @@ void MssmHbb::addTriggerObjects(const std::vector<std::string> &triggerObjectNam
 		std::cerr<<"Error: Empty vector of triggerObjectNames were sepcified. Interupt!"<<std::endl;
 		exit(0);
 	}
+	lowMSelection_ = false;
 
 	//Add trees with different Trigger Objects and specify Trigger Logic name
 	for(const auto & triggerObject : triggerObjectName_)
@@ -116,6 +120,13 @@ void MssmHbb::SetupConstants(){
 
 void MssmHbb::setBranches(){
 	//set special branches for MssmHbb analysis
+	//Vertices
+	OutTree_->Branch("XPrimaryVTX",XPrimaryVTX_,"XPrimaryVTX[50]/D");
+	OutTree_->Branch("YPrimaryVTX",YPrimaryVTX_,"YPrimaryVTX[50]/D");
+	OutTree_->Branch("ZPrimaryVTX",ZPrimaryVTX_,"ZPrimaryVTX[50]/D");
+	OutTree_->Branch("NPrimaryVTX",&NPrimaryVTX_,"NPrimaryVTX/I");
+
+
 	if(this->isMC()){
 		//Reweighting variables
 		OutTree_->Branch("BTagWeight",&BTagWeight_,"BTagWeight/D");
@@ -126,6 +137,11 @@ void MssmHbb::setBranches(){
 		OutTree_->Branch("BTagSFup",btagSFup_,"BTagSFup[20]/D");
 		OutTree_->Branch("BTagSFdown",btagSFdown_,"BTagSFdown[20]/D");
 
+		//PileUp
+		OutTree_->Branch("WeightPileUpCentral",&WeightPileUp_["central"],"WeightPileUpCentral/D");
+		OutTree_->Branch("WeightPileUpUp",&WeightPileUp_["up"],"WeightPileUpUp/D");
+		OutTree_->Branch("WeightPileUpDown",&WeightPileUp_["down"],"WeightPileUpDown/D");
+
 		//Flavour composition
 		OutTree_->Branch("cc",&cc_,"cc/I");
 		OutTree_->Branch("bb",&bb_,"bb/I");
@@ -133,6 +149,7 @@ void MssmHbb::setBranches(){
 		OutTree_->Branch("bc",&bc_,"bc/I");
 		OutTree_->Branch("bq",&bq_,"bq/I");
 		OutTree_->Branch("qc",&qc_,"qc/I");
+
 	}
 
 	//Set basic branches
@@ -145,10 +162,20 @@ void MssmHbb::cleanVariables(){
 	BasicTree::cleanVariables();
 
 	//Clean Specific for MssmHbb analysis variables
+	NPrimaryVTX_ = 0;
+	std::fill_n(XPrimaryVTX_,50,-100);
+	std::fill_n(YPrimaryVTX_,50,-100);
+	std::fill_n(ZPrimaryVTX_,50,-100);
+
 	if(isMC()){
 		std::fill_n(btagSFcentral_,20,-100.);
 		std::fill_n(btagSFdown_,20,-100);
 		std::fill_n(btagSFup_,20,-100);
+
+		WeightPileUp_["central"] = -100;
+		WeightPileUp_["up"] = -100;
+		WeightPileUp_["down"] = -100;
+
 		BTagWeight_ = -100;
 		qq_ = 0;
 		bb_ = 0;
@@ -227,8 +254,8 @@ void MssmHbb::calculateFlavourComposition(){
 }
 
 
-void MssmHbb::calculateWeights(TH2F *btag_low_eta,TH2F * btag_mid_eta, TH2F * btag_high_eta, TH2F *pt, const double & dataLumi){
-	//TODO: apply trigger dependent weights calculation
+void MssmHbb::calculateWeights(TH1F *btag_low_eta,TH1F * btag_mid_eta, TH1F * btag_high_eta, TH2F *pt, const double & dataLumi){
+	//TODO: Find better solution
 	//Pt trigger efficiency weight based on factorisation apporach
 	FactorizationPtWeight_ = factorizationPtWeight1D(LeadJet_[0].pt()) * factorizationPtWeight1D(LeadJet_[1].pt());
 	//dEta trigger efficiency weight
@@ -240,7 +267,14 @@ void MssmHbb::calculateWeights(TH2F *btag_low_eta,TH2F * btag_mid_eta, TH2F * bt
 	TwoDPtWeight_ = twoDPtWeight(pt,LeadJet_[0].pt(),LeadJet_[1].pt());
 	lumiWeight_ = dataLumi / this->luminosity();
 
+}
 
+void MssmHbb::addVertexInfo(analysis::tools::Vertex & vert){
+
+		XPrimaryVTX_[NPrimaryVTX_] = vert.x();
+		YPrimaryVTX_[NPrimaryVTX_] = vert.y();
+		ZPrimaryVTX_[NPrimaryVTX_] = vert.z();
+		NPrimaryVTX_ ++;
 }
 
 double MssmHbb::factorizationPtWeight1D(const double &pt)
@@ -259,7 +293,7 @@ double MssmHbb::dEtaWeight(const double & dEta)
 	}
 	else return 1.;
 }
-double MssmHbb::BTagWeight(TH2F*region1,TH2F* region2,TH2F* region3, const double &pt, const double &eta){
+double MssmHbb::BTagWeight(TH1F*region1,TH1F* region2,TH1F* region3, const double &pt, const double &eta){
 	if(pt <1000) {
 		if(eta < 0.9) return region1 -> Interpolate(pt);
 		else if (eta > 0.9 &&eta < 1.4) return region2 -> Interpolate(pt);
@@ -274,6 +308,9 @@ double MssmHbb::BTagWeight(TH2F*region1,TH2F* region2,TH2F* region3, const doubl
 }
 
 double MssmHbb::twoDPtWeight(TH2F *histo, const double &pt1, const double &pt2){
+
+	if(histo == 0) std::cerr<<"ERROR"<<std::endl;
+
 	if (pt1 > 500) {
 		if (pt2 > 500){
 			return histo->Interpolate(499,499);
