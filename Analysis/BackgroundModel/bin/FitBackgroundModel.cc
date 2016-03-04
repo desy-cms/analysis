@@ -147,13 +147,18 @@ int backgroundOnlyFit(ab::FitContainer& fitter, po::variables_map& vm) {
     return 0;
   }
 
+  int returnValue = 0;
   std::unique_ptr<RooFitResult> bkgOnlyFit = fitter.backgroundOnlyFit();
   if (bkgOnlyFit) {
     std::cout << "\nCorrelation matrix of background-only fit:" << std::endl;
-    if (&(bkgOnlyFit->correlationMatrix()) != nullptr)
+    if (&(bkgOnlyFit->correlationMatrix()) != nullptr) {
       bkgOnlyFit->correlationMatrix().Print("v");
-    else
+    } else {
       std::cout << ">>> no correlation matrix available" << std::endl;
+      returnValue = 1;
+    }
+  } else {
+    returnValue = 1;
   }
 
   if (vm.count("profile")) {
@@ -162,5 +167,5 @@ int backgroundOnlyFit(ab::FitContainer& fitter, po::variables_map& vm) {
 
   for (const auto& m : bkgModifiers) m.show();
 
-  return 0;
+  return returnValue;
 }
