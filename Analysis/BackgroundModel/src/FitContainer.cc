@@ -3,6 +3,7 @@
 #include <exception>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/join.hpp>
+#include "TFile.h"
 #include "TSystem.h"
 #include "TLatex.h"
 #include "RooAbsPdf.h"
@@ -37,10 +38,15 @@ FitContainer::FitContainer(const TH1& data, const TH1& signal, const TH1& bkg,
   fitRangeId_("fit_range"),
   verbosity_(1),
   workspace_(RooWorkspace("workspace")),
+  outRootFileName_(getOutputPath_("workspace")+"workspace.root"),
   mbb_("mbb"),
   data_("data_container"),
   signal_("signal_container"),
-  bkg_("background_container") {
+  bkg_("background_container"),
+  bkgOnlyFit_("fit_b", "fit_b"),
+  chi2BkgOnly_(-10000.0),
+  normChi2BkgOnly_(-10000.0),
+  ndfBkgOnly_(-10000) {
   RooRealVar mbb(mbb_.c_str(), "m_{bb}",
                  data.GetXaxis()->GetXmin(), data.GetXaxis()->GetXmax(), "GeV");
   fitRangeMin_ = mbb.getMin();
@@ -73,9 +79,14 @@ FitContainer::FitContainer(TTree& data, const std::string& outputDir) :
   fitRangeId_("fit_range"),
   verbosity_(1),
   workspace_(RooWorkspace("workspace")),
+  outRootFileName_(getOutputPath_("workspace")+"workspace.root"),
   mbb_("mbb"),
   weight_("weight"),
-  data_("data_container") {
+  data_("data_container"),
+  bkgOnlyFit_("fit_b", "fit_b"),
+  chi2BkgOnly_(-10000.0),
+  normChi2BkgOnly_(-10000.0),
+  ndfBkgOnly_(-10000) {
   RooRealVar mbb(mbb_.c_str(), "m_{bb}",
                  0.0, data.GetMaximum(mbb_.c_str()), "GeV");
   fitRangeMin_ = mbb.getMin();
@@ -99,7 +110,11 @@ FitContainer::FitContainer(const TreeContainer& container,
 
 
 FitContainer::~FitContainer() {
-  workspace_.writeToFile((workspaceDir_+"workspace.root").c_str());
+  workspace_.writeToFile(outRootFileName_.c_str());
+  TFile out(outRootFileName_.c_str(), "update");
+  bkgOnlyFit_.SetDirectory(&out);
+  bkgOnlyFit_.Write();
+  out.Close();
 }
 
 
@@ -131,6 +146,11 @@ void FitContainer::initialize() {
   canvas.SaveAs((plotDir_+"input_data.pdf").c_str());
   canvas.SetLogy();
   canvas.SaveAs((plotDir_+"input_data_log.pdf").c_str());
+
+  // initialize background-only fit result tree:
+  bkgOnlyFit_.Branch("chi2", &chi2BkgOnly_, "chi2/F");
+  bkgOnlyFit_.Branch("normChi2", &normChi2BkgOnly_, "normChi2/F");
+  bkgOnlyFit_.Branch("ndf", &ndfBkgOnly_, "ndf/I");
 
   initialized_ = true;
 }
@@ -277,9 +297,13 @@ std::unique_ptr<RooFitResult> FitContainer::backgroundOnlyFit() {
                      "Background-only fit");
 
   int nPars = fitResult->floatParsFinal().getSize();
-  int ndf = getNonZeroBins_(data) - nPars;
-  double normChi2 = frame->chiSquare("background_curve", "data_curve", nPars);
-  std::string chi2str(Form("%.1f/%d = %.1f", normChi2 * ndf, ndf, normChi2));
+  ndfBkgOnly_ = getNonZeroBins_(data) - nPars;
+  normChi2BkgOnly_ = frame->chiSquare("background_curve", "data_curve", nPars);
+  chi2BkgOnly_ = normChi2BkgOnly_ * ndfBkgOnly_;
+  bkgOnlyFit_.Fill();
+
+  std::string chi2str(Form("%.1f/%d = %.1f", chi2BkgOnly_,
+			   ndfBkgOnly_, normChi2BkgOnly_));
   std::cout << "\nNormalized chi^2: " << chi2str << std::endl;
   latex.SetTextSize(20);
   latex.SetTextAlign(33);
@@ -287,7 +311,8 @@ std::unique_ptr<RooFitResult> FitContainer::backgroundOnlyFit() {
                      (std::string("#chi^{2}_{RooFit}/ndf = ")+chi2str).c_str());
   double myChi2 = chiSquare_(data,
                              *(frame->getCurve("background_curve")));
-  std::string myChi2str(Form("%.1f/%d = %.1f", myChi2, ndf, myChi2/ndf));
+  std::string myChi2str(Form("%.1f/%d = %.1f", myChi2, ndfBkgOnly_,
+			     myChi2/ndfBkgOnly_));
   std::cout << "\nMy normalized chi^2: " << myChi2str << std::endl;
   latex.SetTextSize(20);
   latex.SetTextAlign(33);

@@ -102,6 +102,7 @@ namespace analysis {
       std::string fitRangeId_;
       int verbosity_;
       RooWorkspace workspace_;
+      std::string outRootFileName_;
       std::string mbb_;
       std::string weight_;
       std::string data_;
@@ -109,6 +110,10 @@ namespace analysis {
       std::string bkg_;
       float fitRangeMin_;
       float fitRangeMax_;
+      TTree bkgOnlyFit_;
+      float chi2BkgOnly_;
+      float normChi2BkgOnly_;
+      int ndfBkgOnly_;
     };
 
   }
