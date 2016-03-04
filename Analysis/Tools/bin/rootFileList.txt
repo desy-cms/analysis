@@ -1,1 +1,1 @@
-/nfs/dust/cms/user/shevchen/DataRunII13TeV/CMSSW_7_5_2/src/Analysis/Ntuplizer/test/latest/Run2015D.root
+/afs/desy.de/user/w/walsh/cms/analysis/cmssw/dev/CMSSW_7_6_3_patch2/src/Analysis/Ntuplizer/test/test_mc.root

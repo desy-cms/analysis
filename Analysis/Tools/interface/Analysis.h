@@ -59,6 +59,9 @@ namespace analysis {
             int  run();
             int  lumiSection();
             bool isMC();
+            
+            int   nPileup();
+            float nTruePileup();
 
             // Trees
             template<class Object>
@@ -129,6 +132,9 @@ namespace analysis {
             int run_;
             int lumi_;
             bool is_mc_;
+            
+            int n_pu_;
+            float n_true_pu_;
 
             int nevents_;
 
@@ -263,13 +269,15 @@ namespace analysis {
       
 // ========================================================
 
-      inline int  Analysis::numberEvents() { return nevents_; }
-      inline int  Analysis::size()         { return nevents_; }
-      inline int  Analysis::event()        { return event_; }
-      inline int  Analysis::run()          { return run_  ; }
-      inline int  Analysis::lumiSection()  { return lumi_ ; }
-      inline bool Analysis::isMC()         { return is_mc_ ; }
+      inline int   Analysis::numberEvents() { return nevents_;   }
+      inline int   Analysis::size()         { return nevents_;   }
+      inline int   Analysis::event()        { return event_;     }
+      inline int   Analysis::run()          { return run_  ;     }
+      inline int   Analysis::lumiSection()  { return lumi_ ;     }
+      inline bool  Analysis::isMC()         { return is_mc_ ;    }
       
+      inline int   Analysis::nPileup()      { return n_pu_;      }
+      inline float Analysis::nTruePileup()  { return n_true_pu_; }
       
 //      inline std::string Analysis::getGenParticleCollection() { return genParticleCollection_; }
 
