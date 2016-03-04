@@ -50,6 +50,8 @@ namespace analysis {
            ~EventInfo();
             void Fill(const edm::Event&);
             void Init();
+            void PileupInfo(const edm::InputTag&);
+            void ReadPileupInfo(const edm::Event&);
             TTree * Tree();
       
          private:
@@ -64,6 +66,12 @@ namespace analysis {
             
             // Output tree
             TTree * tree_;
+            
+            // PileupInfo
+            edm::InputTag puInfo_;
+            bool do_pu_;
+            int n_pu_;
+            float n_true_pu_;
             
       };
    }

@@ -92,3 +92,31 @@ bool Candidate::matchTo(const std::vector<Candidate> * cands, const std::string 
    return status;
 }
 
+// Gets
+float Candidate::px()   const { return p4_.Px() ; }
+float Candidate::py()   const { return p4_.Py() ; }
+float Candidate::pz()   const { return p4_.Pz() ; }
+float Candidate::pt()   const { return p4_.Pt() ; }
+float Candidate::eta()  const { return p4_.Eta(); }
+float Candidate::phi()  const { return p4_.Phi(); }
+float Candidate::e()    const { return p4_.E()  ; }
+float Candidate::m()    const { return p4_.M()  ; }
+float Candidate::mass() const { return p4_.M()  ; }
+int   Candidate::q()    const { return q_;   }
+float Candidate::deltaR(const Candidate &cand) const { return p4_.DeltaR(cand.p4()) ;}
+
+TLorentzVector Candidate::p4() const { return p4_; }
+TVector3       Candidate::p3() const { return p4_.Vect(); }
+
+
+const Candidate * Candidate::matched(const std::string & name) { return matched_[name]; }
+const Candidate * Candidate::matched(const std::string & name) const { return matched_.find(name) != matched_.end() ? matched_.find(name)->second : 0; }
+
+// Sets
+void  Candidate::p4(const TLorentzVector & p4) { p4_ = p4; }
+void  Candidate::px(const float & px) { p4_.SetPx(px); }
+void  Candidate::py(const float & py) { p4_.SetPy(py); }
+void  Candidate::pz(const float & pz) { p4_.SetPy(pz); }
+void  Candidate::e (const float & e ) { p4_.SetE(e);   }
+void  Candidate::q (const float & q)  { q_ = q; }
+

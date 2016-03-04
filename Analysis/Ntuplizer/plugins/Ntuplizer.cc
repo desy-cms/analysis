@@ -75,6 +75,9 @@
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
+
+
 #include "Analysis/Ntuplizer/interface/EventFilter.h"
 #include "Analysis/Ntuplizer/interface/Utils.h"
 
@@ -217,10 +220,14 @@ class Ntuplizer : public edm::EDAnalyzer {
       edm::InputTag filteredEvents_;
       edm::InputTag genRunInfo_;
       
+      edm::InputTag pileupInfo_;
+     
       edm::EDGetTokenT<GenFilterInfo> genFilterInfoToken_;      
       edm::EDGetTokenT<edm::MergeableCounter> totalEventsToken_;      
       edm::EDGetTokenT<edm::MergeableCounter> filteredEventsToken_;      
-      edm::EDGetTokenT<GenRunInfoProduct> genRunInfoToken_;      
+      edm::EDGetTokenT<GenRunInfoProduct> genRunInfoToken_;
+           
+      edm::EDGetTokenT<std::vector<PileupSummaryInfo> > pileupInfoToken_;      
       
       InputTags eventCounters_;
       
@@ -321,6 +328,8 @@ Ntuplizer::Ntuplizer(const edm::ParameterSet& config) //:   // initialization of
       if ( inputTag == "TotalEvents" )    { totalEventsToken_    = consumes<edm::MergeableCounter,edm::InLumi>(collection); totalEvents_     = collection;}
       if ( inputTag == "FilteredEvents" ) { filteredEventsToken_ = consumes<edm::MergeableCounter,edm::InLumi>(collection); filteredEvents_  = collection;}
       if ( inputTag == "GenRunInfo" )     { genRunInfoToken_     = consumes<GenRunInfoProduct,edm::InRun>(collection);      genRunInfo_      = collection;}
+
+      if ( inputTag == "PileupInfo" )     { pileupInfoToken_     = consumes<std::vector<PileupSummaryInfo> >(collection);                 pileupInfo_      = collection;}
  
    }
 
@@ -359,8 +368,8 @@ void Ntuplizer::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
    // Event info
    eventinfo_ -> Fill(event);
    
-   if ( do_pileupinfo_ )
-      pileupinfo_ -> Fill(event);
+//    if ( do_pileupinfo_ )
+//       pileupinfo_ -> Fill(event);
 
    if ( is_mc_ )
    {
@@ -425,7 +434,7 @@ void Ntuplizer::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 void 
 Ntuplizer::beginJob()
 {
-   do_pileupinfo_       = config_.exists("PileupInfo");
+   do_pileupinfo_       = config_.exists("PileupInfo") && is_mc_;
    do_l1jets_           = config_.exists("L1ExtraJets");
    do_l1muons_          = config_.exists("L1ExtraMuons");
    do_calojets_         = config_.exists("CaloJets");
@@ -512,6 +521,8 @@ Ntuplizer::beginJob()
    
    // Event info tree
    eventinfo_ = pEventInfo (new EventInfo(eventsDir));
+   if ( do_pileupinfo_ )
+      eventinfo_ -> PileupInfo(config_.getParameter<edm::InputTag>("PileupInfo"));
    
     // Metadata 
    metadata_ = pMetadata (new Metadata(fs,is_mc_));
@@ -550,13 +561,6 @@ Ntuplizer::beginJob()
          // Initialise trees
          if ( inputTags != "TriggerObjectStandAlone" )
             tree_[name] = eventsDir.make<TTree>(name.c_str(),fullname.c_str());
-         
-         // Pileup Info
-         if ( inputTags == "PileupInfo" )
-         {
-            pileupinfo_ = pPileupInfo( new PileupInfo(collection, tree_[name]) );
-            pileupinfo_ -> Branches();
-         }
          
          // L1 Jets
          if ( inputTags == "L1ExtraJets" )
@@ -680,7 +684,15 @@ Ntuplizer::beginJob()
    for ( auto & inputTag : inputTags_ )
    {
       edm::InputTag collection = config_.getParameter<edm::InputTag>(inputTag);
-      std::string label = collection.label();
+      
+         // Names for the trees, from inputs
+         std::string label = collection.label();
+         std::string inst  = collection.instance();
+         std::string proc  = collection.process();
+         name = label;
+         fullname = name + "_" + inst + "_" + proc;
+         if ( use_full_name_ ) name = fullname;
+         
          
       // Generator filter
       if ( do_genfilter_ && inputTag == "GenFilterInfo" && is_mc_ )
@@ -695,6 +707,16 @@ Ntuplizer::beginJob()
          if ( inputTag == "FilteredEvents" )  { eventCounters_[1] = filteredEvents_; ++nCounters; }
          if ( nCounters == 2 ) metadata_ -> SetEventFilter(eventCounters_);
       }
+      // Pileup Info
+//       if ( inputTag == "PileupInfo" && is_mc_ )
+//       {
+//          tree_[name] = eventsDir.make<TTree>(name.c_str(),fullname.c_str());
+//          pileupinfo_ = pPileupInfo( new PileupInfo(collection, tree_[name]) );
+//          pileupinfo_ -> Branches();
+// 
+//       }
+         
+
 
    } 
 

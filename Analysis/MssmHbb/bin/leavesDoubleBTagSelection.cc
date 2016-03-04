@@ -208,9 +208,9 @@ int main(int argc, char * argv[])
     	  weight["Lumi"]     = weightCalc.LumiWeight(2182.680439,analysis.luminosity());
     	  weight["Ht"]       = weightCalc.HtWeight(HtRatio,analysis.getHt());
     	  //TODO: PileUp reweighting is wrong (truePileUp distribution should be used)!!!
-    	  weight["PileUpCentral"] = weightCalc.PileUpWeight(hPileUpData["central"],hPileUpMC,offlinePrimaryVertices->size());
-    	  weight["PileUpDown"]    = weightCalc.PileUpWeight(hPileUpData["down"],hPileUpMC,offlinePrimaryVertices->size());
-    	  weight["PileUpUp"]      = weightCalc.PileUpWeight(hPileUpData["up"],hPileUpMC,offlinePrimaryVertices->size());
+    	  //weight["PileUpCentral"] = weightCalc.PileUpWeight(hPileUpData["central"],hPileUpMC,offlinePrimaryVertices->size());
+    	  //weight["PileUpDown"]    = weightCalc.PileUpWeight(hPileUpData["down"],hPileUpMC,offlinePrimaryVertices->size());
+    	  //weight["PileUpUp"]      = weightCalc.PileUpWeight(hPileUpData["up"],hPileUpMC,offlinePrimaryVertices->size());
 
 
     	  //Selection depending weights
@@ -230,7 +230,7 @@ int main(int argc, char * argv[])
     	  analysis.setPt2DWeight(weight["2DPt"]);
     	  analysis.setLumiWeight(weight["Lumi"]);
     	  analysis.setHtWeight(weight["Ht"]);
-    	  analysis.setPileUpWeight(weight["PileUpCentral"],weight["PileUpUp"],weight["PileUpDown"]);
+    	  //analysis.setPileUpWeight(weight["PileUpCentral"],weight["PileUpUp"],weight["PileUpDown"]);
 
     	  //Calculation of the flavour composition, based on HadronFlavours
     	  analysis.calculateFlavourComposition();
