@@ -33,9 +33,11 @@ using namespace analysis::tools;
 //
 Jet::Jet() : Candidate() 
 {
+   extendedFlavour_ = "?";
 }
 Jet::Jet(const float & pt, const float & eta, const float & phi, const float & e) : Candidate(pt,eta,phi,e,0.) 
 {
+   extendedFlavour_ = "?";
 }
 Jet::~Jet()
 {
