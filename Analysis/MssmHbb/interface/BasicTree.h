@@ -46,6 +46,7 @@ public:
 	void setNjets(const int &n);
 	void setJetCounter(const int &n);
 	void setLumiWeight(const double & dataLumi, const double & mcLumi);
+	void setLumiWeight(const double & weight);
 	void setTotalNumberOfEvents(const int &n);
 	void setJetVariables(const analysis::tools::Jet & Jet);
 	void setPhysObjVariables(const TLorentzVector & Obj);
@@ -87,6 +88,12 @@ protected:
     double dEtaFS_;
     double Ht_;
 
+    //Primary Vertices variables
+    int NPrimaryVTX_;
+    double XPrimaryVTX_[50];
+    double YPrimaryVTX_[50];
+    double ZPrimaryVTX_[50];
+
     //Trigger and Matching variables
     int NL1Obj_;
     double L1Pt_[20];
@@ -127,6 +134,7 @@ protected:
     double BTagWeight_;
     double lumiWeight_;
     double WeightHt_;
+    std::map<std::string,double> WeightPileUp_;
 
     // BTag SF weight
     double btagSFcentral_[20];
@@ -164,6 +172,8 @@ inline void BasicTree::addHt(const double &pt) {Ht_ += pt;}
 inline double BasicTree::getHt(){ return Ht_;}
 inline TTree * BasicTree::getOutputTree() {return OutTree_;}
 inline void BasicTree::setTotalNumberOfEvents(const int &n){ Ntot_ = n;}
+
+inline void BasicTree::setLumiWeight(const double &weight) {lumiWeight_ = weight;}
 
 
 

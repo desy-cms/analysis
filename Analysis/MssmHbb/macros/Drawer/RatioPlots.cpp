@@ -18,6 +18,7 @@
 #include "TGraphAsymmErrors.h"
 #include "TPaveText.h"
 #include "TLatex.h"
+#include "TExec.h"
 
 class RatioPlots: public HbbStyle {
 public:
@@ -25,6 +26,7 @@ public:
 	virtual ~RatioPlots();
 
 	TH1F *DrawRatio(TH1 *numerator, TH1 *denumerator, TH1 *systErr = 0, TLegend *leg = 0, TCanvas *can = 0);
+	TH1F *DrawRatio(TH1 *histo, TF1 *fit, std::string fitName, TCanvas *can = 0);
 	TH1F *DrawRatio(TH1 *numerator, TH1 *denumerator, TGraphAsymmErrors *systErr = NULL, TLegend *leg = NULL, TCanvas *can = NULL);
 	void DrawPhaseSpaceDescription(float x1, float y1, float x2, float y2);
 	bool FindMaximum(TH1*,TH1*);
@@ -49,6 +51,9 @@ private:
 	TPad *pad1_ = NULL;
 	TPad *pad2_ = NULL;
 
+	TExec *er_0;
+	TExec *er_1;
+
 };
 
 inline void RatioPlots::SetRatioTitle(const std::string &title){ ratioTitle_ = title;}
@@ -62,6 +67,8 @@ inline TPad *RatioPlots::GetBottomPad(){ return pad2_;}
 RatioPlots::RatioPlots(const PublicationStatus status) {
 	// TODO Auto-generated constructor stub
 	style_.set(status);
+	er_0 = new TExec("er_0","gStyle->SetErrorX(0)");
+	er_1 = new TExec("er_1","gStyle->SetErrorX(0.5)");
 	// Setup style file
 	TH1::SetDefaultSumw2();
 
@@ -105,21 +112,31 @@ TH1F* RatioPlots::DrawRatio(TH1 *numerator, TH1 *denumerator, TH1 *systErr, TLeg
 		else numerator->SetMaximum(denumerator->GetMaximum() + .1* denumerator->GetMaximum());
 	}
 	numerator -> Draw();
-	denumerator -> Draw("same");
 
 	if(systErr){
 	systErr->SetLineColor(2);
 	systErr->SetLineWidth(2);
-	systErr->SetLineStyle(3);
-	systErr -> Draw("E1 same");
+//	systErr->SetLineStyle(3);
+	systErr->SetFillColor(kMagenta-10);
+	systErr->SetFillStyle(1001);
+//	systErr -> Draw("E1 same");
+	er_1->Draw();
+	systErr -> Draw("E2 same");
+	er_0->Draw();
 	}
+
+	er_1->Draw();
+	denumerator -> Draw("same");
+	er_0->Draw();
+	numerator -> Draw("same");
+
 	if(leg) leg->Draw();
 	style_.standardTitle()->Draw();
 
 	can->cd();
 	pad2_ = new TPad("pad2","pad2",0,0.0,1,0.3);
 	pad2_ -> SetTopMargin(0.0);
-	pad2_ -> SetBottomMargin(0.25);
+	pad2_ -> SetBottomMargin(0.35);
 	pad2_ -> Draw();
 	pad2_ -> cd();
 
@@ -142,9 +159,57 @@ TH1F* RatioPlots::DrawRatio(TH1 *numerator, TH1 *denumerator, TH1 *systErr, TLeg
 	TH1 *RatioSyst = (TH1*) systErr->Clone("RatioSyst");
 	RatioSyst->Divide(numerator,RatioSyst);
 	RatioSyst->SetFillColor(kMagenta-10);
-	RatioSyst->SetFillStyle(3001);
+	RatioSyst->SetFillStyle(1001);
+
 	RatioSyst->Draw("E5 same");
+	hRatio->Draw("same");
+	horizLine -> Draw();
 	}
+
+	return hRatio;
+}
+
+TH1F* RatioPlots::DrawRatio(TH1 *histo, TF1 * fit, std::string fitName, TCanvas *can){
+
+	TH1::SetDefaultSumw2();
+	//Create Top pad for this canva
+	pad1_ = new TPad("pad1","pad1",0,0.3,1,1);
+	pad1_ -> SetBottomMargin(0.0);
+	pad1_ -> Draw();
+	pad1_ -> cd();
+
+	TH1F * hRatio = (TH1F*)histo->Clone("hRatio");
+	histo -> Fit(fit,"R+");
+	char name[200];
+	sprintf(name,"}{#chi^{2}/ndf = %.2f}",fit->GetChisquare()/fit->GetNDF());
+	fitName = "#splitline{ " + fitName + name;
+	TLegend *fitLegend = new TLegend(0.7,0.45,0.9,0.65);
+	fitLegend -> SetTextSize(0.04);
+	fitLegend -> AddEntry(fit,fitName.c_str(),"l");
+	histo -> Draw();
+	fitLegend->Draw();
+	style_.standardTitle()->Draw();
+
+	can->cd();
+	pad2_ = new TPad("pad2","pad2",0,0.0,1,0.3);
+	pad2_ -> SetTopMargin(0.0);
+	pad2_ -> SetBottomMargin(0.35);
+	pad2_ -> Draw();
+	pad2_ -> cd();
+
+	hRatio -> Sumw2();
+	hRatio -> Divide(fit);
+	hRatio -> Draw();
+
+	TLine *horizLine = new TLine(histo->GetXaxis()->GetXmin(),1,histo->GetXaxis()->GetXmax(),1);
+	horizLine -> SetLineStyle(2);
+	horizLine -> Draw();
+
+	SetBottomStyle(hRatio);
+
+	hRatio -> GetYaxis() -> SetRangeUser(ratioRange_.first,ratioRange_.second);
+	hRatio -> GetYaxis() -> SetTitle(ratioTitle_.c_str());
+	hRatio -> GetXaxis() -> SetTitle(histo->GetXaxis()->GetTitle());
 
 	return hRatio;
 }
@@ -182,7 +247,7 @@ TH1F* RatioPlots::DrawRatio(TH1 *numerator, TH1 *denumerator, TGraphAsymmErrors 
 	can->cd();
 	pad2_ = new TPad("pad2","pad2",0,0.0,1,0.3);
 	pad2_ -> SetTopMargin(0.0);
-	pad2_ -> SetBottomMargin(0.25);
+	pad2_ -> SetBottomMargin(0.35);
 	pad2_ -> Draw();
 	pad2_ -> cd();
 
@@ -243,7 +308,8 @@ void RatioPlots::SetBottomStyle(TH1 *hRatio){
    hRatio -> GetXaxis() -> SetLabelSize(23);
    */
 
-	hRatio -> SetNdivisions(505,"XYZ");
+	hRatio -> SetNdivisions(505,"YZ");
+	hRatio -> SetNdivisions(510,"X");
 	hRatio -> SetTickLength(0.04,"YZ");
 	hRatio -> SetTickLength(0.07,"X");
 	hRatio -> SetTitleSize(0.06*7/3,"XYZ");
@@ -254,7 +320,7 @@ void RatioPlots::SetBottomStyle(TH1 *hRatio){
 	hRatio -> SetLabelOffset(0.01,"XYZ");
 
 	hRatio -> GetYaxis() -> SetTitleOffset(0.6);
-	hRatio -> GetXaxis() -> SetTitleOffset(0.8);
+	hRatio -> GetXaxis() -> SetTitleOffset(1.);
 
 
 }

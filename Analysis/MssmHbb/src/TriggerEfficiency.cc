@@ -13,6 +13,7 @@
 
 // system include files
 #include <iostream>
+#include <cmath>
 // 
 // user include files
 #include "Analysis/MssmHbb/interface/TriggerEfficiency.h"
@@ -55,8 +56,9 @@ void TriggerEfficiency::setBranches(){
 	OutTree_->Branch("LeadMatch60",LeadMatch60_,"LeadMatch60[20]/I");
 	OutTree_->Branch("LeadMatch80",LeadMatch80_,"LeadMatch80[20]/I");
 	OutTree_->Branch("LeadMatch100",LeadMatch100_,"LeadMatch100[20]/I");
+	OutTree_->Branch("LeadMatch100L3",LeadMatch100L3_,"LeadMatch100L3[20]/I");
 	OutTree_->Branch("LeadMatch160",LeadMatch160_,"LeadMatch160[20]/I");
-	OutTree_->Branch("LeadMatch100dEta1p6",LeadMatch100dEta1p6_,"LeadMatch100dEta1p6[20]/I");
+	OutTree_->Branch("LeadMatch100dEta1p6",&LeadMatch100dEta1p6_,"LeadMatch100dEta1p6/I");
 	OutTree_->Branch("doubleJetTopology",&doubleJetTolopogy_,"doubleJetTopology/I");
 
 	BasicTree::setBranches();
@@ -74,8 +76,10 @@ void TriggerEfficiency::cleanVariables(){
 	std::fill_n(LeadMatch80_,20,-100);
 	std::fill_n(LeadMatch100_,20,-100);
 	std::fill_n(LeadMatch160_,20,-100);
-	std::fill_n(LeadMatch100dEta1p6_,20,-100);
+	std::fill_n(LeadMatch100L3_,20,-100);
+
 	doubleJetTolopogy_ = -100;
+	LeadMatch100dEta1p6_ = -100;
 
 	if(isMC()){
 
@@ -119,6 +123,16 @@ bool TriggerEfficiency::matchToPF100(const Jet &jet){
 	return matched;
 }
 
+bool TriggerEfficiency::matchToPF100L3(const Jet &jet){
+	bool matched = false;
+	const Candidate * l1 = jet.matched("hltL1sL1SingleJet52");
+	const Candidate * l2 = jet.matched("hltSingleCaloJet50");
+	const Candidate * l3 = jet.matched("hltSinglePFJet80");
+	if( l1 && l2 && l3 && l3->pt() > 100) matched = true;
+	LeadMatch100L3_[jetCounter_] = matched;
+	return matched;
+}
+
 bool TriggerEfficiency::matchToPF160(const Jet &jet){
 	bool matched = false;
 	const Candidate * l1 = jet.matched("hltL1sL1SingleJet52");
@@ -131,14 +145,14 @@ bool TriggerEfficiency::matchToPF160(const Jet &jet){
 
 bool TriggerEfficiency::matchToPF100dEta1p6(const Jet &jet1 , const Jet &jet2){
 	bool matched = false;
-	const Candidate * J1l1 = jet1.matched("hltL1sL1SingleJet52");
-	const Candidate * J1l2 = jet1.matched("hltSingleCaloJet50");
+//	const Candidate * J1l1 = jet1.matched("hltL1sL1SingleJet52");
+//	const Candidate * J1l2 = jet1.matched("hltSingleCaloJet50");
 	const Candidate * J1l3 = jet1.matched("hltSinglePFJet80");
 
-	const Candidate * J2l1 = jet2.matched("hltL1sL1SingleJet52");
-	const Candidate * J2l2 = jet2.matched("hltSingleCaloJet50");
+//	const Candidate * J2l1 = jet2.matched("hltL1sL1SingleJet52");
+//	const Candidate * J2l2 = jet2.matched("hltSingleCaloJet50");
 	const Candidate * J2l3 = jet2.matched("hltSinglePFJet80");
-	if( J1l1 && J1l2 && J1l3 && J2l1 && J2l2 && J2l3&& abs(J1l3->eta() - J2l3->eta()) <= 1.6) matched = true;
-	LeadMatch100dEta1p6_[jetCounter_] = matched;
+	if( J1l3 && J2l3 && J1l3->pt()>100 && J2l3->pt()>100 && std::abs(J1l3->eta() - J2l3->eta()) <= 1.6) matched = true;
+	LeadMatch100dEta1p6_ = matched;
 	return matched;
 }

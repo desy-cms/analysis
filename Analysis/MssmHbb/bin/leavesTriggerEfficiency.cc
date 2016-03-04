@@ -36,7 +36,7 @@ int main(int argc, char * argv[])
    TH2F *hPtEff = (TH2F*) filePtEff ->Get("TwoDEff_Num"); // 2D
 
    // Input files list MssmHbb
-   std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/JetHT/JetHTFileList.txt";
+   std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/JetHT/JetHTFileListRun2015D05Oct.txt";
    TriggerEfficiency analysis(inputList); //Default second argument is "MssmHbb/Events/EventInfo"
    
    // Process selected JSON file
@@ -44,7 +44,7 @@ int main(int argc, char * argv[])
 
    //Setup output file name
    //name can me specified explicitly with method: createOutputFile(fileName);
-   std::string fileName = "/nfs/dust/cms/user/shevchen/output/EfficiencyStudy_";
+   std::string fileName = "/nfs/dust/cms/user/shevchen/output/EfficiencyStudy";
    analysis.SetupStandardOutputFile(fileName);
 
    // Add std::vector<std::string> of the Trigger Objects that you would like to apply.
@@ -113,12 +113,13 @@ int main(int argc, char * argv[])
       		analysis.matchToPF80(jet);
       		analysis.matchToPF100(jet);
       		analysis.matchToPF160(jet);
+      		analysis.matchToPF100L3(jet);
 
       		//Selection cuts for first leading jets
       		if(counter == 1)
       		{
       			if(jet.pt() < 90) break;
-      			if(abs(jet.eta()) > 2.5) break;
+      			if(abs(jet.eta()) > 2.2) break;
       			goodLeadingJets = true;
       		}
       }
@@ -130,9 +131,9 @@ int main(int argc, char * argv[])
 
       //Flag to switch from single to double Jet topology
       bool double_topology = false;
-      if(LeadJet[1].pt() >= 90 && abs(LeadJet[1].eta()) <= 2.5) double_topology = true;
+      if(LeadJet[1].pt() >= 90 && abs(LeadJet[1].eta()) <= 2.2) double_topology = true;
       analysis.setTopology(double_topology);
-      if (double_topology) analysis.matchToPF100dEta1p6(LeadJet[0],LeadJet[1]);;
+      if (double_topology) analysis.matchToPF100dEta1p6(LeadJet[0],LeadJet[1]);
 
       //Set trigger objects variables
       analysis.setTriggerObjectVars();

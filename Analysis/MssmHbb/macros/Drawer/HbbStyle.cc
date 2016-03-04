@@ -204,7 +204,8 @@ private:
 PublicationStatus HbbStyle::publicationStatus_ = INTERNAL;
 double HbbStyle::lineHeight_ = 0.042;
 double HbbStyle::margin_ = 0.04;
-double HbbStyle::textSize_ = 0.035;
+//double HbbStyle::textSize_ = 0.035;
+double HbbStyle::textSize_ = 0.05;
 
 
 // --------------------------------------------------------------
@@ -293,7 +294,7 @@ TPaveText* HbbStyle::title(const TString& txt) {
   theTitle->SetFillStyle(1001);
   theTitle->SetTextFont(42);
   theTitle->SetTextAlign(12);	// left adjusted and vertically centered
-  theTitle->SetTextSize(0.038);
+  theTitle->SetTextSize(textSize_);
   theTitle->SetMargin(0.);
   theTitle->AddText(txt);
   
@@ -382,7 +383,7 @@ void HbbStyle::set(const PublicationStatus status) {
   gStyle->SetHistLineColor(kBlack);
   gStyle->SetHistLineStyle(0);
   gStyle->SetHistLineWidth(3);
-  gStyle->SetMarkerSize(0.8);
+  gStyle->SetMarkerSize(1.);
   gStyle->SetEndErrorSize(4);
   gStyle->SetHatchesLineWidth(1);
 

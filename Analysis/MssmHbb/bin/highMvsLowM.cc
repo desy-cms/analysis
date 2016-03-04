@@ -107,7 +107,7 @@ int main(int argc, char * argv[])
 
    //Setup output file name
    //name can me specified explicitly with method: createOutputFile(fileName);
-   std::string fileName = "/nfs/dust/cms/user/shevchen/output/DoubleBTagSelection_NoTriggerMatching";
+   std::string fileName = "/nfs/dust/cms/user/shevchen/output/DoubleBTagSelection_NoTriggerMatching_test";
    analysis.SetupStandardOutputFile(fileName);
 
    //Setup Branches
@@ -115,6 +115,16 @@ int main(int argc, char * argv[])
 
    int counter = 0;
    bool goodLeadingJets = true;
+
+   double highMLeadPt[20];
+   analysis.getOutputTree()->Branch("highMLeadPt",highMLeadPt,"highMLeadPt[20]/D");
+
+   double highMLeadEta[20];
+   analysis.getOutputTree()->Branch("highMLeadEta",highMLeadEta,"highMLeadEta[20]/D");
+
+   double highMLeadBTag[20];
+   analysis.getOutputTree()->Branch("highMLeadBTag",highMLeadBTag,"highMLeadBTag[20]/D");
+
    // Analysis of events
 
 
@@ -145,6 +155,10 @@ int main(int argc, char * argv[])
 
       //Set Total Number of Jets
       analysis.setNjets(offlineJets->size());
+
+      std::fill_n(highMLeadPt,20,-100);
+      std::fill_n(highMLeadEta,20,-100);
+      std::fill_n(highMLeadBTag,20,-100);
 
       counter = 0;
       goodLeadingJets = false;
@@ -177,10 +191,21 @@ int main(int argc, char * argv[])
 			if(jet.btag() < analysis.BTag1Cut()) break;
 			if(analysis.isMC()) analysis.calculateBTagSF(reader,reader_up,reader_down);
 
+			if(!analysis.isMC() && analysis.triggerResult("HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v")) {
+				highMLeadPt[counter-1] = jet.pt();
+				highMLeadEta[counter-1] = jet.eta();
+				highMLeadBTag[counter-1] = jet.btag();
+
+				for (const auto & trigObj : analysis.getTriggerObjectNames()){
+					auto candLowMJet = jet.matched(trigObj);
+				}
+
+			}
+
 			if(counter == 2){
 				if(LeadJet[0].deltaR(LeadJet[1]) <= 1) break;
 				if(abs(LeadJet[0].eta() - LeadJet[1].eta()) > analysis.dEtaCut()) break;
-				if(!analysis.isMC() && !analysis.OnlineSelection(LeadJet[0],LeadJet[1])) break;
+//				if(!analysis.isMC() && !analysis.OnlineSelection(LeadJet[0],LeadJet[1])) break;
 				goodLeadingJets = true;
 			}
 		}
@@ -236,6 +261,8 @@ int main(int argc, char * argv[])
     	  analysis.calculateFlavourComposition();
 
       }
+
+
 
 
       // Fill the output Tree

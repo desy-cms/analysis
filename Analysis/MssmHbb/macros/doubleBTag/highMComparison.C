@@ -13,9 +13,10 @@ void highMComparison()
    //gStyle->SetOptFit(1111);
    //gROOT->ForceStyle();
 
-   TFile * fData = new TFile("/nfs/dust/cms/user/shevchen/output/DoubleBTagSelection_HighMass_samples_14_02_2016.root");
-   TFile * fMonteCarlo = new TFile("/nfs/dust/cms/user/shevchen/output/DoubleBTagSelection_HighMass_QCD_14_02_2016.root");
-   std::string mcName = "QCD HT 13 TeV Pythia8";
+	TFile * fData = new TFile("/nfs/dust/cms/user/shevchen/output/DoubleBTagSelection_highMTrigger_samples_01_03_2016.root");
+    TFile * fMonteCarlo = new TFile("/nfs/dust/cms/user/shevchen/output/DoubleBTagSelection_highMTrigger_Pythia8_01_03_2016.root");
+
+   std::string mcName = "Pythia 8 MC";
 
    TTree *dataTree, *mcTree;
    fMonteCarlo -> GetObject("MssmHbb",mcTree);
@@ -23,11 +24,11 @@ void highMComparison()
 
    //Setup style
    HbbStyle style;
-   style.set(PUBLIC);
+   style.set(PRIVATE);
    TH1::SetDefaultSumw2();
 
    //Setup ratio plots
-   RatioPlots *ratio = new RatioPlots(PUBLIC);
+   RatioPlots *ratio = new RatioPlots(PRIVATE);
    ratio->SetRatioTitle("Data / MC"); // Default Title for Ratio plot Y-axis
    ratio->SetRatioRange(0.2,1.8);	// Default Y-axis range for Ratio plot
 
@@ -37,27 +38,92 @@ void highMComparison()
    //TCut section
    TCut weightLumi = "LumiWeight";
    TCut weightPt  = "TwoDPtWeight";
-   TCut weightdEta = "";
-   TCut weightBTag = "";
+   TCut weightdEta = "dEtaWeight";
+   TCut weightBTag = "BTagWeight";
    TCut weightPtFactorization = "FactorizationPtWeight";
    TCut ptSystWeight = "abs(FactorizationPtWeight - TwoDPtWeight)";
-   TCut btagSFcentral = "";
+   TCut btagSFcentral = "BTagSFcentral[0] * BTagSFcentral[1]";
    TCut btagSFup = "BTagSFup[0] * BTagSFup[1]";
    TCut btagSFdown = "BTagSFdown[0] * BTagSFdown[1]";
+   TCut pileupWeight = "WeightPileUpCentral";
 
    //Start drawing
+   //......................Primary Vertex................
+   TCanvas *canvaPV = new TCanvas("canvaPV","Primary Vertex",1000,800);
+
+   const int NumberOfNpvBins = 20;
+
+   //Main Histograms
+   TH1F *NPrimaryVTX_MC = new TH1F("NPrimaryVTX_MC","First Leading Jet Pt",NumberOfNpvBins,0,50);
+   TH1F *NPrimaryVTX_MCSyst = new TH1F("NPrimaryVTX_MCSyst","First Leading Jet Pt",NumberOfNpvBins,0,50);
+   TH1F *NPrimaryVTX_Data = new TH1F("NPrimaryVTX_Data",";leading b jet p_{T} (GeV) ; dN / dp_{T} (1/GeV)",NumberOfNpvBins,0,50);
+   NPrimaryVTX_Data->GetXaxis()->SetRangeUser(0.,50.);
+
+   mcTree ->Draw("NPrimaryVTX>>NPrimaryVTX_MCSyst",weightLumi*pileupWeight,"E");
+   mcTree ->Draw("NPrimaryVTX>>NPrimaryVTX_MC",weightLumi*pileupWeight,"E");
+   dataTree ->Draw("NPrimaryVTX>>NPrimaryVTX_Data","");
+
+
+   //Systematic errors
+   // Syst. for SFb
+   TH1F *NPrimaryVTX_SystSFbUp = new TH1F("NPrimaryVTX_SystSFbUp","Systematic errors up",NumberOfNpvBins,0,50);
+   TH1F *NPrimaryVTX_SystSFbDown = new TH1F("NPrimaryVTX_SystSFbDown","Systematic errors down",NumberOfNpvBins,0,50);
+
+   mcTree ->Draw("NPrimaryVTX>>fLeadPtSystSFbUp",weightLumi*pileupWeight,"E");
+   mcTree ->Draw("NPrimaryVTX>>fLeadPtSystSFbDown",weightLumi*pileupWeight,"E");
+
+   //Syst. for 2D Pt trigger efficiency
+   TH1F *NPrimaryVTX_Syst2DError = new TH1F("NPrimaryVTX_Syst2DError","Systematic errors up",NumberOfNpvBins,0,50);
+
+   mcTree ->Draw("NPrimaryVTX>>fLeadPtSyst2DError",weightLumi*pileupWeight,"E");
+
+   //Normalization:
+
+   for(int i = 1;i<=NumberOfNpvBins;++i){
+	   NPrimaryVTX_Data->SetBinContent(i,NPrimaryVTX_Data->GetBinContent(i)/(NPrimaryVTX_Data->GetBinWidth(5)));
+	   NPrimaryVTX_Data->SetBinError(i,NPrimaryVTX_Data->GetBinError(i)/(NPrimaryVTX_Data->GetBinWidth(5)));
+
+	   NPrimaryVTX_MC->SetBinContent(i,NPrimaryVTX_MC->GetBinContent(i)/(NPrimaryVTX_Data->GetBinWidth(5)));
+	   NPrimaryVTX_MC->SetBinError(i,NPrimaryVTX_MC->GetBinError(i)/(NPrimaryVTX_Data->GetBinWidth(5)));
+
+	   NPrimaryVTX_MCSyst->SetBinContent(i,NPrimaryVTX_MCSyst->GetBinContent(i)/(NPrimaryVTX_Data->GetBinWidth(5)));
+	   NPrimaryVTX_MCSyst->SetBinError(i,NPrimaryVTX_MCSyst->GetBinError(i)/(NPrimaryVTX_Data->GetBinWidth(5)));
+
+	   NPrimaryVTX_SystSFbUp->SetBinContent(i,NPrimaryVTX_SystSFbUp->GetBinContent(i)/(NPrimaryVTX_Data->GetBinWidth(5)));
+	   NPrimaryVTX_SystSFbDown->SetBinContent(i,NPrimaryVTX_SystSFbDown->GetBinContent(i)/(NPrimaryVTX_Data->GetBinWidth(5)));
+
+	   NPrimaryVTX_Syst2DError->SetBinContent(i,NPrimaryVTX_Syst2DError->GetBinContent(i)/(NPrimaryVTX_Data->GetBinWidth(5)));
+   }
+
+   systCalc->CalculateSingleSystError(NPrimaryVTX_MCSyst,NPrimaryVTX_Syst2DError);
+   systCalc->CalculateSingleSystError(NPrimaryVTX_MCSyst,NPrimaryVTX_SystSFbUp,NPrimaryVTX_SystSFbDown);
+   systCalc->AddUncorelatedSystErrors(NPrimaryVTX_MCSyst);
+
+   TLegend *leg_pv;
+   leg_pv = (TLegend*) style.legend("top,right",3,0.3);
+   leg_pv->AddEntry(NPrimaryVTX_Data,"Data","p");
+   leg_pv->AddEntry(NPrimaryVTX_MC,mcName.c_str(),"p");
+
+   TH1F *ratioPV = ratio->DrawRatio(NPrimaryVTX_Data,NPrimaryVTX_MC,NPrimaryVTX_MCSyst,leg_pv,canvaPV);
+   ratio->GetTopPad()->SetLogy();
+   ratioPV->GetXaxis()->SetRangeUser(0.,50.);
+   canvaPV->SaveAs("pictures/high_M_NPrimaryVertices1.pdf");
+
+//   //ratio->DrawPhaseSpaceDescription(100.,0.1,500.,3.);
+
+
    //.....................Ht bins.........................
    TCanvas *canva001 = new TCanvas("canva001","Jet multiplicity",1000,800);
 
-
-   double HtBins[]={320,330,
+   const int NumberofHtBins = 37;
+   double HtBins[NumberofHtBins+1]={200,205,210,215,220,
+		   	   	   	   	   	   	    240,260,280,300,330,
 									360,390,420,450,480,
 									510,550,600,650,700,
 									750,800,850,900,950,
 									1000,1100,1200,1300,1400,
 									1500,1600,1700,1800,1900,
    	   	   	   	   	   	   	   	   	2000,2200,2600};
-   const int NumberofHtBins = sizeof(HtBins)/sizeof(double) -1;
 
    //Main Histograms
    TH1F *fHtMC = new TH1F("fHtMC","First Leading Jet Pt",NumberofHtBins,HtBins);
@@ -68,11 +134,12 @@ void highMComparison()
    mcTree ->Draw("Ht>>fHtMCSyst",weightLumi*weightBTag*weightPt*weightdEta*btagSFcentral,"E");
    mcTree ->Draw("Ht>>fHtMC",weightLumi*weightBTag*weightPt*weightdEta*btagSFcentral,"E");
    dataTree ->Draw("Ht>>fHtData","");
+   double normalisation = fHtData->Integral(fHtData->FindBin(600),fHtData->FindBin(900)) / fHtMC->Integral(fHtMC->FindBin(600),fHtMC->FindBin(900));
 
    //Systematic errors
    // Syst. for SFb
    TH1F *fHtSystSFbUp = new TH1F("fHtSystSFbUp","Systematic errors up",NumberofHtBins,HtBins);
-   TH1F *fHtSystSFbCentral = new TH1F("fHtSystSFbCentral","Systematic errors central",NumberofHtBins,HtBins);
+   TH1F *fHtSystSFbCentral = new TH1F("fHtSystSFbCentral","",NumberofHtBins,HtBins);
    TH1F *fHtSystSFbDown = new TH1F("fHtSystSFbDown","Systematic errors down",NumberofHtBins,HtBins);
 
    mcTree ->Draw("Ht>>fHtSystSFbUp",weightLumi*weightBTag*weightPt*weightdEta*btagSFup,"E");
@@ -81,7 +148,7 @@ void highMComparison()
 
    //Syst. for 2D Pt trigger efficiency
    TH1F *fHtSyst2DError = new TH1F("fHtSyst2DError","Systematic errors up",NumberofHtBins,HtBins);
-   TH1F *fHtSyst2DCentral = new TH1F("fHtSyst2DCentral","Systematic errors central",NumberofHtBins,HtBins);
+   TH1F *fHtSyst2DCentral = new TH1F("fHtSyst2DCentral","",NumberofHtBins,HtBins);
 
    mcTree ->Draw("Ht>>fHtSyst2DError",weightLumi*weightBTag*weightdEta*btagSFcentral*ptSystWeight,"E");
    mcTree ->Draw("Ht>>fHtSyst2DCentral",weightLumi*weightBTag*weightdEta*btagSFcentral*weightPt,"E");
@@ -105,6 +172,13 @@ void highMComparison()
 	   fHtSyst2DError->SetBinContent(i,fHtSyst2DError->GetBinContent(i)/(HtBins[i]-HtBins[i-1]));
 	   fHtSyst2DCentral->SetBinContent(i,fHtSyst2DCentral->GetBinContent(i)/(HtBins[i]-HtBins[i-1]));
    }
+//   fHtMC->Scale(normalisation);
+//   fHtMCSyst->Scale(normalisation);
+//   fHtSystSFbUp->Scale(normalisation);
+//   fHtSystSFbCentral->Scale(normalisation);
+//   fHtSystSFbDown->Scale(normalisation);
+//   fHtSyst2DError->Scale(normalisation);
+//   fHtSyst2DCentral->Scale(normalisation);
 
    systCalc->CalculateSingleSystError(fHtSyst2DCentral,fHtSyst2DError);
    systCalc->CalculateSingleSystError(fHtSystSFbCentral,fHtSystSFbUp,fHtSystSFbDown);
@@ -116,22 +190,26 @@ void highMComparison()
 	   std::cout<<"MC  : "<<fHtMC->GetBinContent(bin)<<" +/- "<<fHtMC->GetBinError(bin)<<" (stat.) "<<" +/- "<<std::sqrt(fHtMCSyst->GetBinError(bin)*fHtMCSyst->GetBinError(bin) - fHtMC->GetBinError(bin)*fHtMC->GetBinError(bin))<<" (syst.) "<<" +/- "<<fHtMCSyst->GetBinError(bin)<<" (tot.)"<<std::endl;
    }
 
-   TLegend *leg_pt1 = new TLegend(0.55,0.65,0.8,0.9);
+   TLegend *leg_pt1;
+   leg_pt1 = (TLegend*) style.legend("top,right",3,0.3);
    leg_pt1->AddEntry(fHtData,"Data","p");
    leg_pt1->AddEntry(fHtMC,mcName.c_str(),"p");
 
 //   TH1F *ratioPt = (TH1F*) fHtData->Clone("ratioPt");
 
-   TH1F *null_ptr = NULL;
-
-   TH1F *ratioHt = ratio->DrawRatio(fHtData,fHtMC,null_ptr,leg_pt1,canva001);
+   TH1F *ratioHt = ratio->DrawRatio(fHtData,fHtMC,fHtMCSyst,leg_pt1,canva001);
    ratio->GetTopPad()->SetLogy();
    ratioHt->GetXaxis()->SetRangeUser(0.,2600.);
+   //ratio->DrawPhaseSpaceDescription(300.,0.008,1200.,0.3);
 
-   TFile *Htratio = new TFile("HtRatio.root","recreate");
+   canva001->SaveAs("pictures/high_M_ht.pdf");
+
+/*   TFile *Htratio = new TFile("HtRatio.root","recreate");
    ratioHt->Write();
    Htratio->Write();
    Htratio->Close();
+   */
+
 
    //.....................Jet Multiplicity.................
    TCanvas *canva000 = new TCanvas("canva000","Jet multiplicity",1000,800);
@@ -152,7 +230,7 @@ void highMComparison()
    //Systematic errors
    // Syst. for SFb
    TH1F *fNjetsSystSFbUp = new TH1F("fNjetsSystSFbUp","Systematic errors up",NumberOfNBins,NBins);
-   TH1F *fNjetsSystSFbCentral = new TH1F("fNjetsSystSFbCentral","Systematic errors central",NumberOfNBins,NBins);
+   TH1F *fNjetsSystSFbCentral = new TH1F("fNjetsSystSFbCentral","",NumberOfNBins,NBins);
    TH1F *fNjetsSystSFbDown = new TH1F("fNjetsSystSFbDown","Systematic errors down",NumberOfNBins,NBins);
 
    mcTree ->Draw("Njets>>fNjetsSystSFbUp",weightLumi*weightBTag*weightPt*weightdEta*btagSFup,"E");
@@ -161,7 +239,7 @@ void highMComparison()
 
    //Syst. for 2D Pt trigger efficiency
    TH1F *fNjetsSyst2DError = new TH1F("fNjetsSyst2DError","Systematic errors up",NumberOfNBins,NBins);
-   TH1F *fNjetsSyst2DCentral = new TH1F("fNjetsSyst2DCentral","Systematic errors central",NumberOfNBins,NBins);
+   TH1F *fNjetsSyst2DCentral = new TH1F("fNjetsSyst2DCentral","",NumberOfNBins,NBins);
 
    mcTree ->Draw("Njets>>fNjetsSyst2DError",weightLumi*weightBTag*weightdEta*btagSFcentral*ptSystWeight,"E");
    mcTree ->Draw("Njets>>fNjetsSyst2DCentral",weightLumi*weightBTag*weightdEta*btagSFcentral*weightPt,"E");
@@ -198,17 +276,17 @@ void highMComparison()
 
 //   TH1F *ratioPt = (TH1F*) fNjetsData->Clone("ratioPt");
 
-   TH1F *ratioN = ratio->DrawRatio(fNjetsData,fNjetsMC,null_ptr,leg_pt1,canva000);
+   TH1F *ratioN = ratio->DrawRatio(fNjetsData,fNjetsMC,fNjetsMCSyst,leg_pt1,canva000);
    ratio->GetTopPad()->SetLogy();
    ratioN->GetXaxis()->SetRangeUser(0.,14.);
-   //ratio->DrawPhaseSpaceDescription(100.,0.1,450.,3.);
+   canva000->SaveAs("pictures/high_M_Multiplicity.pdf");
+   //ratio->DrawPhaseSpaceDescription(1.5,120.,6.,3000.);
 
    //..............................Pt1 ....................
    TCanvas *canva00 = new TCanvas("canva00","Pt1",1000,800);
 
-
-   double PtBins[]={160,170,180,190,200,225,250,275,300,325,350,375,400,450,500,575,650,750,1000};
-   const int NumberOfPtBins = sizeof(PtBins)/sizeof(double)-1;
+   const int NumberOfPtBins = 24;
+   double PtBins[NumberOfPtBins+1]={100,110,120,130,140,150,160,170,180,190,200,225,250,275,300,325,350,375,400,450,500,575,650,750,1000};
 
    //Main Histograms
    TH1F *fLeadPtMC = new TH1F("fLeadPtMC","First Leading Jet Pt",NumberOfPtBins,PtBins);
@@ -223,7 +301,7 @@ void highMComparison()
    //Systematic errors
    // Syst. for SFb
    TH1F *fLeadPtSystSFbUp = new TH1F("fLeadPtSystSFbUp","Systematic errors up",NumberOfPtBins,PtBins);
-   TH1F *fLeadPtSystSFbCentral = new TH1F("fLeadPtSystSFbCentral","Systematic errors central",NumberOfPtBins,PtBins);
+   TH1F *fLeadPtSystSFbCentral = new TH1F("fLeadPtSystSFbCentral","",NumberOfPtBins,PtBins);
    TH1F *fLeadPtSystSFbDown = new TH1F("fLeadPtSystSFbDown","Systematic errors down",NumberOfPtBins,PtBins);
 
    mcTree ->Draw("LeadPt[0]>>fLeadPtSystSFbUp",weightLumi*weightBTag*weightPt*weightdEta*btagSFup,"E");
@@ -232,7 +310,7 @@ void highMComparison()
 
    //Syst. for 2D Pt trigger efficiency
    TH1F *fLeadPtSyst2DError = new TH1F("fLeadPtSyst2DError","Systematic errors up",NumberOfPtBins,PtBins);
-   TH1F *fLeadPtSyst2DCentral = new TH1F("fLeadPtSyst2DCentral","Systematic errors central",NumberOfPtBins,PtBins);
+   TH1F *fLeadPtSyst2DCentral = new TH1F("fLeadPtSyst2DCentral","",NumberOfPtBins,PtBins);
 
    mcTree ->Draw("LeadPt[0]>>fLeadPtSyst2DError",weightLumi*weightBTag*weightdEta*btagSFcentral*ptSystWeight,"E");
    mcTree ->Draw("LeadPt[0]>>fLeadPtSyst2DCentral",weightLumi*weightBTag*weightdEta*btagSFcentral*weightPt,"E");
@@ -256,6 +334,13 @@ void highMComparison()
 	   fLeadPtSyst2DError->SetBinContent(i,fLeadPtSyst2DError->GetBinContent(i)/(PtBins[i]-PtBins[i-1]));
 	   fLeadPtSyst2DCentral->SetBinContent(i,fLeadPtSyst2DCentral->GetBinContent(i)/(PtBins[i]-PtBins[i-1]));
    }
+//   fLeadPtMC->Scale(normalisation);
+//   fLeadPtMCSyst->Scale(normalisation);
+//   fLeadPtSystSFbUp->Scale(normalisation);
+//   fLeadPtSystSFbCentral->Scale(normalisation);
+//   fLeadPtSystSFbDown->Scale(normalisation);
+//   fLeadPtSyst2DError->Scale(normalisation);
+//   fLeadPtSyst2DCentral->Scale(normalisation);
 
    systCalc->CalculateSingleSystError(fLeadPtSyst2DCentral,fLeadPtSyst2DError);
    systCalc->CalculateSingleSystError(fLeadPtSystSFbCentral,fLeadPtSystSFbUp,fLeadPtSystSFbDown);
@@ -267,17 +352,13 @@ void highMComparison()
 	   std::cout<<"MC  : "<<fLeadPtMC->GetBinContent(bin)<<" +/- "<<fLeadPtMC->GetBinError(bin)<<" (stat.) "<<" +/- "<<std::sqrt(fLeadPtMCSyst->GetBinError(bin)*fLeadPtMCSyst->GetBinError(bin) - fLeadPtMC->GetBinError(bin)*fLeadPtMC->GetBinError(bin))<<" (syst.) "<<" +/- "<<fLeadPtMCSyst->GetBinError(bin)<<" (tot.)"<<std::endl;
    }
 
-//   TLegend *leg_pt1 = new TLegend(0.55,0.65,0.8,0.9);
-//   leg_pt1->AddEntry(fLeadPtData,"Data","p");
-//   leg_pt1->AddEntry(fLeadPtMC,mcName.c_str(),"p");
 
-//   TH1F *ratioPt = (TH1F*) fLeadPtData->Clone("ratioPt");
-
-   TH1F *ratioPt = ratio->DrawRatio(fLeadPtData,fLeadPtMC,null_ptr,leg_pt1,canva00);
+   TH1F *ratioPt = ratio->DrawRatio(fLeadPtData,fLeadPtMC,fLeadPtMCSyst,leg_pt1,canva00);
    ratio->GetTopPad()->SetLogy();
    ratioPt->GetXaxis()->SetRangeUser(0.,1000.);
-   //ratio->DrawPhaseSpaceDescription(100.,0.1,450.,3.);
-/*
+   canva00->SaveAs("pictures/high_M_pt1.pdf");
+   //ratio->DrawPhaseSpaceDescription(100.,0.1,500.,3.);
+
    //..............................Pt2 ....................
    TCanvas *canva01 = new TCanvas("canva01","Pt2",1000,800);
 
@@ -294,7 +375,7 @@ void highMComparison()
    //Systematic errors
    // Syst. for SFb
    TH1F *sLeadPtSystSFbUp = new TH1F("sLeadPtSystSFbUp","Systematic errors up",NumberOfPtBins,PtBins);
-   TH1F *sLeadPtSystSFbCentral = new TH1F("sLeadPtSystSFbCentral","Systematic errors central",NumberOfPtBins,PtBins);
+   TH1F *sLeadPtSystSFbCentral = new TH1F("sLeadPtSystSFbCentral","",NumberOfPtBins,PtBins);
    TH1F *sLeadPtSystSFbDown = new TH1F("sLeadPtSystSFbDown","Systematic errors down",NumberOfPtBins,PtBins);
 
    mcTree ->Draw("LeadPt[1]>>sLeadPtSystSFbUp",weightLumi*weightBTag*weightPt*weightdEta*btagSFup,"E");
@@ -303,7 +384,7 @@ void highMComparison()
 
    //Syst. for 2D Pt trigger efficiency
    TH1F *sLeadPtSyst2DError = new TH1F("sLeadPtSyst2DError","Systematic errors up",NumberOfPtBins,PtBins);
-   TH1F *sLeadPtSyst2DCentral = new TH1F("sLeadPtSyst2DCentral","Systematic errors central",NumberOfPtBins,PtBins);
+   TH1F *sLeadPtSyst2DCentral = new TH1F("sLeadPtSyst2DCentral","",NumberOfPtBins,PtBins);
 
    mcTree ->Draw("LeadPt[1]>>sLeadPtSyst2DError",weightLumi*weightBTag*weightdEta*btagSFcentral*ptSystWeight,"E");
    mcTree ->Draw("LeadPt[1]>>sLeadPtSyst2DCentral",weightLumi*weightBTag*weightdEta*btagSFcentral*weightPt,"E");
@@ -337,7 +418,8 @@ void highMComparison()
    TH1F *ratioPt2 = ratio->DrawRatio(sLeadPtData,sLeadPtMC,sLeadPtMCSyst,leg_pt1,canva01);
    ratio->GetTopPad()->SetLogy();
    ratioPt2->GetXaxis()->SetRangeUser(0.,1000.);
-   ratio->DrawPhaseSpaceDescription(100.,0.01,450.,.3);
+   //ratio->DrawPhaseSpaceDescription(100.,0.01,500.,.3);
+   canva01->SaveAs("pictures/high_M_pt2.pdf");
 
    //.........................(Pt1-Pt2)/(Pt1+Pt2)..................
    TCanvas *canva02 = new TCanvas("canva02","PtAsym",1000,800);
@@ -358,7 +440,7 @@ void highMComparison()
    //Systematic errors
    // Syst. for SFb
    TH1F *AssymPtSystSFbUp = new TH1F("AssymPtSystSFbUp","Systematic errors up",NumberOfPtAsymBins,PtAssymBins);
-   TH1F *AssymPtSystSFbCentral = new TH1F("AssymPtSystSFbCentral","Systematic errors central",NumberOfPtAsymBins,PtAssymBins);
+   TH1F *AssymPtSystSFbCentral = new TH1F("AssymPtSystSFbCentral","",NumberOfPtAsymBins,PtAssymBins);
    TH1F *AssymPtSystSFbDown = new TH1F("AssymPtSystSFbDown","Systematic errors down",NumberOfPtAsymBins,PtAssymBins);
 
    mcTree ->Draw("(LeadPt[0]-LeadPt[1])/(LeadPt[0]+LeadPt[1])>>AssymPtSystSFbUp",weightLumi*weightBTag*weightPt*weightdEta*btagSFup,"E");
@@ -367,7 +449,7 @@ void highMComparison()
 
    //Syst. for 2D Pt trigger efficiency
    TH1F *AssymPtSyst2DError = new TH1F("AssymPtSyst2DError","Systematic errors up",NumberOfPtAsymBins,PtAssymBins);
-   TH1F *AssymPtSyst2DCentral = new TH1F("AssymPtSyst2DCentral","Systematic errors central",NumberOfPtAsymBins,PtAssymBins);
+   TH1F *AssymPtSyst2DCentral = new TH1F("AssymPtSyst2DCentral","",NumberOfPtAsymBins,PtAssymBins);
 
    mcTree ->Draw("(LeadPt[0]-LeadPt[1])/(LeadPt[0]+LeadPt[1])>>AssymPtSyst2DError",weightLumi*weightBTag*weightdEta*btagSFcentral*ptSystWeight,"E");
    mcTree ->Draw("(LeadPt[0]-LeadPt[1])/(LeadPt[0]+LeadPt[1])>>AssymPtSyst2DCentral",weightLumi*weightBTag*weightdEta*btagSFcentral*weightPt,"E");
@@ -400,7 +482,8 @@ void highMComparison()
    ratioPtAssym = ratio->DrawRatio(AssymPtData,AssymPtMC,AssymPtMCSyst,leg_pt1,canva02);
    ratio->GetTopPad()->SetLogy();
    ratioPtAssym->GetXaxis()->SetRangeUser(0.,0.6);
-   ratio->DrawPhaseSpaceDescription(0.03,500,0.22,9000);
+   //ratio->DrawPhaseSpaceDescription(0.03,500,0.3,9000);
+   canva02->SaveAs("pictures/high_M_pt_asym.pdf");
 
    //........................dEta plot.............................
    TCanvas *canva03 = new TCanvas("canva03","dEta",1000,800);
@@ -418,7 +501,7 @@ void highMComparison()
    //Systematic errors
    // Syst. for SFb
    TH1F *dEtaSystSFbUp = new TH1F("dEtaSystSFbUp","Systematic errors up",20,-1.6,1.6);
-   TH1F *dEtaSystSFbCentral = new TH1F("dEtaSystSFbCentral","Systematic errors central",20,-1.6,1.6);
+   TH1F *dEtaSystSFbCentral = new TH1F("dEtaSystSFbCentral","",20,-1.6,1.6);
    TH1F *dEtaSystSFbDown = new TH1F("dEtaSystSFbDown","Systematic errors down",20,-1.6,1.6);
 
    mcTree ->Draw("dEtaFS>>dEtaSystSFbUp",weightLumi*weightBTag*weightPt*weightdEta*btagSFup,"E");
@@ -427,7 +510,7 @@ void highMComparison()
 
    //Syst. for 2D Pt trigger efficiency
    TH1F *dEtaSyst2DError = new TH1F("dEtaSyst2DError","Systematic errors up",20,-1.6,1.6);
-   TH1F *dEtaSyst2DCentral = new TH1F("dEtaSyst2DCentral","Systematic errors central",20,-1.6,1.6);
+   TH1F *dEtaSyst2DCentral = new TH1F("dEtaSyst2DCentral","",20,-1.6,1.6);
 
    mcTree ->Draw("dEtaFS>>dEtaSyst2DError",weightLumi*weightBTag*weightdEta*btagSFcentral*ptSystWeight,"E");
    mcTree ->Draw("dEtaFS>>dEtaSyst2DCentral",weightLumi*weightBTag*weightdEta*btagSFcentral*weightPt,"E");
@@ -456,18 +539,20 @@ void highMComparison()
    systCalc->CalculateSingleSystError(dEtaSystSFbCentral,dEtaSystSFbUp,dEtaSystSFbDown);
    systCalc->AddUncorelatedSystErrors(dEtaMCSyst);
 
-   TLegend *leg_pt2 = new TLegend(0.55,0.03,0.8,0.2);
+   TLegend *leg_pt2;
+   leg_pt2 = (TLegend*) style.legend("right,bottom",3);
    leg_pt2->AddEntry(fLeadPtData,"Data","p");
    leg_pt2->AddEntry(fLeadPtMC,mcName.c_str(),"p");
 
    TH1F *ratioDEta;
-   ratioDEta = ratio->DrawRatio(dEtaData,dEtaMC,dEtaMCSyst,leg_pt2,canva03);
+   ratioDEta = ratio->DrawRatio(dEtaData,dEtaMC,dEtaMCSyst,leg_pt1,canva03);
    ratioDEta->GetXaxis()->SetRangeUser(-2.,2.);
-   ratio->DrawPhaseSpaceDescription(-1.6,10000,-0.5,70000);
-
+   //ratio->DrawPhaseSpaceDescription(-1.6,10000,0.,75000);
+   canva03->SaveAs("pictures/high_M_dEta.pdf");
+/*
    //..............................M12 ....................
    TCanvas *canva04 = new TCanvas("canva04","M12",1000,800);
-   double M12Bins[] = {200,220,240,260,280,300,320,340,360,380,400,420,440,460,480,500,520,540,560,580,600,620,640,660,700,750,800,850,900,1000};
+   double M12Bins[] = {200,220,240,260,280,300,320,340,360,380,400,420,440,460,480,500,520,540,560,580,600,620,640,660,700,750,800,850,940,1100};
    const int NumberM12Bins = sizeof(M12Bins)/sizeof(double) -1;
    //Central values
    //Main Histograms
@@ -483,7 +568,7 @@ void highMComparison()
    //Systematic errors
    // Syst. for SFb
    TH1F *M12SystSFbUp = new TH1F("M12SystSFbUp","Systematic errors up",NumberM12Bins,M12Bins);
-   TH1F *M12SystSFbCentral = new TH1F("M12SystSFbCentral","Systematic errors central",NumberM12Bins,M12Bins);
+   TH1F *M12SystSFbCentral = new TH1F("M12SystSFbCentral","",NumberM12Bins,M12Bins);
    TH1F *M12SystSFbDown = new TH1F("M12SystSFbDown","Systematic errors down",NumberM12Bins,M12Bins);
 
    mcTree ->Draw("ObjM12>>M12SystSFbUp",weightLumi*weightBTag*weightPt*weightdEta*btagSFup,"E");
@@ -492,7 +577,7 @@ void highMComparison()
 
    //Syst. for 2D Pt trigger efficiency
    TH1F *M12Syst2DError = new TH1F("M12Syst2DError","Systematic errors up",NumberM12Bins,M12Bins);
-   TH1F *M12Syst2DCentral = new TH1F("M12Syst2DCentral","Systematic errors central",NumberM12Bins,M12Bins);
+   TH1F *M12Syst2DCentral = new TH1F("M12Syst2DCentral","",NumberM12Bins,M12Bins);
 
    mcTree ->Draw("ObjM12>>M12Syst2DError",weightLumi*weightBTag*weightdEta*btagSFcentral*ptSystWeight,"E");
    mcTree ->Draw("ObjM12>>M12Syst2DCentral",weightLumi*weightBTag*weightdEta*btagSFcentral*weightPt,"E");
@@ -502,6 +587,11 @@ void highMComparison()
    for(int i = 1;i<=NumberM12Bins;++i){
 	   M12Data->SetBinContent(i,M12Data->GetBinContent(i)/(M12Bins[i]-M12Bins[i-1]));
 	   M12Data->SetBinError(i,M12Data->GetBinError(i)/(M12Bins[i]-M12Bins[i-1]));
+
+	   if( M12Data->GetBinLowEdge(i) > 540 && (M12Data->GetBinLowEdge(i) + M12Data->GetBinWidth(i)) <= 940 ){
+		   M12Data->SetBinContent(i,0);
+		   M12Data->SetBinError(i,0);
+	   }
 
 	   M12MC->SetBinContent(i,M12MC->GetBinContent(i)/(M12Bins[i]-M12Bins[i-1]));
 	   M12MC->SetBinError(i,M12MC->GetBinError(i)/(M12Bins[i]-M12Bins[i-1]));
@@ -526,8 +616,9 @@ void highMComparison()
    ratio->GetTopPad()->SetLogy();
    ratioM12->GetXaxis()->SetRangeUser(200.,1000.);
    ratioM12->SetTitle(";di-jet Mass (GeV);Data / MC");
-   ratio->DrawPhaseSpaceDescription(240.,3,480.,30);
-
+   //ratio->DrawPhaseSpaceDescription(240.,3,600.,30);
+   canva04->SaveAs("pictures/high_M_M12.pdf");
+*/
 
    //........................Eta1 plot.............................
    TCanvas *canva10 = new TCanvas("canva10","Eta1",1000,800);
@@ -545,7 +636,7 @@ void highMComparison()
    //Systematic errors
    // Syst. for SFb
    TH1F *fEtaSystSFbUp = new TH1F("fEtaSystSFbUp","Systematic errors up",30,-2.2,2.2);
-   TH1F *fEtaSystSFbCentral = new TH1F("fEtaSystSFbCentral","Systematic errors central",30,-2.2,2.2);
+   TH1F *fEtaSystSFbCentral = new TH1F("fEtaSystSFbCentral","",30,-2.2,2.2);
    TH1F *fEtaSystSFbDown = new TH1F("fEtaSystSFbDown","Systematic errors down",30,-2.2,2.2);
 
    mcTree ->Draw("LeadEta[0]>>fEtaSystSFbUp",weightLumi*weightBTag*weightPt*weightdEta*btagSFup,"E");
@@ -554,7 +645,7 @@ void highMComparison()
 
    //Syst. for 2D Pt trigger efficiency
    TH1F *fEtaSyst2DError = new TH1F("fEtaSyst2DError","Systematic errors up",30,-2.2,2.2);
-   TH1F *fEtaSyst2DCentral = new TH1F("fEtaSyst2DCentral","Systematic errors central",30,-2.2,2.2);
+   TH1F *fEtaSyst2DCentral = new TH1F("fEtaSyst2DCentral","",30,-2.2,2.2);
 
    mcTree ->Draw("LeadEta[0]>>fEtaSyst2DError",weightLumi*weightBTag*weightdEta*btagSFcentral*ptSystWeight,"E");
    mcTree ->Draw("LeadEta[0]>>fEtaSyst2DCentral",weightLumi*weightBTag*weightdEta*btagSFcentral*weightPt,"E");
@@ -589,10 +680,11 @@ void highMComparison()
    leg_pt3->AddEntry(fLeadPtMC,mcName.c_str(),"p");
 
    TH1F *ratiofEta;
-   ratiofEta = ratio->DrawRatio(fEtaData,fEtaMC,fEtaMCSyst,leg_pt3,canva10);
+   ratiofEta = ratio->DrawRatio(fEtaData,fEtaMC,fEtaMCSyst,leg_pt1,canva10);
    ratiofEta->GetXaxis()->SetRangeUser(-2.4,2.4);
-   ratio->DrawPhaseSpaceDescription(-1.45,10000,0.2,70000);
-*/
+   //ratio->DrawPhaseSpaceDescription(-1.45,10000,0.5,70000);
+   canva10->SaveAs("pictures/high_M_eta1.pdf");
+
    //..............BTag Discriminant................
 
    TCanvas *canva05 = new TCanvas("canva05","BTagDiscr",1000,800);
@@ -609,17 +701,17 @@ void highMComparison()
 
    //Systematic errors
    // Syst. for SFb
-   TH1F *BTagDiscrSystSFbUp = new TH1F("BTagDiscrSystSFbUp","Systematic errors up",30,0.94,1.);
-   TH1F *BTagDiscrSystSFbCentral = new TH1F("BTagDiscrSystSFbCentral","Systematic errors central",30,0.94,1.);
-   TH1F *BTagDiscrSystSFbDown = new TH1F("BTagDiscrSystSFbDown","Systematic errors down",30,0.94,1.);
+   TH1F *BTagDiscrSystSFbUp = new TH1F("BTagDiscrSystSFbUp","Systematic errors up",30,0.85,1.);
+   TH1F *BTagDiscrSystSFbCentral = new TH1F("BTagDiscrSystSFbCentral","",30,0.85,1.);
+   TH1F *BTagDiscrSystSFbDown = new TH1F("BTagDiscrSystSFbDown","Systematic errors down",30,0.85,1.);
 
    mcTree ->Draw("LeadBTag[0]>>BTagDiscrSystSFbUp",weightLumi*weightBTag*weightPt*weightdEta*btagSFup,"E");
    mcTree ->Draw("LeadBTag[0]>>BTagDiscrSystSFbCentral",weightLumi*weightBTag*weightPt*weightdEta*btagSFcentral,"E");
    mcTree ->Draw("LeadBTag[0]>>BTagDiscrSystSFbDown",weightLumi*weightBTag*weightPt*weightdEta*btagSFdown,"E");
 
    //Syst. for 2D Pt trigger efficiency
-   TH1F *BTagDiscrSyst2DError = new TH1F("BTagDiscrSyst2DError","Systematic errors up",30,0.94,1.);
-   TH1F *BTagDiscrSyst2DCentral = new TH1F("BTagDiscrSyst2DCentral","Systematic errors central",30,0.94,1.);
+   TH1F *BTagDiscrSyst2DError = new TH1F("BTagDiscrSyst2DError","Systematic errors up",30,0.85,1.);
+   TH1F *BTagDiscrSyst2DCentral = new TH1F("BTagDiscrSyst2DCentral","",30,0.85,1.);
 
    mcTree ->Draw("LeadBTag[0]>>BTagDiscrSyst2DError",weightLumi*weightBTag*weightdEta*btagSFcentral*ptSystWeight,"E");
    mcTree ->Draw("LeadBTag[0]>>BTagDiscrSyst2DCentral",weightLumi*weightBTag*weightdEta*btagSFcentral*weightPt,"E");
@@ -649,10 +741,11 @@ void highMComparison()
    systCalc->AddUncorelatedSystErrors(BTagDiscrMCSyst);
 
    TH1F *ratioBTagDiscr;
-   ratioBTagDiscr = ratio->DrawRatio(BTagDiscrData,BTagDiscrMC,null_ptr,leg_pt1,canva05);
+   ratioBTagDiscr = ratio->DrawRatio(BTagDiscrData,BTagDiscrMC,BTagDiscrMCSyst,leg_pt1,canva05);
    ratioBTagDiscr->GetXaxis()->SetRangeUser(0.85,1.);
    ratioBTagDiscr->SetTitle(";BTagCSV discr. ;Data / MC");
-   ratio->DrawPhaseSpaceDescription(0.85,45000000,0.96,62000000);
+   //ratio->DrawPhaseSpaceDescription(0.942,45000000,0.967,62000000);
+   canva05->SaveAs("pictures/high_M_Btag1.pdf");
 /*
    // ..........Flavour Composition..........
    TCanvas *canva11 = new TCanvas("canva11","Flavour Comp",1000,800);

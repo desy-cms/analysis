@@ -51,11 +51,12 @@ namespace analysis {
 
            //Set Number of The trigger Objects in the event
            void setTriggerObjectVars();
-           bool matchToPF60(const analysis::tools::Jet &);
-           bool matchToPF80(const analysis::tools::Jet &);
-           bool matchToPF100(const analysis::tools::Jet &);
-           bool matchToPF160(const analysis::tools::Jet &);
-           bool matchToPF100dEta1p6(const analysis::tools::Jet &, const analysis::tools::Jet &);
+           bool matchToPF60(const analysis::tools::Jet & jet);
+           bool matchToPF80(const analysis::tools::Jet & jet);
+           bool matchToPF100(const analysis::tools::Jet & jet);
+           bool matchToPF100L3(const analysis::tools::Jet & jet);
+           bool matchToPF160(const analysis::tools::Jet & jet);
+           bool matchToPF100dEta1p6(const analysis::tools::Jet & jet1, const analysis::tools::Jet & jet2);
 
            void setTopology(const bool & topology);
 
@@ -65,7 +66,8 @@ namespace analysis {
            int LeadMatch80_[20];
            int LeadMatch100_[20];
            int LeadMatch160_[20];
-           int LeadMatch100dEta1p6_[20];
+           int LeadMatch100dEta1p6_;
+           int LeadMatch100L3_[20];
 
            int PFJet80_;
            int PFJet60_;
