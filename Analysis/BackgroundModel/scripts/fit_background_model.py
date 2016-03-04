@@ -67,10 +67,10 @@ def FitBackgroundModel(success, fail, *args):
     start = datetime.datetime.now()
     p = subprocess.Popen(("FitBackgroundModel",) + args)
     while True:
-        # wait at most for 30 minutes to let the process finish:
+        # wait at most for 20 minutes to let the process finish:
         if p.poll() == None:
-            if (datetime.datetime.now() - start).seconds > 1800:
-                print "Process killed because it took longer than 30 minutes."
+            if (datetime.datetime.now() - start).seconds > 1200:
+                print "Process killed because it took longer than 20 minutes."
                 p.kill()
                 with open(fail, "a") as f:
                     fcntl.flock(f, fcntl.LOCK_EX)

@@ -27,7 +27,7 @@ def main(argv=None):
     args = parser.parse_args(argv)
 
     job_configs = create_job_configs(args.output_dir)
-    split_configs = split_batch_jobs(job_configs, 5)
+    split_configs = split_batch_jobs(job_configs, 9)
     submit_batch_jobs(split_configs, args.output_dir)
 
     
@@ -95,28 +95,32 @@ def create_job_configs(out_dir):
     models = {"polynomials": ["bernstein", "berneffprod"], #"Chebychev"
               "non-polynomials": ["bukin", "crystalball", "novosibirsk"]}
     fit_min = [str(x) for x in xrange(0, 301, 10)]
+    fit_max = [str(x) for x in xrange(600, 2001, 50)]
     orders = [str(x) for x in xrange(3, 20)]
 
     configs = []
     for inp in inputs:
         for model_type in models:
             for model in models[model_type]:
-                for mbb in fit_min:
-                    if model_type == "polynomials":
-                        for order in orders:
-                            config = ["-b", model+","+order,
-                                      "-o", op.join(out_dir, inp, "_".join([model, order, mbb])),
+                for mbb_min in fit_min:
+                    for mbb_max in fit_max:
+                        if model_type == "polynomials":
+                            for order in orders:
+                                config = ["-b", model+","+order,
+                                          "-o", op.join(out_dir, inp, "_".join([model, order, "min"+mbb_min, "max"+mbb_max])),
+                                          # "-p",
+                                          "--fit_min", mbb_min,
+                                          "--fit_max", mbb_max]
+                                config.extend(inputs[inp])
+                                configs.append(config)
+                        else:
+                            config = ["-b", model,
+                                      "-o", op.join(out_dir, inp, "_".join([model, "min"+mbb_min, "max"+mbb_max])),
                                       # "-p",
-                                      "--fit_min", mbb]
+                                      "--fit_min", mbb_min,
+                                      "--fit_max", mbb_max]
                             config.extend(inputs[inp])
                             configs.append(config)
-                    else:
-                        config = ["-b", model,
-                                  "-o", op.join(out_dir, inp, "_".join([model, mbb])),
-                                  # "-p",
-                                  "--fit_min", mbb]
-                        config.extend(inputs[inp])
-                        configs.append(config)
 
     return configs
 
