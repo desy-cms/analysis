@@ -33,8 +33,13 @@ int main(int argc, char * argv[])
    TH2F *btagEff1p4_2p5 = (TH2F*) fileBTagEff ->Get("heh2"); // 2.5 > eta > 1.4
 
    //Online Pt trigger efficiency:
-   TFile * filePtEff = new TFile("~/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/MssmHbb/macros/triggerEfficiency/latest/TwoDimEff.root");
-   TH2F *PtEff = (TH2F*) filePtEff ->Get("TwoDEffRefMC_Num"); // 2D
+   TFile * filePtEff = new TFile("~/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/MssmHbb/bin/input_corrections/TwoDPtLowMassEfficiency.root");
+   TH2F *hPtEff = (TH2F*) filePtEff ->Get("TwoDEff_Num"); // 2D
+
+   // Add Ht reweighting:
+   double WeightHt;
+   TFile *fHtWeight = new TFile("~/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/MssmHbb/macros/doubleBTag/HtRatio.root");
+   TH1F *HtRatio = (TH1F*) fHtWeight->Get("hRatio");
 
    // Input files list
    std::string inputList = "rootFileListBTagCSV.txt";
@@ -46,13 +51,20 @@ int main(int argc, char * argv[])
 
    //Setup output file name
    //name can me specified explicitly with method: createOutputFile(fileName);
-   std::string fileName = "/nfs/dust/cms/user/shevchen/output/TripleBTagSelectionQCD_MC";
+   std::string fileName = "/nfs/dust/cms/user/shevchen/output/TripleBTagSelection_LowMass_";
    analysis.SetupStandardOutputFile(fileName);
 
    // Add std::vector<std::string> of the Trigger Objects that you would like to apply.
    // Also Trigger Results name will be stored, according to the trigger objects names
    // By default - LowM MssmHbb trigger objects is used
-   if(!analysis.isMC()) analysis.addTriggerObjects();
+   std::vector<std::string> triggerObjects = {"hltL1sL1DoubleJetC100","hltDoubleJetsC100","hltDoubleBTagCSV0p85","hltDoublePFJetsC160"}; // for high mass
+   if(!analysis.isMC()) analysis.addTriggerObjects(); // by the default Low mass trigger objects is used
+
+   //Select which sets of cuts should be applied:for Low mass selection = true; for High M = false.
+   if(analysis.isMC()) analysis.setLowMSelection(true);
+
+   //Setup Branches
+   analysis.setBranches();
 
    //Add BTagCalibration calculators needed for Offline BTag SF:
    BTagCalibration calib("csvv2", "SFbLib.csv");
@@ -78,6 +90,8 @@ int main(int argc, char * argv[])
    {
 
       analysis.event(i);
+
+      analysis.setTotalNumberOfEvents(analysis.size());
 
       //Select only good JSon runs
       if (!analysis.isMC() && !analysis.selectJson()) continue;
@@ -126,12 +140,12 @@ int main(int argc, char * argv[])
 		if(counter == 1 || counter == 2 || counter == 3 ){
 
 			if(counter == 1 || counter == 2){
-				if(jet.pt() < 100) break;
+				if(jet.pt() < analysis.Pt1Cut()) break;
 				if(abs(jet.eta()) > 2.2) break;
-				if(jet.btag() < 0.941) break;
+				if(jet.btag() < analysis.BTag1Cut()) break;
 
 				if(counter == 2){
-					if(abs(LeadJet[0].eta() - LeadJet[1].eta()) > 1.6) break;
+					if(abs(LeadJet[0].eta() - LeadJet[1].eta()) > analysis.dEtaCut()) break;
 
 					// Online selection is applied only at the first 2 leading jets
 					if(!analysis.isMC() && !analysis.OnlineSelection(LeadJet[0],LeadJet[1])) break;
@@ -140,9 +154,9 @@ int main(int argc, char * argv[])
 			}
 			//Selection cuts for the third leading jet
 			if(counter == 3){
-				if(jet.pt() < 30 ) break;
+				if(jet.pt() < analysis.Pt3Cut() ) break;
 				if(abs(jet.eta()) > 2.2 ) break;
-				if( jet.btag() < 0.605 ) break; // Loose WP
+				if( jet.btag() < analysis.BTag3Cut() ) break; // Loose WP
 
 				// Delta R cuts
 				if(LeadJet[0].deltaR(LeadJet[1]) <= 1) break;
@@ -157,20 +171,21 @@ int main(int argc, char * argv[])
       }
       if(!goodLeadingJets) continue;
 
-      //Online BTag Efficiency were calculated only up to 1 TeV
-      if(LeadJet[0].pt() > 1000) continue;
-
       // Method that calculates dEta, dPhi between frist t2o leading jets
       // Also all parameters of di-jet object is calculated
       analysis.calculateJetVariables();
 
       if(analysis.isMC()){
-    	  analysis.setBTagWeight(BTagWeight(btagEff0p9,btagEff0p9_1p4,btagEff1p4_2p5,LeadJet[0].pt(),LeadJet[0].eta())*
-    		  	  	  	  	 	 BTagWeight(btagEff0p9,btagEff0p9_1p4,btagEff1p4_2p5,LeadJet[1].pt(),LeadJet[1].eta()));
-    	  analysis.setLumiWeight(2182.680439,analysis.luminosity());
-
     	  //Calculate other weights
-    	  analysis.calculateWeights(btagEff0p9_1p4,PtEff);
+    	  analysis.calculateWeights(btagEff0p9,btagEff0p9_1p4,btagEff1p4_2p5,hPtEff,2182.680439);
+
+    	  if(analysis.getHt() >= 2600) {
+    		  WeightHt = HtRatio->Interpolate(2550);
+    	  }
+    	  else {
+    		  WeightHt = HtRatio->Interpolate(analysis.getHt());
+    	  }
+    	  analysis.setHtWeight(WeightHt);
 
     	  //Calculation of the flavour composition, based on HadronFlavours
     	  analysis.calculateFlavourComposition();
@@ -178,12 +193,9 @@ int main(int argc, char * argv[])
 
       analysis.fillTree();
 
-
    }
    std::cout<<"Number of Candidates: "<<analysis.getNumberOfCandidates()<<std::endl;
    analysis.writeTree();
-
-   std::cout<<" Output File: "<<analysis.getOutPutFileName()<<" was stored!"<<std::endl;
 
    return 0;
 //

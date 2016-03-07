@@ -15,6 +15,7 @@
 #include "TH2F.h"
 #include "TFile.h"
 #include "TGraph2D.h"
+#include "time.h"
 
 //For BTag SF calculation
 #include "Analysis/MssmHbb/interface/BTagCalibrationStandalone.h"
@@ -22,32 +23,37 @@
 class BasicTree {
 public:
 	BasicTree();
+	BasicTree(const bool &mc) : is_mc_(mc){};
 	virtual ~BasicTree();
 
-	//Methods Declaration
-	void calculateBTagSF(const BTagCalibrationReader & reader, const BTagCalibrationReader &reader_up, const BTagCalibrationReader &reader_down);
-	void calculateBTagSF(const BTagCalibrationReader & reader);
-	void calculateFlavourComposition();
+	//Methods declaration
+
+	//Create Output File and TTree
+	virtual void SetupStandardOutputFile(const std::string & outputFileName, const std::string & folderName);
+	void createOutputFile(const std::string &name = "output.root");
+	std::string get_date();
+
+	//Construct output Branches
+	virtual void setBranches();
+
+	//Clean variables
+	virtual void cleanVariables();
+
+	// Compute Ht variable
+	void addHt(const double &pt);
 
 	//Sets
 	void setNjets(const int &n);
 	void setJetCounter(const int &n);
-	void addHt(const double &pt);
-
-	void calculateJetVariables();
-	void calculateWeights(TH2F *btag,TH2F *pt);
-	void calculateWeights(TH2F *btag);
-	void setBTagWeight(const double & weight);
 	void setLumiWeight(const double & dataLumi, const double & mcLumi);
-
+	void setLumiWeight(const double & weight);
+	void setTotalNumberOfEvents(const int &n);
 	void setJetVariables(const analysis::tools::Jet & Jet);
 	void setPhysObjVariables(const TLorentzVector & Obj);
-	void cleanVariables();
 
-	//Create Output File and TTree
-	void createOutputFile(const std::string &name = "output.root");
-	//Construct output Branches
-	void setBranches();
+	//Calculation
+	void calculateJetVariables();
+
 	//Fill Output Tree
 	void fillTree();
 	//Write Output Tree to the File and Close the File
@@ -55,15 +61,22 @@ public:
 
 	//Gets
 	void getdPhi();
+	double getHt();
 	int getNumberOfCandidates();
 	int getNcand();
+	TTree * getOutputTree();
 
-private:
+protected:
 
 	//Methods Declaration
 
 	// Declare Variables
+	bool is_mc_;
+
+	std::string outputFileName_;
+
 	int NCand_ = 0;
+	int Ntot_ = 0;
 	analysis::tools::Jet LeadJet_[20];
 	//Jet Variables
 	int Njets_;
@@ -75,8 +88,13 @@ private:
     double dEtaFS_;
     double Ht_;
 
+    //Primary Vertices variables
+    int NPrimaryVTX_;
+    double XPrimaryVTX_[50];
+    double YPrimaryVTX_[50];
+    double ZPrimaryVTX_[50];
+
     //Trigger and Matching variables
-    int lowMTriggerFired_;
     int NL1Obj_;
     double L1Pt_[20];
     double L1Eta_[20];
@@ -115,6 +133,8 @@ private:
     double dEtaWeight_;
     double BTagWeight_;
     double lumiWeight_;
+    double WeightHt_;
+    std::map<std::string,double> WeightPileUp_;
 
     // BTag SF weight
     double btagSFcentral_[20];
@@ -136,9 +156,9 @@ private:
     //Functions:
 
 
-protected:
+private:
 
-    double maxBJetPt__ = 670.; // For BTagCalibrationStandAlone
+
 
 
 
@@ -149,6 +169,12 @@ protected:
 inline int BasicTree::getNumberOfCandidates(){return NCand_;}
 inline int BasicTree::getNcand(){return NCand_;}
 inline void BasicTree::addHt(const double &pt) {Ht_ += pt;}
+inline double BasicTree::getHt(){ return Ht_;}
+inline TTree * BasicTree::getOutputTree() {return OutTree_;}
+inline void BasicTree::setTotalNumberOfEvents(const int &n){ Ntot_ = n;}
+
+inline void BasicTree::setLumiWeight(const double &weight) {lumiWeight_ = weight;}
+
 
 
 #endif /* MSSMHBB_SRC_BASICTREE_H_ */
