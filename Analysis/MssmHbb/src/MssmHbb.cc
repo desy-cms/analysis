@@ -40,7 +40,13 @@ MssmHbb::MssmHbb(const std::string & inputFilelist, const std::string & evtinfo)
 	}
 
 	// Tree for Jets
-	this->addTree<Jet> ("Jets","MssmHbb/Events/slimmedJetsPuppi");
+	// For compatibility between 7.4.X and 7.6.X
+	if(CMSSW.find("7_4_") != std::string::npos){
+		this->addTree<Jet> ("Jets","MssmHbb/Events/slimmedJetsPuppi");
+	}
+	else {
+		this->addTree<Jet> ("Jets","MssmHbb/Events/slimmedJetsPuppiReapplyJEC");
+	}
 	this->triggerResults("MssmHbb/Events/TriggerResults");
 
 	// Tree for Vertices

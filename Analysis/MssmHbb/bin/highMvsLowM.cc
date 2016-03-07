@@ -26,14 +26,14 @@ int main(int argc, char * argv[])
    TH1::SetDefaultSumw2();  // proper treatment of errors when scaling histograms
 
    // Input files list
-   //std::string inputList = "rootFileListBTagCSV.txt";
-   std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/76X/BTagCSVData/Run2015C_25ns-16Dec2015-v1.txt";
+   std::string inputList = "rootFileListBTagCSV.txt";
+   //std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/QCD/QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8.txt";
 
    // Initialisation of MssmHbb class
    MssmHbb analysis(inputList);
 
    // Process selected JSON file
-   if(!analysis.isMC()) analysis.processJsonFile("Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt");
+   if(!analysis.isMC()) analysis.processJsonFile("goodJson.txt");
 
    // Add std::vector<std::string> of the Trigger Objects that you would like to apply.
    // Also Trigger Results name will be stored, according to the trigger objects names
@@ -85,18 +85,16 @@ int main(int argc, char * argv[])
    }
 
    // Add PileUp reweighting
-
-//   std::map<std::string, TFile*> fPileUpData;
-//   std::map<std::string, TH1F* > hPileUpData;
-//   fPileUpData["central"] = new TFile("input_corrections/Data_Pileup_2015D_Nov17.root","read");
-//   hPileUpData["central"] = (TH1F*) fPileUpData["central"]->Get("pileup");
-//   fPileUpData["down"] = new TFile("input_corrections/PileUpData_down_26_02_2016.root","read");
-//   hPileUpData["down"] = (TH1F*) fPileUpData["down"]->Get("pileup");
-//   fPileUpData["up"] = new TFile("input_corrections/PileUpData_up_26_02_2016.root","read");
-//   hPileUpData["up"] = (TH1F*) fPileUpData["up"]->Get("pileup");
-//   TFile *fPileUpMC = new TFile("input_corrections/PileUpMC_26_02_2016.root","read");
-//   TH1F *hPileUpMC = (TH1F*) fPileUpMC->Get("pileup");
-
+   std::map<std::string, TFile*> fPileUpData;
+   std::map<std::string, TH1F* > hPileUpData;
+   fPileUpData["central"] = new TFile("input_corrections/Data_Pileup_2015D_Nov17.root","read");
+   hPileUpData["central"] = (TH1F*) fPileUpData["central"]->Get("pileup");
+   fPileUpData["down"] = new TFile("input_corrections/PileUpData_down_26_02_2016.root","read");
+   hPileUpData["down"] = (TH1F*) fPileUpData["down"]->Get("pileup");
+   fPileUpData["up"] = new TFile("input_corrections/PileUpData_up_26_02_2016.root","read");
+   hPileUpData["up"] = (TH1F*) fPileUpData["up"]->Get("pileup");
+   TFile *fPileUpMC = new TFile("input_corrections/PileUpMC_26_02_2016.root","read");
+   TH1F *hPileUpMC = (TH1F*) fPileUpMC->Get("pileup");
 
    //Add BTagCalibration calculators needed for Offline BTag SF:
    BTagCalibration calib("csvv2", "input_corrections/SFbLib.csv");
@@ -109,7 +107,7 @@ int main(int argc, char * argv[])
 
    //Setup output file name
    //name can me specified explicitly with method: createOutputFile(fileName);
-   std::string fileName = "/nfs/dust/cms/user/shevchen/output/DoubleBTagSelection";
+   std::string fileName = "/nfs/dust/cms/user/shevchen/output/DoubleBTagSelection_NoTriggerMatching_test";
    analysis.SetupStandardOutputFile(fileName);
 
    //Setup Branches
@@ -117,6 +115,16 @@ int main(int argc, char * argv[])
 
    int counter = 0;
    bool goodLeadingJets = true;
+
+   double highMLeadPt[20];
+   analysis.getOutputTree()->Branch("highMLeadPt",highMLeadPt,"highMLeadPt[20]/D");
+
+   double highMLeadEta[20];
+   analysis.getOutputTree()->Branch("highMLeadEta",highMLeadEta,"highMLeadEta[20]/D");
+
+   double highMLeadBTag[20];
+   analysis.getOutputTree()->Branch("highMLeadBTag",highMLeadBTag,"highMLeadBTag[20]/D");
+
    // Analysis of events
 
 
@@ -148,6 +156,10 @@ int main(int argc, char * argv[])
       //Set Total Number of Jets
       analysis.setNjets(offlineJets->size());
 
+      std::fill_n(highMLeadPt,20,-100);
+      std::fill_n(highMLeadEta,20,-100);
+      std::fill_n(highMLeadBTag,20,-100);
+
       counter = 0;
       goodLeadingJets = false;
       Jet LeadJet[20];
@@ -177,13 +189,23 @@ int main(int argc, char * argv[])
 			if(jet.pt() < analysis.Pt1Cut()) break;
 			if(abs(jet.eta()) > 2.2) break;
 			if(jet.btag() < analysis.BTag1Cut()) break;
-			if(jet.btag() < 0.935 ) break;
 			if(analysis.isMC()) analysis.calculateBTagSF(reader,reader_up,reader_down);
+
+			if(!analysis.isMC() && analysis.triggerResult("HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v")) {
+				highMLeadPt[counter-1] = jet.pt();
+				highMLeadEta[counter-1] = jet.eta();
+				highMLeadBTag[counter-1] = jet.btag();
+
+				for (const auto & trigObj : analysis.getTriggerObjectNames()){
+					auto candLowMJet = jet.matched(trigObj);
+				}
+
+			}
 
 			if(counter == 2){
 				if(LeadJet[0].deltaR(LeadJet[1]) <= 1) break;
 				if(abs(LeadJet[0].eta() - LeadJet[1].eta()) > analysis.dEtaCut()) break;
-				if(!analysis.isMC() && !analysis.OnlineSelection(LeadJet[0],LeadJet[1])) break;
+//				if(!analysis.isMC() && !analysis.OnlineSelection(LeadJet[0],LeadJet[1])) break;
 				goodLeadingJets = true;
 			}
 		}
@@ -211,9 +233,9 @@ int main(int argc, char * argv[])
     	  weight["Lumi"]     = weightCalc.LumiWeight(2182.680439,analysis.luminosity());
     	  weight["Ht"]       = weightCalc.HtWeight(HtRatio,analysis.getHt());
     	  //TODO: PileUp reweighting is wrong (truePileUp distribution should be used)!!!
-    	  //weight["PileUpCentral"] = weightCalc.PileUpWeight(hPileUpData["central"],hPileUpMC,offlinePrimaryVertices->size());
-    	  //weight["PileUpDown"]    = weightCalc.PileUpWeight(hPileUpData["down"],hPileUpMC,offlinePrimaryVertices->size());
-    	  //weight["PileUpUp"]      = weightCalc.PileUpWeight(hPileUpData["up"],hPileUpMC,offlinePrimaryVertices->size());
+    	  weight["PileUpCentral"] = weightCalc.PileUpWeight(hPileUpData["central"],hPileUpMC,offlinePrimaryVertices->size());
+    	  weight["PileUpDown"]    = weightCalc.PileUpWeight(hPileUpData["down"],hPileUpMC,offlinePrimaryVertices->size());
+    	  weight["PileUpUp"]      = weightCalc.PileUpWeight(hPileUpData["up"],hPileUpMC,offlinePrimaryVertices->size());
 
 
     	  //Selection depending weights
@@ -233,12 +255,14 @@ int main(int argc, char * argv[])
     	  analysis.setPt2DWeight(weight["2DPt"]);
     	  analysis.setLumiWeight(weight["Lumi"]);
     	  analysis.setHtWeight(weight["Ht"]);
-    	  //analysis.setPileUpWeight(weight["PileUpCentral"],weight["PileUpUp"],weight["PileUpDown"]);
+    	  analysis.setPileUpWeight(weight["PileUpCentral"],weight["PileUpUp"],weight["PileUpDown"]);
 
     	  //Calculation of the flavour composition, based on HadronFlavours
     	  analysis.calculateFlavourComposition();
 
       }
+
+
 
 
       // Fill the output Tree

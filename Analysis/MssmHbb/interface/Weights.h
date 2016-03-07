@@ -10,8 +10,6 @@
 
 #include <iostream>
 
-#include "Analysis/MssmHbb/interface/PileUp.h"
-
 class Weights {
 
 public:

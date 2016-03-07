@@ -29,7 +29,9 @@
 
 #include "Analysis/Tools/interface/Analysis.h"
 #include "Analysis/MssmHbb/interface/BasicTree.h"
-#include "Analysis/MssmHbb/interface/PileUp.h"
+
+//Macros that provide information about the current CMSSW version
+#define CMSSW std::string(PROJECT_VERSION)
 
 //
 // class declaration
