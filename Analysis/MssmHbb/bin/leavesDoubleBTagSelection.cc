@@ -176,7 +176,7 @@ int main(int argc, char * argv[])
 		if(counter == 1 || counter == 2){
 			if(jet.pt() < analysis.Pt1Cut()) break;
 			if(abs(jet.eta()) > 2.2) break;
-//			if(jet.btag() < analysis.BTag1Cut()) break;
+			if(jet.btag() < analysis.BTag1Cut()) break;
 			if(jet.btag() < 0.935 ) break;
 			if(analysis.isMC()) analysis.calculateBTagSF(reader,reader_up,reader_down);
 
