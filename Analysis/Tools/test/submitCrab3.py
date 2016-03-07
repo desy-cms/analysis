@@ -7,16 +7,16 @@ from WMCore.Configuration import Configuration
 
 # ---
 # Some parameter steering
-PROCESS         = 'MSSMHbb'
+PROCESS         = 'Pythia8_QCD'
 TYPE            = 'MC'
 if TYPE == 'DATA':
 	UNITS_PER_JOB   = 1000
 if TYPE == 'MC':
 	UNITS_PER_JOB   = 10
-PSET            = '/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Ntuplizer/test/btag_data.py'
-CAMPAIGN        = 'Fall15.20160130'
+PSET            = '/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/Ntuplizer/test/pythia8_qcd_76x_expert.py'
+CAMPAIGN        = 'Fall15.76X.20160304'
 BASEOUTDIR      = '/store/user/rshevche/Analysis/Ntuples/' + PROCESS
-URL             = '/nfs/dust/cms/user/shevchen/samples/miniaod'
+URL             = '/nfs/dust/cms/user/shevchen/samples/miniaod/76X/'
 #URL             = 'http://www.desy.de/~walsh/cms/analysis/samples/miniaod'
 
 # ---
@@ -37,10 +37,10 @@ if __name__ == '__main__':
    
    if TYPE == 'MC':
       config.Data.splitting   = 'FileBased'
-      config.JobType.psetName = '/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Ntuplizer/test/qcd_mc.py'
+      config.JobType.psetName = '/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/Ntuplizer/test/pythia8_qcd_76x_expert.py'
    if TYPE == 'DATA':
       config.Data.splitting   = 'LumiBased'
-      config.JobType.psetName = '/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_5_2/src/Analysis/Ntuplizer/test/btag_data.py'
+      config.JobType.psetName = PSET
 
    config.General.workArea += '_' + PROCESS
    config.Data.unitsPerJob = UNITS_PER_JOB

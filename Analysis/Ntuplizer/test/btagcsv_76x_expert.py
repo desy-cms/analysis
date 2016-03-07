@@ -17,9 +17,9 @@ for pset in process.GlobalTag.toGet.value():
 process.GlobalTag.RefreshEachRun = cms.untracked.bool( False )
 process.GlobalTag.ReconnectEachRun = cms.untracked.bool( False )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(500) )
 
-output_file = 'test_data.root'
+output_file = 'output.root'
 ## TFileService
 process.TFileService = cms.Service("TFileService",
 	fileName = cms.string(output_file)
@@ -199,7 +199,7 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
 
 process.p = cms.Path(
                       process.TotalEvents *
-                      process.triggerSelection *
+                      process.triggerSelection *      # switch off for BTagCSV 2015C
                       process.primaryVertexFilter *
                       process.FilteredEvents *
                       process.slimmedJetsCorrFactorsReapplyJEC       * process. slimmedJetsReapplyJEC *
@@ -214,7 +214,11 @@ secFiles = cms.untracked.vstring()
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 
 readFiles.extend( [
-       '/store/data/Run2015D/BTagCSV/MINIAOD/16Dec2015-v1/50000/A6D829FA-F6AB-E511-BC84-0090FAA581F4.root',
+                   '/store/data/Run2015C_25ns/BTagCSV/MINIAOD/16Dec2015-v1/20000/1E47E4E4-52B5-E511-938E-549F35AC7E7D.root',
+                   '/store/data/Run2015C_25ns/BTagCSV/MINIAOD/16Dec2015-v1/20000/36209C67-54B5-E511-90BB-0CC47A4D76B6.root',
+                   '/store/data/Run2015C_25ns/BTagCSV/MINIAOD/16Dec2015-v1/20000/5A418967-54B5-E511-9C18-0CC47A78A4BA.root',
+                   '/store/data/Run2015C_25ns/BTagCSV/MINIAOD/16Dec2015-v1/20000/5E4722F3-52B5-E511-8B43-00266CFAE6A4.root',
+                   '/store/data/Run2015C_25ns/BTagCSV/MINIAOD/16Dec2015-v1/20000/C0DAA001-53B5-E511-A889-A0000420FE80.root'
 ] );
 
 
@@ -223,10 +227,10 @@ secFiles.extend( [
 
 ## ============ JSON Certified data ===============   BE CAREFUL!!!
 ## Don't use with CRAB!!!
-import FWCore.PythonUtilities.LumiList as LumiList
-import FWCore.ParameterSet.Types as CfgTypes
-process.source.lumisToProcess = CfgTypes.untracked(CfgTypes.VLuminosityBlockRange())
-JSONfile = 'Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt'
-myLumis = LumiList.LumiList(filename = JSONfile).getCMSSWString().split(',')
-process.source.lumisToProcess.extend(myLumis)
+#import FWCore.PythonUtilities.LumiList as LumiList
+#import FWCore.ParameterSet.Types as CfgTypes
+#process.source.lumisToProcess = CfgTypes.untracked(CfgTypes.VLuminosityBlockRange())
+#JSONfile = 'Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt'
+#myLumis = LumiList.LumiList(filename = JSONfile).getCMSSWString().split(',')
+#process.source.lumisToProcess.extend(myLumis)
 

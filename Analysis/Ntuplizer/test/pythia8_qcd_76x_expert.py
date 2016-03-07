@@ -3,12 +3,12 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("MssmHbb")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(1)
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(1000)
 
 ##  Using MINIAOD. GlobalTag just in case jet re-clustering, L1 trigger filter  etc is needed to be done
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag as customiseGlobalTag
-process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = '76X_dataRun2_16Dec2015_v0')
+process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = '76X_mcRun2_asymptotic_RunIIFall15DR76_v1')
 process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_CONDITIONS'
 process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
 for pset in process.GlobalTag.toGet.value():
@@ -19,37 +19,32 @@ process.GlobalTag.ReconnectEachRun = cms.untracked.bool( False )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
-output_file = 'test_data.root'
+output_file = 'output.root'
 ## TFileService
 process.TFileService = cms.Service("TFileService",
 	fileName = cms.string(output_file)
 )
 
-
-## ============ TRIGGER FILTER =============== 
-## Enable below at cms.Path if needed 
-process.triggerSelection = cms.EDFilter( "TriggerResultsFilter",
-    triggerConditions = cms.vstring(
-                        'HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v*',
-                        'HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v*',
-                        'HLT_DoubleJetsC112_DoubleBTagCSV0p85_DoublePFJetsC172_v*',
-                        'HLT_DoubleJetsC112_DoubleBTagCSV0p9_DoublePFJetsC112MaxDeta1p6_v*',
-    ),
-    hltResults = cms.InputTag( "TriggerResults", "", "HLT" ),
-    l1tResults = cms.InputTag( "" ),
-    l1tIgnoreMask = cms.bool( False ),
-    l1techIgnorePrescales = cms.bool( False ),
-    daqPartitions = cms.uint32( 1 ),
-    throw = cms.bool( True )
-)
-
-
+# ## ============ TRIGGER FILTER ===============                   BE CAREFUL!!!
+# ## Enable below at cms.Path if needed 
+# process.triggerSelection = cms.EDFilter( "TriggerResultsFilter",
+#     triggerConditions = cms.vstring(
+#                           "HLT_ZeroBias_v*",
+#     ),
+#     hltResults = cms.InputTag( "TriggerResults", "", "HLT" ),
+#     l1tResults = cms.InputTag( "" ),
+#     l1tIgnoreMask = cms.bool( False ),
+#     l1techIgnorePrescales = cms.bool( False ),
+#     daqPartitions = cms.uint32( 1 ),
+#     throw = cms.bool( True )
+# )
+# 
 
 ## ============ RE-APPLY JET ENERGY CORRECTIONS ===============   BE CAREFUL!!!
 ## Enable below at cms.Path if needed 
 from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetCorrFactorsUpdated
 process.slimmedJetsCorrFactorsReapplyJEC = patJetCorrFactorsUpdated.clone(
-  src = cms.InputTag("slimmedJets"),
+  src = cms.InputTag("slimmedJets","","PAT"),
   levels = ['L1FastJet', 
             'L2Relative', 
             'L3Absolute'],
@@ -57,14 +52,14 @@ process.slimmedJetsCorrFactorsReapplyJEC = patJetCorrFactorsUpdated.clone(
 
 
 process.slimmedJetsPuppiCorrFactorsReapplyJEC = patJetCorrFactorsUpdated.clone(
-  src = cms.InputTag("slimmedJetsPuppi"),
+  src = cms.InputTag("slimmedJetsPuppi","","PAT"),
   levels = ['L1FastJet', 
             'L2Relative', 
             'L3Absolute'],
   payload = 'AK4PFPuppi' ) # Make sure to choose the appropriate levels and payload here!
   
 process.slimmedJetsAK8PFCorrFactorsReapplyJEC = patJetCorrFactorsUpdated.clone(
-  src = cms.InputTag("slimmedJetsAK8PFCHSSoftDropPacked","SubJets","RECO"),
+  src = cms.InputTag("slimmedJetsAK8PFCHSSoftDropPacked","SubJets","PAT"),
   levels = ['L1FastJet', 
             'L2Relative', 
             'L3Absolute'],
@@ -73,17 +68,17 @@ process.slimmedJetsAK8PFCorrFactorsReapplyJEC = patJetCorrFactorsUpdated.clone(
 
 from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetsUpdated
 process.slimmedJetsReapplyJEC = patJetsUpdated.clone(
-  jetSource = cms.InputTag("slimmedJets"),
+  jetSource = cms.InputTag("slimmedJets","","PAT"),
   jetCorrFactorsSource = cms.VInputTag(cms.InputTag("slimmedJetsCorrFactorsReapplyJEC"))
   )
 
 process.slimmedJetsPuppiReapplyJEC = patJetsUpdated.clone(
-  jetSource = cms.InputTag("slimmedJetsPuppi"),
+  jetSource = cms.InputTag("slimmedJetsPuppi","","PAT"),
   jetCorrFactorsSource = cms.VInputTag(cms.InputTag("slimmedJetsPuppiCorrFactorsReapplyJEC"))
   )
 
 process.slimmedJetsAK8PFCHSSoftDropPackedReapplyJEC = patJetsUpdated.clone(
-  jetSource = cms.InputTag("slimmedJetsAK8PFCHSSoftDropPacked","SubJets","RECO"),
+  jetSource = cms.InputTag("slimmedJetsAK8PFCHSSoftDropPacked","SubJets","PAT"),
   jetCorrFactorsSource = cms.VInputTag(cms.InputTag("slimmedJetsAK8PFCorrFactorsReapplyJEC"))
   )
 
@@ -102,9 +97,15 @@ process.primaryVertexFilter = cms.EDFilter("VertexSelector",
 
 ## ============  THE NTUPLIZER!!!  ===============
 process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
-    MonteCarlo      = cms.bool(False),
+    MonteCarlo      = cms.bool(True),
     CrossSection    = cms.double(1),  # in pb
     UseFullName     = cms.bool(False),
+    ## Monte Carlo only
+    GenFilterInfo   = cms.InputTag("genFilterEfficiencyProducer"),
+    GenRunInfo      = cms.InputTag("generator"),
+    GenJets         = cms.VInputTag(cms.InputTag("slimmedGenJets")),
+    GenParticles    = cms.VInputTag(cms.InputTag("prunedGenParticles")),
+    PileupInfo      = cms.InputTag("slimmedAddPileupInfo"),
     ###################
     TotalEvents     = cms.InputTag("TotalEvents"),
     FilteredEvents  = cms.InputTag("FilteredEvents"),
@@ -125,14 +126,14 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
                                     "AK8PFchs",
                                     ),
     PatMETs         = cms.VInputTag(
-                                    cms.InputTag("slimmedMETs"),
-                                    cms.InputTag("slimmedMETsPuppi")
+                                    cms.InputTag("slimmedMETs","","PAT"),
+                                    cms.InputTag("slimmedMETsPuppi","","PAT")
                                     ), 
     PatMuons        = cms.VInputTag(
-                                    cms.InputTag("slimmedMuons")
+                                    cms.InputTag("slimmedMuons","","PAT")
                                     ), 
     PrimaryVertices = cms.VInputTag(
-                                    cms.InputTag("offlineSlimmedPrimaryVertices")
+                                    cms.InputTag("offlineSlimmedPrimaryVertices","","PAT")
                                     ), 
     BTagAlgorithms = cms.vstring   (
                                     "pfCombinedInclusiveSecondaryVertexV2BJetTags",
@@ -171,7 +172,7 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
     								        'HLT_DoubleJetsC112_DoubleBTagCSV0p9_DoublePFJetsC112MaxDeta1p6_v',
                                    ),
     TriggerObjectStandAlone  = cms.VInputTag(
-                                             cms.InputTag("selectedPatTrigger"),
+                                             cms.InputTag("selectedPatTrigger","","PAT"),
                                              ),
     TriggerObjectLabels    = cms.vstring  (
     											"hltL1sL1DoubleJetC100",
@@ -199,7 +200,6 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
 
 process.p = cms.Path(
                       process.TotalEvents *
-                      process.triggerSelection *
                       process.primaryVertexFilter *
                       process.FilteredEvents *
                       process.slimmedJetsCorrFactorsReapplyJEC       * process. slimmedJetsReapplyJEC *
@@ -212,21 +212,16 @@ process.p = cms.Path(
 readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
-
 readFiles.extend( [
-       '/store/data/Run2015D/BTagCSV/MINIAOD/16Dec2015-v1/50000/A6D829FA-F6AB-E511-BC84-0090FAA581F4.root',
+                   '/store/mc/RunIIFall15MiniAODv2/QCD_Pt_800to1000_TuneCUETP8M1_13TeV_pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/60000/0659E975-5BB8-E511-BBD9-C81F66B7ED99.root',
+                   '/store/mc/RunIIFall15MiniAODv2/QCD_Pt_800to1000_TuneCUETP8M1_13TeV_pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/60000/08F6536B-5CB8-E511-B0F0-0025905A60D0.root',
+                   '/store/mc/RunIIFall15MiniAODv2/QCD_Pt_800to1000_TuneCUETP8M1_13TeV_pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/60000/10236D50-5BB8-E511-AB57-0025905B8582.root',
+                   '/store/mc/RunIIFall15MiniAODv2/QCD_Pt_800to1000_TuneCUETP8M1_13TeV_pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/60000/1644DB69-5CB8-E511-BD02-0025905A6088.root',
+                   '/store/mc/RunIIFall15MiniAODv2/QCD_Pt_800to1000_TuneCUETP8M1_13TeV_pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/60000/1657938B-5BB8-E511-AE90-0025905A6066.root',
+
 ] );
 
 
 secFiles.extend( [
                ] )
-
-## ============ JSON Certified data ===============   BE CAREFUL!!!
-## Don't use with CRAB!!!
-import FWCore.PythonUtilities.LumiList as LumiList
-import FWCore.ParameterSet.Types as CfgTypes
-process.source.lumisToProcess = CfgTypes.untracked(CfgTypes.VLuminosityBlockRange())
-JSONfile = 'Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt'
-myLumis = LumiList.LumiList(filename = JSONfile).getCMSSWString().split(',')
-process.source.lumisToProcess.extend(myLumis)
 

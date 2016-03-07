@@ -26,14 +26,14 @@ int main(int argc, char * argv[])
    TH1::SetDefaultSumw2();  // proper treatment of errors when scaling histograms
 
    // Input files list
-   std::string inputList = "rootFileListBTagCSV.txt";
-   //std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/QCD/QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8.txt";
+   //std::string inputList = "rootFileListBTagCSV.txt";
+   std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/76X/BTagCSVData/Run2015C_25ns-16Dec2015-v1.txt";
 
    // Initialisation of MssmHbb class
    MssmHbb analysis(inputList);
 
    // Process selected JSON file
-   if(!analysis.isMC()) analysis.processJsonFile("goodJson.txt");
+   if(!analysis.isMC()) analysis.processJsonFile("Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt");
 
    // Add std::vector<std::string> of the Trigger Objects that you would like to apply.
    // Also Trigger Results name will be stored, according to the trigger objects names
@@ -85,18 +85,18 @@ int main(int argc, char * argv[])
    }
 
    // Add PileUp reweighting
-   /*
-   std::map<std::string, TFile*> fPileUpData;
-   std::map<std::string, TH1F* > hPileUpData;
-   fPileUpData["central"] = new TFile("input_corrections/Data_Pileup_2015D_Nov17.root","read");
-   hPileUpData["central"] = (TH1F*) fPileUpData["central"]->Get("pileup");
-   fPileUpData["down"] = new TFile("input_corrections/PileUpData_down_26_02_2016.root","read");
-   hPileUpData["down"] = (TH1F*) fPileUpData["down"]->Get("pileup");
-   fPileUpData["up"] = new TFile("input_corrections/PileUpData_up_26_02_2016.root","read");
-   hPileUpData["up"] = (TH1F*) fPileUpData["up"]->Get("pileup");
-   TFile *fPileUpMC = new TFile("input_corrections/PileUpMC_26_02_2016.root","read");
-   TH1F *hPileUpMC = (TH1F*) fPileUpMC->Get("pileup");
-   */
+
+//   std::map<std::string, TFile*> fPileUpData;
+//   std::map<std::string, TH1F* > hPileUpData;
+//   fPileUpData["central"] = new TFile("input_corrections/Data_Pileup_2015D_Nov17.root","read");
+//   hPileUpData["central"] = (TH1F*) fPileUpData["central"]->Get("pileup");
+//   fPileUpData["down"] = new TFile("input_corrections/PileUpData_down_26_02_2016.root","read");
+//   hPileUpData["down"] = (TH1F*) fPileUpData["down"]->Get("pileup");
+//   fPileUpData["up"] = new TFile("input_corrections/PileUpData_up_26_02_2016.root","read");
+//   hPileUpData["up"] = (TH1F*) fPileUpData["up"]->Get("pileup");
+//   TFile *fPileUpMC = new TFile("input_corrections/PileUpMC_26_02_2016.root","read");
+//   TH1F *hPileUpMC = (TH1F*) fPileUpMC->Get("pileup");
+
 
    //Add BTagCalibration calculators needed for Offline BTag SF:
    BTagCalibration calib("csvv2", "input_corrections/SFbLib.csv");
@@ -109,7 +109,7 @@ int main(int argc, char * argv[])
 
    //Setup output file name
    //name can me specified explicitly with method: createOutputFile(fileName);
-   std::string fileName = "/nfs/dust/cms/user/shevchen/output/DoubleBTagSelection_NoTriggerMatching";
+   std::string fileName = "/nfs/dust/cms/user/shevchen/output/DoubleBTagSelection";
    analysis.SetupStandardOutputFile(fileName);
 
    //Setup Branches
@@ -176,7 +176,8 @@ int main(int argc, char * argv[])
 		if(counter == 1 || counter == 2){
 			if(jet.pt() < analysis.Pt1Cut()) break;
 			if(abs(jet.eta()) > 2.2) break;
-			if(jet.btag() < analysis.BTag1Cut()) break;
+//			if(jet.btag() < analysis.BTag1Cut()) break;
+			if(jet.btag() < 0.935 ) break;
 			if(analysis.isMC()) analysis.calculateBTagSF(reader,reader_up,reader_down);
 
 			if(counter == 2){

@@ -19,7 +19,7 @@ process.GlobalTag.ReconnectEachRun = cms.untracked.bool( False )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
-output_file = 'test_data.root'
+output_file = 'output.root'
 ## TFileService
 process.TFileService = cms.Service("TFileService",
 	fileName = cms.string(output_file)
@@ -30,10 +30,16 @@ process.TFileService = cms.Service("TFileService",
 ## Enable below at cms.Path if needed 
 process.triggerSelection = cms.EDFilter( "TriggerResultsFilter",
     triggerConditions = cms.vstring(
-                        'HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v*',
-                        'HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v*',
-                        'HLT_DoubleJetsC112_DoubleBTagCSV0p85_DoublePFJetsC172_v*',
-                        'HLT_DoubleJetsC112_DoubleBTagCSV0p9_DoublePFJetsC112MaxDeta1p6_v*',
+                                    'HLT_PFJet40_v*',
+                                    'HLT_PFJet60_v*',
+                                    'HLT_PFJet80_v*',
+                                    'HLT_PFJet140_v*',
+                                    'HLT_PFJet200_v*',
+                                    'HLT_PFJet260_v*',
+                                    'HLT_PFJet320_v*',
+                                    'HLT_PFJet400_v*',
+                                    'HLT_PFJet450_v*',
+                                    'HLT_PFJet500_v*'
     ),
     hltResults = cms.InputTag( "TriggerResults", "", "HLT" ),
     l1tResults = cms.InputTag( "" ),
@@ -165,27 +171,57 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
     ## I recommend using the version number explicitly to be able to compare 
     ## however for production one has to be careful that all versions are included.
     ## Thinking of a better solution...
-    								        'HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v',
-    								        'HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v',
-    								        'HLT_DoubleJetsC112_DoubleBTagCSV0p85_DoublePFJetsC172_v',
-    								        'HLT_DoubleJetsC112_DoubleBTagCSV0p9_DoublePFJetsC112MaxDeta1p6_v',
+                                    "HLT_PFJet40_v",
+                                    "HLT_PFJet60_v",
+                                    "HLT_PFJet80_v",
+                                    "HLT_PFJet140_v",
+                                    "HLT_PFJet200_v",
+                                    "HLT_PFJet260_v",
+                                    "HLT_PFJet320_v",
+                                    "HLT_PFJet400_v",
+                                    "HLT_PFJet450_v",
+                                    "HLT_PFJet500_v"
                                    ),
     TriggerObjectStandAlone  = cms.VInputTag(
                                              cms.InputTag("selectedPatTrigger"),
                                              ),
     TriggerObjectLabels    = cms.vstring  (
-    											"hltL1sL1DoubleJetC100",
-    											"hltDoubleJetsC100",
-    											"hltDoublePFJetsC100",
-    											"hltDoublePFJetsC100MaxDeta1p6",
-    											"hltDoublePFJetsC160",
-    											"hltDoubleBTagCSV0p85",
-    											"hltDoubleBTagCSV0p9",
-    											"hltL1sL1DoubleJetC112",
-    											"hltDoubleJetsC112",
-    											"hltDoublePFJetsC112",
-    											"hltDoublePFJetsC112MaxDeta1p6",
-    											"hltDoublePFJetsC172",
+                                           "hltL1sL1ZeroBias",
+                                           "hltPFJetsCorrectedMatchedToCaloJets10",
+                                           "hltSingleCaloJet10",
+                                           "hltSinglePFJet40",
+                                           "hltL1sL1SingleJet36",
+                                           "hltSingleCaloJet40",
+                                           "hltPFJetsCorrectedMatchedToCaloJets40",
+                                           "hltSinglePFJet60",
+                                           "hltL1sL1SingleJet52",
+                                           "hltPFJetsCorrectedMatchedToCaloJets50",
+                                           "hltSingleCaloJet50",
+                                           "hltSinglePFJet80",
+                                           "hltL1sL1SingleJet92",
+                                           "hltPFJetsCorrectedMatchedToCaloJets110",
+                                           "hltSingleCaloJet110",
+                                           "hltSinglePFJet140",
+                                           "hltL1sL1SingleJet128",
+                                           "hltPFJetsCorrectedMatchedToCaloJets170",
+                                           "hltSingleCaloJet170",
+                                           "hltSinglePFJet200",
+                                           "hltL1sL1SingleJet200",
+                                           "hltPFJetsCorrectedMatchedToCaloJets210",
+                                           "hltSingleCaloJet210",
+                                           "hltSinglePFJet260",
+                                           "hltPFJetsCorrectedMatchedToCaloJets270",
+                                           "hltSingleCaloJet270",
+                                           "hltSinglePFJet320",
+                                           "hltPFJetsCorrectedMatchedToCaloJets350",
+                                           "hltSingleCaloJet350",
+                                           "hltSinglePFJet400",
+                                           "hltPFJetsCorrectedMatchedToCaloJets400",
+                                           "hltSingleCaloJet400",
+                                           "hltSinglePFJet450",
+                                           "hltPFJetsCorrectedMatchedToCaloJets450",
+                                           "hltSingleCaloJet450",
+                                           "hltSinglePFJet500",
                                    ),
 #    L1ExtraJets     = cms.VInputTag(
 #                                    cms.InputTag("l1extraParticles","Central","RECO"),
@@ -214,7 +250,7 @@ secFiles = cms.untracked.vstring()
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 
 readFiles.extend( [
-       '/store/data/Run2015D/BTagCSV/MINIAOD/16Dec2015-v1/50000/A6D829FA-F6AB-E511-BC84-0090FAA581F4.root',
+       '/store/data/Run2015D/JetHT/MINIAOD/16Dec2015-v1/00000/301A497D-70B0-E511-9630-002590D0AFA8.root'
 ] );
 
 
@@ -223,10 +259,10 @@ secFiles.extend( [
 
 ## ============ JSON Certified data ===============   BE CAREFUL!!!
 ## Don't use with CRAB!!!
-import FWCore.PythonUtilities.LumiList as LumiList
-import FWCore.ParameterSet.Types as CfgTypes
-process.source.lumisToProcess = CfgTypes.untracked(CfgTypes.VLuminosityBlockRange())
-JSONfile = 'Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt'
-myLumis = LumiList.LumiList(filename = JSONfile).getCMSSWString().split(',')
-process.source.lumisToProcess.extend(myLumis)
+#import FWCore.PythonUtilities.LumiList as LumiList
+#import FWCore.ParameterSet.Types as CfgTypes
+#process.source.lumisToProcess = CfgTypes.untracked(CfgTypes.VLuminosityBlockRange())
+#JSONfile = 'Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt'
+#myLumis = LumiList.LumiList(filename = JSONfile).getCMSSWString().split(',')
+#process.source.lumisToProcess.extend(myLumis)
 
