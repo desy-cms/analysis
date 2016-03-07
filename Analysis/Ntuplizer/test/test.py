@@ -4,12 +4,13 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("MssmHbb")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(1)
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(-1)
 
 ##  Using MINIAOD. GlobalTag just in case jet re-clustering, L1 trigger filter  etc is needed to be done
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag as customiseGlobalTag
-process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = '76X_dataRun2_v15')
+#process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = '74X_dataRun2_Prompt_v1')
+process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = '74X_dataRun2_v5')
 process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_CONDITIONS'
 process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
 for pset in process.GlobalTag.toGet.value():
@@ -18,9 +19,9 @@ for pset in process.GlobalTag.toGet.value():
 process.GlobalTag.RefreshEachRun = cms.untracked.bool( False )
 process.GlobalTag.ReconnectEachRun = cms.untracked.bool( False )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(3000) )
 
-output_file = 'test_data.root'
+output_file = 'output_new_jec.root'
 ## TFileService
 process.TFileService = cms.Service("TFileService",
 	fileName = cms.string(output_file)
@@ -63,8 +64,60 @@ process.primaryVertexFilter = cms.EDFilter("VertexSelector",
    filter = cms.bool(True),   # otherwise it won't filter the events, just produce an empty vertex collection.
 )
 
+## ============ NEW JEC ================
+# Load SQL file
 
+process.load("CondCore.DBCommon.CondDBCommon_cfi")
+from CondCore.DBCommon.CondDBSetup_cfi import *
+process.jec = cms.ESSource("PoolDBESSource",
+      DBParameters = cms.PSet(
+        messageLevel = cms.untracked.int32(0)
+        ),
+      timetype = cms.string('runnumber'),
+      toGet = cms.VPSet(
+      cms.PSet(
+            record = cms.string('JetCorrectionsRecord'),
+            tag    = cms.string('JetCorrectorParametersCollection_Summer15_25nsV7_DATA_AK4PF'),
+            label  = cms.untracked.string('AK4PF')
+            ),
+      cms.PSet(
+            record = cms.string('JetCorrectionsRecord'),
+            tag    = cms.string('JetCorrectorParametersCollection_Summer15_25nsV7_DATA_AK4PFchs'),
+            label  = cms.untracked.string('AK4PFchs')
+            ),
+      cms.PSet(
+            record = cms.string('JetCorrectionsRecord'),
+            tag    = cms.string('JetCorrectorParametersCollection_Summer15_25nsV7_DATA_AK4PFPuppi'),
+            label  = cms.untracked.string('AK4PFPuppi')
+            ),
+      ##..................................................
+      ## here you add as many jet types as you need
+      ## note that the tag name is specific for the particular sqlite file 
+      ), 
+      connect = cms.string('sqlite:Summer15_25nsV7_DATA.db')
+     # uncomment above tag lines and this comment to use MC JEC
+     # connect = cms.string('sqlite:Summer12_V7_MC.db')
+)
+## add an es_prefer statement to resolve a possible conflict from simultaneous connection to a global tag
+process.es_prefer_jec = cms.ESPrefer('PoolDBESSource','jec')
 
+#Re-correcting pat::Jets and jets from MiniAOD
+
+from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetCorrFactorsUpdated
+process.patJetCorrFactorsReapplyJEC = patJetCorrFactorsUpdated.clone(
+  src = cms.InputTag("slimmedJetsPuppi"),
+  levels = ['L1FastJet', 
+        'L2Relative', 
+        'L3Absolute'],
+  payload = 'AK4PFchs' ) # Make sure to choose the appropriate levels and payload here!
+
+from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetsUpdated
+process.patJetsReapplyJEC = patJetsUpdated.clone(
+  jetSource = cms.InputTag("slimmedJetsPuppi"),
+  jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsReapplyJEC"))
+  )
+
+#process.p = cms.Sequence( process.patJetCorrFactorsReapplyJEC + process.patJetsReapplyJEC )
 
 ## ============  THE NTUPLIZER!!!  ===============
 process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
@@ -73,24 +126,18 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
     TotalEvents     = cms.InputTag("TotalEvents"),
     FilteredEvents  = cms.InputTag("FilteredEvents"),
     PatJets         = cms.VInputTag(
-                                    cms.InputTag("slimmedJets","","RECO"),
-                                    cms.InputTag("slimmedJetsPuppi","","RECO"),
-                                    cms.InputTag("slimmedJetsAK8PFCHSSoftDropPacked","SubJets","RECO")
+                                    cms.InputTag("patJetsReapplyJEC"),
+                                    cms.InputTag("slimmedJetsAK8PFCHSSoftDropPacked","SubJets","PAT")
                                     ), 
-    JECRecords      = cms.vstring   (
-                                    "AK4PFchs",
-                                    "AK4PFPuppi",
-                                    "AK8PFchs",
-                                   ),
     PatMETs         = cms.VInputTag(
-                                    cms.InputTag("slimmedMETs","","RECO"),
-                                    cms.InputTag("slimmedMETsPuppi","","RECO")
+                                    cms.InputTag("slimmedMETs","","PAT"),
+                                    cms.InputTag("slimmedMETsPuppi","","PAT")
                                     ), 
     PatMuons        = cms.VInputTag(
-                                    cms.InputTag("slimmedMuons","","RECO")
+                                    cms.InputTag("slimmedMuons","","PAT")
                                     ), 
     PrimaryVertices = cms.VInputTag(
-                                    cms.InputTag("offlineSlimmedPrimaryVertices","","RECO")
+                                    cms.InputTag("offlineSlimmedPrimaryVertices","","PAT")
                                     ), 
     BTagAlgorithms = cms.vstring   (
                                     "pfCombinedInclusiveSecondaryVertexV2BJetTags",
@@ -118,40 +165,40 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
                                          "btag_csvlep",
                                          "btag_csvmva",
                                         ),
-#     TriggerResults  = cms.VInputTag(cms.InputTag("TriggerResults","","HLT")),
-#     TriggerPaths    = cms.vstring  (
-#     ## I recommend using the version number explicitly to be able to compare 
-#     ## however for production one has to be careful that all versions are included.
-#     ## Thinking of a better solution...
-#     											"HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v1",
-#     											"HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v1",
-#     											"HLT_DoubleJetsC112_DoubleBTagCSV0p9_DoublePFJetsC112MaxDeta1p6_v1",
-#     											"HLT_DoubleJetsC112_DoubleBTagCSV0p85_DoublePFJetsC172_v1",
-#                                     "HLT_DoubleJet90_Double30_TripleBTagCSV0p67_v2",
-#                                     "HLT_QuadJet45_DoubleBTagCSV0p67_v2",
-#                                     "HLT_QuadJet45_TripleBTagCSV0p67_v2",
-#                                     "HLT_QuadPFJet_DoubleBTagCSV_VBF_Mqq200_v2",
-#                                     "HLT_QuadPFJet_DoubleBTagCSV_VBF_Mqq240_v2",
-#                                     "HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq460_v2",
-#                                     "HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq500_v2",
-#                                    ),
-#     TriggerObjectStandAlone  = cms.VInputTag(
-#                                              cms.InputTag("selectedPatTrigger","","RECO"),
-#                                              ),
-#     TriggerObjectLabels    = cms.vstring  (
-#     											"hltL1sL1DoubleJetC100",
-#     											"hltDoubleJetsC100",
-#     											"hltDoublePFJetsC100",
-#     											"hltDoublePFJetsC100MaxDeta1p6",
-#     											"hltDoublePFJetsC160",
-#     											"hltDoubleBTagCSV0p85",
-#     											"hltDoubleBTagCSV0p9",
-#     											"hltL1sL1DoubleJetC112",
-#     											"hltDoubleJetsC112",
-#     											"hltDoublePFJetsC112",
-#     											"hltDoublePFJetsC112MaxDeta1p6",
-#     											"hltDoublePFJetsC172",
-#                                    ),
+    TriggerResults  = cms.VInputTag(cms.InputTag("TriggerResults","","HLT")),
+    TriggerPaths    = cms.vstring  (
+    ## I recommend using the version number explicitly to be able to compare 
+    ## however for production one has to be careful that all versions are included.
+    ## Thinking of a better solution...
+    											"HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v",
+    											"HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v",
+    											"HLT_DoubleJetsC112_DoubleBTagCSV0p9_DoublePFJetsC112MaxDeta1p6_v",
+    											"HLT_DoubleJetsC112_DoubleBTagCSV0p85_DoublePFJetsC172_v",
+                                    #                                   "HLT_DoubleJet90_Double30_TripleBTagCSV0p67_v",
+                                    #"HLT_QuadJet45_DoubleBTagCSV0p67_v",
+                                    #"HLT_QuadJet45_TripleBTagCSV0p67_v",
+                                    #"HLT_QuadPFJet_DoubleBTagCSV_VBF_Mqq200_v",
+                                    #"HLT_QuadPFJet_DoubleBTagCSV_VBF_Mqq240_v",
+                                    #"HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq460_v",
+                                    #"HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq500_v",
+                                   ),
+    TriggerObjectStandAlone  = cms.VInputTag(
+                                             cms.InputTag("selectedPatTrigger","","PAT"),
+                                             ),
+    TriggerObjectLabels    = cms.vstring  (
+    											"hltL1sL1DoubleJetC100",
+    											"hltDoubleJetsC100",
+    											"hltDoublePFJetsC100",
+    											"hltDoublePFJetsC100MaxDeta1p6",
+    											"hltDoublePFJetsC160",
+    											"hltDoubleBTagCSV0p85",
+    											"hltDoubleBTagCSV0p9",
+    											"hltL1sL1DoubleJetC112",
+    											"hltDoubleJetsC112",
+    											"hltDoublePFJetsC112",
+    											"hltDoublePFJetsC112MaxDeta1p6",
+    											"hltDoublePFJetsC172",
+                                   ),
 #    L1ExtraJets     = cms.VInputTag(
 #                                    cms.InputTag("l1extraParticles","Central","RECO"),
 #                                    cms.InputTag("l1extraParticles","Forward","RECO"),
@@ -164,9 +211,9 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
 
 process.p = cms.Path(
                       process.TotalEvents *
-#                      process.primaryVertexFilter *
-#                      process.triggerSelection * 
-                      process.FilteredEvents *
+                      process.primaryVertexFilter *
+                      process.triggerSelection * 
+                      process.FilteredEvents * ( process.patJetCorrFactorsReapplyJEC + process.patJetsReapplyJEC ) *
                       process.MssmHbb
                     )
 
@@ -175,9 +222,9 @@ secFiles = cms.untracked.vstring()
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 
 readFiles.extend( [
-       '/store/data/Run2015C/BTagCSV/MINIAOD/PromptReco-v1/000/254/905/00000/1877CA80-B64B-E511-BE62-02163E013611.root',
-       '/store/data/Run2015C/BTagCSV/MINIAOD/PromptReco-v1/000/254/906/00000/2E43AE21-D74B-E511-B642-02163E011AC9.root',
-       '/store/data/Run2015C/BTagCSV/MINIAOD/PromptReco-v1/000/254/907/00000/FA67011D-DE4B-E511-A6B5-02163E01437C.root'
+
+
+       '/store/data/Run2015D/BTagCSV/MINIAOD/05Oct2015-v1/30000/1A46877D-766F-E511-B79A-0025905B8590.root'
 ] );
 
 

@@ -37,76 +37,79 @@ namespace analysis {
       class Candidate {
          typedef std::vector<Candidate> Candidates;
          public:
+            /// default constructor
             Candidate();
+            /// constructor from 4-momentum information
             Candidate(const float & pt, const float & eta, const float & phi, const float & e, const float & q = 0);
+            /// constructor from 3-momentum information
             Candidate(const float & px, const float & py, const float & pz);
+            /// destructor
            ~Candidate();
-
-           float px()   const;
-           float py()   const;
-           float pz()   const;
-           float pt()   const;
-           float eta()  const;
-           float phi()  const;
-           float e()    const;
-           float m()    const;
-           float mass() const;
-           inline float deltaR(const Candidate & cand) const;
-           int   q()   const;
-           void  q(const float & q);
+            
+           // Get
+           /// returns the x component of the momentum
+           float px()          const;
+           /// returns the y component of the momentum
+           float py()          const;
+           /// returns the z component of the momentum
+           float pz()          const;
+           /// returns the transverse momentum
+           float pt()          const;
+           /// returns the pseudorapidity
+           float eta()         const;
+           /// returns the azimuthal angle
+           float phi()         const;
+           /// returns the energy
+           float e()           const;
+           /// returns the mass
+           float m()           const;
+           /// returns the mass
+           float mass()        const;
+           /// returns the charge
+           int   q()           const;
+           /// returns the 4-momentum (TLorentzVector)
            TLorentzVector p4() const;
+           /// returns the 4-momentum (TVector3)
            TVector3       p3() const;
-
-           Candidate candidate();
+           
+           // Set
+           /// sets the 4-momentum (TLorentzVector)
+           void p4  (const TLorentzVector &);
+           /// sets the x component of the momentum
+           void px  (const float &);
+           /// sets the y component of the momentum
+           void py  (const float &);
+           /// sets the z component of the momentum
+           void pz  (const float &);
+           /// sets the energy
+           void e   (const float &);
+           /// sets the charge
+           void q   (const float &);
+           
+           /// returns the deltaR between this and another candidate
+           float deltaR(const Candidate & ) const;
+           
 
            // made below virtual as this may be different for MET, or vertex
+           /// function to match this candidate to another object from a list of pointers with a name
            virtual bool matchTo(const std::vector<Candidate> * cands, const std::string & name, const float & deltaR = 0.5);
+           /// returns the pointer to the matched candidate object
            const Candidate * matched(const std::string & name);
+           /// returns the pointer to the matched candidate object
            const Candidate * matched(const std::string & name) const;
          protected:
             // ----------member data ---------------------------
 
             //
-            int   q_  ;
-            std::string name;
+            /// the charge
+            float   q_  ;
+            /// the 4-momentum
             TLorentzVector p4_;
-
+            /// map of matched candidates
             std::map<std::string, const Candidate * > matched_;
 
          private:
       };
-
-      // ===============================================
-      // INLINE IMPLEMENTATIONS
-
-      // Gets
-      inline float Candidate::px()   const { return p4_.Px() ; }
-      inline float Candidate::py()   const { return p4_.Py() ; }
-      inline float Candidate::pz()   const { return p4_.Pz() ; }
-      inline float Candidate::pt()   const { return p4_.Pt() ; }
-      inline float Candidate::eta()  const { return p4_.Eta(); }
-      inline float Candidate::phi()  const { return p4_.Phi(); }
-      inline float Candidate::e()    const { return p4_.E()  ; }
-      inline float Candidate::m()    const { return p4_.M()  ; }
-      inline float Candidate::mass() const { return p4_.M()  ; }
-      inline int   Candidate::q()    const { return q_;   }
-      inline float Candidate::deltaR(const Candidate &cand) const { return p4_.DeltaR(cand.p4()) ;}
-
-      inline TLorentzVector Candidate::p4() const { return p4_; }
-      inline TVector3       Candidate::p3() const { return p4_.Vect(); }
-
-      inline Candidate Candidate::candidate()
-      {
-         Candidate cand(this->pt(), this->eta(), this->phi(), this->e(), this->q());
-         return cand;
-      }
-
-      inline const Candidate * Candidate::matched(const std::string & name) { return matched_[name]; }
-      inline const Candidate * Candidate::matched(const std::string & name) const { return matched_.find(name) != matched_.end() ? matched_.find(name)->second : 0; }
-
-      // Sets
-      inline void  Candidate::q(const float & q) { q_ = q; }
-
    }
 }
 

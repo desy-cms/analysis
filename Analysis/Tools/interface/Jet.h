@@ -24,6 +24,7 @@
 // 
 // user include files
 #include "Analysis/Tools/interface/Candidate.h"
+#include "Analysis/Tools/interface/GenParticle.h"
 //
 // class declaration
 //
@@ -33,22 +34,51 @@ namespace analysis {
       
       class Jet : public Candidate {
          public:
+            /// default constructor
             Jet();
+            /// constructor from 4-momentum information
             Jet(const float & pt, const float & eta, const float & phi, const float & e);
+            /// destructor
            ~Jet();
            
-            float btag();
-            int   flavour();
-            int   flavour(const std::string & definition = "Hadron");
-            bool  idLoose();
-            bool  idTight();
+            // Gets
+            /// returns the btag value of btag_csvivf
+            float btag()                        const;
+            /// returns the flavour with the Hadron definition (=0 for data)
+            int   flavour()                     const;
+            /// returns the flavour given a definition (=0 for data)
+            int   flavour(const std::string & ) const;
+            /// returns if jet has id loose working point
+            bool  idLoose()                     const;
+            /// returns if jet has id tight working point
+            bool  idTight()                     const;
+            /// returns the jet energy correction uncertainty
+            float jecUncert()                   const;
+            /// returns the vector containing flavours inside the jet
+            std::vector<int> flavours()         const;
+            /// returns the extended flavour definition
+            std::string extendedFlavour()       const;
+            /// returns the vector of pointers to the generated partons
+            std::vector< std::shared_ptr<GenParticle> > partons() const;
             
-            void btag(const float &);
-            void flavour(const int &);
-            void flavour(const std::string & definition, const int & value);
-            void idLoose(const bool &);
-            void idTight(const bool &);
+            // Sets
+            /// sets the btag value
+            void  btag(const float &);
+            /// sets flavour
+            void  flavour(const int &);
+            /// sets flavour for a given definition
+            void  flavour(const std::string & definition, const int & value);
+            /// sets if jet id is loose or not
+            void  idLoose(const bool &);
+            /// sets if jet id is tight or not
+            void  idTight(const bool &);
+            /// sets the jet energy correction uncertainty
+            void  jecUncert(const float &);
             
+            /// add parton that gave rise to jet
+            void addParton(const std::shared_ptr<GenParticle> &);
+            
+            /// calculates the jet id
             void id(const float & nHadFrac,
                     const float & nEmFrac ,
                     const float & nMult   ,
@@ -57,37 +87,34 @@ namespace analysis {
                     const float & cMult   ,
                     const float & muFrac  );
             
+            /// associate partons to the jet
+            void associatePartons(const std::vector< std::shared_ptr<GenParticle> > &, const float & dRmax = 0.5, const bool & pythi8 = true );
+            
 //            using Candidate::set; // in case needed to overload the function set
             
          protected:
             // ----------member data ---------------------------
-            // 
+            //
+            /// btag value 
             float btag_ ;
-//            int   flavour_;
+            /// map of flavour to a given definition
             std::map<std::string, int> flavour_;
+            /// flavours inside the jet
+            std::vector<int> flavours_;
+            /// extended flavour identification for merged jets
+            std::string extendedFlavour_;
+            /// vector of pointers to Genparticles from merged jets
+            std::vector< std::shared_ptr<GenParticle> > partons_;
+            /// jet id loose working point
             bool  idloose_;
+            /// jet id tight working point
             bool  idtight_;
+            /// jet energy correction uncertainty
+            float jecUnc_;
          private:
             // ----------member data ---------------------------
             
       };
-         
-      // ===============================================
-      // INLINE IMPLEMENTATIONS
-         
-      // Gets
-      inline float Jet::btag()    { return btag_;    }                   
-      inline int   Jet::flavour() { return flavour_["Hadron"]; }                   
-      inline int   Jet::flavour(const std::string & definition) { return flavour_[definition]; }                   
-      inline bool  Jet::idLoose() { return idloose_; }                   
-      inline bool  Jet::idTight() { return idtight_; }         
-                
-      // Sets                                                             
-      inline void Jet::btag    (const float & btag) { btag_    = btag; } 
-      inline void Jet::flavour (const int   & flav) { flavour_["Hadron"] = flav; } 
-      inline void Jet::flavour (const std::string & definition, const int   & flav) { flavour_[definition] = flav; } 
-      inline void Jet::idLoose (const bool  & loos) { idloose_ = loos; } 
-      inline void Jet::idTight (const bool  & tigh) { idtight_ = tigh; } 
    }
 }
 

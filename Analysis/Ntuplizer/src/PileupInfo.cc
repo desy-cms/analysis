@@ -12,6 +12,7 @@
 //
 
 // system include files
+#include <iostream>
 // 
 // user include files
 #include "FWCore/Framework/interface/Event.h"
@@ -59,18 +60,22 @@ void PileupInfo::ReadFromEvent(const edm::Event& event)
    // 
    edm::Handle<std::vector<PileupSummaryInfo> > handler;
    event.getByLabel(input_collection_, handler);
+
    std::vector<PileupSummaryInfo> pileup_infos = *(handler.product());
    
-   for ( size_t i = 0 ; i < pileup_infos.size() ; ++i )
-   {
-      PileupSummaryInfo pileup_info = pileup_infos.at(i);
+// Take the first entry - should be enough
+//   for ( size_t i = 0 ; i < pileup_infos.size() ; ++i )
+//   {
+   
+      PileupSummaryInfo pileup_info = pileup_infos.at(0);
       
-      if ( pileup_info.getBunchCrossing() != 0 ) continue;
+//      if ( pileup_info.getBunchCrossing() != 0 ) continue;
       
       n_true_pu_ = pileup_info.getTrueNumInteractions();
       n_pu_ = pileup_info.getPU_NumInteractions();
-      break;
-   }
+      
+//      break;
+//   }
    
    
 }

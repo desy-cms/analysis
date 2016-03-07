@@ -52,7 +52,7 @@ namespace analysis {
            void matchTo( const Collection<Candidate> & collection, const float & deltaR = 0.5 );
            void matchTo( const Collection<TriggerObject> & collection, const float & deltaR = 0.5 );
            void matchTo( const std::shared_ptr<Collection<TriggerObject> > collection, const float & deltaR = 0.5 );
-           Objects* vector();
+           std::vector< std::shared_ptr<Object> > vector();
            std::vector<Candidate>* vectorCandidates() const;
            
            std::string name() const;
