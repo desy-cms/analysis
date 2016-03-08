@@ -34,10 +34,12 @@ using namespace analysis::tools;
 Jet::Jet() : Candidate() 
 {
    extendedFlavour_ = "?";
+   btagAlgo_ = "btag_csvivf";
 }
 Jet::Jet(const float & pt, const float & eta, const float & phi, const float & e) : Candidate(pt,eta,phi,e,0.) 
 {
    extendedFlavour_ = "?";
+   btagAlgo_ = "btag_csvivf";
 }
 Jet::~Jet()
 {
@@ -50,18 +52,21 @@ Jet::~Jet()
 // member functions
 //
 // Gets
-float Jet::btag()                                  const { return btag_;                   }                   
+float Jet::btag()                                  const { return btags_.at(btagAlgo_);    }                   
+float Jet::btag(const std::string & algo)          const { return btags_.at(algo);         }                   
 int   Jet::flavour()                               const { return flavour_.at("Hadron");   }                   
 int   Jet::flavour(const std::string & definition) const { return flavour_.at(definition); }                   
 bool  Jet::idLoose()                               const { return idloose_;                }                   
 bool  Jet::idTight()                               const { return idtight_;                }         
 float Jet::jecUncert()                             const { return jecUnc_;                 }                   
 std::vector<int> Jet::flavours()                   const { return flavours_;               }
-std::vector< std::shared_ptr<GenParticle> > Jet::partons() const { return partons_;        }
+std::vector< std::shared_ptr<GenParticle> >\
+      Jet::partons()                               const { return partons_;        }
 std::string Jet::extendedFlavour()                 const { return extendedFlavour_;        }
 
 // Sets                                                             
 void Jet::btag     (const float & btag)                               { btag_    = btag; } 
+void Jet::btag     (const std::string & algo, const float & btag)     { btags_[algo]  = btag; } 
 void Jet::flavour  (const int   & flav)                               { flavour_["Hadron"] = flav; } 
 void Jet::flavour  (const std::string & definition, const int & flav) { flavour_[definition] = flav; } 
 void Jet::idLoose  (const bool  & loos)                               { idloose_ = loos; } 
@@ -69,7 +74,7 @@ void Jet::idTight  (const bool  & tigh)                               { idtight_
 void Jet::jecUncert(const float & ju)                                 { jecUnc_  = ju; } 
 void Jet::addParton(const std::shared_ptr<GenParticle> & parton)      { partons_.push_back(parton);
                                                                         flavours_.push_back(parton->pdgId());  }
-                                                                        
+void Jet::btagAlgo (const std::string & algo )                        { btagAlgo_ = algo; }                                                                        
                                                                         
 int Jet::removeParton(const int & i)
 {

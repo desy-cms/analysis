@@ -44,6 +44,8 @@ namespace analysis {
             // Gets
             /// returns the btag value of btag_csvivf
             float btag()                        const;
+            /// returns the btag value of algorithm
+            float btag(const std::string & )    const;
             /// returns the flavour with the Hadron definition (=0 for data)
             int   flavour()                     const;
             /// returns the flavour given a definition (=0 for data)
@@ -64,6 +66,10 @@ namespace analysis {
             // Sets
             /// sets the btag value
             void  btag(const float &);
+            /// sets the btag value for difference algorithms
+            void  btag(const std::string &, const float &);
+            /// sets the default btag algo
+            void  btagAlgo(const std::string & );
             /// sets flavour
             void  flavour(const int &);
             /// sets flavour for a given definition
@@ -99,6 +105,10 @@ namespace analysis {
             //
             /// btag value 
             float btag_ ;
+            /// btag value for each algo
+            std::map<std::string, float> btags_ ;
+            /// default btag algo
+            std::string btagAlgo_;
             /// map of flavour to a given definition
             std::map<std::string, int> flavour_;
             /// flavours inside the jet
