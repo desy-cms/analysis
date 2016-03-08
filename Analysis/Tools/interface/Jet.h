@@ -77,6 +77,8 @@ namespace analysis {
             
             /// add parton that gave rise to jet
             void addParton(const std::shared_ptr<GenParticle> &);
+            /// remove parton from jet parton list
+            int removeParton(const int &);
             
             /// calculates the jet id
             void id(const float & nHadFrac,
@@ -88,7 +90,7 @@ namespace analysis {
                     const float & muFrac  );
             
             /// associate partons to the jet
-            void associatePartons(const std::vector< std::shared_ptr<GenParticle> > &, const float & dRmax = 0.5, const bool & pythi8 = true );
+            void associatePartons(const std::vector< std::shared_ptr<GenParticle> > &, const float & dRmax = 0.5, const float & ptMin = 1., const bool & pythi8 = true );
             
 //            using Candidate::set; // in case needed to overload the function set
             

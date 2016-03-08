@@ -13,6 +13,7 @@
 
 // system include files
 #include <iostream>
+#include <set>
 //
 // user include files
 #include "Analysis/Tools/interface/Jet.h"
@@ -33,7 +34,7 @@ namespace analysis {
       template <> void Collection<Vertex>::matchTo( const Collection<Candidate> & collection, const float & deltaR );
       template <> void Collection<Vertex>::matchTo( const Collection<TriggerObject> & collection, const float & deltaR );
       template <> void Collection<Vertex>::matchTo( const std::shared_ptr<Collection<TriggerObject> > collection, const float & deltaR );
-      template <> void Collection<Jet>::associatePartons( const std::shared_ptr<Collection<GenParticle> > & particles, const float & deltaR  );
+      template <> void Collection<Jet>::associatePartons( const std::shared_ptr<Collection<GenParticle> > & particles, const float & deltaR, const float & ptMin, const bool & pythia8  );
    }
 }
 //
@@ -96,15 +97,66 @@ std::vector< std::shared_ptr<Object> >  Collection<Object>::vector()
    return objects;
 }
 template <class Object>
-void Collection<Object>::associatePartons(const std::shared_ptr<Collection<GenParticle> > & particles, const float & deltaR )
+void Collection<Object>::associatePartons(const std::shared_ptr<Collection<GenParticle> > & particles, const float & deltaR, const float & ptMin, const bool & pythia8  )
 {
 }
 
 template <>
-void Collection<Jet>::associatePartons(const std::shared_ptr<Collection<GenParticle> > & particles, const float & deltaR )
+void Collection<Jet>::associatePartons(const std::shared_ptr<Collection<GenParticle> > & particles, const float & deltaR, const float & ptMin, const bool & pythia8  )
 {
-   for ( auto & obj : objects_ )
-      obj.associatePartons(particles->vector(),deltaR);
+   if ( objects_.size() < 1 ) return;
+   auto vec = particles->vector();
+   
+   for ( auto & jet : objects_ )
+      jet.associatePartons(vec,deltaR,ptMin,pythia8);
+   
+   // resolving ambiguities
+   // if a parton belongs to more than one jet, than remove it 
+   // from the jet with largest deltaR wrt the parton.
+//   std::map<Jet *, std::vector<int> > removeFromJet;
+   std::map<Jet *, std::set<int> > removeFromJet;
+   
+   for ( size_t j1 = 0 ; j1 < objects_.size()-1 ; ++j1 )
+   {
+      Jet * jet1 = &(objects_.at(j1));
+      auto partons1 = jet1->partons();
+      for ( auto it1 = partons1.begin(); it1 != partons1.end(); it1++ )
+      {
+         auto parton1 = *it1;
+         auto p1 = std::distance(partons1.begin(), it1 );
+         for ( size_t j2 = j1+1 ; j2 < objects_.size() ; ++j2 )
+         {
+            Jet * jet2 = &(objects_.at(j2));
+            auto partons2 = jet2->partons();
+            for ( auto it2 = partons2.begin(); it2 != partons2.end(); ++it2 )
+            {
+               auto parton2 = *it2;
+               int p2 = std::distance(partons2.begin(), it2 );
+               if ( parton1 == parton2 )
+               {
+                  float dR1 = jet1->p4().DeltaR(parton1->p4());
+                  float dR2 = jet2->p4().DeltaR(parton2->p4());
+                  if ( dR1 < dR2 ) { removeFromJet[jet2].insert(p2) ;}
+                  else             { removeFromJet[jet1].insert(p1) ;}
+//                  else             { removeFromJet.insert(std::pair<Jet*,int>(jet1, p1))  ;}
+               }
+            }
+         }
+         
+      }
+   }
+   
+   // Remove ambiguous partons...
+   for ( auto & jet : removeFromJet )
+   {
+      int counts = 0;
+      for ( auto & p : jet.second )
+      {
+         jet.first -> removeParton(p-counts);
+         ++counts;
+      }
+   }
+   
 }
 
 

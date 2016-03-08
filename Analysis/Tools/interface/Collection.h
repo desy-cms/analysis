@@ -58,7 +58,7 @@ namespace analysis {
            
            std::string name() const;
            
-           void associatePartons(const std::shared_ptr<Collection<GenParticle> > & , const float & deltaR = 0.5);
+           void associatePartons(const std::shared_ptr<Collection<GenParticle> > & , const float & deltaR = 0.4, const float & ptMin = 1., const bool & pythia8 = true);
            
             // ----------member data ---------------------------
          protected:
