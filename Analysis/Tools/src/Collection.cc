@@ -35,6 +35,7 @@ namespace analysis {
       template <> void Collection<Vertex>::matchTo( const Collection<TriggerObject> & collection, const float & deltaR );
       template <> void Collection<Vertex>::matchTo( const std::shared_ptr<Collection<TriggerObject> > collection, const float & deltaR );
       template <> void Collection<Jet>::associatePartons( const std::shared_ptr<Collection<GenParticle> > & particles, const float & deltaR, const float & ptMin, const bool & pythia8  );
+      template <> void Collection<Jet>::btagAlgo( const std::string & algo );
    }
 }
 //
@@ -96,6 +97,17 @@ std::vector< std::shared_ptr<Object> >  Collection<Object>::vector()
    }
    return objects;
 }
+template <class Object>
+void Collection<Object>::btagAlgo(const std::string & algo  )
+{
+}
+template <>
+void Collection<Jet>::btagAlgo(const std::string & algo  )
+{
+   for ( auto & jet : objects_ )
+      jet.btagAlgo(algo);
+}
+
 template <class Object>
 void Collection<Object>::associatePartons(const std::shared_ptr<Collection<GenParticle> > & particles, const float & deltaR, const float & ptMin, const bool & pythia8  )
 {
