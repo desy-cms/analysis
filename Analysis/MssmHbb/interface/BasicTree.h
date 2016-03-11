@@ -84,6 +84,8 @@ protected:
     double LeadEta_[20];
     double LeadPhi_[20];
     double LeadBTag_[20];
+    int LeadFl_[20];
+
     double dPhiFS_;
     double dEtaFS_;
     double Ht_;

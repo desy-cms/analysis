@@ -46,25 +46,27 @@ int main(int argc, char * argv[])
 
    //Setup output file name
    //name can me specified explicitly with method: createOutputFile(fileName);
-   std::string fileName = "/nfs/dust/cms/user/shevchen/output/DoubleBTagSelection_versionComparison_";
+   std::string fileName = "/nfs/dust/cms/user/shevchen/output/DoubleBTagSelection_versionComparison_76X";
    analysis.SetupStandardOutputFile(fileName);
 
    //Setup Branches
    analysis.setBranches();
 
    int counter = 0;
-   bool goodLeadingJets = true;
    // Analysis of events
 
    //Output Histograms:
    std::map<std::string,TH1F*> h;
-   h["TriggerSelection"] 	= new TH1F("TriggerSelection","TriggerSelection",100,0.,1000);
-   h["TS+Matching"] 		= new TH1F("TS+Matching","TriggerSelection",100,0.,1000);
-   h["TS+M+Eta"] 			= new TH1F("TS+M+Eta","TriggerSelection",100,0.,1000);
-   h["TS+M+Eta+Pt"] 		= new TH1F("TS+M+Eta+Pt","TriggerSelection",100,0.,1000);
-   h["TS+M+Eta+Pt+Btag"] 	= new TH1F("TS+M+Eta+Pt+Btag","TriggerSelection",100,0.,1000);
-   h["All"]					= new TH1F("All","TriggerSelection",100,0.,1000);
+   h["TriggerSelection"] 	= new TH1F("TriggerSelection","TriggerSelection",150,0.,2000);
+   h["TS+Matching"] 		= new TH1F("TS+Matching","TriggerSelection",150,0.,2000);
+   h["TS+M+Eta"] 			= new TH1F("TS+M+Eta","TriggerSelection",150,0.,2000);
+   h["TS+M+Eta+dRdEta"] 			= new TH1F("TS+M+Eta+dRdEta","TriggerSelection",150,0.,2000);
+   h["TS+M+Eta+dRdEta+Pt"] 		= new TH1F("TS+M+Eta+dRdEta+Pt","TriggerSelection",150,0.,2000);
+   h["TS+M+Eta+dRdEta+Pt+Btag0p941"] 	= new TH1F("TS+M+Eta+dRdEta+Pt+Btag0p941","TriggerSelection",150,0.,2000);
+   h["TS+M+Eta+dRdEta+Pt+BtagCSVT"] 	= new TH1F("TS+M+Eta+dRdEta+Pt+BtagCSVT","TriggerSelection",150,0.,2000);
+   h["All"]					= new TH1F("All","TriggerSelection",150,0.,2000);
 
+//   analysis.addTree<Jet>("JetTrigger","MssmHbb/Events/selectedPatTrigger/");
 
    std::cout<<"Number of Entries: "<<analysis.size()<<std::endl;
    for ( int i = 0 ; i < analysis.size() ; ++i )
@@ -85,6 +87,8 @@ int main(int argc, char * argv[])
       auto offlineJets = analysis.collection<Jet>("Jets");
       //Define Vertex collection
       auto offlinePrimaryVertices = analysis.collection<Vertex>("Vertices");
+      //Jet trigger
+//      auto trigJets = analysis.collection<Jet>("JetTrigger");
 
       if (offlineJets -> size() < 2) continue;
 
@@ -95,7 +99,6 @@ int main(int argc, char * argv[])
       analysis.setNjets(offlineJets->size());
 
       counter = 0;
-      goodLeadingJets = false;
       Jet LeadJet[20];
       // Selection of double b-tag sample:
       for( int iJet = 0; iJet < offlineJets -> size(); ++iJet)
@@ -120,21 +123,41 @@ int main(int argc, char * argv[])
 
       }
 
-      if(analysis.getTriggerResult()) {
-    	  h["TriggerSelection"]->Fill(LeadJet[0].pt());
-    	  if(analysis.OnlineSelection(LeadJet[0],LeadJet[1])) {
-    		  h["TS+Matching"]->Fill(LeadJet[0].pt());
-    		  if(LeadJet[0].eta() < 2.2 && LeadJet[1].eta() < 2.2) {
-    			  h["TS+M+Eta"]->Fill(LeadJet[0].pt());
-    			  if(LeadJet[0].pt() > 100 && LeadJet[1].pt() > 100) {
-    				  h["TS+M+Eta+Pt"]->Fill(LeadJet[0].pt());
-    				  if(LeadJet[0].btag() > 0.941 && LeadJet[1].btag() > 0.941) h["TS+M+Eta+Pt+Btag"]->Fill(LeadJet[0].pt());
-    			  }
-    		  }
-    	  }
+
+      if(analysis.isMC()){
+        		  if(LeadJet[0].eta() < 2.2 && LeadJet[1].eta() < 2.2) {
+        			  h["TS+M+Eta"]->Fill(LeadJet[0].pt());
+        			  if(LeadJet[0].pt() > 100 && LeadJet[1].pt() > 100) {
+        				  h["TS+M+Eta+Pt"]->Fill(LeadJet[0].pt());
+        				  if(LeadJet[0].btag() > 0.941 && LeadJet[1].btag() > 0.941) {
+        					  h["TS+M+Eta+Pt+Btag"]->Fill(LeadJet[0].pt());
+        				  }
+        			  }
       }
-
-
+      }
+      else {
+          if(analysis.getTriggerResult()) {
+        	  h["TriggerSelection"]->Fill(LeadJet[0].pt());
+        	  if(analysis.OnlineSelection(LeadJet[0],LeadJet[1])) {
+        		  h["TS+Matching"]->Fill(LeadJet[0].pt());
+        		  if(std::abs(LeadJet[0].eta()) < 2.2 && std::abs(LeadJet[1].eta()) < 2.2) {
+        			  h["TS+M+Eta"]->Fill(LeadJet[0].pt());
+        			  if(std::abs(LeadJet[0].eta() - LeadJet[1].eta()) < 1.6 && LeadJet[0].deltaR(LeadJet[1]) > 1){
+        				  h["TS+M+Eta+dRdEta"]->Fill(LeadJet[0].pt());
+            			  if(LeadJet[0].pt() > 100 && LeadJet[1].pt() > 100) {
+            				  h["TS+M+Eta+dRdEta+Pt"]->Fill(LeadJet[0].pt());
+            				  if(LeadJet[0].btag() > 0.941 && LeadJet[1].btag() > 0.941) {
+            					  h["TS+M+Eta+dRdEta+Pt+Btag0p941"]->Fill(LeadJet[0].pt());
+            				  }
+            				  if(LeadJet[0].btag() > 0.935 && LeadJet[1].btag() > 0.935) {
+            					  h["TS+M+Eta+dRdEta+Pt+BtagCSVT"]->Fill(LeadJet[0].pt());
+            				  }
+            			  }
+        			  }
+        		  }
+        	  }
+          }
+      }
 
    }
    std::cout<<"Number of Candidates: "<<analysis.getNumberOfCandidates()<<std::endl;
@@ -151,7 +174,6 @@ int main(int argc, char * argv[])
 }
 
 /*
-/nfs/dust/cms/user/shevchen/samples/miniaod/BTagCSVData/Run2015D-PromptReco-v4.root
-/nfs/dust/cms/user/shevchen/samples/miniaod/BTagCSVData/Run2015C_25ns-05Oct2015-v1.root
-/nfs/dust/cms/user/shevchen/samples/miniaod/BTagCSVData/Run2015D-05Oct2015-v1.root
+/nfs/dust/cms/user/shevchen/samples/miniaod/76XBTagCSVData/Run2015D-16Dec2015-v1.txt
+/nfs/dust/cms/user/shevchen/samples/miniaod/76XBTagCSVData/Run2015C_25ns-16Dec2015-v1.txt
 */

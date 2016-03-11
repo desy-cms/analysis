@@ -27,7 +27,7 @@ int main(int argc, char * argv[])
 
    // Input files list
    //std::string inputList = "rootFileListBTagCSV.txt";
-   std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/76X/BTagCSVData/Run2015D-16Dec2015-v1.txt";
+   std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/76X/Pythia8_QCD/QCD_Pt_80to120_TuneCUETP8M1_13TeV_pythia8.txt";
 
    // Initialisation of MssmHbb class
    MssmHbb analysis(inputList);
@@ -48,41 +48,6 @@ int main(int argc, char * argv[])
    Weights weightCalc(analysis.getLowMSelection());
    std::map<std::string, double> weight;
 
-
-
-   //.................................Input corrections.................................
-   TFile *fBTagEff = 0, *fPtEff = 0, *fHtWeight = 0;
-   TH1F *btagEff0p9 = 0, *btagEff0p9_1p4 = 0, *btagEff1p4_2p5 = 0, *HtRatio = 0;
-   TH2F *btag2DEff0p85 = 0, *hPtEff = 0;
-
-   if(analysis.getLowMSelection()){
-	   //Online BTag Trigger Efficiency produced by Ye Chen
-	   fBTagEff = new TFile("input_corrections/RelOnlineBTagCSV0p9Eff_PtEta.root","read");
-	   btagEff0p9 = (TH1F*) fBTagEff ->Get("heh4");	 // eta <0.9
-	   btagEff0p9_1p4 = (TH1F*) fBTagEff ->Get("heh3"); // 1.4 > eta >0.9
-	   btagEff1p4_2p5 = (TH1F*) fBTagEff ->Get("heh2"); // 2.5 > eta > 1.4
-
-	   //Online Pt trigger efficiency:
-	   fPtEff = new TFile("input_corrections/TwoDPtLowMassEfficiency.root","read");
-	   hPtEff = (TH2F*) fPtEff ->Get("TwoDEff_Num"); // 2D
-
-	   // Add Ht reweighting:
-	   fHtWeight = new TFile("input_corrections/HtRatio.root","read");
-	   HtRatio = (TH1F*) fHtWeight->Get("hRatio");
-   }
-   else {
-
-	   // For high mass trigger only 2D efficiency were provided
-	   fBTagEff = new TFile("input_corrections/TwoDBTagCSV0p85_2D_PtEta.root");
-	   btag2DEff0p85 = (TH2F*) fBTagEff->Get("h2ehn");
-
-	   fPtEff = new TFile("input_corrections/TwoDPtHighMassEfficiency.root","read");
-	   hPtEff = (TH2F*) fPtEff ->Get("TwoDEff_Num");
-
-	   fHtWeight = new TFile("input_corrections/HtRatio.root","read"); // Useless for the timebinning.
-	   HtRatio = (TH1F*) fHtWeight->Get("hRatio");
-
-   }
 
    // Add PileUp reweighting
 
@@ -119,10 +84,6 @@ int main(int argc, char * argv[])
    bool goodLeadingJets = true;
    // Analysis of events
 
-   //Add cMVA variable
-   double LeadBTagMVA_[20];
-   analysis.getOutputTree()->Branch("LeadBTagMVA",LeadBTagMVA_,"LeadBTagMVA[20]/D");
-
    std::cout<<"Number of Entries: "<<analysis.size()<<std::endl;
    for ( int i = 0 ; i < analysis.size() ; ++i )
    {
@@ -143,7 +104,7 @@ int main(int argc, char * argv[])
       //Define Vertex collection
       auto offlinePrimaryVertices = analysis.collection<Vertex>("Vertices");
 
-      if (offlineJets -> size() < 2) continue;
+      if (offlineJets -> size() < 1) continue;
 
       //Match offline Jets to online Objects
       if (!analysis.isMC()) analysis.match<Jet,TriggerObject>("Jets",analysis.getTriggerObjectNames());
@@ -174,30 +135,19 @@ int main(int argc, char * argv[])
 
 		analysis.setJetCounter(counter-1);
 		analysis.setJetVariables(jet);
-//		LeadBTagMVA_[counter-1] = jet.btag
 
 		//Selection cuts for first two leading jets
-		if(counter == 1 || counter == 2){
-			if(jet.pt() < analysis.Pt1Cut()) break;
+		if(counter == 1){
+			if(jet.pt() < 30) break;
 			if(abs(jet.eta()) > 2.2) break;
 //			if(jet.btag() < analysis.BTag1Cut()) break;
 			if(analysis.isMC()) analysis.calculateBTagSF(reader,reader_up,reader_down);
 
-			if(counter == 2){
-				if(LeadJet[0].deltaR(LeadJet[1]) <= 1) break;
-				if(abs(LeadJet[0].eta() - LeadJet[1].eta()) > analysis.dEtaCut()) break;
-				if(!analysis.isMC() && !analysis.OnlineSelection(LeadJet[0],LeadJet[1])) break;
-				goodLeadingJets = true;
-			}
+			goodLeadingJets = true;
+
 		}
       }
       if(!goodLeadingJets) continue;
-
-      //Vertices study
-      for(int iVtx = 0; iVtx < offlinePrimaryVertices->size(); ++iVtx){
-    	  Vertex vertex = offlinePrimaryVertices->at(iVtx);
-    	  analysis.addVertexInfo(vertex);
-      }
 
       // Method that calculates dEta, dPhi between frist two leading jets
       // Also all parameters of di-jet object is calculated
@@ -205,41 +155,8 @@ int main(int argc, char * argv[])
 
       if(analysis.isMC()){
 
-    	  //.........................Calculate weights...............
-    	  // general weights which is independent of selection type OR already includes
-    	  // selection depends criterias inside.
-    	  weight["FactorPt"] = weightCalc.FactorizationPtWeight(LeadJet[0].pt(), LeadJet[1].pt());
-    	  weight["dEta"]     = weightCalc.dEtaWeight(abs(LeadJet[0].eta() - LeadJet[1].eta()));
-    	  weight["2DPt"]     = weightCalc.TwoDPtWeight(hPtEff,LeadJet[0].pt(),LeadJet[1].pt());
     	  weight["Lumi"]     = weightCalc.LumiWeight(2182.680439,analysis.luminosity());
-    	  weight["Ht"]       = weightCalc.HtWeight(HtRatio,analysis.getHt());
-    	  //TODO: PileUp reweighting is wrong (truePileUp distribution should be used)!!!
-    	  //weight["PileUpCentral"] = weightCalc.PileUpWeight(hPileUpData["central"],hPileUpMC,offlinePrimaryVertices->size());
-    	  //weight["PileUpDown"]    = weightCalc.PileUpWeight(hPileUpData["down"],hPileUpMC,offlinePrimaryVertices->size());
-    	  //weight["PileUpUp"]      = weightCalc.PileUpWeight(hPileUpData["up"],hPileUpMC,offlinePrimaryVertices->size());
-
-
-    	  //Selection depending weights
-    	  if(analysis.getLowMSelection()){
-        	  weight["BTag"] = weightCalc.BTagWeight(btagEff0p9,btagEff0p9_1p4,btagEff1p4_2p5,LeadJet[0].pt(),LeadJet[0].eta()) *
-        			  	  	   weightCalc.BTagWeight(btagEff0p9,btagEff0p9_1p4,btagEff1p4_2p5,LeadJet[1].pt(),LeadJet[1].eta());
-    	  }
-    	  else {
-        	  weight["BTag"] = weightCalc.BTagWeight(btag2DEff0p85, LeadJet[0].pt(),LeadJet[0].eta())*
-        			  	  	   weightCalc.BTagWeight(btag2DEff0p85, LeadJet[1].pt(), LeadJet[1].eta());
-    	  }
-
-    	  //
-    	  analysis.setPtFactorizationWeight(weight["FactorPt"]);
-    	  analysis.setdEtaWeight(weight["dEta"]);
-    	  analysis.setBTagWeight(weight["BTag"]);
-    	  analysis.setPt2DWeight(weight["2DPt"]);
     	  analysis.setLumiWeight(weight["Lumi"]);
-    	  analysis.setHtWeight(weight["Ht"]);
-    	  //analysis.setPileUpWeight(weight["PileUpCentral"],weight["PileUpUp"],weight["PileUpDown"]);
-
-    	  //Calculation of the flavour composition, based on HadronFlavours
-    	  analysis.calculateFlavourComposition();
 
       }
 

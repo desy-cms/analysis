@@ -146,7 +146,7 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
                                      "pfSimpleSecondaryVertexHighPurBJetTags",
                                      "pfCombinedSecondaryVertexV2BJetTags",
                                      "pfCombinedSecondaryVertexSoftLeptonBJetTags",
-                                     "pfCombinedMVABJetTags",
+                                     "pfCombinedMVAV2BJetTags",
                                    ),
     BTagAlgorithmsAlias = cms.vstring   (
                                          "btag_csvivf",

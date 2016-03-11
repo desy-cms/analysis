@@ -145,7 +145,7 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
                                      "pfSimpleSecondaryVertexHighPurBJetTags",
                                      "pfCombinedSecondaryVertexV2BJetTags",
                                      "pfCombinedSecondaryVertexSoftLeptonBJetTags",
-                                     "pfCombinedMVABJetTags",
+                                     "pfCombinedMVAV2BJetTags",
                                    ),
     BTagAlgorithmsAlias = cms.vstring   (
                                          "btag_csvivf",
@@ -199,7 +199,7 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
 
 process.p = cms.Path(
                       process.TotalEvents *
-                      process.triggerSelection *      # switch off for BTagCSV 2015C
+                     #process.triggerSelection *      # switch off for BTagCSV 2015C
                       process.primaryVertexFilter *
                       process.FilteredEvents *
                       process.slimmedJetsCorrFactorsReapplyJEC       * process. slimmedJetsReapplyJEC *
@@ -214,11 +214,12 @@ secFiles = cms.untracked.vstring()
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 
 readFiles.extend( [
-                   '/store/data/Run2015C_25ns/BTagCSV/MINIAOD/16Dec2015-v1/20000/1E47E4E4-52B5-E511-938E-549F35AC7E7D.root',
-                   '/store/data/Run2015C_25ns/BTagCSV/MINIAOD/16Dec2015-v1/20000/36209C67-54B5-E511-90BB-0CC47A4D76B6.root',
-                   '/store/data/Run2015C_25ns/BTagCSV/MINIAOD/16Dec2015-v1/20000/5A418967-54B5-E511-9C18-0CC47A78A4BA.root',
-                   '/store/data/Run2015C_25ns/BTagCSV/MINIAOD/16Dec2015-v1/20000/5E4722F3-52B5-E511-8B43-00266CFAE6A4.root',
-                   '/store/data/Run2015C_25ns/BTagCSV/MINIAOD/16Dec2015-v1/20000/C0DAA001-53B5-E511-A889-A0000420FE80.root'
+                   '/store/data/Run2015D/BTagCSV/MINIAOD/16Dec2015-v1/50000/00AF8EB4-70AB-E511-9271-00266CFAE7AC.root',
+                   '/store/data/Run2015D/BTagCSV/MINIAOD/16Dec2015-v1/50000/04ED898D-43AE-E511-817C-002618943984.root',
+                   '/store/data/Run2015D/BTagCSV/MINIAOD/16Dec2015-v1/50000/064D40CE-49AE-E511-9A8C-0CC47A4C8E1C.root',
+                   '/store/data/Run2015D/BTagCSV/MINIAOD/16Dec2015-v1/50000/08F91563-E3AB-E511-95B1-00266CFAEBA0.root',
+                   '/store/data/Run2015D/BTagCSV/MINIAOD/16Dec2015-v1/50000/0A2E74F0-40AE-E511-8D03-003048FFD754.root',
+                   '/store/data/Run2015D/BTagCSV/MINIAOD/16Dec2015-v1/50000/0A715A24-B4AB-E511-AB8E-00266CF9C018.root'
 ] );
 
 
