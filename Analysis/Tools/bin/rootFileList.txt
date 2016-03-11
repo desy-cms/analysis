@@ -1,1 +1,1 @@
-/afs/desy.de/user/w/walsh/cms/analysis/cmssw/dev/CMSSW_7_6_3_patch2/src/Analysis/Ntuplizer/test/test_mc.root
+/nfs/dust/cms/user/walsh/tmp/test_mc_qcd1000-1400.root

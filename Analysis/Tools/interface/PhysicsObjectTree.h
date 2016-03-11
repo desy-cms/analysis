@@ -67,6 +67,8 @@ namespace analysis {
          protected:
             // PatJets
             float btag_    [max_];
+            float btags_[15][max_];
+            std::map<std::string, float*> mbtag_;
             int   flavour_ [max_];
             int   hadrflavour_ [max_];
             int   partflavour_ [max_];

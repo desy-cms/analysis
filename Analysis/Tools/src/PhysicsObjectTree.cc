@@ -72,7 +72,23 @@ Collection<Candidate>  PhysicsObjectTree<Candidate>::collection()
 // Constructors and destructor
 PhysicsObjectTree<Jet>::PhysicsObjectTree(TChain * tree, const std::string & name) : PhysicsObjectTreeBase<Jet>(tree, name)
 {
-   tree_  -> SetBranchAddress( "btag_csvivf", btag_    );
+//   tree_  -> SetBranchAddress( "btag_csvivf", btag_    );
+   int algos = 0;
+   for ( auto & branch : branches_ )
+   {
+      std::size_t found = branch.find("btag_");
+      if (found!=std::string::npos)
+      {
+         mbtag_[branch] = btags_[algos];
+         ++algos;
+         tree_  -> SetBranchAddress( branch.c_str(), mbtag_[branch]);
+      }
+   }
+//    std::vector<std::string>::iterator it;
+//    it = std::find(branches_.begin(),branches_.end(),"btag_");
+//    if ( it != branches_.end() )
+//       std::cout << *it << std::endl;
+   
    tree_  -> SetBranchAddress( "flavour"        , flavour_ );
    tree_  -> SetBranchAddress( "hadronFlavour"  , hadrflavour_ );
    tree_  -> SetBranchAddress( "partonFlavour"  , partflavour_ );
@@ -99,6 +115,8 @@ Collection<Jet>  PhysicsObjectTree<Jet>::collection()
    {
       Jet jet(pt_[i], eta_[i], phi_[i], e_[i]);
       jet.btag(btag_[i]);
+      for ( auto & b : mbtag_ )
+         jet.btag(b.first,b.second[i]);
       jet.flavour(flavour_[i]);
       jet.flavour("Hadron",hadrflavour_[i]);
       jet.flavour("Parton",partflavour_[i]);

@@ -26,6 +26,7 @@
 // user include files
 #include "Analysis/Tools/interface/Candidate.h"
 #include "Analysis/Tools/interface/TriggerObject.h"
+#include "Analysis/Tools/interface/GenParticle.h"
 
 //
 // class declaration
@@ -57,6 +58,8 @@ namespace analysis {
            
            std::string name() const;
            
+           void associatePartons(const std::shared_ptr<Collection<GenParticle> > & , const float & deltaR = 0.4, const float & ptMin = 1., const bool & pythia8 = true);
+           void btagAlgo(const std::string &);           
             // ----------member data ---------------------------
          protected:
                
