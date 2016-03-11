@@ -10,3 +10,5 @@
 Analysis/*/python/__init__.py
 Analysis/Tools/test/crab_proj*
 *._
+Analysis/MssmHbb/bin/temp
+Analysis/Tools/test/crab.log
