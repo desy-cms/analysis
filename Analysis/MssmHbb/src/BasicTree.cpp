@@ -87,6 +87,8 @@ void BasicTree::cleanVariables(){
 		dEtaWeight_ = -100;
 		TwoDPtWeight_ = -100;
 		FactorizationPtWeight_ = -100;
+
+		std::fill_n(LeadFl_,20,-100);
 	}
 }
 
@@ -107,6 +109,10 @@ void BasicTree::setJetVariables(const analysis::tools::Jet & Jet){
 	LeadEta_[jetCounter_] = Jet.eta();
 	LeadPhi_[jetCounter_] = Jet.phi();
 	LeadBTag_[jetCounter_] = Jet.btag();
+
+	if(is_mc_){
+		LeadFl_[jetCounter_] = Jet.flavour("Hadron");
+	}
 
 }
 
@@ -145,6 +151,7 @@ void BasicTree::setBranches(){
 	OutTree_->Branch("ObjP",ObjP_,"ObjP[3]/D");
 
 	if(is_mc_){
+		OutTree_->Branch("LeadFl",LeadFl_,"LeadFl[20]/I");
 		OutTree_->Branch("LumiWeight",&lumiWeight_,"LumiWeight/D");
 		OutTree_->Branch("FactorizationPtWeight",&FactorizationPtWeight_,"FactorizationPtWeight/D");
 		OutTree_->Branch("TwoDPtWeight",&TwoDPtWeight_,"TwoDPtWeight/D");

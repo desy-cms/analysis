@@ -27,7 +27,7 @@ int main(int argc, char * argv[])
 
    // Input files list
    //std::string inputList = "rootFileListBTagCSV.txt";
-   std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/76X/BTagCSVData/Run2015C_25ns-16Dec2015-v1.txt";
+   std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/76X/BTagCSVData/Run2015D-16Dec2015-v1.txt";
 
    // Initialisation of MssmHbb class
    MssmHbb analysis(inputList);
@@ -119,6 +119,9 @@ int main(int argc, char * argv[])
    bool goodLeadingJets = true;
    // Analysis of events
 
+   //Add cMVA variable
+   double LeadBTagMVA_[20];
+   analysis.getOutputTree()->Branch("LeadBTagMVA",LeadBTagMVA_,"LeadBTagMVA[20]/D");
 
    std::cout<<"Number of Entries: "<<analysis.size()<<std::endl;
    for ( int i = 0 ; i < analysis.size() ; ++i )
@@ -171,13 +174,13 @@ int main(int argc, char * argv[])
 
 		analysis.setJetCounter(counter-1);
 		analysis.setJetVariables(jet);
+//		LeadBTagMVA_[counter-1] = jet.btag
 
 		//Selection cuts for first two leading jets
 		if(counter == 1 || counter == 2){
 			if(jet.pt() < analysis.Pt1Cut()) break;
 			if(abs(jet.eta()) > 2.2) break;
-			if(jet.btag() < analysis.BTag1Cut()) break;
-			if(jet.btag() < 0.935 ) break;
+//			if(jet.btag() < analysis.BTag1Cut()) break;
 			if(analysis.isMC()) analysis.calculateBTagSF(reader,reader_up,reader_down);
 
 			if(counter == 2){
