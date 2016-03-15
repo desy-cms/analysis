@@ -38,4 +38,4 @@ namespace analysis {
   }
 }
 
-#endif	// Analysis_BackgroundModel_RooExpGausExp_h
+#endif  // Analysis_BackgroundModel_RooExpGausExp_h
