@@ -136,9 +136,9 @@ namespace analysis {
       inline void MssmHbb::setPt2DWeight(const double & weight) {TwoDPtWeight_ = weight;}
       inline void MssmHbb::setdEtaWeight(const double &weight){ dEtaWeight_ = weight;}
       inline void MssmHbb::setPileUpWeight(const double &central, const double &up, const double &down){
-    	  WeightPileUp_["central"] = central;
-    	  WeightPileUp_["up"] = up;
-    	  WeightPileUp_["down"] = down;
+    	  WeightPileUp_[0] = central;
+    	  WeightPileUp_[1] = up;
+    	  WeightPileUp_[2] = down;
       }
 
       inline void MssmHbb::setLowMSelection(const bool & type){lowMSelection_ = type; this->SetupConstants();}
