@@ -5,3 +5,4 @@
 <use name="Analysis/BackgroundModel" />
 
 <bin name="FitBackgroundModel" file="FitBackgroundModel.cc" />
+<bin name="CreateInput_13TeV" file="CreateInput_13TeV.cc" />

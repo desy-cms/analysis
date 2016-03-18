@@ -38,4 +38,4 @@ namespace analysis {
   }
 }
 
-#endif	// Analysis_BackgroundModel_RooExpBWExp_h
+#endif  // Analysis_BackgroundModel_RooExpBWExp_h

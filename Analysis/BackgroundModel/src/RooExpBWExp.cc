@@ -51,7 +51,7 @@ double RooExpBWExp::evaluate() const {
     result *= 1.0 / (arg*arg+0.25);
   } else if (arg > right_) {
     result *= (std::exp(2.0*right_*(right_-arg)/((right_*right_+0.25))) /
-	       (right_*right_+0.25));
+               (right_*right_+0.25));
   }
 
   return result;
