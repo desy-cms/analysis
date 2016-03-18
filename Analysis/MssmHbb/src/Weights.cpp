@@ -23,6 +23,8 @@ double Weights::FactorizationPtWeight(const double & pt1, const double & pt2){
 
 	double weight = 0;
 
+	/*
+	// NUMBERS FOR 74X
 	if(lowM_){
 		weight = 1./(1.+exp( -8.87968e-02 * (pt1 - 1.03879e+02) )) * 1./ (1.+exp( -1.88620e-01 * (pt1 - 1.02891e+02) ));
 		weight *= 1./(1.+exp( -8.87968e-02 * (pt2 - 1.03879e+02) )) * 1./ (1.+exp( -1.88620e-01 * (pt2 - 1.02891e+02) ));
@@ -30,6 +32,15 @@ double Weights::FactorizationPtWeight(const double & pt1, const double & pt2){
 	else {
 		weight = 1./(1.+exp( -1.60938e-01 * (pt1 - 1.64206e+02) )) * 1./ (1.+exp( -1.53883e-01 * (pt1 + 3.50936e+01) ));
 		weight *= 1./(1.+exp( -1.60938e-01 * (pt2 - 1.64206e+02) )) * 1./ (1.+exp( -1.53883e-01 * (pt2 + 3.50936e+01) ));
+	}
+	*/
+	if(lowM_){
+		weight = 1./(1.+exp( -1.13097e-01 * (pt1 - 1.05075e+02) )) * 1./ (1.+exp( -1.13097e-01 * (pt1 - 1.05075e+02) ));
+		weight *= 1./(1.+exp( -1.13097e-01 * (pt2 - 1.05075e+02) )) * 1./ (1.+exp( -1.13097e-01 * (pt2 - 1.05075e+02) ));
+	}
+	else {
+		weight = 1./(1.+exp( -1.46385e-01 * (pt1 - 1.66919e+02) )) * 1./ (1.+exp( -5.99105e-02 * (pt1 + 1.29321e+02) ));
+		weight *= 1./(1.+exp( -1.46385e-01 * (pt2 - 1.66919e+02) )) * 1./ (1.+exp( -5.99105e-02 * (pt2 + 1.29321e+02) ));
 	}
 
 	return weight;
@@ -65,7 +76,7 @@ double Weights::dEtaWeight(const double & dEta){
 	double weight = 0;
 
 	if(lowM_){
-		weight = 1./(1.+exp( 1.41132e+02 * (dEta - 1.60010e+00) )) * 1./ (1.+exp( -2.06352e-02 * (dEta + 2.27738e+02) ));
+		weight = 1./(1.+exp( 1.41132e+02 * (dEta - 1.59991e+00) )) * 1./ (1.+exp( -2.06352e-02 * (dEta + 2.27738e+02) ));
 	}
 	else weight = 1;
 
@@ -126,9 +137,37 @@ double Weights::PileUpWeight(TH1F *data, TH1F *mc, const double & NTruePileUpMC)
 		exit(1);
 	}
 	double weight = 0;
-	double N_data = data->GetBinContent(data->FindBin(NTruePileUpMC));
-	double N_mc = mc->GetBinContent(mc->FindBin(NTruePileUpMC));
+
+	auto hData = (TH1F*) data->Clone("hData");
+	auto hMc   = (TH1F*) mc->Clone("hMc");
+
+	//Scale to 1
+
+	hData->Scale( (1/(hData->Integral()) ) );
+	hMc->Scale( (1/(hMc->Integral()) ) );
+
+	double N_data = hData->GetBinContent(hData->FindBin(NTruePileUpMC));
+	double N_mc = hMc->GetBinContent(hMc->FindBin(NTruePileUpMC));
 	weight = N_data/N_mc;
+
+//	std::cout<<" True = "<<NTruePileUpMC<<std::endl;
+//	std::cout<<" Data: "<<hData->FindBin(NTruePileUpMC)<<" "<<hData->GetBinContent(hData->FindBin(NTruePileUpMC))<<std::endl;
+//	std::cout<<" MC:   "<<hMc->FindBin(NTruePileUpMC)<<" "<<hMc->GetBinContent(hMc->FindBin(NTruePileUpMC))<<std::endl;
+//	std::cout<<" weight = "<<weight<<" "<<N_data<<" "<<N_mc<<std::endl;
+
+	return weight;
+}
+
+double Weights::PileUpWeight(TH1F *data, const double & N_mc, const double & NTruePileUpMC){
+	if(data==0){
+		std::cerr<<"Error: in Weights::PileUpWeight empty weight histogram"<<std::endl;
+		exit(1);
+	}
+	double weight = 0;
+	double N_data = data->GetBinContent(data->FindBin(NTruePileUpMC));
+	weight = N_data/N_mc;
+
+	std::cout<<"PileUp = "<<N_data<<" Nmc = "<<N_mc<<" "<<NTruePileUpMC<<std::endl;
 
 	return weight;
 }

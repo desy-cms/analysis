@@ -36,16 +36,11 @@ int main(int argc, char * argv[])
    TH2F *hPtEff = (TH2F*) filePtEff ->Get("TwoDEff_Num"); // 2D
 
    // Input files list MssmHbb
-   std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/JetHT/JetHTFileListRun2015D05Oct.txt";
+   std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/76X/JetHT/Run2015C_25ns-16Dec2015-v1.txt";
    TriggerEfficiency analysis(inputList); //Default second argument is "MssmHbb/Events/EventInfo"
    
    // Process selected JSON file
-   if(!analysis.isMC()) analysis.processJsonFile("goodJson.txt");
-
-   //Setup output file name
-   //name can me specified explicitly with method: createOutputFile(fileName);
-   std::string fileName = "/nfs/dust/cms/user/shevchen/output/EfficiencyStudy";
-   analysis.SetupStandardOutputFile(fileName);
+   if(!analysis.isMC()) analysis.processJsonFile("Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt");
 
    // Add std::vector<std::string> of the Trigger Objects that you would like to apply.
    // Also Trigger Results name will be stored, according to the trigger objects names
@@ -54,6 +49,11 @@ int main(int argc, char * argv[])
 		   	   	   	   	   	   	   	   "hltL1sL1SingleJet36","hltSingleCaloJet40","hltSinglePFJet60",
 									   "hltL1sL1SingleJet52","hltSingleCaloJet50","hltSinglePFJet80"};
    if(!analysis.isMC()) analysis.addTriggerObjects(trigObj);
+
+   //Setup output file name
+   //name can me specified explicitly with method: createOutputFile(fileName);
+   std::string fileName = "/nfs/dust/cms/user/shevchen/output/EfficiencyStudy_76X";
+   analysis.SetupStandardOutputFile(fileName);
 
    //Setup Branches. Shoudl be used AFTER declaration of trigger objects
    analysis.setBranches();

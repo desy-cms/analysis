@@ -48,7 +48,6 @@ MssmHbb::MssmHbb(const std::string & inputFilelist, const std::string & evtinfo)
 		this->addTree<Jet> ("Jets","MssmHbb/Events/slimmedJetsPuppiReapplyJEC");
 	}
 	this->triggerResults("MssmHbb/Events/TriggerResults");
-
 	// Tree for Vertices
 	this->addTree<Vertex> ("Vertices","MssmHbb/Events/offlineSlimmedPrimaryVertices");
 
@@ -105,12 +104,15 @@ void MssmHbb::SetupConstants(){
 	if(lowMSelection_){
 		pt1_cut__ = 100;
 		pt2_cut__ = 100;
-		pt3_cut__ = 30;
+		pt3_cut__ = 40;
 
 		deta_cut__ = 1.6;
-		btag1_cut__ = 0.941;
-		btag2_cut__ = 0.941;
-		btag3_cut__ = 0.605;
+		btag1_cut__ = 0.935; //CSVv2T
+		btag2_cut__ = 0.935; //CSVv2T
+		btag3_cut__ = 0.8; 	 //CSVv2M
+		//btag1_cut__ = 0.941;
+		//btag2_cut__ = 0.941;
+//		btag3_cut__ = 0.605;
 	}
 	else{
 		pt1_cut__ = 160;
@@ -144,9 +146,7 @@ void MssmHbb::setBranches(){
 		OutTree_->Branch("BTagSFdown",btagSFdown_,"BTagSFdown[20]/D");
 
 		//PileUp
-		OutTree_->Branch("WeightPileUpCentral",&WeightPileUp_["central"],"WeightPileUpCentral/D");
-		OutTree_->Branch("WeightPileUpUp",&WeightPileUp_["up"],"WeightPileUpUp/D");
-		OutTree_->Branch("WeightPileUpDown",&WeightPileUp_["down"],"WeightPileUpDown/D");
+		OutTree_->Branch("WeightPileUp",WeightPileUp_,"WeightPileUp[3]/D");
 
 		//Flavour composition
 		OutTree_->Branch("cc",&cc_,"cc/I");
@@ -178,9 +178,7 @@ void MssmHbb::cleanVariables(){
 		std::fill_n(btagSFdown_,20,-100);
 		std::fill_n(btagSFup_,20,-100);
 
-		WeightPileUp_["central"] = -100;
-		WeightPileUp_["up"] = -100;
-		WeightPileUp_["down"] = -100;
+		std::fill_n(WeightPileUp_,3,-100);
 
 		BTagWeight_ = -100;
 		qq_ = 0;

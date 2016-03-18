@@ -1,0 +1,140 @@
+# Conditions read from  CMS_CONDITIONS  via FrontierProd 
+DEBUG 2016-03-14 13:05:51,727: 	 Executing command: 'submit'
+DEBUG 2016-03-14 13:05:51,731: 	 Found CRAB cache file /afs/desy.de/user/s/shevchen/.crab3
+DEBUG 2016-03-14 13:05:51,740: 	 Checking credentials
+DEBUG 2016-03-14 13:05:51,740: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2016-03-14 13:05:51,740: 	 Getting proxy life time left
+DEBUG 2016-03-14 13:05:52,143: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 79743
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2016-03-14 13:05:52,546: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 79743
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2016-03-14 13:05:52,546: 	 Proxy valid for 22:09:03 hours
+DEBUG 2016-03-14 13:05:52,546: 	 Will use CRAB Analysis plugin (i.e. will run an analysis job type).
+DEBUG 2016-03-14 13:05:52,557: 	 Using VO group 'dcms' as specified in the CRAB configuration file.
+DEBUG 2016-03-14 13:05:52,668: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: 
+ retcode : 0
+DEBUG 2016-03-14 13:05:52,668: 	 Checking credentials
+DEBUG 2016-03-14 13:05:52,668: 	 Found proxy file /tmp/x509up_u20182
+DEBUG 2016-03-14 13:05:52,668: 	 Getting proxy life time left
+DEBUG 2016-03-14 13:05:53,071: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -timeleft
+ output : 79742
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2016-03-14 13:05:53,475: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u20182 -actimeleft
+ output : 79742
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2016-03-14 13:05:53,475: 	 Proxy valid for 22:09:02 hours
+DEBUG 2016-03-14 13:05:53,878: 	 Executing : 
+ command : env X509_USER_PROXY=/tmp/x509up_u20182 voms-proxy-info -fqan
+ output : /cms/dcms/Role=NULL/Capability=NULL
+/cms/Role=NULL/Capability=NULL
+
+ error: Picked up _JAVA_OPTIONS: -Xmx256M
+
+ retcode : 0
+DEBUG 2016-03-14 13:05:54,401: 	 Registering user credentials for server /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+DEBUG 2016-03-14 13:05:54,512: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+
+ error: 
+ retcode : 0
+DEBUG 2016-03-14 13:05:54,512: 	 Getting myproxy life time left for myproxy.cern.ch
+DEBUG 2016-03-14 13:05:54,512: 	 Calculating hash of /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko_cmsweb.cern.ch for credential name
+DEBUG 2016-03-14 13:05:55,216: 	 Executing : 
+ command : myproxy-info -l 4bd1d453c3fff9872aebbf43cb3102690cbbeef6 -s myproxy.cern.ch
+ output : username: 4bd1d453c3fff9872aebbf43cb3102690cbbeef6
+owner: /C=DE/O=GermanGrid/OU=DESY/CN=Rostyslav Shevchenko
+  renewal policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  trusted retrieval policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119).cern.ch
+  timeleft: 552:04:02  (23.0 days)
+
+ error: 
+ retcode : 0
+DEBUG 2016-03-14 13:05:55,217: 	 Myproxy is valid: 1987442
+DEBUG 2016-03-14 13:05:55,217: 	 Command use: submit
+DEBUG 2016-03-14 13:05:55,217: 	 Options use: ['--config', <WMCore.Configuration.Configuration object at 0x2637850>]
+DEBUG 2016-03-14 13:05:55,961: 	 CRABClient version: 3.3.1602
+DEBUG 2016-03-14 13:05:55,961: 	 Instance is prod
+DEBUG 2016-03-14 13:05:55,961: 	 Server base url is cmsweb.cern.ch
+DEBUG 2016-03-14 13:05:55,961: 	 Command url /crabserver/prod/workflow
+DEBUG 2016-03-14 13:05:55,961: 	 Started submission
+DEBUG 2016-03-14 13:05:55,961: 	 Working on /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/Tools/test/crab_projects_Pythia8_QCD/crab_QCD_Pt_800to1000_TuneCUETP8M1_13TeV_pythia8_RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asympto
+DEBUG 2016-03-14 13:05:56,580: 	 Loading required information from the environment
+DEBUG 2016-03-14 13:05:56,581: 	 Found CMSSW_7_6_3 for slc6_amd64_gcc493 with base /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3
+DEBUG 2016-03-14 13:05:56,599: 	 UNIQUE NAME: tarUUID e99f2b2c-5ae5-488c-886a-84fd96149068 
+DEBUG 2016-03-14 13:05:56,600: 	 self.config: from WMCore.Configuration import Configuration
+config = Configuration()
+config.section_('General')
+config.General.transferOutputs = True
+config.General.workArea = 'crab_projects_Pythia8_QCD'
+config.General.requestName = 'QCD_Pt_800to1000_TuneCUETP8M1_13TeV_pythia8_RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asympto'
+config.section_('JobType')
+config.JobType.psetName = '/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/Ntuplizer/test/pythia8_qcd_76x_expert.py'
+config.JobType.pluginName = 'Analysis'
+config.JobType.outputFiles = ['output.root']
+config.section_('Data')
+config.Data.inputDataset = '/QCD_Pt_800to1000_TuneCUETP8M1_13TeV_pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/MINIAODSIM'
+config.Data.outputDatasetTag = 'RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1'
+config.Data.publication = False
+config.Data.unitsPerJob = 10
+config.Data.splitting = 'FileBased'
+config.Data.outLFNDirBase = '/store/user/rshevche/Analysis/Ntuples/Pythia8_QCD/MINIAODSIM/Fall15.76X.20160310/'
+config.Data.totalUnits = -1
+config.section_('User')
+config.User.voGroup = 'dcms'
+config.section_('Site')
+config.Site.storageSite = 'T2_DE_DESY'
+
+DEBUG 2016-03-14 13:05:56,600: 	 self.config.JobType.psetName: /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/Ntuplizer/test/pythia8_qcd_76x_expert.py
+INFO 2016-03-14 13:05:56,600: 	 Importing CMSSW configuration /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/Ntuplizer/test/pythia8_qcd_76x_expert.py
+INFO 2016-03-14 13:05:56,963: 	 Finished importing CMSSW configuration /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/Ntuplizer/test/pythia8_qcd_76x_expert.py
+DEBUG 2016-03-14 13:05:56,963: 	 Writing CMSSW configuration to /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/Tools/test/crab_projects_Pythia8_QCD/crab_QCD_Pt_800to1000_TuneCUETP8M1_13TeV_pythia8_RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asympto/inputs/PSet.py
+DEBUG 2016-03-14 13:05:57,111: 	 The following EDM output files will be collected: []
+DEBUG 2016-03-14 13:05:57,111: 	 The following TFile output files will be collected: ['output.root']
+DEBUG 2016-03-14 13:05:57,111: 	 The following user output files will be collected: []
+DEBUG 2016-03-14 13:05:57,112: 	 Loading required information from the environment
+DEBUG 2016-03-14 13:05:57,112: 	 Found CMSSW_7_6_3 for slc6_amd64_gcc493 with base /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3
+DEBUG 2016-03-14 13:05:57,112: 	 Making tarball in /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/Tools/test/crab_projects_Pythia8_QCD/crab_QCD_Pt_800to1000_TuneCUETP8M1_13TeV_pythia8_RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asympto/inputs/e99f2b2c-5ae5-488c-886a-84fd96149068default.tgz
+DEBUG 2016-03-14 13:05:57,119: 	 Checking directory /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/lib
+DEBUG 2016-03-14 13:05:57,119: 	 Adding directory /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/lib to tarball
+DEBUG 2016-03-14 13:05:57,523: 	 Checking directory /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/biglib
+DEBUG 2016-03-14 13:05:57,523: 	 Adding directory /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/biglib to tarball
+DEBUG 2016-03-14 13:05:57,524: 	 Checking directory /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/module
+DEBUG 2016-03-14 13:05:57,568: 	 Adding data directory /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/BackgroundModel/data to tarball
+DEBUG 2016-03-14 13:05:57,834: 	 Adding data directory /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/BackgroundModel/interface to tarball
+DEBUG 2016-03-14 13:05:57,841: 	 Adding data directory /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/interface to tarball
+DEBUG 2016-03-14 13:05:57,956: 	 Adding data directory /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/Ntuplizer/interface to tarball
+DEBUG 2016-03-14 13:05:57,964: 	 Adding data directory /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/Objects/interface to tarball
+DEBUG 2016-03-14 13:05:57,967: 	 Adding data directory /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/Tools/interface to tarball
+DEBUG 2016-03-14 13:05:58,720: 	 Uploading archive /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/Tools/test/crab_projects_Pythia8_QCD/crab_QCD_Pt_800to1000_TuneCUETP8M1_13TeV_pythia8_RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asympto/inputs/e99f2b2c-5ae5-488c-886a-84fd96149068default.tgz to the CRAB cache. Using URI https://cmsweb.cern.ch/crabcache
+DEBUG 2016-03-14 13:06:00,810: 	 Result uploading input files: 5353208f5acb11fce9aefc833fbcad5b6e2f3fc64854ae1a0412a3fcef5cc8a1.tar.gz 
+INFO 2016-03-14 13:06:00,810: 	 Sending the request to the server
+DEBUG 2016-03-14 13:06:00,810: 	 Submitting {'maxjobruntime': 1250, 'lfn': '/store/user/rshevche/Analysis/Ntuples/Pythia8_QCD/MINIAODSIM/Fall15.76X.20160310/', 'savelogsflag': 0, 'useparent': 0, 'asyncdest': 'T2_DE_DESY', 'algoargs': 10, 'cachefilename': '5353208f5acb11fce9aefc833fbcad5b6e2f3fc64854ae1a0412a3fcef5cc8a1.tar.gz', 'numcores': 1, 'addoutputfiles': [], 'generator': 'pythia', 'maxmemory': 2000, 'publishdbsurl': 'https://cmsweb.cern.ch/dbs/prod/phys03/DBSWriter', 'vogroup': 'dcms', 'priority': 10, 'jobsw': 'CMSSW_7_6_3', 'edmoutfiles': [], 'userfiles': [], 'primarydataset': '', 'inputdata': '/QCD_Pt_800to1000_TuneCUETP8M1_13TeV_pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/MINIAODSIM', 'ignorelocality': 0, 'dryrun': 0, 'workflow': 'crab_QCD_Pt_800to1000_TuneCUETP8M1_13TeV_pythia8_RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asympto', 'adduserfiles': [], 'nonprodsw': 0, 'tfileoutfiles': ['output.root'], 'oneEventMode': 0, 'cacheurl': 'https://cmsweb.cern.ch/crabcache', 'saveoutput': 1, 'publication': 0, 'jobarch': 'slc6_amd64_gcc493', 'totalunits': -1, 'splitalgo': 'FileBased', 'nonvaliddata': 0, 'dbsurl': 'https://cmsweb.cern.ch/dbs/prod/global/DBSReader', 'publishgroupname': 0, 'jobtype': 'Analysis', 'publishname2': 'RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1'} 
+DEBUG 2016-03-14 13:06:00,810: 	 Encoded submit request: maxjobruntime=1250&lfn=%2Fstore%2Fuser%2Frshevche%2FAnalysis%2FNtuples%2FPythia8_QCD%2FMINIAODSIM%2FFall15.76X.20160310%2F&savelogsflag=0&useparent=0&asyncdest=T2_DE_DESY&algoargs=10&cachefilename=5353208f5acb11fce9aefc833fbcad5b6e2f3fc64854ae1a0412a3fcef5cc8a1.tar.gz&numcores=1&generator=pythia&maxmemory=2000&publishdbsurl=https%3A%2F%2Fcmsweb.cern.ch%2Fdbs%2Fprod%2Fphys03%2FDBSWriter&vogroup=dcms&priority=10&jobsw=CMSSW_7_6_3&primarydataset=&inputdata=%2FQCD_Pt_800to1000_TuneCUETP8M1_13TeV_pythia8%2FRunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1%2FMINIAODSIM&ignorelocality=0&dryrun=0&workflow=crab_QCD_Pt_800to1000_TuneCUETP8M1_13TeV_pythia8_RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asympto&nonprodsw=0&oneEventMode=0&cacheurl=https%3A%2F%2Fcmsweb.cern.ch%2Fcrabcache&saveoutput=1&publication=0&jobarch=slc6_amd64_gcc493&totalunits=-1&splitalgo=FileBased&nonvaliddata=0&dbsurl=https%3A%2F%2Fcmsweb.cern.ch%2Fdbs%2Fprod%2Fglobal%2FDBSReader&publishgroupname=0&jobtype=Analysis&publishname2=RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1&tfileoutfiles=output.root
+DEBUG 2016-03-14 13:06:01,699: 	 Result: {'result': [{'RequestName': '160314_120601:rshevche_crab_QCD_Pt_800to1000_TuneCUETP8M1_13TeV_pythia8_RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asympto'}]}
+INFO 2016-03-14 13:06:01,733: 	 Success: Your task has been delivered to the CRAB3 server.
+INFO 2016-03-14 13:06:01,733: 	 Task name: 160314_120601:rshevche_crab_QCD_Pt_800to1000_TuneCUETP8M1_13TeV_pythia8_RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asympto
+INFO 2016-03-14 13:06:01,733: 	 Please use 'crab status' to check how the submission process proceeds.
+DEBUG 2016-03-14 13:06:01,733: 	 About to return

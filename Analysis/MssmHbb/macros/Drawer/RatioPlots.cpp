@@ -189,6 +189,7 @@ TH1F* RatioPlots::DrawRatio(TH1 *histo, TF1 * fit, std::string fitName, TCanvas 
 	histo -> Draw();
 	fitLegend->Draw();
 	style_.standardTitle()->Draw();
+//	std::cout<<fit->GetChisquare()<<" "<<fit->GetNDF()<<" "<<fit->GetChisquare()/fit->GetNDF()<<std::endl;
 
 	can->cd();
 	pad2_ = new TPad("pad2","pad2",0,0.0,1,0.3);
@@ -330,7 +331,7 @@ void RatioPlots::DrawPhaseSpaceDescription(float x1, float y1, float x2, float y
 	TPaveText *description = new TPaveText(x1,y1,x2,y2);
 	description->AddText("At least 2 b jets");
 	description->AddText("p^{jet}_{T} > 100 GeV, |#eta^{jet}| < 2.2");
-	description->AddText("|#Delta#eta_{1-2}| < 1.6, BTag Discr. > 0.941");
+	description->AddText("|#Delta#eta_{1-2}| < 1.6, CSVv2T (BTag Discr. > 0.935)");
 	description->SetFillColor(0);
 	description->SetBorderSize(0);
 	description->Draw();

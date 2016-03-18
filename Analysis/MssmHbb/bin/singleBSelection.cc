@@ -27,7 +27,7 @@ int main(int argc, char * argv[])
 
    // Input files list
    //std::string inputList = "rootFileListBTagCSV.txt";
-   std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/76X/Pythia8_QCD/QCD_Pt_80to120_TuneCUETP8M1_13TeV_pythia8.txt";
+   std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/76X/v2/Pythia8_QCD/QCD_Pt_80to120_TuneCUETP8M1_13TeV_pythia8.txt";
 
    // Initialisation of MssmHbb class
    MssmHbb analysis(inputList);
@@ -74,7 +74,7 @@ int main(int argc, char * argv[])
 
    //Setup output file name
    //name can me specified explicitly with method: createOutputFile(fileName);
-   std::string fileName = "/nfs/dust/cms/user/shevchen/output/DoubleBTagSelection";
+   std::string fileName = "/nfs/dust/cms/user/shevchen/output/SingleBTagSelection_76X";
    analysis.SetupStandardOutputFile(fileName);
 
    //Setup Branches
@@ -83,6 +83,10 @@ int main(int argc, char * argv[])
    int counter = 0;
    bool goodLeadingJets = true;
    // Analysis of events
+
+   //Add cMVA variable
+   double LeadBTagMVA_[20];
+   analysis.getOutputTree()->Branch("LeadBTagMVA",LeadBTagMVA_,"LeadBTagMVA[20]/D");
 
    std::cout<<"Number of Entries: "<<analysis.size()<<std::endl;
    for ( int i = 0 ; i < analysis.size() ; ++i )
@@ -135,6 +139,7 @@ int main(int argc, char * argv[])
 
 		analysis.setJetCounter(counter-1);
 		analysis.setJetVariables(jet);
+		LeadBTagMVA_[counter-1] = jet.btag("btag_csvmva");
 
 		//Selection cuts for first two leading jets
 		if(counter == 1){

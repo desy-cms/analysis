@@ -10,12 +10,14 @@ int highMTriggerEfficiency(){
 
 	TH1::SetDefaultSumw2();
 
-	TFile *fData = new TFile("/nfs/dust/cms/user/shevchen/output/EfficiencyStudy_29_02_2016.root");
+	TFile *fData = new TFile("/nfs/dust/cms/user/shevchen/output/EfficiencyStudy_76X_13_03_2016.root");
+	TFile *f74XData = new TFile("/nfs/dust/cms/user/shevchen/output/EfficiencyStudy_29_02_2016.root");
 
 	TFile *output = new TFile("TwoDPtLowMassEfficiency.root","recreate");
 
-	TTree *data;
+	TTree *data, *data74X;
 	fData->GetObject("MssmHbb",data);
+	f74XData->GetObject("MssmHbb",data74X);
 
    //Setup style
    HbbStyle style;
@@ -27,21 +29,24 @@ int highMTriggerEfficiency(){
    ratio.SetRatioRange(0.5,1.5);
    ratio.SetRatioTitle("Data/Fit");
 
+   //........................LOW M..................................//
 
-	TCanvas *oneDFit = new TCanvas();
-	TH1F *pf100Eff = new TH1F("pf100Eff","",100,120.,500.);
-	TH1F *pf100EffDenum = new TH1F("pf100EffDenum","",100,120.,500.);
-	data->Draw("LeadPt[0]>>pf100Eff","LeadMatch160[0] == 1");
+
+	TCanvas *oneDFitLowM = new TCanvas("oneDFitLowM","Factor Low M",1000,800);
+	TH1F *pf100Eff = new TH1F("pf100Eff",";p_{T}, [GeV]; #epsilon",100,70.,500.);
+	pf100Eff->SetMarkerStyle(20);
+	TH1F *pf100EffDenum = new TH1F("pf100EffDenum","",100,70.,500.);
+	data->Draw("LeadPt[0]>>pf100Eff","LeadMatch100[0] == 1");
 	data->Draw("LeadPt[0]>>pf100EffDenum","PFJet80 == 1");
 	pf100Eff->Divide(pf100Eff,pf100EffDenum,1,1,"b");
 	pf100Eff->Draw("E");
 
-	TF1 *fit = new TF1("fit",finaleFunction,120,500,4);
-	pf100Eff->Fit(fit);
-	pf100Eff->Draw("E");
-	drawRatio(pf100Eff,fit,oneDFit,"bla");
+	TF1 *fit = new TF1("fit",finaleFunction,100,500,4);
+	fit->SetParameters(1.16893e-01,1.05584e+02,1.16893e-01,1.05584e+02);
+	auto hLowMRatio = (TH1F*) ratio.DrawRatio(pf100Eff,fit,"Sigmoid*Sigmoid",oneDFitLowM);
 
 
+	oneDFitLowM->SaveAs("pictures/OneDEfficiencyLowM.pdf");
 
 	TCanvas *twoDplot = new TCanvas("twoDplot","Two dimensional Efficiency");
 	float Bins[] = {50.,90.,96.,112.,118.,124,130.,135.,140.,145,150,170,200,250,360,500};
@@ -91,8 +96,6 @@ int highMTriggerEfficiency(){
 	TwoDEff_Num->SaveAs("pictures/LowMTwoDPtTriggerEff.pdf");
 //	TwoDEff_Num->Write();
 
-//	output->Close();
-
 	auto dEtaCan = new TCanvas("dEtaCan","dEta Trig Eff",1000,800);
 	style.standardTitle(PRIVATE);
 
@@ -116,6 +119,8 @@ int highMTriggerEfficiency(){
 
 
 	//............................	HIGH M ....................................
+
+	TFile *outputHM = new TFile("TwoDPtHighMassEfficiency.root","recreate");
 
 	TCanvas *can_high_M = new TCanvas("can_high_M","Two D Pt trig Eff",1000,800);
 
@@ -161,6 +166,28 @@ int highMTriggerEfficiency(){
 
 	TwoDEff_H_mass_Num->Draw("COLZ");
 	TwoDEff_H_mass_Num->SaveAs("pictures/HighMTwoDPtTriggerEff.pdf");
+//	TwoDEff_H_mass_Num->Write("TwoDEff_Num");
+
+
+	TCanvas *oneDFitHighM = new TCanvas("oneDFitHighM","Factor High M",1000,800);
+	TH1F *pf160Eff = new TH1F("pf160Eff",";p_{T}, [GeV]; #epsilon",100,100.,500.);
+	pf160Eff->SetMarkerStyle(20);
+	TH1F *pf160EffDenum = new TH1F("pf160EffDenum","",100,100.,500.);
+	data->Draw("LeadPt[0]>>pf160Eff","LeadMatch160[0] == 1");
+	data->Draw("LeadPt[0]>>pf160EffDenum","PFJet80 == 1");
+	pf160Eff->Divide(pf160Eff,pf160EffDenum,1,1,"b");
+	pf160Eff->Draw("E");
+
+	fit->SetRange(160,500);
+	fit->SetParameters(1.16893e-01,1.05584e+02,1.16893e-01,1.05584e+02);
+//	pf160Eff->Fit(fit);
+//	pf160Eff->Draw("E");
+//	drawRatio(pf160Eff,fit,oneDFitLowM,"bla");
+	auto hHighMRatio = (TH1F*) ratio.DrawRatio(pf160Eff,fit,"Sigmoid*Sigmoid",oneDFitHighM);
+	oneDFitLowM->SaveAs("pictures/OneDEfficiencyHighM.pdf");
+
+//	outputHM->Close();
+//	output->Close();
 
 
 /**/

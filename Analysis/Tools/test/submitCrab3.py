@@ -7,13 +7,13 @@ from WMCore.Configuration import Configuration
 
 # ---
 # Some parameter steering
-PROCESS         = 'JetHT'
-TYPE            = 'DATA'
+PROCESS         = 'Pythia8_QCD'
+TYPE            = 'MC'
 if TYPE == 'DATA':
 	UNITS_PER_JOB   = 1000
 if TYPE == 'MC':
 	UNITS_PER_JOB   = 10
-PSET            = '/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/Ntuplizer/test/jetht_76x_expert.py'
+PSET            = '/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/Ntuplizer/test/btagcsv_76x_expert.py'
 CAMPAIGN        = 'Fall15.76X.20160310'
 BASEOUTDIR      = '/store/user/rshevche/Analysis/Ntuples/' + PROCESS
 URL             = '/nfs/dust/cms/user/shevchen/samples/miniaod/76X/'

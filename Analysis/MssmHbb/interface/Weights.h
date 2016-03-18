@@ -31,6 +31,7 @@ public:
 
 	// PileUp weight
 	double PileUpWeight(TH1F * data, TH1F * mc, const double &NTruePileUpMC);
+	double PileUpWeight(TH1F * data, const double & N_mc, const double &NTruePileUpMC);
 //	double PileUpWeight(TH1F * data, TH1F * mc);																	// Could be used after the first call
 
 	// Ht weight

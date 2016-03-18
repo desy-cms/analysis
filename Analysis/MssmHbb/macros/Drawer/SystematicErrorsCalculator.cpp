@@ -16,13 +16,13 @@ public:
 	SystematicErrorsCalculator();
 	virtual ~SystematicErrorsCalculator();
 
-	void CalculateSingleSystError(TH1F* central, TH1F *upper, TH1F *lower); // For asymmetric errors
-	void CalculateSingleSystError(TH1F* central, TH1F *errorHisto);				// For symmetric errors
+	void CalculateSingleSystError(TH1F *upper, TH1F *lower); // For asymmetric errors
+	void CalculateSingleSystError(TH1F *errorHisto);				// For symmetric errors
 	void AddUncorelatedSystErrors(TH1F* central);
 
 protected:
 
-	std::vector<TH1F*> SystHistograms_; //Vector of the SystErr histograms
+	std::vector<std::vector<double>> SystErr_;
 
 };
 
@@ -38,30 +38,32 @@ SystematicErrorsCalculator::~SystematicErrorsCalculator() {
 	// TODO Auto-generated destructor stub
 }
 
-void SystematicErrorsCalculator::CalculateSingleSystError(TH1F* central, TH1F* upper, TH1F *lower){
+void SystematicErrorsCalculator::CalculateSingleSystError(TH1F* upper, TH1F *lower){
 
+	std::vector <double> errors;
 	double error = 0;
-	for(int bin = 1; bin <= central->GetNbinsX(); ++bin){
+	for(int bin = 1; bin <= upper->GetNbinsX(); ++bin){
 		error = upper->GetBinContent(bin) - lower->GetBinContent(bin);
 		error = error / 4.;
-		central->SetBinError(bin,error);
+		errors.push_back(error);
 //		std::cout<<" up/central "<<upper->GetBinContent(bin)/central->GetBinContent(bin)-1<<" "<<
 //				(upper->GetBinContent(bin)-central->GetBinContent(bin))/central->GetBinContent(bin)<<std::endl;
 //		std::cout<<"SFb Syst: "<<central->GetBinContent(bin)<<" (centr.) "<<upper->GetBinContent(bin)<<" (up) "<<lower->GetBinContent(bin)<<" (down) "<<std::endl;
 //		std::cout<<"Tot: "<<central->GetBinContent(bin)<<" "<<central->GetBinError(bin)<<" "<<central->GetBinError(bin)/central->GetBinContent(bin)<<std::endl;
 	}
-	SystHistograms_.push_back(central);
+	SystErr_.push_back(errors);
 
 }
 
-void SystematicErrorsCalculator::CalculateSingleSystError(TH1F* central, TH1F* errorHisto){
+void SystematicErrorsCalculator::CalculateSingleSystError(TH1F* errorHisto){
 
+	std::vector <double> errors;
 	double error = 0;
-	for(int bin = 1; bin <= central->GetNbinsX(); ++bin){
+	for(int bin = 1; bin <= errorHisto->GetNbinsX(); ++bin){
 		error = errorHisto->GetBinContent(bin);
-		central->SetBinError(bin,error);
+		errors.push_back(error);
 	}
-	SystHistograms_.push_back(central);
+	SystErr_.push_back(errors);
 
 }
 
@@ -71,15 +73,16 @@ void SystematicErrorsCalculator::AddUncorelatedSystErrors(TH1F *central){
 	for(int bin = 1; bin <= central->GetNbinsX(); ++bin){
 		statError = central->GetBinError(bin);
 		systError = 0;
-		for(const auto & histo : SystHistograms_){
-			systError += histo->GetBinError(bin) * histo->GetBinError(bin);
-//			std::cout<<"Syst: "<<histo->GetBinError(bin)<<std::endl;
+		for(const auto & error : SystErr_){
+			systError += error.at(bin-1) * error.at(bin-1);
 		}
-//		std::cout<<"Total Syst"<<std::sqrt(systError)<<std::endl;
+//		std::cout<<"Total Syst = "<<std::sqrt(systError)<<" Stat = "<<statError<<std::endl;
 		totError = std::sqrt(systError + statError*statError);
 		central->SetBinError(bin,totError);
 	}
-	SystHistograms_.clear();
+//	std::cout<<"\n"<<std::endl;
+
+	SystErr_.clear();
 }
 
 

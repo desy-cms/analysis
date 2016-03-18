@@ -27,13 +27,13 @@ int main(int argc, char * argv[])
 
    // Input files list
    //std::string inputList = "rootFileListBTagCSV.txt";
-   std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/76X/BTagCSVData/Run2015C_25ns-16Dec2015-v1.txt";
+   std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/76X/BTagCSVData/Run2015D-16Dec2015-v1.txt";
 
    // Initialisation of MssmHbb class
    MssmHbb analysis(inputList);
 
    // Process selected JSON file
-   if(!analysis.isMC()) analysis.processJsonFile("Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt");
+   if(!analysis.isMC()) analysis.processJsonFile("Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_v2.txt");
 
    // Add std::vector<std::string> of the Trigger Objects that you would like to apply.
    // Also Trigger Results name will be stored, according to the trigger objects names

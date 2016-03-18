@@ -47,6 +47,8 @@ BasicTree - contain basic general information specific for jet analysis. In part
   the selection type and provided data(Data or MC)
   
   - You can add Branches that you need explicitly with analsys.getOutputTree()->Branch("MyBranch",&my_var,"MyBranch/TYPE")
+  
+macros/simpleHistoBuilderExample.C - explain how to use trees in your analysis.
  
  						All suggestions and comments are strognly appreciated!
  											Have fun :)
