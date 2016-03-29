@@ -84,6 +84,8 @@ protected:
     double LeadEta_[20];
     double LeadPhi_[20];
     double LeadBTag_[20];
+    int LeadFl_[20];
+
     double dPhiFS_;
     double dEtaFS_;
     double Ht_;
@@ -134,7 +136,7 @@ protected:
     double BTagWeight_;
     double lumiWeight_;
     double WeightHt_;
-    std::map<std::string,double> WeightPileUp_;
+    double WeightPileUp_[3];
 
     // BTag SF weight
     double btagSFcentral_[20];
