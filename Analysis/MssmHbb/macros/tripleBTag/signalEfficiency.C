@@ -218,21 +218,21 @@ int signalEfficiency(){
 
 	// Cut optimisation
 	//Define cuts arrays:
-	const int Npt1 = 15;	//Pt1-2
-	const double pt1[Npt1] = {100,105,110,115,120,125,130,135,140,145,150,155,160,165,170};
-	const int Npt3 = 7;	//Pt3
-	const double pt3[Npt3] = {30,35,40,45,50,55,60};
-	const int Neta1 = 11;	//eta1-2-3
-	const double eta1[Neta1] = {2.,2.04,2.08,2.12,2.16,2.2,2.24,2.28,2.32,2.36,2.4};
-	const int Nbtag1 = 7;	//BTag1-2
-	const double btag1[Nbtag1] = {0.941,0.945,0.95,0.955,0.96,0.965,0.97};
-	const int Nbtag3 = 19;	//Btag3
+	const double pt1[] = {100,105,110,115,120,125,130,135,140,145,150,155,160,165,170};
+	const int Npt1 = sizeof(pt1)/sizeof(const double);	//Pt1-2
+	const double pt3[] = {30,35,40,45,50,55,60};
+	const int Npt3 = sizeof(pt3)/sizeof(const double);	//Pt3
+	const double eta1[] = {2.,2.04,2.08,2.12,2.16,2.2,2.24,2.28,2.32,2.36,2.4};
+	const int Neta1 = sizeof(eta1)/sizeof(const double);	//eta1-2-3
+	const double btag1[] = {0.935,0.94,0.945,0.95,0.955,0.96,0.965};
+	const int Nbtag1 = sizeof(btag1)/sizeof(const double);	//Btag3
 //	const double btag3[Nbtag3] = {0.605,0.62,0.64,0.66,0.68,0.7,0.72,0.74,0.76};
-	const double btag3[Nbtag3] = {0.605,0.62,0.64,0.66,0.68,0.7,0.72,0.74,0.76,0.78,0.8,0.82,0.84,0.86,0.88,0.9,0.92,0.94,0.96};
-	const int NdEta = 11;	//dEta12
-	const double dEta[NdEta] = {1.6,1.58,1.56,1.54,1.52,1.5,1.48,1.46,1.44,1.42,1.4};
-	const int NdR = 11;		//dR123
-	const double dR[NdR] = {0.9,0.92,0.94,0.96,0.98,1,1.02,1.04,1.06,1.08,1.1};
+	const double btag3[] = {0.8,0.82,0.84,0.86,0.88,0.9,0.91,0.92,0.93,0.935,0.94,0.945,0.95,0.955,0.96,0.965};
+	const int Nbtag3 = sizeof(btag3)/sizeof(const double);	//Btag3
+	const double dEta[] = {1.6,1.58,1.56,1.54,1.52,1.5,1.48,1.46,1.44,1.42,1.4};
+	const int NdEta = sizeof(dEta)/sizeof(const double);	//dEta12
+	const double dR[] = {0.9,0.92,0.94,0.96,0.98,1,1.02,1.04,1.06,1.08,1.1};
+	const int NdR = sizeof(dR)/sizeof(const double);		//dR123
 
 //	std::string cut;
 	char char_cut[1000];

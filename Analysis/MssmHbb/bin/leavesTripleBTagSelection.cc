@@ -26,7 +26,7 @@ int main(int argc, char * argv[])
 
 	// Input files list
 	//std::string inputList = "rootFileListBTagCSV.txt";
-	std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/76X/v2/BTagCSVData/Run2015C_25ns-16Dec2015-v1.txt";
+	std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/76X/Pythia8_QCD/QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8.txt";
 
 	// Initialisation of MssmHbb class
 	MssmHbb analysis(inputList);

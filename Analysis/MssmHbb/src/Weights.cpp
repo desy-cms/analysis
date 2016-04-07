@@ -155,6 +155,9 @@ double Weights::PileUpWeight(TH1F *data, TH1F *mc, const double & NTruePileUpMC)
 //	std::cout<<" MC:   "<<hMc->FindBin(NTruePileUpMC)<<" "<<hMc->GetBinContent(hMc->FindBin(NTruePileUpMC))<<std::endl;
 //	std::cout<<" weight = "<<weight<<" "<<N_data<<" "<<N_mc<<std::endl;
 
+	delete hData;
+	delete hMc;
+
 	return weight;
 }
 

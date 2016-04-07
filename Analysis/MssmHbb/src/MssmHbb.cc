@@ -51,6 +51,8 @@ MssmHbb::MssmHbb(const std::string & inputFilelist, const std::string & evtinfo)
 	// Tree for Vertices
 	this->addTree<Vertex> ("Vertices","MssmHbb/Events/offlineSlimmedPrimaryVertices");
 
+	Ntot_ = this->size();
+
 }
 
 MssmHbb::~MssmHbb()
@@ -120,9 +122,9 @@ void MssmHbb::SetupConstants(){
 		pt3_cut__ = 30;
 
 		deta_cut__ = 100;
-		btag1_cut__ = 0.85;
-		btag2_cut__ = 0.85;
-		btag3_cut__ = 0.7;
+		btag1_cut__ = 0.8;
+		btag2_cut__ = 0.8;
+		btag3_cut__ = 0.46;
 	}
 }
 

@@ -56,6 +56,7 @@ int highMComparison(){
 	auto RatioLowPt = (TH1F*) ratio.DrawRatio(pf100Eff,pf100Eff74X,null,legenda,oneDFitLowM);
 	RatioLowPt->GetYaxis()->SetTitle("76X/74X");
 	RatioLowPt->Draw();
+	oneDFitLowM->SaveAs("pictures/LowMPtTrigger74vs76.pdf");
 
 	//,,,,,,,,,,,,,dEta..........
 	auto dEtaCan = new TCanvas("dEtaCan","dEta Trig Eff",1000,800);
@@ -80,6 +81,7 @@ int highMComparison(){
 	auto RatioDEta = (TH1F*) ratio.DrawRatio(dEtaEff,dEtaEff74X,null,legenda,dEtaCan);
 	RatioDEta->GetYaxis()->SetTitle("76X/74X");
 	RatioDEta->Draw();
+	dEtaCan->SaveAs("pictures/dEtaTrigger74vs76.pdf");
 
 
 
