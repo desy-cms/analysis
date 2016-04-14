@@ -54,6 +54,14 @@ Analysis::Analysis(const std::string & inputFilelist, const std::string & evtinf
    it = std::find(branches.begin(),branches.end(),"nPileup");      if ( it != branches.end() ) t_event_  -> SetBranchAddress( (*it).c_str(), &n_pu_);
    it = std::find(branches.begin(),branches.end(),"nTruePileup");  if ( it != branches.end() ) t_event_  -> SetBranchAddress( (*it).c_str(), &n_true_pu_);
    
+   it = std::find(branches.begin(),branches.end(),"genWeight");    if ( it != branches.end() ) t_event_  -> SetBranchAddress( (*it).c_str(), &genWeight_);
+   it = std::find(branches.begin(),branches.end(),"genScale");     if ( it != branches.end() ) t_event_  -> SetBranchAddress( (*it).c_str(), &genScale_);
+   it = std::find(branches.begin(),branches.end(),"pdfid1");       if ( it != branches.end() ) t_event_  -> SetBranchAddress( (*it).c_str(), &pdf_.id.first);
+   it = std::find(branches.begin(),branches.end(),"pdfid2");       if ( it != branches.end() ) t_event_  -> SetBranchAddress( (*it).c_str(), &pdf_.id.second);
+   it = std::find(branches.begin(),branches.end(),"pdfx1");        if ( it != branches.end() ) t_event_  -> SetBranchAddress( (*it).c_str(), &pdf_.x.first);
+   it = std::find(branches.begin(),branches.end(),"pdfx2");        if ( it != branches.end() ) t_event_  -> SetBranchAddress( (*it).c_str(), &pdf_.x.second);
+   
+   
 //   t_event_ -> SetBranchAddress("nPileup", &n_pu_);
 //   t_event_ -> SetBranchAddress("nTruePileup", &n_true_pu_);
 
@@ -86,6 +94,13 @@ void Analysis::event(const int & event, const bool & addCollections)
    // Initialisation for backward compatibility
    n_pu_ = -1;
    n_true_pu_ = -1;
+   
+   genWeight_ = -1.;
+   genScale_  = -1.;
+   pdf_.id.first  = 0;
+   pdf_.id.second = 0;
+   pdf_.x.first  = -1.;
+   pdf_.x.second = -1.;
    
    t_event_ -> GetEntry(event);
    if ( !addCollections) return;

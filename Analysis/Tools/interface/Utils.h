@@ -11,6 +11,11 @@ namespace analysis {
          float efficiency;
       };
       
+      struct PDF
+      {
+         std::pair<int,int> id;
+         std::pair<double,double> x;
+      };
    }
 }
 

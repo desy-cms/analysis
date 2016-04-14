@@ -20,6 +20,7 @@
  
 #include "Analysis/Ntuplizer/interface/EventInfo.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 
 //
@@ -49,7 +50,8 @@ EventInfo::EventInfo(edm::Service<TFileService> & fs)
    tree_->Branch("bx"   , &bx_   , "bx/I");
    tree_->Branch("orbit", &orbit_, "orbit/I");
 
-   do_pu_ = false;
+   do_pu_  = false;
+   do_gen_ = false;
    
    
 }
@@ -66,7 +68,8 @@ EventInfo::EventInfo(TFileDirectory & dir)
    tree_->Branch("bx"   , &bx_   , "bx/I");
    tree_->Branch("orbit", &orbit_, "orbit/I");
 
-   do_pu_ = false;
+   do_pu_  = false;
+   do_gen_ = false;
    
 }
 
@@ -102,6 +105,21 @@ void EventInfo::Fill(const edm::Event& event)
    {
       n_pu_ = -1;
       n_true_pu_ = -1;
+   }
+      
+   if ( do_gen_ )
+   {
+      ReadGenEventInfo(event);
+   }
+   else
+   {
+      genWeight_  = -1.;
+      genScale_   = -1.;
+      pdfid1_     = 0;
+      pdfid2_     = 0;
+      pdfx1_      = -1.;
+      pdfx2_      = -1.;
+              
    }
       
    tree_ -> Fill();
@@ -146,6 +164,43 @@ void EventInfo::ReadPileupInfo(const edm::Event& event)
    n_true_pu_ = pileup_info.getTrueNumInteractions();
    n_pu_      = pileup_info.getPU_NumInteractions();
     
+   
+}
+
+// GenEventInfoProduct
+void EventInfo::GenEventInfo(const edm::InputTag& tag)
+{
+   do_gen_ = true;
+   
+   genInfo_ = tag;
+      
+   tree_->Branch("genWeight" , &genWeight_  , "genWeight/D");
+   tree_->Branch("genScale"  , &genScale_   , "genScale/D");
+   tree_->Branch("pdfid1"    , &pdfid1_     , "pdfid1/I");
+   tree_->Branch("pdfid2"    , &pdfid2_     , "pdfid2/I");
+   tree_->Branch("pdfx1"     , &pdfx1_      , "pdfx1/D");
+   tree_->Branch("pdfx2"     , &pdfx2_      , "pdfx2/D");
+   
+}
+
+void EventInfo::ReadGenEventInfo(const edm::Event& event)
+{
+   using namespace edm;
+   
+   // 
+   edm::Handle<GenEventInfoProduct> hepmc;
+   event.getByLabel(genInfo_, hepmc);
+   
+   if ( hepmc.isValid() )
+   {
+      genWeight_ = hepmc -> weight();
+      genScale_  = hepmc -> qScale();
+      pdfid1_    = hepmc -> pdf() -> id.first;
+      pdfid2_    = hepmc -> pdf() -> id.second;
+      pdfx1_     = hepmc -> pdf() -> x.first;
+      pdfx2_     = hepmc -> pdf() -> x.second;
+   }
+
    
 }
 

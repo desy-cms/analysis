@@ -46,6 +46,7 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
     ## Monte Carlo only
     GenFilterInfo   = cms.InputTag("genFilterEfficiencyProducer"),
     GenRunInfo      = cms.InputTag("generator"),
+    GenEventInfo    = cms.InputTag("generator"),
     GenJets         = cms.VInputTag(cms.InputTag("slimmedGenJets")),
     GenParticles    = cms.VInputTag(cms.InputTag("prunedGenParticles")),
     PileupInfo      = cms.InputTag("slimmedAddPileupInfo"),
