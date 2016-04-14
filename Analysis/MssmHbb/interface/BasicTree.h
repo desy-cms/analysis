@@ -89,6 +89,7 @@ protected:
     double dPhiFS_;
     double dEtaFS_;
     double Ht_;
+    double cos_theta_star;
 
     //Primary Vertices variables
     int NPrimaryVTX_;

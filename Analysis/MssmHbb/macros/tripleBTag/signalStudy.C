@@ -188,7 +188,7 @@ int signalStudy(){
 	const int Nbtag3 = sizeof(btag3)/sizeof(const double);	//Btag3
 	const double dEta[] = {1.6,1.58,1.56,1.54,1.52,1.5,1.48,1.46,1.44,1.42,1.4};
 	const int NdEta = sizeof(dEta)/sizeof(const double);	//dEta12
-	const double dR[] = {0.9,0.92,0.94,0.96,0.98,1,1.02,1.04,1.06,1.08,1.1};
+	const double dR[] = {1.,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2.,2.1,2.2,2.3,2.4,2.5,2.6,2.7,3,3.3,3.6,3.9,4.};
 	const int NdR = sizeof(dR)/sizeof(const double);		//dR123
 
 	//Define cuts arrays for high M:
@@ -205,7 +205,7 @@ int signalStudy(){
 //	std::string cut;
 	char char_cut[50];
 
-	int massPoint = 500;
+	int massPoint = 300;
 	const std::string parameter = "releff";
 	MPoint *maxPoint  = new MPoint(massPoint,general_weights,fLow500,fBgLow);
 	MPoint *maxPointHigh  = new MPoint(massPoint,general_weights,fhigh500,fBgHigh);
@@ -259,6 +259,12 @@ int signalStudy(){
 	RelEffBTag3ScanLowM->SetTitle("Rel. Signal Efficiency Low M scenario, 40% M. window; BTagDiscr^{3}_{CSVv2T}; #epsilon");
 	RelEffBTag3ScanLowM = cutOptimisation(RelEffBTag3ScanLowM,maxPoint,temp_point,btag3,Nbtag3,"(LeadBTag[2] > %f )*",parameter);
 
+	//dR
+	auto CanlowMRelEffdRScan = new TCanvas("CanlowMRelEffdRScan","Signal Efficiency Low M dR",1200,800);
+	TGraphErrors *RelEffdRScanLowM = new TGraphErrors(NdR);
+	RelEffdRScanLowM->SetTitle("Rel. Signal Efficiency Low M scenario, 40% M. window; #Delta R; #epsilon");
+	RelEffdRScanLowM = cutOptimisation(RelEffdRScanLowM,maxPoint,temp_point,dR,NdR,"( (sqrt( (LeadEta[0]-LeadEta[1])*(LeadEta[0]-LeadEta[1]) + (LeadPhi[0]-LeadPhi[1])*(LeadPhi[0]-LeadPhi[1]) )) > %f )*",parameter);
+/*
 	//74X vs 76X btag3
 	auto can74Xvs76X = new TCanvas("can74Xvs76X","Signal Efficiency Low M",1200,800);
 	can74Xvs76X->Divide(3,3);
@@ -447,7 +453,7 @@ MPoint* evaluateOptimisedCuts(MPoint *max,MPoint *comp ){
 }
 
 TGraphErrors* cutOptimisation(TGraphErrors * gr, MPoint *max, MPoint *temp, const double *variable, const double & nbins, char * cut,const std::string & param){
-	char char_cut[100];
+	char char_cut[200];
 	for(int n = 0; n< nbins;++n){			// Loop over the first Pt bins
 
 		sprintf(char_cut,cut,variable[n]);

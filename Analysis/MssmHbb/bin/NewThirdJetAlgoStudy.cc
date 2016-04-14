@@ -25,7 +25,7 @@ int main(int argc, char * argv[])
 
    // Input files list
    //std::string inputList = "rootFileListBTagCSV.txt";
-   std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/76X/MSSMHbb/SUSYGluGluToBBHToBB_M-500_TuneCUETP8M1_13TeV-pythia8.txt";
+   std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/76X/Pythia8_QCD/QCD_Pt_80to120_TuneCUETP8M1_13TeV_pythia8.txt";
    // Initialisation of MssmHbb class
    MssmHbb analysis(inputList);
    // Process selected JSON file
@@ -101,7 +101,7 @@ int main(int argc, char * argv[])
 
    //Setup output file name
    //name can me specified explicitly with method: createOutputFile(fileName);
-   std::string fileName = "/nfs/dust/cms/user/shevchen/output/DoubleBTagSelection_76X";
+   std::string fileName = "/nfs/dust/cms/user/shevchen/output/DoubleBTagSelection_76X_New3dJetSelection";
    analysis.SetupStandardOutputFile(fileName);
    //Setup Branches
    analysis.setBranches();
@@ -117,6 +117,16 @@ int main(int argc, char * argv[])
    analysis.getOutputTree()->Branch("PileUp",&PileUp_,"PileUp/D");
    double TruePileUp_;
    analysis.getOutputTree()->Branch("TruePileUp",&TruePileUp_,"TruePileUp/D");
+
+   //Variables for new 3d Jet
+   double New3dJet_pt;
+   analysis.getOutputTree()->Branch("New3dJet_pt",&New3dJet_pt,"New3dJet_pt/D");
+   double New3dJet_eta;
+   analysis.getOutputTree()->Branch("New3dJet_eta",&New3dJet_eta,"New3dJet_eta/D");
+   int New3dJet_index;
+   analysis.getOutputTree()->Branch("New3dJet_index",&New3dJet_index,"New3dJet_index/I");
+   double New3dJet_btag;
+   analysis.getOutputTree()->Branch("New3dJet_btag",&New3dJet_btag,"New3dJet_btag/D");
 
    std::cout<<"Number of Entries: "<<analysis.size()<<std::endl;
    for ( int i = 0 ; i < analysis.size() ; ++i )
@@ -138,7 +148,13 @@ int main(int argc, char * argv[])
       //Define Vertex collection
       auto offlinePrimaryVertices = analysis.collection<Vertex>("Vertices");
 
-      if (offlineJets -> size() < 2) continue;
+      if (offlineJets -> size() < 3) continue;
+
+      New3dJet_btag = -100;
+      New3dJet_eta = -100;
+      New3dJet_index = -100;
+      New3dJet_pt = -100;
+
 
       //Match offline Jets to online Objects
       if (!analysis.isMC()) analysis.match<Jet,TriggerObject>("Jets",analysis.getTriggerObjectNames());
@@ -149,6 +165,8 @@ int main(int argc, char * argv[])
       counter = 0;
       goodLeadingJets = false;
       Jet LeadJet[20];
+      std::vector<Jet> NewBTag3dJet;
+      std::vector<int> indexing3dJet;
       // Selection of double b-tag sample:
       for( int iJet = 0; iJet < offlineJets -> size(); ++iJet)
       {
@@ -167,28 +185,48 @@ int main(int argc, char * argv[])
 		if(counter > 5) break;
 		LeadJet[counter - 1] = jet;
 
-		analysis.setJetCounter(counter-1);
-		analysis.setJetVariables(jet);
-
 		LeadBTagMVA_[counter-1] = -100;
 		LeadBTagMVA_[counter-1] = jet.btag("btag_csvmva");
 
 		//Selection cuts for first two leading jets
-		if(counter == 1 || counter == 2){
-			if(jet.pt() < analysis.Pt1Cut()) break;
-			if(abs(jet.eta()) > 2.2) break;
-			if(jet.btag() < analysis.BTag1Cut()) break;
-			if(analysis.isMC()) analysis.calculateBTagSF(reader,reader_up,reader_down);
+		if(counter == 1 || counter == 2 || counter == 3){
+			if(counter == 1 || counter == 2){
+				analysis.setJetCounter(counter-1);
+				analysis.setJetVariables(jet);
+				if(jet.pt() < analysis.Pt1Cut()) break;
+				if(abs(jet.eta()) > 2.2) break;
+				if(jet.btag() < analysis.BTag1Cut()) break;
+				if(analysis.isMC()) analysis.calculateBTagSF(reader,reader_up,reader_down);
 
-			if(counter == 2){
-				if(LeadJet[0].deltaR(LeadJet[1]) <= 1) break;
-				if(abs(LeadJet[0].eta() - LeadJet[1].eta()) > analysis.dEtaCut()) break;
-				if(!analysis.isMC() && !analysis.OnlineSelection(LeadJet[0],LeadJet[1])) break;
-				goodLeadingJets = true;
+				if(counter == 2){
+					if(LeadJet[0].deltaR(LeadJet[1]) <= 1) break;
+					if(abs(LeadJet[0].eta() - LeadJet[1].eta()) > analysis.dEtaCut()) break;
+					if(!analysis.isMC() && !analysis.OnlineSelection(LeadJet[0],LeadJet[1])) break;
+					goodLeadingJets = true;
+				}
 			}
 		}
+		if(counter > 2){
+			if(jet.pt() > 30 && std::abs(jet.eta()) < 2.2 && jet.btag() > analysis.BTag3Cut() && LeadJet[0].deltaR(jet) > 1.1 && LeadJet[1].deltaR(jet) > 1.1 ){
+				if(counter == 3){
+					analysis.setJetCounter(counter-1);
+					analysis.setJetVariables(jet);
+				}
+				NewBTag3dJet.push_back(jet);
+				indexing3dJet.push_back(counter);
+			}
+		}
+
       }
       if(!goodLeadingJets) continue;
+      if(counter < 3) continue;
+
+      if(NewBTag3dJet.size() != 0){
+    	  New3dJet_btag = NewBTag3dJet.at(0).btag();
+    	  New3dJet_eta = NewBTag3dJet.at(0).eta();
+    	  New3dJet_index = indexing3dJet.at(0);
+    	  New3dJet_pt = NewBTag3dJet.at(0).pt();
+      }
 
       //Vertices study
       for(int iVtx = 0; iVtx < offlinePrimaryVertices->size(); ++iVtx){

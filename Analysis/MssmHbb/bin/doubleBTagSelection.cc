@@ -182,11 +182,11 @@ int main(int argc, char * argv[])
       Jet fLeadJet = offlineJets -> at(leadJetsNumber[0]);
       Jet sLeadJet = offlineJets -> at(leadJetsNumber[1]);
       //std::cout<<"Flavours: "<<fLeadJet.flavour("Hadron")<<" "<<std::endl;
-      if( fLeadJet.pt() < 150 || sLeadJet.pt() < 150 ) continue;
+      if( fLeadJet.pt() < 100 || sLeadJet.pt() < 100 ) continue;
       if( std::abs(fLeadJet.eta()) > 2.2 || std::abs(sLeadJet.eta()) > 2.2 ) continue;
       if( std::abs(fLeadJet.eta() - sLeadJet.eta()) > 1.6 ) continue;
       if( fLeadJet.deltaR(sLeadJet) <= 1) continue;
-      if( fLeadJet.btag() < 0.941 || sLeadJet.btag() < 0.941 ) continue;
+      if( fLeadJet.btag() < 0.935 || sLeadJet.btag() < 0.935 ) continue;
 
       h1["h_jet1_PtNoRew"] -> Fill(fLeadJet.pt());
       if(!analysis.isMC() && !analysis.OnlineSelection(fLeadJet,sLeadJet) ) continue;

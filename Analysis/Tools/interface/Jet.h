@@ -21,6 +21,8 @@
 
 // system include files
 #include <memory>
+//
+
 // 
 // user include files
 #include "Analysis/Tools/interface/Candidate.h"
@@ -38,6 +40,9 @@ namespace analysis {
             Jet();
             /// constructor from 4-momentum information
             Jet(const float & pt, const float & eta, const float & phi, const float & e);
+            /// constructor from TLorentzVector
+            Jet(const TLorentzVector & p4);
+
             /// destructor
            ~Jet();
            

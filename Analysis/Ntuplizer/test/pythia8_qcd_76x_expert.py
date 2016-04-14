@@ -17,7 +17,7 @@ for pset in process.GlobalTag.toGet.value():
 process.GlobalTag.RefreshEachRun = cms.untracked.bool( False )
 process.GlobalTag.ReconnectEachRun = cms.untracked.bool( False )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 output_file = 'output.root'
 ## TFileService
@@ -213,12 +213,18 @@ readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 readFiles.extend( [
+	'/store/mc/RunIIFall15MiniAODv2/SUSYGluGluToBBHToTauTau_M-3200_TuneCUETP8M1_13TeV-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/20000/788D0EEF-28BF-E511-B312-00221981866E.root',
+
+#	'/store/mc/RunIIFall15MiniAODv2/SUSYGluGluToBBHToTauTau_M-100_TuneCUETP8M1_13TeV-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/20000/1C96EEF0-AFB8-E511-ABE3-0CC47A4C8F18.root',
+
+#       '/store/mc/RunIIFall15MiniAODv2/SUSYGluGluToBBHToTauTau_M-1200_TuneCUETP8M1_13TeV-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/10000/1E809BEC-52B8-E511-BF19-001EC9ADE6A4.root',
+'''
                    '/store/mc/RunIIFall15MiniAODv2/QCD_Pt_800to1000_TuneCUETP8M1_13TeV_pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/60000/0659E975-5BB8-E511-BBD9-C81F66B7ED99.root',
                    '/store/mc/RunIIFall15MiniAODv2/QCD_Pt_800to1000_TuneCUETP8M1_13TeV_pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/60000/08F6536B-5CB8-E511-B0F0-0025905A60D0.root',
                    '/store/mc/RunIIFall15MiniAODv2/QCD_Pt_800to1000_TuneCUETP8M1_13TeV_pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/60000/10236D50-5BB8-E511-AB57-0025905B8582.root',
                    '/store/mc/RunIIFall15MiniAODv2/QCD_Pt_800to1000_TuneCUETP8M1_13TeV_pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/60000/1644DB69-5CB8-E511-BD02-0025905A6088.root',
                    '/store/mc/RunIIFall15MiniAODv2/QCD_Pt_800to1000_TuneCUETP8M1_13TeV_pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/60000/1657938B-5BB8-E511-AE90-0025905A6066.root',
-
+'''
 ] );
 
 

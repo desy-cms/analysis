@@ -77,6 +77,7 @@ void BasicTree::cleanVariables(){
 	Njets_ = -100;
 	dPhiFS_ = -100;
 	dEtaFS_ = -100;
+	cos_theta_star = -100;
 	Ht_ = 0;
 	std::fill_n(LeadPt_,20,-100.);
 	std::fill_n(LeadEta_,20,-100.);
@@ -128,6 +129,45 @@ void BasicTree::setPhysObjVariables(const TLorentzVector & Obj){
 	ObjP_[1] = doubleJetObj_.Py();
 	ObjP_[2] = doubleJetObj_.Pz();
 
+    //TEST//
+	TLorentzVector cms_dj_obj = doubleJetObj_;
+	TLorentzVector j1 = LeadJet_[0].p4();
+	TLorentzVector j2 = LeadJet_[1].p4();
+
+
+
+	TVector3 beta = {-doubleJetObj_.Px()/doubleJetObj_.E(),-doubleJetObj_.Py()/doubleJetObj_.E(),-doubleJetObj_.Pz()/doubleJetObj_.E()};
+
+	cms_dj_obj.Boost(beta);
+
+	//Boost jets:
+	j1.Boost(beta);
+	j2.Boost(beta);
+	cms_dj_obj = j1;
+
+
+	//If boost only along z
+//	TVector3 beta = {0,0,doubleJetObj_.Pz()/doubleJetObj_.E()};
+//	cms_dj_obj.Boost(beta);
+    //cms_dj_obj.SetPxPyPzE((doubleJetObj_.Px()),(doubleJetObj_.Py()),(doubleJetObj_.Pz()-doubleJetObj_.Beta()*doubleJetObj_.E())*doubleJetObj_.Gamma(),(doubleJetObj_.E()-doubleJetObj_.Pz()*doubleJetObj_.Beta())*doubleJetObj_.Gamma());
+
+	//general case:
+//	cms_dj_obj.
+//	double E_prime  =  doubleJetObj_.Gamma() * (doubleJetObj_.E() - beta.Dot(doubleJetObj_.Vect()));
+//	double px_prime =  doubleJetObj_.Px() + (doubleJetObj_.Gamma() - 1)/(doubleJetObj_.Beta()*doubleJetObj_.Beta()) * (beta.Dot(doubleJetObj_.Vect())) * beta.Px() - doubleJetObj_.Gamma()*beta.Px()*doubleJetObj_.E();
+//	double py_prime =  doubleJetObj_.Py() + (doubleJetObj_.Gamma() - 1)/(doubleJetObj_.Beta()*doubleJetObj_.Beta()) * (beta.Dot(doubleJetObj_.Vect())) * beta.Py() - doubleJetObj_.Gamma()*beta.Py()*doubleJetObj_.E();
+//	double pz_prime =  doubleJetObj_.Pz() + (doubleJetObj_.Gamma() - 1)/(doubleJetObj_.Beta()*doubleJetObj_.Beta()) * (beta.Dot(doubleJetObj_.Vect())) * beta.Pz() - doubleJetObj_.Gamma()*beta.Pz()*doubleJetObj_.E();
+//	cms_dj_obj.SetPxPyPzE(px_prime,py_prime,pz_prime,E_prime);
+
+//	std::cout<<cms_dj_obj.Pz() / cms_dj_obj.P()<< " " << tanh((LeadEta_[0] - LeadEta_[1])/2)<<" "<<cos(cms_dj_obj.Theta())<<" "<<cms_dj_obj.CosTheta()<<std::endl;
+
+    cos_theta_star = cms_dj_obj.CosTheta();
+//    std::cout<<"Px' = "<<(doubleJetObj_.Px()-Vcm*doubleJetObj_.E())*doubleJetObj_.Gamma()<<std::endl;
+//    std::cout<<"Py' = "<<(doubleJetObj_.Py()-Vcm*doubleJetObj_.E())*doubleJetObj_.Gamma()<<std::endl;
+//    std::cout<<"Pz' = "<<(doubleJetObj_.Pz()-Vcm*doubleJetObj_.E())*doubleJetObj_.Gamma()<<std::endl;
+
+    //
+
 }
 
 void BasicTree::setBranches(){
@@ -149,6 +189,7 @@ void BasicTree::setBranches(){
 	OutTree_->Branch("ObjPhi",&ObjPhi_,"ObjPhi/D");
 	OutTree_->Branch("ObjPt",&ObjPt_,"ObjPt/D");
 	OutTree_->Branch("ObjP",ObjP_,"ObjP[3]/D");
+	OutTree_->Branch("cos_theta_star",&cos_theta_star,"cos_theta_star/D");
 
 	if(is_mc_){
 		OutTree_->Branch("LeadFl",LeadFl_,"LeadFl[20]/I");
