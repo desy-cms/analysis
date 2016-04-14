@@ -51,7 +51,9 @@ namespace analysis {
             void Fill(const edm::Event&);
             void Init();
             void PileupInfo(const edm::InputTag&);
+            void GenEventInfo(const edm::InputTag&);
             void ReadPileupInfo(const edm::Event&);
+            void ReadGenEventInfo(const edm::Event&);
             TTree * Tree();
       
          private:
@@ -72,6 +74,17 @@ namespace analysis {
             bool do_pu_;
             int n_pu_;
             float n_true_pu_;
+            
+            // GenEventInfo
+            edm::InputTag genInfo_;
+            bool do_gen_;
+            double genWeight_;
+            double genScale_;
+            int    pdfid1_;
+            int    pdfid2_;
+            double pdfx1_;
+            double pdfx2_;
+            
             
       };
    }

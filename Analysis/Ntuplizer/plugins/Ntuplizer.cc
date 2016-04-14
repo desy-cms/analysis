@@ -76,6 +76,7 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 
 #include "Analysis/Ntuplizer/interface/EventFilter.h"
@@ -181,6 +182,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       bool do_genparticles_;
       bool do_jetstags_;
       bool do_pileupinfo_;
+      bool do_geneventinfo_;
       bool do_triggeraccepts_;
       bool do_primaryvertices_;
       bool do_eventfilter_;
@@ -221,6 +223,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       edm::InputTag genRunInfo_;
       
       edm::InputTag pileupInfo_;
+      edm::InputTag genEventInfo_;
      
       edm::EDGetTokenT<GenFilterInfo> genFilterInfoToken_;      
       edm::EDGetTokenT<edm::MergeableCounter> totalEventsToken_;      
@@ -228,6 +231,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       edm::EDGetTokenT<GenRunInfoProduct> genRunInfoToken_;
            
       edm::EDGetTokenT<std::vector<PileupSummaryInfo> > pileupInfoToken_;      
+      edm::EDGetTokenT<GenEventInfoProduct> genEventInfoToken_;      
       
       InputTags eventCounters_;
       
@@ -329,7 +333,8 @@ Ntuplizer::Ntuplizer(const edm::ParameterSet& config) //:   // initialization of
       if ( inputTag == "FilteredEvents" ) { filteredEventsToken_ = consumes<edm::MergeableCounter,edm::InLumi>(collection); filteredEvents_  = collection;}
       if ( inputTag == "GenRunInfo" )     { genRunInfoToken_     = consumes<GenRunInfoProduct,edm::InRun>(collection);      genRunInfo_      = collection;}
 
-      if ( inputTag == "PileupInfo" )     { pileupInfoToken_     = consumes<std::vector<PileupSummaryInfo> >(collection);                 pileupInfo_      = collection;}
+      if ( inputTag == "PileupInfo" )     { pileupInfoToken_     = consumes<std::vector<PileupSummaryInfo> >(collection);   pileupInfo_      = collection;}
+      if ( inputTag == "GenEventInfo" )   { genEventInfoToken_   = consumes<GenEventInfoProduct>(collection);               genEventInfo_    = collection;}
  
    }
 
@@ -435,6 +440,7 @@ void
 Ntuplizer::beginJob()
 {
    do_pileupinfo_       = config_.exists("PileupInfo") && is_mc_;
+   do_geneventinfo_     = config_.exists("GenEventInfo") && is_mc_;
    do_l1jets_           = config_.exists("L1ExtraJets");
    do_l1muons_          = config_.exists("L1ExtraMuons");
    do_calojets_         = config_.exists("CaloJets");
@@ -523,6 +529,8 @@ Ntuplizer::beginJob()
    eventinfo_ = pEventInfo (new EventInfo(eventsDir));
    if ( do_pileupinfo_ )
       eventinfo_ -> PileupInfo(config_.getParameter<edm::InputTag>("PileupInfo"));
+   if ( do_geneventinfo_ )
+      eventinfo_ -> GenEventInfo(config_.getParameter<edm::InputTag>("GenEventInfo"));
    
     // Metadata 
    metadata_ = pMetadata (new Metadata(fs,is_mc_));
