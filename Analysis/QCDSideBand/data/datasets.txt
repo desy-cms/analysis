@@ -1,0 +1,8 @@
+DoubleBTagSelection_76X_lowMTrigger_13_04_2016									1
+DoubleBTagSelection_76X_lowMTrigger_Pythia8_16_03_2016								0
+DoubleBTagSelection_76X_lowMTrigger_SUSYGluGluToBBHToBB_M-250_TuneCUETP8M1_13TeV-pythia8_29_03_2016		0
+DoubleBTagSelection_76X_lowMTrigger_SUSYGluGluToBBHToBB_M-300_TuneCUETP8M1_13TeV-pythia8_17_03_2016		0
+DoubleBTagSelection_76X_lowMTrigger_SUSYGluGluToBBHToBB_M-350_TuneCUETP8M1_13TeV-pythia8_29_03_2016		0
+DoubleBTagSelection_76X_lowMTrigger_SUSYGluGluToBBHToBB_M-400_TuneCUETP8M1_13TeV-pythia8_29_03_2016		0
+
+

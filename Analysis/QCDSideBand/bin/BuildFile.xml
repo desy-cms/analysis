@@ -1,0 +1,14 @@
+<use name="root"/>
+<use name="roofit"/>
+<use name="roostats"/>
+<use name="boost"/>
+<use name="boost_filesystem"/>
+<use name="boost_program_options"/>
+<use name="Analysis/QCDSideBand"/>
+
+<bin name="TripleBReverse" file="TripleBReverse.cc">
+<flags   LDFLAGS="-lCore -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lz -pthread -lm -ldl -rdynamic"/>
+</bin>
+
+
+
