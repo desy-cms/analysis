@@ -8,7 +8,7 @@ int test(){
 
 	TFile * fBg = new TFile("/nfs/dust/cms/user/shevchen/output/DoubleBTagSelection_76X_lowMTrigger_Pythia8_16_03_2016.root");
 	TFile * fData = new TFile("/nfs/dust/cms/user/shevchen/output/DoubleBTagSelection_76X_nodEta_lowMTrigger_Run2015D-16Dec2015-v1_08_04_2016.root");
-	TFile * fSignal = new TFile("/nfs/dust/cms/user/shevchen/output/DoubleBTagSelection_76X_New3dJetSelection_lowMTrigger_SUSYGluGluToBBHToBB_M-500_TuneCUETP8M1_13TeV-pythia8_13_04_2016.root");
+	TFile * fSignal = new TFile("/nfs/dust/cms/user/shevchen/output/DoubleBTagSelection_76X_New3dJetSelection_lowMTrigger_SUSYGluGluToBBHToBB_M-500_TuneCUETP8M1_13TeV-pythia8_14_04_2016.root");
 
 	TTree *dataTree, *mcBg, *mcSignal;
 	fSignal -> GetObject("MssmHbb",mcSignal);

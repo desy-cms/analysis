@@ -219,6 +219,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       edm::InputTag totalEvents_;
       edm::InputTag filteredEvents_;
       edm::InputTag genRunInfo_;
+      edm::InputTag genEventInfo_;
       
       edm::InputTag pileupInfo_;
      
@@ -226,6 +227,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       edm::EDGetTokenT<edm::MergeableCounter> totalEventsToken_;      
       edm::EDGetTokenT<edm::MergeableCounter> filteredEventsToken_;      
       edm::EDGetTokenT<GenRunInfoProduct> genRunInfoToken_;
+      edm::EDGetTokenT<GenEventInfoProduct> genEventInfoToken_;
            
       edm::EDGetTokenT<std::vector<PileupSummaryInfo> > pileupInfoToken_;      
       
@@ -328,6 +330,7 @@ Ntuplizer::Ntuplizer(const edm::ParameterSet& config) //:   // initialization of
       if ( inputTag == "TotalEvents" )    { totalEventsToken_    = consumes<edm::MergeableCounter,edm::InLumi>(collection); totalEvents_     = collection;}
       if ( inputTag == "FilteredEvents" ) { filteredEventsToken_ = consumes<edm::MergeableCounter,edm::InLumi>(collection); filteredEvents_  = collection;}
       if ( inputTag == "GenRunInfo" )     { genRunInfoToken_     = consumes<GenRunInfoProduct,edm::InRun>(collection);      genRunInfo_      = collection;}
+//      if ( inputTag == "GenEventInfo" )   { genEventInfoToken_   = consumes<GenEventInfoProduct,edm::InRun>(collection);      genEventInfo_      = collection;}
 
       if ( inputTag == "PileupInfo" )     { pileupInfoToken_     = consumes<std::vector<PileupSummaryInfo> >(collection);                 pileupInfo_      = collection;}
  

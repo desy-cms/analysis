@@ -56,6 +56,9 @@
 #include "TTree.h"
 
 
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+
+
 //
 // class declaration
 //
@@ -190,6 +193,13 @@ void Candidates<T>::Kinematics()
 
       if ( is_genparticle_ )
       {
+
+    	 edm::Handle<GenEventInfoProduct> HEPMC;
+    	 event.getByLabel(edm::InputTag("generator"), HEPMC);
+    	 x1_ 	= HEPMC->pdf()->x.first;
+    	 x2_   	= HEPMC->pdf()->x.second;
+    	 mHat_ 	= 6500*TMath::Sqrt((x1_+x2_)*(x1_+x2_)-(x1_-x2_)*(x1_-x2_));
+
          reco::GenParticle * gp = dynamic_cast<reco::GenParticle*> (&candidates_[i]);
          int pdg    = gp -> pdgId();
          int status = gp -> status();  // any status selection?
@@ -382,6 +392,10 @@ void Candidates<T>::Branches()
          tree_->Branch("status",status_,"status[n]/I");
          tree_->Branch("last_copy",lastcopy_,"last_copy[n]/O");
          tree_->Branch("higgs_dau",higgs_dau_,"higgs_dau[n]/O");
+
+         tree_->Branch("x1", &x1_, "x1/D");
+         tree_->Branch("x2", &x2_, "x2/D");
+         tree_->Branch("mHat", &mHat_, "mHat/D");
       }
       if ( is_patjet_ )
       {

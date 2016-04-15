@@ -213,7 +213,9 @@ readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 readFiles.extend( [
-	'/store/mc/RunIIFall15MiniAODv2/SUSYGluGluToBBHToTauTau_M-3200_TuneCUETP8M1_13TeV-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/20000/788D0EEF-28BF-E511-B312-00221981866E.root',
+	'/store/mc/RunIIFall15MiniAODv2/SUSYGluGluToBBHToBB_M-1100_TuneCUETP8M1_13TeV-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/10000/08569244-E4B8-E511-8D20-141877410E71.root',
+
+#	'/store/mc/RunIIFall15MiniAODv2/SUSYGluGluToBBHToTauTau_M-3200_TuneCUETP8M1_13TeV-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/20000/788D0EEF-28BF-E511-B312-00221981866E.root',
 
 #	'/store/mc/RunIIFall15MiniAODv2/SUSYGluGluToBBHToTauTau_M-100_TuneCUETP8M1_13TeV-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/20000/1C96EEF0-AFB8-E511-ABE3-0CC47A4C8F18.root',
 

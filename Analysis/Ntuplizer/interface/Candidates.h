@@ -106,6 +106,9 @@ namespace analysis {
             int status_[maxCandidates];
             bool lastcopy_[maxCandidates];
             bool higgs_dau_[maxCandidates];
+            double x1_;
+            double x2_;
+            double mHat_;
             
             // met specifics
             float sigxx_[maxCandidates];

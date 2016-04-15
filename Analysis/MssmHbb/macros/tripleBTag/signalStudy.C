@@ -32,6 +32,18 @@ int signalStudy(){
 	style.set(PRIVATE);
 	TH1::SetDefaultSumw2();
 
+	auto fLow500New 		= new TFile("/nfs/dust/cms/user/shevchen/output/DoubleBTagSelection_76X_New3dJetSelection_lowMTrigger_SUSYGluGluToBBHToBB_M-500_TuneCUETP8M1_13TeV-pythia8_14_04_2016.root");
+	auto fLow500NewLead 		= new TFile("/nfs/dust/cms/user/shevchen/output/TripleBTagSelection_76X_lowMTrigger_SUSYGluGluToBBHToBB_M-500_TuneCUETP8M1_13TeV-pythia8_29_03_2016.root");
+	auto fBgLow     	= new TFile("/nfs/dust/cms/user/shevchen/output/TripleBTagSelection_76X_lowMTrigger_Pythia8_29_03_2016.root");
+	auto fBgNew     	= new TFile("/nfs/dust/cms/user/shevchen/output/DoubleBTagSelection_76X_New3dJetSelection_lowMTrigger_Pythia8_14_04_2016.root");
+
+	std::string cut  	= "TMath::Sqrt((LeadEta[2]-LeadEta[0])*(LeadEta[2]-LeadEta[0]) + fabs(fabs(fabs(LeadPhi[2]-LeadPhi[0])-TMath::Pi())-TMath::Pi())*fabs(fabs(fabs(LeadPhi[2]-LeadPhi[0])-TMath::Pi())-TMath::Pi())) > 1.1 && TMath::Sqrt((LeadEta[2]-LeadEta[1])*(LeadEta[2]-LeadEta[1]) + fabs(fabs(fabs(LeadPhi[2]-LeadPhi[1])-TMath::Pi())-TMath::Pi())*fabs(fabs(fabs(LeadPhi[2]-LeadPhi[1])-TMath::Pi())-TMath::Pi())) > 1.1";
+
+	std::map<const int,MPoint *> pointNew;
+	pointNew[501]  = new MPoint(500,"New3dJet_pt>40",fLow500New,fBgNew);
+	pointNew[500]  = new MPoint(500,cut,fLow500NewLead,fBgLow);
+	/*
+
 	//Low M files
 	auto fLow100 		= new TFile("/nfs/dust/cms/user/shevchen/output/TripleBTagSelection_76X_lowMTrigger_SUSYGluGluToBBHToBB_M-100_TuneCUETP8M1_13TeV-pythia8_29_03_2016.root");
 	auto fLow120 		= new TFile("/nfs/dust/cms/user/shevchen/output/TripleBTagSelection_76X_lowMTrigger_SUSYGluGluToBBHToBB_M-120_TuneCUETP8M1_13TeV-pythia8_29_03_2016.root");
@@ -66,12 +78,12 @@ int signalStudy(){
 	auto fBgHigh     	= new TFile("/nfs/dust/cms/user/shevchen/output/TripleBTagSelection_76X_highMTrigger_Pythia8_29_03_2016.root");
 
 
-	/***************************74X************************* */
+	///***************************74X*************************
 	TFile * fSignal_300 = new TFile("/nfs/dust/cms/user/shevchen/output/TripleBTagSelection_M300_output_104_02_2016.root");
 	TFile * fSignal_600 = new TFile("/nfs/dust/cms/user/shevchen/output/TripleBTagSelection_M600_output_104_02_2016.root");
 	TFile * fSignal_1100 = new TFile("/nfs/dust/cms/user/shevchen/output/TripleBTagSelection_M1100_output_104_02_2016.root");
 	TFile * fBg			= new TFile("/nfs/dust/cms/user/shevchen/output/TripleBTagSelection_QCD_08_02_2016.root");
-	/******************************************************* */
+	///*******************************************************
 
 	std::map<const int,MPoint *> pointLowM;
 	pointLowM[100]  = new MPoint(100,general_weights,fLow100,fBgLow);
@@ -264,7 +276,8 @@ int signalStudy(){
 	TGraphErrors *RelEffdRScanLowM = new TGraphErrors(NdR);
 	RelEffdRScanLowM->SetTitle("Rel. Signal Efficiency Low M scenario, 40% M. window; #Delta R; #epsilon");
 	RelEffdRScanLowM = cutOptimisation(RelEffdRScanLowM,maxPoint,temp_point,dR,NdR,"( (sqrt( (LeadEta[0]-LeadEta[1])*(LeadEta[0]-LeadEta[1]) + (LeadPhi[0]-LeadPhi[1])*(LeadPhi[0]-LeadPhi[1]) )) > %f )*",parameter);
-/*
+
+	/*
 	//74X vs 76X btag3
 	auto can74Xvs76X = new TCanvas("can74Xvs76X","Signal Efficiency Low M",1200,800);
 	can74Xvs76X->Divide(3,3);
