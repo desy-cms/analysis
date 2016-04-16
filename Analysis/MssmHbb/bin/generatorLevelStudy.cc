@@ -25,7 +25,7 @@ int main(int argc, char * argv[])
 
    // Input files list
    //std::string inputList = "rootFileListBTagCSV.txt";
-   std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/76X/Pythia8_QCD/QCD_Pt_800to1000_TuneCUETP8M1_13TeV_pythia8.txt";
+   std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/76X/MSSMHbb/SUSYGluGluToBBHToBB_M-500_TuneCUETP8M1_13TeV-pythia8.txt";
    // Initialisation of MssmHbb class
    MssmHbb analysis(inputList);
 
@@ -59,8 +59,8 @@ int main(int argc, char * argv[])
    h["Fraction_pt"]			= new TH1D("Fraction_pt","",100,0.,1500);
    h["Fraction_eta"]		= new TH1D("Fraction_eta","",100,-3.,3.);
 
-   int counter = 0;
-   bool goodLeadingJets = true;
+//   int counter = 0;
+//   bool goodLeadingJets = true;
    // Analysis of events
 
    std::cout<<"Number of Entries: "<<analysis.size()<<std::endl;
@@ -86,7 +86,36 @@ int main(int argc, char * argv[])
       //Match offline Jets to online Objects
       if (!analysis.isMC()) analysis.match<Jet,TriggerObject>("Jets",analysis.getTriggerObjectNames());
 
-      if(offlineJets->size() < 2 )
+      std::vector<Jet> GenHBBJets;
+      //First associate gen jets with initiaal partons (higgs daughters)
+	  for(int iGenJet = 0; iGenJet < genJets->size(); ++iGenJet){
+		  Jet genJ = genJets->at(iGenJet);
+		  genJ.associatePartons(genParticles);
+		  for(int iGenPart = 0; iGenPart < genJ.partons().size(); iGenPart++){
+			  GenParticle p = genParticles->at(iGenPart);
+			  if(p.higgsDaughter() && std::abs(p.pdgId()) == 5){
+				  GenHBBJets.push_back(genJ);
+			  }
+		  }
+	  }
+
+
+
+      /*
+      for(int iGenPart = 0; iGenPart < genParticles->size();++iGenPart){
+    	  GenParticle p = genParticles->at(iGenPart);
+
+    	  if(p.higgsDaughter() && (p.pdgId() == 5 || p.pdgId() == -5) ){
+    		  //Find associated jet
+    		  for(int iGenJet = 0; iGenJet < genJets->size(); ++iGenJet){
+    			  Jet genJ = genJets->at(iGenJet);
+    			  genJ.associatePartons(genParticles);
+    		  }
+    	  }
+      }
+      */
+
+//      if(offlineJets->size() < 2 )
 
 
 
