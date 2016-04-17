@@ -1,0 +1,12 @@
+eclipse.preferences.version=1
+environment/project/0.2010774472/CPP/delimiter=\:
+environment/project/0.2010774472/CPP/operation=replace
+environment/project/0.2010774472/CPP/value=/usr/bin/cpp
+environment/project/0.2010774472/LD_LIBRARY_PATH/delimiter=\:
+environment/project/0.2010774472/LD_LIBRARY_PATH/operation=append
+environment/project/0.2010774472/LD_LIBRARY_PATH/value=/usr/local/root/lib
+environment/project/0.2010774472/ROOTSYS/delimiter=\:
+environment/project/0.2010774472/ROOTSYS/operation=append
+environment/project/0.2010774472/ROOTSYS/value=/usr/local/root/
+environment/project/0.2010774472/append=true
+environment/project/0.2010774472/appendContributed=true

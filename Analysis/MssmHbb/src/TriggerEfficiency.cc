@@ -33,7 +33,7 @@ using namespace boost::program_options;
 TriggerEfficiency::TriggerEfficiency(const int & argc, char * argv[]){
 
 	// Get CMSSW version
-	const auto cmsswBase = static_cast<std::string>(gSystem->Getenv("CMSSW_BASE"));
+	cmsswBase_ = static_cast<std::string>(gSystem->Getenv("CMSSW_BASE"));
 
 	// All options
 	options_description allOptions("Allowed arguments");
@@ -87,5 +87,41 @@ TriggerEfficiency::~TriggerEfficiency()
 {
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
+}
+
+void TriggerEfficiency::SetupAnalysis() {
+
+	if(!analysis_.isMC()) processJsonFile(input_map_["json_file"].as<std::string>());
+
+}
+
+void TriggerEfficiency::processJsonFile(const std::string & fileName)
+{
+	std::string scriptName = "source $CMSSW_BASE/src/Analysis/Tools/interface/strip.sh ";
+	std::system((scriptName + fileName).c_str());
+	const std::string modifidedJsonFileName("temp");
+    std::ifstream fileStream(modifidedJsonFileName, std::ifstream::in);
+    if (!fileStream.good())
+    {
+    	std::cerr<<"Error in Analysis.cc! Cannot find file with name: "<< fileName <<"\n...break\n"<<std::endl;
+        exit(12);
+    }
+    // Loop over all lines in ccFile
+    int checker = 0;
+    while(fileStream.good())
+    {
+    	// Read input File
+    	std::string line;
+    	std::getline(fileStream, line);
+    	// Loop over words in cc-File line and fill vWord
+    	std::vector<std::string> vWord;
+    	std::string word;
+    	for (std::stringstream ss(line); ss >> word; )
+    	{
+    	    vWord.push_back(word);
+    	}
+            goodLumi_[checker] = vWord;
+            checker ++;
+    }
 }
 

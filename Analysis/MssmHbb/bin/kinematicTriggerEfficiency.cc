@@ -13,6 +13,7 @@
 #include "TH2.h"
 #include "stdlib.h"
 
+#include "Analysis/MssmHbb/interface/MssmHbb.h"
 #include "Analysis/MssmHbb/interface/TriggerEfficiency.h"
 #include "Analysis/MssmHbb/interface/json.h"
 #include "Analysis/MssmHbb/interface/BTagCalibrationStandalone.h"
@@ -31,9 +32,6 @@ int main(int argc, char * argv[])
 
 	//Initialisation of TriggerEfficiency class
 	TriggerEfficiency analysis(argc,argv);
-
-	/*
-   if(!analysis.isMC()) analysis.processJsonFile("Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_v2.txt");
 
    // Add std::vector<std::string> of the Trigger Objects that you would like to apply.
    // Also Trigger Results name will be stored, according to the trigger objects names

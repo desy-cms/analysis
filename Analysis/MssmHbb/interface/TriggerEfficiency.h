@@ -51,10 +51,14 @@ namespace analysis {
 			TriggerEfficiency(const int & argc, char * argv[]);
 			~TriggerEfficiency();
 
+			void SetupAnalysis();
+			void processJsonFile(const std::string & fileName);
+
          	 protected:
 
 			po::variables_map input_map_;
 			Analysis *analysis_;
+			const auto cmsswBase_;
                
          	 private:
 
