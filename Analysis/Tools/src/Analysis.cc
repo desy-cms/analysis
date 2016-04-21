@@ -54,6 +54,14 @@ Analysis::Analysis(const std::string & inputFilelist, const std::string & evtinf
    it = std::find(branches.begin(),branches.end(),"nPileup");      if ( it != branches.end() ) t_event_  -> SetBranchAddress( (*it).c_str(), &n_pu_);
    it = std::find(branches.begin(),branches.end(),"nTruePileup");  if ( it != branches.end() ) t_event_  -> SetBranchAddress( (*it).c_str(), &n_true_pu_);
    
+   it = std::find(branches.begin(),branches.end(),"genWeight");    if ( it != branches.end() ) t_event_  -> SetBranchAddress( (*it).c_str(), &genWeight_);
+   it = std::find(branches.begin(),branches.end(),"genScale");     if ( it != branches.end() ) t_event_  -> SetBranchAddress( (*it).c_str(), &genScale_);
+   it = std::find(branches.begin(),branches.end(),"pdfid1");       if ( it != branches.end() ) t_event_  -> SetBranchAddress( (*it).c_str(), &pdf_.id.first);
+   it = std::find(branches.begin(),branches.end(),"pdfid2");       if ( it != branches.end() ) t_event_  -> SetBranchAddress( (*it).c_str(), &pdf_.id.second);
+   it = std::find(branches.begin(),branches.end(),"pdfx1");        if ( it != branches.end() ) t_event_  -> SetBranchAddress( (*it).c_str(), &pdf_.x.first);
+   it = std::find(branches.begin(),branches.end(),"pdfx2");        if ( it != branches.end() ) t_event_  -> SetBranchAddress( (*it).c_str(), &pdf_.x.second);
+   
+   
 //   t_event_ -> SetBranchAddress("nPileup", &n_pu_);
 //   t_event_ -> SetBranchAddress("nTruePileup", &n_true_pu_);
 
@@ -86,6 +94,13 @@ void Analysis::event(const int & event, const bool & addCollections)
    // Initialisation for backward compatibility
    n_pu_ = -1;
    n_true_pu_ = -1;
+   
+   genWeight_ = -1.;
+   genScale_  = -1.;
+   pdf_.id.first  = 0;
+   pdf_.id.second = 0;
+   pdf_.x.first  = -1.;
+   pdf_.x.second = -1.;
    
    t_event_ -> GetEntry(event);
    if ( !addCollections) return;
@@ -199,19 +214,13 @@ double Analysis::crossSection(const std::string & xs)
 
 double Analysis::luminosity()
 {
-	return (genfilter_.total / this -> crossSection() );
+	return (nevents_ / this -> crossSection() );
 }
 
 double Analysis::luminosity(const std::string & xs)
 {
 	if ( t_xsection_ == NULL ) return -1.;
-	return (genfilter_.total / this -> crossSection(xs));
-}
-
-double Analysis::luminosity(const double &xs)
-{
-	if ( t_xsection_ == NULL ) return -1.;
-	return (genfilter_.total / xs);
+	return (nevents_ / this -> crossSection(xs));
 }
 
 void   Analysis::listCrossSections()
@@ -242,10 +251,10 @@ FilterResults Analysis::generatorFilter(const std::string & path)
    t_genfilter_  = new TChain(path.c_str());
    t_genfilter_ -> AddFileInfoList(fileList_);
 
-   unsigned long int ntotal = 0;
-   unsigned long int nfiltered = 0;
-   unsigned long int sumtotal = 0;
-   unsigned long int sumfiltered = 0;
+   unsigned int ntotal;
+   unsigned int nfiltered;
+   unsigned int sumtotal = 0;
+   unsigned int sumfiltered = 0;
 
    t_genfilter_ -> SetBranchAddress("nEventsTotal", &ntotal);
    t_genfilter_ -> SetBranchAddress("nEventsFiltered", &nfiltered);
@@ -256,6 +265,7 @@ FilterResults Analysis::generatorFilter(const std::string & path)
       sumtotal += ntotal;
       sumfiltered += nfiltered;
    }
+
 
    genfilter_.total = sumtotal;
    genfilter_.filtered = sumfiltered;

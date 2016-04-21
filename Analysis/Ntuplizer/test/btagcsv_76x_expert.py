@@ -26,8 +26,8 @@ process.TFileService = cms.Service("TFileService",
 )
 
 
-## ============ TRIGGER FILTER =============== 
-## Enable below at cms.Path if needed 
+## ============ TRIGGER FILTER ===============
+## Enable below at cms.Path if needed
 process.triggerSelection = cms.EDFilter( "TriggerResultsFilter",
     triggerConditions = cms.vstring(
                         'HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v*',
@@ -46,30 +46,30 @@ process.triggerSelection = cms.EDFilter( "TriggerResultsFilter",
 
 
 ## ============ RE-APPLY JET ENERGY CORRECTIONS ===============   BE CAREFUL!!!
-## Enable below at cms.Path if needed 
+## Enable below at cms.Path if needed
 from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetCorrFactorsUpdated
 process.slimmedJetsCorrFactorsReapplyJEC = patJetCorrFactorsUpdated.clone(
   src = cms.InputTag("slimmedJets"),
-  levels = ['L1FastJet', 
-            'L2Relative', 
+  levels = ['L1FastJet',
+            'L2Relative',
             'L3Absolute'],
   payload = 'AK4PFchs' ) # Make sure to choose the appropriate levels and payload here!
 
 
 process.slimmedJetsPuppiCorrFactorsReapplyJEC = patJetCorrFactorsUpdated.clone(
   src = cms.InputTag("slimmedJetsPuppi"),
-  levels = ['L1FastJet', 
-            'L2Relative', 
+  levels = ['L1FastJet',
+            'L2Relative',
             'L3Absolute'],
   payload = 'AK4PFPuppi' ) # Make sure to choose the appropriate levels and payload here!
-  
+
 process.slimmedJetsAK8PFCorrFactorsReapplyJEC = patJetCorrFactorsUpdated.clone(
   src = cms.InputTag("slimmedJetsAK8PFCHSSoftDropPacked","SubJets","RECO"),
-  levels = ['L1FastJet', 
-            'L2Relative', 
+  levels = ['L1FastJet',
+            'L2Relative',
             'L3Absolute'],
   payload = 'AK8PFchs' ) # Make sure to choose the appropriate levels and payload here!
- 
+
 
 from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetsUpdated
 process.slimmedJetsReapplyJEC = patJetsUpdated.clone(
@@ -100,6 +100,26 @@ process.primaryVertexFilter = cms.EDFilter("VertexSelector",
    filter = cms.bool(True),   # otherwise it won't filter the events, just produce an empty vertex collection.
 )
 
+## ===========    JET N FILTER  ==============
+process.jetCounterFilter = cms.EDFilter("CandViewCountFilter",
+    src = cms.InputTag("slimmedJetsPuppiReapplyJEC"), # new slimmed Jets
+    minNumber = cms.uint32(2),
+    )
+
+## ============ KINEMATIC JET FILTER ===============
+process.jetKinematicFilter = cms.EDFilter("kinematicJetFilter",
+    src = cms.InputTag("slimmedJetsPuppiReapplyJEC"),
+    pt = cms.vdouble(85.,85.),
+    eta = cms.vdouble(2.5,2.5),
+)
+
+## ============ BTAG JET FILTER ===============
+process.jetBTagFilter = cms.EDFilter("btagJetFilter",
+    src = cms.InputTag("slimmedJetsPuppiReapplyJEC"),
+    algo = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
+    btag = cms.vdouble(0.5,0.5),
+)
+
 ## ============  THE NTUPLIZER!!!  ===============
 process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
     MonteCarlo      = cms.bool(False),
@@ -115,7 +135,7 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
                                     cms.InputTag("slimmedJetsReapplyJEC"),
                                     cms.InputTag("slimmedJetsPuppiReapplyJEC"),
                                     cms.InputTag("slimmedJetsAK8PFCHSSoftDropPackedReapplyJEC")
-                                    ), 
+                                    ),
     JECRecords      = cms.vstring  (
 #                                    "",
 #                                    "",
@@ -127,42 +147,42 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
     PatMETs         = cms.VInputTag(
                                     cms.InputTag("slimmedMETs"),
                                     cms.InputTag("slimmedMETsPuppi")
-                                    ), 
+                                    ),
     PatMuons        = cms.VInputTag(
                                     cms.InputTag("slimmedMuons")
-                                    ), 
+                                    ),
     PrimaryVertices = cms.VInputTag(
                                     cms.InputTag("offlineSlimmedPrimaryVertices")
-                                    ), 
+                                    ),
     BTagAlgorithms = cms.vstring   (
                                     "pfCombinedInclusiveSecondaryVertexV2BJetTags",
-                                     "combinedSecondaryVertexBJetTags",
-                                     "pfJetBProbabilityBJetTags",
-                                     "pfJetProbabilityBJetTags",
-                                     "pfTrackCountingHighPurBJetTags",
-                                     "pfTrackCountingHighEffBJetTags",
-                                     "pfSimpleSecondaryVertexHighEffBJetTags",
-                                     "pfSimpleSecondaryVertexHighPurBJetTags",
+#                                     "combinedSecondaryVertexBJetTags",
+#                                     "pfJetBProbabilityBJetTags",
+#                                     "pfJetProbabilityBJetTags",
+#                                     "pfTrackCountingHighPurBJetTags",
+#                                     "pfTrackCountingHighEffBJetTags",
+#                                     "pfSimpleSecondaryVertexHighEffBJetTags",
+#                                     "pfSimpleSecondaryVertexHighPurBJetTags",
                                      "pfCombinedSecondaryVertexV2BJetTags",
-                                     "pfCombinedSecondaryVertexSoftLeptonBJetTags",
+#                                     "pfCombinedSecondaryVertexSoftLeptonBJetTags",
                                      "pfCombinedMVAV2BJetTags",
                                    ),
     BTagAlgorithmsAlias = cms.vstring   (
                                          "btag_csvivf",
-                                          "btag_csv",
-                                          "btag_jetbprob",
-                                          "btag_jetprob",
-                                          "btag_tchp",
-                                          "btag_tche",
-                                          "btag_svhe",
-                                          "btag_svhp",
+#                                          "btag_csv",
+#                                          "btag_jetbprob",
+#                                          "btag_jetprob",
+#                                          "btag_tchp",
+#                                          "btag_tche",
+#                                          "btag_svhe",
+#                                          "btag_svhp",
                                           "btag_csvv2",
-                                          "btag_csvlep",
+#                                          "btag_csvlep",
                                           "btag_csvmva",
                                         ),
     TriggerResults  = cms.VInputTag(cms.InputTag("TriggerResults","","HLT")),
     TriggerPaths    = cms.vstring  (
-    ## I recommend using the version number explicitly to be able to compare 
+    ## I recommend using the version number explicitly to be able to compare
     ## however for production one has to be careful that all versions are included.
     ## Thinking of a better solution...
     								        'HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v',
@@ -199,18 +219,19 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
 
 process.p = cms.Path(
                       process.TotalEvents *
-                     #process.triggerSelection *      # switch off for BTagCSV 2015C
+                      process.triggerSelection *      # switch off for BTagCSV 2015C
                       process.primaryVertexFilter *
                       process.FilteredEvents *
                       process.slimmedJetsCorrFactorsReapplyJEC       * process. slimmedJetsReapplyJEC *
                       process.slimmedJetsPuppiCorrFactorsReapplyJEC  * process. slimmedJetsPuppiReapplyJEC *
                       process.slimmedJetsAK8PFCorrFactorsReapplyJEC  * process. slimmedJetsAK8PFCHSSoftDropPackedReapplyJEC *
+                      process.jetCounterFilter * process.jetKinematicFilter * process.jetBTagFilter *
                       process.MssmHbb
                     )
 
 
 readFiles = cms.untracked.vstring()
-secFiles = cms.untracked.vstring() 
+secFiles = cms.untracked.vstring()
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 
 readFiles.extend( [
@@ -234,4 +255,3 @@ secFiles.extend( [
 #JSONfile = 'Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt'
 #myLumis = LumiList.LumiList(filename = JSONfile).getCMSSWString().split(',')
 #process.source.lumisToProcess.extend(myLumis)
-

@@ -60,8 +60,15 @@ namespace analysis {
             int  lumiSection();
             bool isMC();
             
+            // PileupInfo
             int   nPileup();
             float nTruePileup();
+            
+            // GenEventInfo
+            double genWeight();
+            double genScale();
+            PDF    pdf();
+            
 
             // Trees
             template<class Object>
@@ -93,7 +100,6 @@ namespace analysis {
             // Luminosity
             double luminosity();
             double luminosity(const std::string & title);
-            double luminosity(const double & xSection);
 
             // Trigger results
             void triggerResults(const std::string & path);
@@ -136,6 +142,10 @@ namespace analysis {
             
             int n_pu_;
             float n_true_pu_;
+            
+            double genWeight_;
+            double genScale_;
+            PDF    pdf_;
 
             int nevents_;
 
@@ -279,6 +289,10 @@ namespace analysis {
       
       inline int   Analysis::nPileup()      { return n_pu_;      }
       inline float Analysis::nTruePileup()  { return n_true_pu_; }
+      
+      inline double Analysis::genWeight()   { return genWeight_; }
+      inline double Analysis::genScale()    { return genScale_;  }
+      inline PDF    Analysis::pdf()         { return pdf_;       }
       
 //      inline std::string Analysis::getGenParticleCollection() { return genParticleCollection_; }
 
