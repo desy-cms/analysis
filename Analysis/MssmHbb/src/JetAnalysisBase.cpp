@@ -9,112 +9,109 @@
 
 using namespace analysis;
 using namespace analysis::mssmhbb;
-using namespace boost::program_options;
 
-template <std::string str>
-JetAnalysisBase<str>::JetAnalysisBase(const int & argc, char * argv[]) {
-	// TODO Auto-generated constructor stub
-	// Get CMSSW version
-	cmsswBase_ = static_cast<std::string>(gSystem->Getenv("CMSSW_BASE"));
-	// All options
-	options_description allOptions("Allowed arguments");
-	//General command line options
-	options_description cmdLineOptions("Optional arguments");
-	cmdLineOptions.add_options()
-	    ("help,h", "Produce help message.")
-	    ("verbose,v", value<int>()->default_value(0), "More verbose output.")
-	    ("input_files,i", value<std::string>(),"Input .txt file with NTuples")
-	    ("output_file,o", value<std::string>(), "Output file name")
-		 ("json_file", value<std::string>()
-				 ->default_value(cmsswBase+"/src/Analysis/MssmHbb/bin/Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_v2.txt"),
-		 "Json file")
-	    ;
-	  store(command_line_parser(argc, argv).options(cmdLineOptions)
-	            .allow_unregistered().run(), input_map_);
-	  notify(input_map_);
+JetAnalysisBase::JetAnalysisBase(const std::string & inputFilelist, const std::string & evtinfo, const bool lowM) :
+								 Analysis(inputFilelist,evtinfo),
+								 lowM_(lowM),
+								 triggerLogicName_(){
 
-	  // Required options
-	  options_description requiredOptions("Required arguments");
-	  requiredOptions.add_options()
-	    ("jets_number,j",value<int>()->required(), "Number of requird jets")
-	    ;
-	  store(command_line_parser(argc, argv).options(requiredOptions)
-	            .allow_unregistered().run(), input_map_);
+	if(this->isMC()){
+		//Add specific to MC trees
+		this->addTree<GenParticle>("GenParticles","MssmHbb/Events/prunedGenParticles");
+		this->addtree<Jet>("GenJets","MssmHbb/Events/slimmedGenJets");
 
-	  allOptions.add(cmdLineOptions).add(requiredOptions);
+		// Add MC information:
+		this->crossSections("MssmHbb/Metadata/CrossSections");
+		this->generatorFilter("MssmHbb/Metadata/GeneratorFilter");
 
-	  if (input_map_.count("help")) {
-	    std::cout << allOptions << std::endl;
-	    exit(0);
-	  }
+		// Show MC information
+		this->listCrossSections();
+		this->listGeneratorFilter();
+	}
 
-	  try {
-	    notify(input_map_);
-	  } catch (const required_option& ex) {
-	    std::cerr << ex.what() << std::endl;
-	    exit(1);
-	  }
+	//Trigger trees
+	this->triggerResults("MssmHbb/Events/TriggerResults");
 
-	  analysis_ = new Analysis(input_map_["input_files"].as<std::string>());
+	// Tree for Jets
+	this->addTree<Jet> ("Jets","MssmHbb/Events/slimmedJetsPuppiReapplyJEC");
+
+	// Tree for Vertices
+	this->addTree<Vertex> ("Vertices","MssmHbb/Events/offlineSlimmedPrimaryVertices");
 
 }
-
-template <>
-JetAnalysisBase<"TriggerEfficiency">::JetAnalysisBase(const int & argc, char * argv[]) {
-	// TODO Auto-generated constructor stub
-	// Get CMSSW version
-	cmsswBase_ = static_cast<std::string>(gSystem->Getenv("CMSSW_BASE"));
-
-	// All options
-	options_description allOptions("Allowed arguments");
-
-	// general command line options
-	  options_description cmdLineOptions("Optional arguments");
-	  cmdLineOptions.add_options()
-	    ("help,h", "Produce help message.")
-	    ("verbose,v", value<int>()->default_value(0), "More verbose output.")
-	    ("input_files,i", value<std::string>()
-	    		->default_value("/nfs/dust/cms/user/shevchen/samples/miniaod/76X/JetHT/Run2015C_25ns-16Dec2015-v1.txt"),
-	     "Input .txt file with NTuples")
-	    ("output_file,o", value<std::string>()
-	    		->default_value(cmsswBase+"/src/Analysis/MssmHbb/output/TriggerEfficiency.root"),
-	     "Output file name")
-		 ("json_file", value<std::string>()
-				 ->default_value(cmsswBase+"/src/Analysis/MssmHbb/bin/Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_v2.txt"),
-		 "Json file")
-	    ;
-	  store(command_line_parser(argc, argv).options(cmdLineOptions)
-	            .allow_unregistered().run(), input_map_);
-	  notify(input_map_);
-
-	  // Required options
-	  options_description requiredOptions("Required arguments");
-	  requiredOptions.add_options()
-	    ("jets_number,j",value<int>()->required(), "Number of requird jets")
-	    ;
-	  store(command_line_parser(argc, argv).options(requiredOptions)
-	            .allow_unregistered().run(), input_map_);
-
-	  allOptions.add(cmdLineOptions).add(requiredOptions);
-
-	  if (input_map_.count("help")) {
-	    std::cout << allOptions << std::endl;
-	    exit(0);
-	  }
-
-	  try {
-	    notify(input_map_);
-	  } catch (const required_option& ex) {
-	    std::cerr << ex.what() << std::endl;
-	    exit(1);
-	  }
-
-	  analysis_ = new Analysis(input_map_["input_files"].as<std::string>());
-
-}
-
-
 
 JetAnalysisBase::~JetAnalysisBase() {
 	// TODO Auto-generated destructor stub
 }
+
+JetAnalysisBase::SetupAnalysis(const std::string & json){
+
+	this->processJsonFile(json);
+	this->loadCorrections();
+}
+
+void JetAnalysisBase::addTriggerObjects(const std::vector<std::string> &triggerObjectName, const std::string & path)
+{
+
+	if(triggerObjectName.size() == 0)
+	{
+		std::cerr<<"Error: Empty vector of triggerObjectNames were sepcified. Interupt!"<<std::endl;
+		exit(1);
+	}
+
+	//Add trees with different Trigger Objects and specify Trigger Logic name
+	for(const auto & triggerObject : triggerObjectName)
+	{
+		this->addTree<TriggerObject>(triggerObject,(path + triggerObject).c_str());
+	}
+}
+
+void JetAnalysisBase::loadCorrections(){
+
+	if(lowM_){
+		//Online BTag Trigger Efficiency produced by Ye Chen
+		fCorrections_["fRelBTagEff"] = pTFile(new TFile("input_corrections/RelOnlineBTagCSV0p9Eff_PtEta.root","read") );
+		hCorrections1D_["hRelBTagEff0p9"] 		=	pTH1D (fCorrections_["fRelBTagEff"] -> Get("heh4") );			// eta <0.9
+		hCorrections1D_["hRelBTagEff0p9_1p4"] 	=	pTH1D (fCorrections_["fRelBTagEff"] -> Get("heh3") );		// 1.4 > eta >0.9
+		hCorrections1D_["hRelBTagEff1p4_2p5"] 	= 	pTH1D (fCorrections_["fRelBTagEff"] -> Get("heh2") );		// 2.5 > eta > 1.4
+
+		//Online Pt trigger efficiency:
+		fCorrections_["fPtTriggerEff"] = pTFile (new TFile("input_corrections/TwoDPtLowMassEfficiency.root","read") );
+		hCorrections2D_["hPtTriggerEff"] = pTH2D ( fCorrections_["fPtTriggerEff"] ->Get("TwoDEff_Num") ); // 2D
+
+		// Add Ht reweighting:
+		fCorrections_["fHtWeight"] = pTFile (new TFile("input_corrections/HtRatio.root","read") );
+		hCorrections1D_["hHtWeight"] = pTH1D ( fCorrections_["fHtWeight"] -> Get("hRatio") );
+	}
+	else {
+
+		// For high mass trigger only 2D efficiency were provided
+		fCorrections_["fRelBTagEff"] = pTFile (new TFile("input_corrections/TwoDBTagCSV0p85_2D_PtEta.root","read") );
+		hCorrections2D_["hRelBTagEff2D"] = pTH2D( fCorrections_["fRelBTagEff"] ->Get("h2ehn") );
+
+		//Online Pt trigger efficiency:
+		fCorrections_["fPtTriggerEff"] = pTFile (new TFile("input_corrections/TwoDPtHighMassEfficiency.root","read") );
+		hCorrections2D_["hPtTriggerEff"]  = pTH2D (fCorrections_["fPtTriggerEff"] ->Get("TwoDEff_Num") ); // 2D
+
+		// Add Ht reweighting:
+		fCorrections_["fHtWeight"] = pTFile (new TFile("input_corrections/HtRatio.root","read") );
+		hCorrections1D_["hHtWeight"] = pTH1D ( fCorrections_["fHtWeight"] -> Get("hRatio") );
+
+	}
+
+	BTagCalibrationLib_ = std::unique_ptr<BTagCalibration> (new BTagCalibration("csvv2", "input_corrections/SFbLib.csv") );
+	SFb_["J12_central"] = pSFReader (new BTagCalibrationReader(BTagCalibrationLib_,               // calibration instance
+            													BTagEntry::OP_TIGHT,  // operating point
+																"mujets",               // measurement type
+																"central"));           // systematics type);
+	SFb_["J12_up"] = pSFReader (new BTagCalibrationReader(BTagCalibrationLib_, BTagEntry::OP_TIGHT, "mujets", "up") );
+	SFb_["J12_down"] = pSFReader (new BTagCalibrationReader(BTagCalibrationLib_, BTagEntry::OP_TIGHT, "mujets", "down") );
+
+	SFb_["J3_central"] = pSFReader (new BTagCalibrationReader(BTagCalibrationLib_, BTagEntry::OP_LOOSE, "mujets", "central") );
+	SFb_["J3_up"] = pSFReader (new BTagCalibrationReader(BTagCalibrationLib_, BTagEntry::OP_LOOSE, "mujets", "up") );
+	SFb_["J3_down"] = pSFReader (new BTagCalibrationReader(BTagCalibrationLib_, BTagEntry::OP_LOOSE, "mujets", "down") );
+
+}
+
+
+
