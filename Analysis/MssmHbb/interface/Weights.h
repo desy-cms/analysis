@@ -20,22 +20,22 @@ public:
 	double FactorizationPtWeight(const double & pt1, const double &pt2);
 
 	// 2D Pt trigger Efficiency weight
-	double TwoDPtWeight(TH2F *histo, const double &pt1, const double &pt2);
+	double TwoDPtWeight(TH2 *histo, const double &pt1, const double &pt2);
 
 	// dEta trigger efficiency weight
 	double dEtaWeight(const double & dEta);
 
 	// Online BTag trigger efficiency
-	double BTagWeight(TH1F * low_eta, TH1F * middle_eta, TH1F * high_eta, const double & pt, const double & eta);
-	double BTagWeight(TH2F * pt_eta, const double & pt, const double & eta);
+	double BTagWeight(TH1 * low_eta, TH1 * middle_eta, TH1 * high_eta, const double & pt, const double & eta);
+	double BTagWeight(TH2 * pt_eta, const double & pt, const double & eta);
 
 	// PileUp weight
-	double PileUpWeight(TH1F * data, TH1F * mc, const double &NTruePileUpMC);
-	double PileUpWeight(TH1F * data, const double & N_mc, const double &NTruePileUpMC);
-//	double PileUpWeight(TH1F * data, TH1F * mc);																	// Could be used after the first call
+	double PileUpWeight(TH1 * data, TH1 * mc, const double &NTruePileUpMC);
+	double PileUpWeight(TH1 * data, const double & N_mc, const double &NTruePileUpMC);
+//	double PileUpWeight(TH1 * data, TH1 * mc);																	// Could be used after the first call
 
 	// Ht weight
-	double HtWeight(TH1F * histo, const double & Ht);
+	double HtWeight(TH1 * histo, const double & Ht);
 
 	// Luminosity normalisation
 	double LumiWeight(const double & data_lumi, const double & mc_lumi);

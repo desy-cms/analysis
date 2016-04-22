@@ -5,8 +5,8 @@
  *      Author: shevchen
  */
 
-#include "TH1F.h"
-#include "TH2F.h"
+#include "TH1.h"
+#include "TH2.h"
 #include <iostream>
 
 #include "cmath"
@@ -46,7 +46,7 @@ double Weights::FactorizationPtWeight(const double & pt1, const double & pt2){
 	return weight;
 }
 
-double Weights::TwoDPtWeight(TH2F *histo, const double & pt1, const double & pt2){
+double Weights::TwoDPtWeight(TH2 *histo, const double & pt1, const double & pt2){
 
 	if(histo==0){
 		std::cerr<<"Error: in Weights::TwoDPtWeight empty weight histogram"<<std::endl;
@@ -83,7 +83,7 @@ double Weights::dEtaWeight(const double & dEta){
 	return weight;
 }
 
-double Weights::BTagWeight(TH1F * low_eta, TH1F * middle_eta, TH1F * high_eta, const double & pt, const double &eta){
+double Weights::BTagWeight(TH1 * low_eta, TH1 * middle_eta, TH1 * high_eta, const double & pt, const double &eta){
 
 	if(low_eta == 0 || middle_eta == 0 || high_eta == 0){
 		std::cerr<<"Error: in Weights::BTagWeight empty weight histogram"<<std::endl;
@@ -112,7 +112,7 @@ double Weights::BTagWeight(TH1F * low_eta, TH1F * middle_eta, TH1F * high_eta, c
 	return weight;
 }
 
-double Weights::BTagWeight(TH2F *pt_eta, const double &pt, const double & eta){
+double Weights::BTagWeight(TH2 *pt_eta, const double &pt, const double & eta){
 
 	if(pt_eta == 0){
 		std::cerr<<"Error: in Weights::BTagWeight empty weight histogram"<<std::endl;
@@ -131,15 +131,15 @@ double Weights::BTagWeight(TH2F *pt_eta, const double &pt, const double & eta){
 	return weight;
 }
 
-double Weights::PileUpWeight(TH1F *data, TH1F *mc, const double & NTruePileUpMC){
+double Weights::PileUpWeight(TH1 *data, TH1 *mc, const double & NTruePileUpMC){
 	if(data==0 || mc ==0){
 		std::cerr<<"Error: in Weights::PileUpWeight empty weight histogram"<<std::endl;
 		exit(1);
 	}
 	double weight = 0;
 
-	auto hData = (TH1F*) data->Clone("hData");
-	auto hMc   = (TH1F*) mc->Clone("hMc");
+	auto hData = (TH1*) data->Clone("hData");
+	auto hMc   = (TH1*) mc->Clone("hMc");
 
 	//Scale to 1
 
@@ -158,7 +158,7 @@ double Weights::PileUpWeight(TH1F *data, TH1F *mc, const double & NTruePileUpMC)
 	return weight;
 }
 
-double Weights::PileUpWeight(TH1F *data, const double & N_mc, const double & NTruePileUpMC){
+double Weights::PileUpWeight(TH1 *data, const double & N_mc, const double & NTruePileUpMC){
 	if(data==0){
 		std::cerr<<"Error: in Weights::PileUpWeight empty weight histogram"<<std::endl;
 		exit(1);
@@ -173,7 +173,7 @@ double Weights::PileUpWeight(TH1F *data, const double & N_mc, const double & NTr
 }
 
 /*
-double Weights::PileUpWeight(TH1F *data, TH1F *mc, const double & NTruePileUpMC){
+double Weights::PileUpWeight(TH1 *data, TH1 *mc, const double & NTruePileUpMC){
 
 	if(data==0 || mc ==0){
 		std::cerr<<"Error: in Weights::PileUpWeight empty weight histogram"<<std::endl;
@@ -192,7 +192,7 @@ double Weights::PileUpWeight(TH1F *data, TH1F *mc, const double & NTruePileUpMC)
 	return weight;
 }
 
-double Weights::PileUpWeight(TH1F *data, TH1F *mc){
+double Weights::PileUpWeight(TH1 *data, TH1 *mc){
 
 	if(data==0 || mc ==0){
 		std::cerr<<"Error: in Weights::PileUpWeight empty weight histogram"<<std::endl;
@@ -210,7 +210,7 @@ double Weights::PileUpWeight(TH1F *data, TH1F *mc){
 }
 */
 
-double Weights::HtWeight(TH1F * histo, const double &Ht){
+double Weights::HtWeight(TH1 * histo, const double &Ht){
 
 	if(histo==0){
 		std::cerr<<"Error: in Weights::HtWeight empty weight histogram"<<std::endl;

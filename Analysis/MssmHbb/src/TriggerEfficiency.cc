@@ -4,8 +4,8 @@
  *  Created on: 17 апр. 2016 г.
  *      Author: rostyslav
  */
-
-#include "JetAnalysisBase.h"
+/*
+#include "Analysis/MssmHbb/interface/JetAnalysisBase.h"
 
 using namespace analysis;
 using namespace analysis::mssmhbb;
@@ -118,3 +118,4 @@ JetAnalysisBase<"TriggerEfficiency">::JetAnalysisBase(const int & argc, char * a
 JetAnalysisBase::~JetAnalysisBase() {
 	// TODO Auto-generated destructor stub
 }
+/**/
