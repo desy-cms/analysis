@@ -221,11 +221,11 @@ process.p = cms.Path(
                       process.TotalEvents *
                       process.triggerSelection *      # switch off for BTagCSV 2015C
                       process.primaryVertexFilter *
-                      process.FilteredEvents *
                       process.slimmedJetsCorrFactorsReapplyJEC       * process. slimmedJetsReapplyJEC *
                       process.slimmedJetsPuppiCorrFactorsReapplyJEC  * process. slimmedJetsPuppiReapplyJEC *
                       process.slimmedJetsAK8PFCorrFactorsReapplyJEC  * process. slimmedJetsAK8PFCHSSoftDropPackedReapplyJEC *
-                      process.jetCounterFilter * process.jetKinematicFilter * process.jetBTagFilter *
+		              process.jetCounterFilter * process.jetKinematicFilter * process.jetBTagFilter *
+                      process.FilteredEvents *
                       process.MssmHbb
                     )
 
