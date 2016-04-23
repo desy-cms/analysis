@@ -14,7 +14,7 @@ using namespace analysis::mssmhbb;
 JetAnalysisBase::JetAnalysisBase(const std::string & inputFilelist, const std::string & evtinfo, const bool & lowM, const bool & test) :
 								 Analysis(inputFilelist,evtinfo),
 								 lowM_(lowM),
-								 triggerLogicName_("HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v"),
+								 triggerLogicName_(""),
 								 nJets_(1),
 								 TEST(test){
 	if(this->isMC()){
@@ -56,6 +56,7 @@ void JetAnalysisBase::setupAnalysis(const std::string & json){
 void JetAnalysisBase::applySelection(){
 
 	if(TEST) std::cout<<"I'm in applySelection"<<std::endl;
+	if(TEST) std::cout<<"NJets: "<<nJets_<<std::endl;
 
 	bool goodLeadingJets = false;
 	TLorentzVector diJetObject;
@@ -131,33 +132,31 @@ void JetAnalysisBase::applySelection(){
         	  // selection depends criterias inside.
         	  weight_["FactorPt"] 		= pWeight_->FactorizationPtWeight(LeadJet[0].pt(), LeadJet[1].pt());
         	  weight_["dEta"]     		= pWeight_->dEtaWeight(abs(LeadJet[0].eta() - LeadJet[1].eta()));
-        	  weight_["2DPt"]     		= pWeight_->TwoDPtWeight(hCorrections2D_["hPtTriggerEff"].get(),LeadJet[0].pt(),LeadJet[1].pt());
+        	  weight_["2DPt"]     		= pWeight_->TwoDPtWeight(hCorrections2D_["hPtTriggerEff"],LeadJet[0].pt(),LeadJet[1].pt());
         	  //TODO: Data luminosity!!!
         	  weight_["Lumi"] 			=pWeight_->LumiWeight(2318.278306,this->luminosity());
-        	  weight_["Ht"]       		= pWeight_->HtWeight(hCorrections1D_["hHtWeight"].get(),Ht);
-        	  weight_["PileUpCentral"] 	= pWeight_->PileUpWeight(hCorrections1D_["fPipeUpData_central"].get(),hCorrections1D_["fPipeUpMC"].get(),this->nTruePileup());
-        	  weight_["PileUpDown"]    	= pWeight_->PileUpWeight(hCorrections1D_["fPipeUpData_down"].get(),hCorrections1D_["fPipeUpMC"].get(),this->nTruePileup());
-        	  weight_["PileUpUp"]      	= pWeight_->PileUpWeight(hCorrections1D_["fPipeUpData_up"].get(),hCorrections1D_["fPipeUpMC"].get(),this->nTruePileup());
+        	  weight_["Ht"]       		= pWeight_->HtWeight(hCorrections1D_["hHtWeight"],Ht);
+        	  weight_["PileUpCentral"] 	= pWeight_->PileUpWeight(hCorrections1D_["fPipeUpData_central"],hCorrections1D_["fPipeUpMC"],this->nTruePileup());
+        	  weight_["PileUpDown"]    	= pWeight_->PileUpWeight(hCorrections1D_["fPipeUpData_down"],hCorrections1D_["fPipeUpMC"],this->nTruePileup());
+        	  weight_["PileUpUp"]      	= pWeight_->PileUpWeight(hCorrections1D_["fPipeUpData_up"],hCorrections1D_["fPipeUpMC"],this->nTruePileup());
 
         	  //Selection depending weights
         	  if(lowM_){
-            	  weight_["BTag"] = pWeight_->BTagWeight(hCorrections1D_["hRelBTagEff0p9"].get(),hCorrections1D_["hRelBTagEff0p9_1p4"].get(),hCorrections1D_["hRelBTagEff1p4_2p5"].get(),LeadJet[0].pt(),LeadJet[0].eta()) *
-            			  	  	   pWeight_->BTagWeight(hCorrections1D_["hRelBTagEff0p9"].get(),hCorrections1D_["hRelBTagEff0p9_1p4"].get(),hCorrections1D_["hRelBTagEff1p4_2p5"].get(),LeadJet[1].pt(),LeadJet[1].eta());
+            	  weight_["BTag"] = pWeight_->BTagWeight(hCorrections1D_["hRelBTagEff0p9"],hCorrections1D_["hRelBTagEff0p9_1p4"],hCorrections1D_["hRelBTagEff1p4_2p5"],LeadJet[0].pt(),LeadJet[0].eta()) *
+            			  	  	   pWeight_->BTagWeight(hCorrections1D_["hRelBTagEff0p9"],hCorrections1D_["hRelBTagEff0p9_1p4"],hCorrections1D_["hRelBTagEff1p4_2p5"],LeadJet[1].pt(),LeadJet[1].eta());
         	  }
         	  else {
-            	  weight_["BTag"] = pWeight_->BTagWeight(hCorrections2D_["hRelBTagEff2D"].get(), LeadJet[0].pt(),LeadJet[0].eta())*
-            			  	  	   pWeight_->BTagWeight(hCorrections2D_["hRelBTagEff2D"].get(), LeadJet[1].pt(), LeadJet[1].eta());
+            	  weight_["BTag"] = pWeight_->BTagWeight(hCorrections2D_["hRelBTagEff2D"], LeadJet[0].pt(),LeadJet[0].eta())*
+            			  	  	   pWeight_->BTagWeight(hCorrections2D_["hRelBTagEff2D"], LeadJet[1].pt(), LeadJet[1].eta());
         	  }
 
 	    }
 
-	    diJetObject = LeadJet[0].p4() + LeadJet[1].p4();
 	    std::cout<<"I'm in applySelection Fill"<<std::endl;
-
-	    (histo_.getHisto())["jet_pt1"]->Fill(LeadJet[0].pt());
+	    fillHistograms(LeadJet[0],LeadJet[1]);
 
 	}
-	(histo_.getHisto())["jet_pt1"]->Write();
+	this->writeHistograms();
 	outputFile_->Close();
 
 }
@@ -215,42 +214,42 @@ void JetAnalysisBase::loadCorrections(){
 	if(lowM_){
 		//Online BTag Trigger Efficiency produced by Ye Chen
 		fCorrections_["fRelBTagEff"] = pTFile(new TFile("input_corrections/RelOnlineBTagCSV0p9Eff_PtEta.root","read") );
-		hCorrections1D_["hRelBTagEff0p9"] 		=	pTH1D ( (TH1D*) fCorrections_["fRelBTagEff"] -> Get("heh4") );			// eta <0.9
-		hCorrections1D_["hRelBTagEff0p9_1p4"] 	=	pTH1D ((TH1D*) fCorrections_["fRelBTagEff"] -> Get("heh3") );		// 1.4 > eta >0.9
-		hCorrections1D_["hRelBTagEff1p4_2p5"] 	= 	pTH1D ((TH1D*) fCorrections_["fRelBTagEff"] -> Get("heh2") );		// 2.5 > eta > 1.4
+		hCorrections1D_["hRelBTagEff0p9"] 		=	  (TH1D*) fCorrections_["fRelBTagEff"] -> Get("heh4") ;			// eta <0.9
+		hCorrections1D_["hRelBTagEff0p9_1p4"] 	=	 (TH1D*) fCorrections_["fRelBTagEff"] -> Get("heh3") ;		// 1.4 > eta >0.9
+		hCorrections1D_["hRelBTagEff1p4_2p5"] 	= 	 (TH1D*) fCorrections_["fRelBTagEff"] -> Get("heh2") ;		// 2.5 > eta > 1.4
 
 		//Online Pt trigger efficiency:
 		fCorrections_["fPtTriggerEff"] = pTFile (new TFile("input_corrections/TwoDPtLowMassEfficiency.root","read") );
-		hCorrections2D_["hPtTriggerEff"] = pTH2D ((TH2D*) fCorrections_["fPtTriggerEff"] ->Get("TwoDEff_Num") ); // 2D
+		hCorrections2D_["hPtTriggerEff"] = (TH2D*) fCorrections_["fPtTriggerEff"] ->Get("TwoDEff_Num") ; // 2D
 
 		// Add Ht reweighting:
 		fCorrections_["fHtWeight"] = pTFile (new TFile("input_corrections/HtRatio.root","read") );
-		hCorrections1D_["hHtWeight"] = pTH1D ((TH1D*) fCorrections_["fHtWeight"] -> Get("hRatio") );
+		hCorrections1D_["hHtWeight"] =  (TH1D*) fCorrections_["fHtWeight"] -> Get("hRatio") ;
 
 	}
 	else {
 
 		// For high mass trigger only 2D efficiency were provided
 		fCorrections_["fRelBTagEff"] = pTFile (new TFile("input_corrections/TwoDBTagCSV0p85_2D_PtEta.root","read") );
-		hCorrections2D_["hRelBTagEff2D"] = pTH2D((TH2D*) fCorrections_["fRelBTagEff"] ->Get("h2ehn") );
+		hCorrections2D_["hRelBTagEff2D"] = (TH2D*) fCorrections_["fRelBTagEff"] ->Get("h2ehn") ;
 
 		//Online Pt trigger efficiency:
 		fCorrections_["fPtTriggerEff"] = pTFile (new TFile("input_corrections/TwoDPtHighMassEfficiency.root","read") );
-		hCorrections2D_["hPtTriggerEff"]  = pTH2D ((TH2D*) fCorrections_["fPtTriggerEff"] ->Get("TwoDEff_Num") ); // 2D
+		hCorrections2D_["hPtTriggerEff"]  = (TH2D*) fCorrections_["fPtTriggerEff"] ->Get("TwoDEff_Num"); // 2D
 
 		// Add Ht reweighting:
 		fCorrections_["fHtWeight"] = pTFile (new TFile("input_corrections/HtRatio.root","read") );
-		hCorrections1D_["hHtWeight"] = pTH1D ((TH1D*) fCorrections_["fHtWeight"] -> Get("hRatio") );
+		hCorrections1D_["hHtWeight"] =  (TH1D*) fCorrections_["fHtWeight"] -> Get("hRatio") ;
 
 	}
 	fCorrections_["fPipeUpData_central"] = pTFile(new TFile("input_corrections/PileUp_2015Dec_central.root","read") );
 	fCorrections_["fPipeUpData_up"] = pTFile(new TFile("input_corrections/PileUp_2015Dec_up.root","read") );
 	fCorrections_["fPipeUpData_down"] = pTFile(new TFile("input_corrections/PileUp_2015Dec_down.root","read") );
-	hCorrections1D_["hPileUpData_central"] = pTH1D((TH1D*) fCorrections_["fPipeUpData_central"]->Get("pileup"));
-	hCorrections1D_["hPileUpData_up"] = pTH1D((TH1D*) fCorrections_["fPipeUpData_up"]->Get("pileup"));
-	hCorrections1D_["hPileUpData_down"] = pTH1D((TH1D*) fCorrections_["fPipeUpData_down"]->Get("pileup"));
+	hCorrections1D_["hPileUpData_central"] = (TH1D*) fCorrections_["fPipeUpData_central"]->Get("pileup");
+	hCorrections1D_["hPileUpData_up"] = (TH1D*) fCorrections_["fPipeUpData_up"]->Get("pileup");
+	hCorrections1D_["hPileUpData_down"] = (TH1D*) fCorrections_["fPipeUpData_down"]->Get("pileup");
 	fCorrections_["fPipeUpMC"] = pTFile(new TFile("input_corrections/MC_Fall15_PU25_V1.root","read") );
-	hCorrections1D_["hPileUpMC"] = pTH1D((TH1D*) fCorrections_["fPipeUpMC"] -> Get("pileup") );
+	hCorrections1D_["hPileUpMC"] = (TH1D*) fCorrections_["fPipeUpMC"] -> Get("pileup") ;
 
 
 
@@ -360,3 +359,28 @@ void JetAnalysisBase::createOutputFile(const std::string &name){
 	std::cout<<"File: "<<name<<" was created"<<std::endl;
 }
 
+void JetAnalysisBase::writeHistograms(){
+
+	for(const auto & h : histo_.getHisto()){
+		if(h.second->GetEntries() != 0) h.second->Write();
+	}
+
+}
+
+void JetAnalysisBase::fillHistograms(const tools::Jet &jet1, const tools::Jet &jet2){
+	auto weight = 0;
+	if(isMC()) weight = weight_["dEta"] * weight_["Lumi"];
+	else weight = 1;
+	(histo_.getHisto())["jet_pt1"]->Fill(jet1.pt(),weight);
+	(histo_.getHisto())["jet_eta1"]->Fill(jet1.eta(),weight);
+	(histo_.getHisto())["jet_pt2"]->Fill(jet2.pt(),weight);
+	(histo_.getHisto())["jet_eta2"]->Fill(jet2.eta(),weight);
+	(histo_.getHisto())["jet_deta12"]->Fill(jet1.eta() - jet2.eta(),weight);
+	(histo_.getHisto())["jet_dR12"]->Fill(jet1.deltaR(jet2),weight);
+
+	TLorentzVector obj12;
+	obj12 = jet1.p4() + jet2.p4();
+	(histo_.getHisto())["diJet_pt"]->Fill(obj12.Pt(),weight);
+	(histo_.getHisto())["diJet_eta"]->Fill(obj12.Eta(),weight);
+
+}

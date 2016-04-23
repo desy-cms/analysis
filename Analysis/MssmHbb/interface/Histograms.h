@@ -20,9 +20,6 @@
 
 #include "stdlib.h"
 
-typedef std::shared_ptr<TH1> pTH1;
-typedef std::shared_ptr<TEfficiency> pTEff;
-
 	class Histograms {
 	public:
 		Histograms();
@@ -30,12 +27,12 @@ typedef std::shared_ptr<TEfficiency> pTEff;
 
 		void Make(const int &size = 100);
 
-		std::map<std::string, std::shared_ptr<TEfficiency> >& getEff();
-		std::map<std::string, std::shared_ptr<TH1> >& getHisto();
+		std::map<std::string, TEfficiency* >& getEff();
+		std::map<std::string, TH1 * >& getHisto();
 
 	protected:
-		std::map<std::string,std::shared_ptr<TH1> > histo_;
-		std::map<std::string,std::shared_ptr<TEfficiency> > eff_;
+		std::map<std::string,TH1* > histo_;
+		std::map<std::string,TEfficiency* > eff_;
 
 	};
 

@@ -37,8 +37,6 @@
 
 
 //TODO: Add template arguments to unique_ptr depending on the TH type
-typedef std::unique_ptr<TH1D> pTH1D;
-typedef std::unique_ptr<TH2D> pTH2D;
 typedef std::unique_ptr<TFile> pTFile;
 typedef std::unique_ptr<BTagCalibrationReader> pSFReader;
 
@@ -83,6 +81,9 @@ namespace analysis{
         	double down;
         };
 
+        //Return std::vector that contains names of all trigger objects
+        std::vector<std::string> getTriggerObjectNames();
+
 	protected:
 
         const bool lowM_;
@@ -92,14 +93,13 @@ namespace analysis{
         const bool TEST;
 
         //Protected methods
-        std::vector<std::string> getTriggerObjectNames();
+        virtual void fillHistograms(const tools::Jet &LeadingJet, const tools::Jet &sub_LeadingJet);
+        virtual void writeHistograms();
         virtual bool leadingJetSelection(const int & iJet, const tools::Jet & Jet);
         //Scale Factors calculation
         const ScaleFactor calculateBTagSF(const tools::Jet & Jet, const bool & thirdJ);
         //Trigger Selection
         virtual bool OnlineSelection(const analysis::tools::Jet &fLeadOfflineJet,const analysis::tools::Jet &sLeadOfflineJet);
-
-
 
 	private:
 
@@ -109,8 +109,8 @@ namespace analysis{
         std::map<std::string, double > weight_;
         std::vector<std::string> triggerObjectName_;
         std::map<std::string,pTFile> fCorrections_;
-        std::map<std::string,pTH1D>  hCorrections1D_;
-        std::map<std::string,pTH2D>  hCorrections2D_;
+        std::map<std::string,TH1D *>  hCorrections1D_;
+        std::map<std::string,TH2D *>  hCorrections2D_;
         std::map<std::string,pSFReader > SFb_;
         std::unique_ptr<BTagCalibration> BTagCalibrationLib_;
 
