@@ -29,11 +29,15 @@ using namespace analysis::tools;
 int main(int argc, char * argv[])
 {
 	TH1::SetDefaultSumw2();  // proper treatment of errors when scaling histograms
+	TH1::AddDirectory(0);
 
-	std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/76X/BTagCSVData/Run2015C_25ns-16Dec2015-v1.txt";
+	std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/76X/BTagCSVData/Run2015D-16Dec2015-v1.txt";
 
 	JetAnalysisBase analysis(inputList);
 	analysis.setupAnalysis("Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt");
+	analysis.SetupStandardOutputFile();
+	analysis.addTriggerObjects();
+	analysis.makeHistograms();
 	analysis.applySelection();
 
 

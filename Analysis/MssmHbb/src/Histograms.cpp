@@ -13,11 +13,12 @@ Histograms::Histograms() {
 }
 
 Histograms::~Histograms() {
+	std::cout<<"I'm at ~Histograms"<<std::endl;
 	// TODO Auto-generated destructor stub
 }
 
 void Histograms::Make(const int &size) {
-
+	TH1::AddDirectory(0);
 	//Declare All Basic Histograms
 	histo_["jet_pt1"]			= pTH1(new TH1D("jet_pt1","p_{T} of the first Leading Jet; Leading Jet p_{T}, [GeV]",size,0.,1500.));
 	histo_["jet_pt2"]			= pTH1(new TH1D("jet_pt2","p_{T} of the second Leading Jet; sub-Leading Jet p_{T}, [GeV]",size,0.,1500.));
@@ -50,12 +51,16 @@ void Histograms::Make(const int &size) {
 	eff_["eff_2DPtTrigger_highM_pt"]	= pTEff(new TEfficiency("eff_2DPtTrigger_highM_pt","2D kinematic Trigger Efficiency, High M trigger;Leading Jet p^{(1)}_{T}, [GeV]; sub-Leading Jet p^{(1)}_{T}, [GeV]; #epsilon",size,0.,500.));
 	eff_["eff_dEta_lowM"]				= pTEff(new TEfficiency("eff_dEta_lowM","#Delta #eta kinematic trigger Efficiency; |#Delta #eta|",(int)size/2,0,1.8));
 
+//	for(auto &h : histo_){
+//		h.second->SetDirectory(0);
+//	}
+
 }
 
-const std::map<std::string, std::shared_ptr<TEfficiency> >& Histograms::getEff() const {
+std::map<std::string, std::shared_ptr<TEfficiency> >& Histograms::getEff() {
 	return eff_;
 }
 
-const std::map<std::string, std::shared_ptr<TH1> >& Histograms::getHisto() const {
+std::map<std::string, std::shared_ptr<TH1> >& Histograms::getHisto() {
 	return histo_;
 }

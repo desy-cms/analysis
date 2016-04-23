@@ -14,7 +14,7 @@ class Weights {
 
 public:
 	Weights(const bool & selection): lowM_(selection) {};
-	virtual ~Weights() {};
+	virtual ~Weights() { std::cout<<"I'm at ~Weights"<<std::endl; };
 
 	// Factorized Pt trigger efficiency weight
 	double FactorizationPtWeight(const double & pt1, const double &pt2);

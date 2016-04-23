@@ -11,12 +11,12 @@ using namespace analysis;
 using namespace analysis::tools;
 using namespace analysis::mssmhbb;
 
-JetAnalysisBase::JetAnalysisBase(const std::string & inputFilelist, const std::string & evtinfo, const bool & lowM) :
+JetAnalysisBase::JetAnalysisBase(const std::string & inputFilelist, const std::string & evtinfo, const bool & lowM, const bool & test) :
 								 Analysis(inputFilelist,evtinfo),
 								 lowM_(lowM),
-								 triggerLogicName_(),
-								 nJets_(1){
-
+								 triggerLogicName_("HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v"),
+								 nJets_(1),
+								 TEST(test){
 	if(this->isMC()){
 		//Add specific to MC trees
 		this->addTree<GenParticle>("GenParticles","MssmHbb/Events/prunedGenParticles");
@@ -43,24 +43,32 @@ JetAnalysisBase::JetAnalysisBase(const std::string & inputFilelist, const std::s
 }
 
 JetAnalysisBase::~JetAnalysisBase() {
+	if(TEST) std::cout<<"I'm at ~JetAnalysisBase"<<std::endl;
 	// TODO Auto-generated destructor stub
 }
 
 void JetAnalysisBase::setupAnalysis(const std::string & json){
 	this->processJsonFile(json);
 	this->loadCorrections();
+	if(TEST) std::cout<<"I'm in setupAnalysis"<<std::endl;
 }
 
 void JetAnalysisBase::applySelection(){
 
-	auto goodLeadingJets = false;
+	if(TEST) std::cout<<"I'm in applySelection"<<std::endl;
+
+	bool goodLeadingJets = false;
 	TLorentzVector diJetObject;
 	Jet LeadJet[5];
 	//Event loop:
-	for(int i = 0; i < this->size(); ++ i){
+	auto nevents = 0;
+	if(TEST) nevents = 1000;
+	else nevents = this->size();
+	for(auto i = 0; i < nevents; ++ i){
 		this->event(i);
 
 		//Select only good JSon runs for Data
+		std::cout<<"I'm in setupAnalysis veore Json"<<" "<<i<<std::endl;
 		if(!isMC() && !this->selectJson() ) continue;
 
 		//Trigger Selection
@@ -79,6 +87,8 @@ void JetAnalysisBase::applySelection(){
 
 		//Match offline Jets to online Objects
 		if(!isMC()) this->match<Jet,TriggerObject>("Jets",this->getTriggerObjectNames());
+	    //Should return true for trigger efficiency study
+	    if(!isMC() && !OnlineSelection(offlineJets->at(0),offlineJets->at(1))) continue;
 
 	    //Define Vertex collection
 	    auto offlinePrimaryVertices = this->collection<Vertex>("Vertices");
@@ -113,9 +123,6 @@ void JetAnalysisBase::applySelection(){
 	    }
 	    if(!goodLeadingJets) continue;
 
-	    //Should return true for trigger efficiency study
-	    if(!isMC() && !OnlineSelection(LeadJet[0],LeadJet[1])) continue;
-
 	    //Weights:
 	    if(isMC()){
 
@@ -145,13 +152,19 @@ void JetAnalysisBase::applySelection(){
 	    }
 
 	    diJetObject = LeadJet[0].p4() + LeadJet[1].p4();
+	    std::cout<<"I'm in applySelection Fill"<<std::endl;
+
+	    (histo_.getHisto())["jet_pt1"]->Fill(LeadJet[0].pt());
 
 	}
+	(histo_.getHisto())["jet_pt1"]->Write();
+	outputFile_->Close();
 
 }
 
 bool JetAnalysisBase::leadingJetSelection(const int & iJet, const tools::Jet & Jet){
 	bool flag = false;
+	if(TEST) std::cout<<"I'm in leadingJetSelection"<<std::endl;
 
 	//Selection of good Leading Jets:
 	//Only jets that pass Loose identification will be considered
@@ -198,6 +211,7 @@ void JetAnalysisBase::addTriggerObjects(const std::vector<std::string> &triggerO
 }
 
 void JetAnalysisBase::loadCorrections(){
+	TH1::AddDirectory(0);
 	if(lowM_){
 		//Online BTag Trigger Efficiency produced by Ye Chen
 		fCorrections_["fRelBTagEff"] = pTFile(new TFile("input_corrections/RelOnlineBTagCSV0p9Eff_PtEta.root","read") );
@@ -291,5 +305,58 @@ const JetAnalysisBase::ScaleFactor JetAnalysisBase::calculateBTagSF(const tools:
 
 void JetAnalysisBase::makeHistograms(const int & size){
 	histo_.Make(size);
+}
+
+void JetAnalysisBase::SetupStandardOutputFile(const std::string & outputFileName){
+
+	if(outputFileName == ""){
+		//get the full file name and path from the Tree
+		std::string fullName = this->tree<Jet>("Jets")->PhysicsObjectTree<Jet>::PhysicsObjectTreeBase::TreeBase::tree()->GetFile()->GetName();
+		std::string outputName = "Selection";
+		if(lowM_) outputName += "_lowM_";
+		else {outputName += "_highM_";}
+
+		//TODO: find better solution to get the file name
+		size_t found;
+		found=fullName.find_last_of("/");
+		fullName = fullName.substr(0,found);
+		found = fullName.find_last_of("/");
+		fullName = fullName.substr(0,found);
+		found = fullName.find_last_of("/");
+		fullName = fullName.substr(0,found);
+		found = fullName.find_last_of("/");
+
+		if(is_mc_){
+			fullName = fullName.substr(0,found);
+			found = fullName.find_last_of("/");
+			fullName = fullName.substr(found+1);
+		}
+		else{
+			fullName = fullName.substr(found+1);
+		}
+
+		outputName += fullName + ".root";
+		this->createOutputFile(outputName);
+	}
+	else{
+		this->createOutputFile(outputFileName);
+	}
+
+}
+
+void JetAnalysisBase::createOutputFile(const std::string &name){
+
+	std::string finale_name;
+	const auto cmsswBase = static_cast<std::string>(gSystem->Getenv("CMSSW_BASE"));
+
+	if(name.find(".root") == std::string::npos) finale_name = name + ".root";
+	if(finale_name.find("/") != std::string::npos){
+		outputFile_ = pTFile(new TFile(finale_name.c_str(),"RECREATE"));
+	}
+	else {
+		finale_name = cmsswBase + "/src/Analysis/MssmHbb/output/" + name.c_str();
+		outputFile_ = pTFile(new TFile(finale_name.c_str(),"RECREATE"));
+	}
+	std::cout<<"File: "<<name<<" was created"<<std::endl;
 }
 

@@ -8,7 +8,8 @@
 #ifndef ANALYSIS_MSSMHBB_SRC_HISTOGRAMS_H_
 #define ANALYSIS_MSSMHBB_SRC_HISTOGRAMS_H_
 
-#include <iostream>
+#include <iostream>		// standard in/out
+#include <memory> 		// for std::shared_ptr
 #include <string>
 #include <map>
 #include "TMath.h"
@@ -28,8 +29,9 @@ typedef std::shared_ptr<TEfficiency> pTEff;
 		virtual ~Histograms();
 
 		void Make(const int &size = 100);
-		const std::map<std::string, std::shared_ptr<TEfficiency> >& getEff() const;
-		const std::map<std::string, std::shared_ptr<TH1> >& getHisto() const;
+
+		std::map<std::string, std::shared_ptr<TEfficiency> >& getEff();
+		std::map<std::string, std::shared_ptr<TH1> >& getHisto();
 
 	protected:
 		std::map<std::string,std::shared_ptr<TH1> > histo_;

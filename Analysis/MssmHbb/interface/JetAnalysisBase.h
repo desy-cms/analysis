@@ -48,7 +48,7 @@ namespace analysis{
 	public:
 
 		//Default constructor
-		JetAnalysisBase(const std::string & inputFilelist, const std::string & evtinfo = "MssmHbb/Events/EventInfo",const bool & lowM = true);
+		JetAnalysisBase(const std::string & inputFilelist, const std::string & evtinfo = "MssmHbb/Events/EventInfo",const bool & lowM = true, const bool & test = true);
 		virtual ~JetAnalysisBase();
 
         //Add trigger Object Trees
@@ -60,9 +60,16 @@ namespace analysis{
      		   	   	   	   	  const std::string & path = "MssmHbb/Events/selectedPatTrigger/");
 
         void loadCorrections();
+
+        //Method that make an event loop
         void applySelection();
+        //setuip all corrections, ttrees etc
         void setupAnalysis(const std::string & json);
+        // virtual method that create histogrmas
         virtual void makeHistograms(const int &size = 100);
+        //Create standart output file name
+        void SetupStandardOutputFile(const std::string & outputFileName = "");
+        void createOutputFile(const std::string &name );
 
         struct ScaleFactor{
         	ScaleFactor() : central(0), up(0), down (0) {};
@@ -78,13 +85,13 @@ namespace analysis{
 
 	protected:
 
-        std::unique_ptr<Weights> pWeight_;
-        bool lowM_;
+        const bool lowM_;
         std::string triggerLogicName_;
         int nJets_;
         Histograms histo_;
+        const bool TEST;
 
-        //Protected members
+        //Protected methods
         std::vector<std::string> getTriggerObjectNames();
         virtual bool leadingJetSelection(const int & iJet, const tools::Jet & Jet);
         //Scale Factors calculation
@@ -95,6 +102,9 @@ namespace analysis{
 
 
 	private:
+
+        std::unique_ptr<Weights> pWeight_;
+        pTFile outputFile_;
 
         std::map<std::string, double > weight_;
         std::vector<std::string> triggerObjectName_;
