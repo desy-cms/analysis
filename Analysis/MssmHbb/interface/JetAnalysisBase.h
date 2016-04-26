@@ -19,10 +19,9 @@
 #include <vector>
 #include <string>
 #include <type_traits>
-#include <boost/filesystem.hpp>
-#include <boost/program_options.hpp>
-#include <boost/program_options/variables_map.hpp>
 #include <boost/algorithm/string/join.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/case_conv.hpp>
 #include "TSystem.h"
 //
 // user include files
@@ -46,7 +45,7 @@ namespace analysis{
 	public:
 
 		//Default constructor
-		JetAnalysisBase(const std::string & inputFilelist, const std::string & evtinfo = "MssmHbb/Events/EventInfo",const bool & lowM = true, const bool & test = true);
+		JetAnalysisBase(const std::string & inputFilelist, const bool & lowM = true, const bool & test = true);
 		virtual ~JetAnalysisBase();
 
         //Add trigger Object Trees
@@ -61,8 +60,9 @@ namespace analysis{
 
         //Method that make an event loop
         void applySelection();
-        //setuip all corrections, ttrees etc
-        void setupAnalysis(const std::string & json);
+        //setup all corrections, ttrees etc
+        virtual void setupAnalysis(const std::string & json);
+        virtual void runAnalysis(const std::string &json, const std::string &output = "", const int &size = 100);
         // virtual method that create histogrmas
         virtual void makeHistograms(const int &size = 100);
         //Create standart output file name
@@ -91,23 +91,23 @@ namespace analysis{
         int nJets_;
         Histograms histo_;
         const bool TEST;
+        std::map<std::string, double > weight_;
+        std::vector<std::string> triggerObjectName_;
+        bool signalMC_ = false;
+        pTFile outputFile_;
 
         //Protected methods
-        virtual void fillHistograms(const tools::Jet &LeadingJet, const tools::Jet &sub_LeadingJet);
+        virtual void fillHistograms(const std::shared_ptr<tools::Collection<tools::Jet> > & offlineJets);
+//        virtual void fillHistograms(const tools::Jet &LeadingJet, const tools::Jet &sub_LeadingJet);
         virtual void writeHistograms();
-        virtual bool leadingJetSelection(const int & iJet, const tools::Jet & Jet);
-        //Scale Factors calculation
-        const ScaleFactor calculateBTagSF(const tools::Jet & Jet, const bool & thirdJ);
-        //Trigger Selection
-        virtual bool OnlineSelection(const analysis::tools::Jet &fLeadOfflineJet,const analysis::tools::Jet &sLeadOfflineJet);
+//        const virtual bool leadingJetSelection(const int & iJet, const tools::Jet & Jet);
+        const virtual bool leadingJetSelection(const std::shared_ptr<tools::Collection<tools::Jet> > & offlineJets);
+        const virtual bool OnlineSelection(const analysis::tools::Jet &fLeadOfflineJet,const analysis::tools::Jet &sLeadOfflineJet);
 
 	private:
 
         std::unique_ptr<Weights> pWeight_;
-        pTFile outputFile_;
 
-        std::map<std::string, double > weight_;
-        std::vector<std::string> triggerObjectName_;
         std::map<std::string,pTFile> fCorrections_;
         std::map<std::string,TH1D *>  hCorrections1D_;
         std::map<std::string,TH2D *>  hCorrections2D_;
@@ -119,6 +119,10 @@ namespace analysis{
         const double eta1_ = 2.4;
         const double dEta_ = 100.;
         const double dR_ = 1.;
+
+        //Scale Factors calculation
+        const ScaleFactor calculateBTagSF(const tools::Jet & Jet, const bool & thirdJ);
+
 
 	};
 

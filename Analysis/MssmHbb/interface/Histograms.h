@@ -27,10 +27,29 @@
 
 		void Make(const int &size = 100);
 
+//        struct Systematics{
+//			Systematics() : central(0), up(0), down (0) {};
+//			Systematics(const TH1* centr, const TH1* upper, const TH1* lower) :
+//        		central(centr),
+//        		up(upper),
+//        		down(lower) {};
+//        	~Systematics(){
+//        		delete central;
+//        		delete up;
+//        		delete down;
+//        	};
+//        	TH1* central;
+//        	TH1* up;
+//        	TH1* down;
+//        };
+//
+//
+//        std::map<std::string, Systematics > & getSystematics();
 		std::map<std::string, TEfficiency* >& getEff();
 		std::map<std::string, TH1 * >& getHisto();
 
 	protected:
+//		std::map<std::string, Systematics > syst_;
 		std::map<std::string,TH1* > histo_;
 		std::map<std::string,TEfficiency* > eff_;
 

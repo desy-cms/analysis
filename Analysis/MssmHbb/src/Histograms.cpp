@@ -27,6 +27,10 @@ void Histograms::Make(const int &size) {
 	histo_["jet_eta2"]			=  new TH1D("jet_eta2","#eta of the second Leading Jet; sub-Leading Jet #eta ",(int)size/2,-2.5,2.5);
 	histo_["jet_eta3"]			=  new TH1D("jet_eta3","#eta of the third Leading Jet; third-Leading Jet #eta ",(int)size/2,-2.5,2.5);
 
+	histo_["jet_phi1"]			=  new TH1D("jet_phi1","#phi of the first Leading Jet; Leading Jet #phi ",(int)size/2,-1.* TMath::Pi(),TMath::Pi());
+	histo_["jet_phi2"]			=  new TH1D("jet_phi2","#phi of the second Leading Jet; sub-Leading Jet #phi ",(int)size/2,-1.* TMath::Pi(),TMath::Pi());
+	histo_["jet_phi3"]			=  new TH1D("jet_phi3","#phi of the third Leading Jet; third-Leading Jet #phi ",(int)size/2,-1.* TMath::Pi(),TMath::Pi());
+
 	histo_["jet_btag_csv1"]		=  new TH1D("jet_btag_csv1","btag_{csv} discr. first Leading Jet; Leading Jet btag_{csv} discr.",size,0.5,1.);
 	histo_["jet_btag_csv2"]		=  new TH1D("jet_btag_csv2","btag_{csv} discr. first Leading Jet; Leading Jet btag_{csv} discr.",size,0.5,1.);
 	histo_["jet_btag_csv3"]		=  new TH1D("jet_btag_csv3","btag_{csv} discr. first Leading Jet; Leading Jet btag_{csv} discr.",size,0.5,1.);
@@ -45,6 +49,30 @@ void Histograms::Make(const int &size) {
 	histo_["diJet_eta"]			=  new TH1D("diJet_eta","#eta of the di-Jet object; di-Jet #eta",(int)size/2,-2.5,2.5);
 	histo_["diJet_phi"]			=  new TH1D("diJet_phi","#phi of the di-Jet object; di-Jet #phi",(int)size/2,0,2.*TMath::Pi());
 	histo_["diJet_m"]			=  new TH1D("diJet_m","M_{12} of the di_jet object; di-Jet M_{12}, [GeV]",size,0.,1500);
+
+	//Signal templates
+	//SFb
+	histo_["template_Mbb"]			=  new TH1D("template_Mbb","M_{12} of the di_jet object; di-Jet M_{12}, [GeV]",size,0.,1500);
+	histo_["template_SFb_down"]			= new TH1D("template_SFb_down","",size,0.,1500);
+	histo_["template_SFb_up"]			= new TH1D("template_SFb_up","",size,0.,1500);
+
+	//JES
+	histo_["template_JES_down"]			= new TH1D("template_JES_down","",size,0.,1500);
+	histo_["template_JES_up"]			= new TH1D("template_JES_up","",size,0.,1500);
+
+	//JER
+	histo_["template_JER_down"]			= new TH1D("template_JER_down","",size,0.,1500);
+	histo_["template_JER_up"]			= new TH1D("template_JER_up","",size,0.,1500);
+
+	//Pileup
+	histo_["template_PU_down"]			= new TH1D("template_PU_down","",size,0.,1500);
+	histo_["template_PU_up"]				= new TH1D("template_PU_up","",size,0.,1500);
+
+	//Kinematic trigger efificiency
+	histo_["template_PtEff_down"]		= new TH1D("template_PtEff_down","",size,0.,1500);
+	histo_["template_PtEff_up"]			= new TH1D("template_PtEff_up","",size,0.,1500);
+
+//	syst_["Pileup"]
 
 	eff_["eff_2DPtTrigger_lowM_pt"]		=  new TEfficiency("eff_2DPtTrigger_lowM_pt","2D kinematic Trigger Efficiency, Low M trigger;Leading Jet p^{(1)}_{T}, [GeV]; sub-Leading Jet p^{(1)}_{T}, [GeV]; #epsilon",size,0.,500.);
 	eff_["eff_2DPtTrigger_highM_pt"]	=  new TEfficiency("eff_2DPtTrigger_highM_pt","2D kinematic Trigger Efficiency, High M trigger;Leading Jet p^{(1)}_{T}, [GeV]; sub-Leading Jet p^{(1)}_{T}, [GeV]; #epsilon",size,0.,500.);

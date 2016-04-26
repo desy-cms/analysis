@@ -11,8 +11,10 @@ using namespace analysis;
 using namespace analysis::tools;
 using namespace analysis::mssmhbb;
 
-JetAnalysisBase::JetAnalysisBase(const std::string & inputFilelist, const std::string & evtinfo, const bool & lowM, const bool & test) :
-								 Analysis(inputFilelist,evtinfo),
+const bool findStrings(const std::string & input, const std::string & needful);
+
+JetAnalysisBase::JetAnalysisBase(const std::string & inputFilelist, const bool & lowM, const bool & test) :
+								 Analysis(inputFilelist,"MssmHbb/Events/EventInfo"),
 								 lowM_(lowM),
 								 triggerLogicName_(""),
 								 nJets_(1),
@@ -29,6 +31,9 @@ JetAnalysisBase::JetAnalysisBase(const std::string & inputFilelist, const std::s
 		// Show MC information
 		this->listCrossSections();
 		this->listGeneratorFilter();
+
+		if(findStrings(inputFilelist,"susy")) signalMC_ = true;
+		else signalMC_ = false;
 	}
 
 	//Trigger trees
@@ -40,6 +45,7 @@ JetAnalysisBase::JetAnalysisBase(const std::string & inputFilelist, const std::s
 	// Tree for Vertices
 	this->addTree<Vertex> ("Vertices","MssmHbb/Events/offlineSlimmedPrimaryVertices");
 
+	triggerObjectName_ = {"hltL1sL1DoubleJetC100","hltDoubleJetsC100","hltDoubleBTagCSV0p85","hltDoublePFJetsC160"};
 }
 
 JetAnalysisBase::~JetAnalysisBase() {
@@ -48,8 +54,9 @@ JetAnalysisBase::~JetAnalysisBase() {
 }
 
 void JetAnalysisBase::setupAnalysis(const std::string & json){
-	this->processJsonFile(json);
+	if(!isMC()) this->processJsonFile(json);
 	this->loadCorrections();
+	this->addTriggerObjects(triggerObjectName_);
 	if(TEST) std::cout<<"I'm in setupAnalysis"<<std::endl;
 }
 
@@ -63,13 +70,13 @@ void JetAnalysisBase::applySelection(){
 	Jet LeadJet[5];
 	//Event loop:
 	auto nevents = 0;
-	if(TEST) nevents = 1000;
+	if(TEST) nevents = 5000;
 	else nevents = this->size();
+
 	for(auto i = 0; i < nevents; ++ i){
 		this->event(i);
 
 		//Select only good JSon runs for Data
-		std::cout<<"I'm in setupAnalysis veore Json"<<" "<<i<<std::endl;
 		if(!isMC() && !this->selectJson() ) continue;
 
 		//Trigger Selection
@@ -108,9 +115,10 @@ void JetAnalysisBase::applySelection(){
 
 	    	if(iJet < nJets_){
 	    		//Selection of good Leading Jets:
-	    		if(!this->leadingJetSelection(iJet,jet)) break;
+	    		if(!jet.idLoose()) break;
+	    		if(!this->leadingJetSelection(offlineJets)) break;
 	    		LeadJet[iJet] = jet;
-	    		goodLeadingJets = true;
+
 	    		//Calculate SFb
 	    		if(isMC()){
 	    			if(iJet < 2){
@@ -120,6 +128,8 @@ void JetAnalysisBase::applySelection(){
 	    				sf[iJet] = calculateBTagSF(jet,true);
 	    			}
 	    		}
+
+	    		if(iJet == nJets_ - 1) goodLeadingJets = true;
 	    	}
 	    }
 	    if(!goodLeadingJets) continue;
@@ -136,9 +146,34 @@ void JetAnalysisBase::applySelection(){
         	  //TODO: Data luminosity!!!
         	  weight_["Lumi"] 			=pWeight_->LumiWeight(2318.278306,this->luminosity());
         	  weight_["Ht"]       		= pWeight_->HtWeight(hCorrections1D_["hHtWeight"],Ht);
-        	  weight_["PileUpCentral"] 	= pWeight_->PileUpWeight(hCorrections1D_["fPipeUpData_central"],hCorrections1D_["fPipeUpMC"],this->nTruePileup());
-        	  weight_["PileUpDown"]    	= pWeight_->PileUpWeight(hCorrections1D_["fPipeUpData_down"],hCorrections1D_["fPipeUpMC"],this->nTruePileup());
-        	  weight_["PileUpUp"]      	= pWeight_->PileUpWeight(hCorrections1D_["fPipeUpData_up"],hCorrections1D_["fPipeUpMC"],this->nTruePileup());
+
+        	  //2SIGMA variation!!!!!!
+        	  weight_["PU_central"] 	= pWeight_->PileUpWeight(hCorrections1D_["hPileUpData_central"],hCorrections1D_["hPileUpMC"],this->nTruePileup());
+        	  weight_["PU_down"]    	= pWeight_->PileUpWeight(hCorrections1D_["hPileUpData_down"],hCorrections1D_["hPileUpMC"],this->nTruePileup());
+        	  weight_["PU_up"]      	= pWeight_->PileUpWeight(hCorrections1D_["hPileUpData_up"],hCorrections1D_["hPileUpMC"],this->nTruePileup());
+
+        	  weight_["PtEff_central"]	= weight_["2DPt"];
+        	  weight_["PtEff_up"]		= weight_["2DPt"] + 2.*std::abs(weight_["2DPt"] - weight_["FactorPt"]);
+        	  weight_["PtEff_down"]		= weight_["2DPt"] - 2.*std::abs(weight_["2DPt"] - weight_["FactorPt"]);
+
+        	  weight_["JES_central"]	= LeadJet[0].pt()*LeadJet[1].pt();
+        	  weight_["JES_up"]			= LeadJet[0].pt()*(1.+ 2.*LeadJet[0].jecUncert()) *
+        			  	  	  	  	  	  LeadJet[1].pt()*(1.+ 2.*LeadJet[1].jecUncert());
+        	  weight_["JES_down"]		= LeadJet[0].pt()*(1.- 2.*LeadJet[0].jecUncert()) *
+  	  	  	  	  	  	  	  	  	  	  LeadJet[1].pt()*(1.- 2.*LeadJet[1].jecUncert());
+
+        	  weight_["SFb_central"]	= sf[0].central * sf[1].central;
+        	  weight_["SFb_up"]			= (2.*(sf[0].up - sf[0].central) + sf[0].central) * (2.*(sf[1].up - sf[1].central) + sf[1].central);
+        	  weight_["SFb_down"]		= (2.*(sf[0].down - sf[0].central) + sf[0].central) * (2.*(sf[1].down - sf[1].central) + sf[1].central);
+        	  if(nJets_ == 3) {
+        		  weight_["SFb_central"] 	*= sf[2].central;
+        		  weight_["SFb_up"]			*= (2.*(sf[2].up - sf[2].central) + sf[2].central);
+        		  weight_["SFb_down"]		*= (2.*(sf[2].down - sf[2].central) + sf[2].central);
+
+        		  weight_["JES_up"]			*= LeadJet[2].pt()*(1.+ 2.*LeadJet[2].jecUncert());
+        		  weight_["JES_down"]		*= LeadJet[2].pt()*(1.- 2.*LeadJet[2].jecUncert());
+        		  weight_["JES_central"]	*= LeadJet[2].pt();
+        	  }
 
         	  //Selection depending weights
         	  if(lowM_){
@@ -152,30 +187,30 @@ void JetAnalysisBase::applySelection(){
 
 	    }
 
-	    std::cout<<"I'm in applySelection Fill"<<std::endl;
-	    fillHistograms(LeadJet[0],LeadJet[1]);
+	    this->fillHistograms(offlineJets);
 
 	}
+
 	this->writeHistograms();
 	outputFile_->Close();
 
 }
 
-bool JetAnalysisBase::leadingJetSelection(const int & iJet, const tools::Jet & Jet){
-	bool flag = false;
-	if(TEST) std::cout<<"I'm in leadingJetSelection"<<std::endl;
 
+const bool JetAnalysisBase::leadingJetSelection(const std::shared_ptr<tools::Collection<tools::Jet> > & offlineJets){
+	if(TEST) std::cout<<"I'm in JetAnalysisBase::leadingJetSelection::shared_ptr"<<std::endl;
 	//Selection of good Leading Jets:
 	//Only jets that pass Loose identification will be considered
-	if(!Jet.idLoose()) return false;
-	if(Jet.pt() < pt1_) return false;
-	if(Jet.eta() > eta1_) return false;
+	Jet jet1 = offlineJets->at(0);
+	Jet jet2 = offlineJets->at(1);
 
-	flag = true;
-	return flag;
+	if(jet1.pt() < pt1_ || jet2.pt() < pt1_) return false;
+	if(jet1.pt() < eta1_ || jet2.pt() < eta1_) return false;
+
+	return true;
 }
 
-bool JetAnalysisBase::OnlineSelection(const analysis::tools::Jet &fLeadOfflineJet,
+const bool JetAnalysisBase::OnlineSelection(const analysis::tools::Jet &fLeadOfflineJet,
 							  const analysis::tools::Jet &sLeadOfflineJet){
 
 	for(const auto & triggerObject : triggerObjectName_){
@@ -195,7 +230,6 @@ bool JetAnalysisBase::OnlineSelection(const analysis::tools::Jet &fLeadOfflineJe
 void JetAnalysisBase::addTriggerObjects(const std::vector<std::string> &triggerObjectName, const std::string & path)
 {
 
-	triggerObjectName_ = triggerObjectName;
 	if(triggerObjectName.size() == 0)
 	{
 		std::cerr<<"Error: Empty vector of triggerObjectNames were sepcified. Interupt!"<<std::endl;
@@ -242,14 +276,14 @@ void JetAnalysisBase::loadCorrections(){
 		hCorrections1D_["hHtWeight"] =  (TH1D*) fCorrections_["fHtWeight"] -> Get("hRatio") ;
 
 	}
-	fCorrections_["fPipeUpData_central"] = pTFile(new TFile("input_corrections/PileUp_2015Dec_central.root","read") );
-	fCorrections_["fPipeUpData_up"] = pTFile(new TFile("input_corrections/PileUp_2015Dec_up.root","read") );
-	fCorrections_["fPipeUpData_down"] = pTFile(new TFile("input_corrections/PileUp_2015Dec_down.root","read") );
-	hCorrections1D_["hPileUpData_central"] = (TH1D*) fCorrections_["fPipeUpData_central"]->Get("pileup");
-	hCorrections1D_["hPileUpData_up"] = (TH1D*) fCorrections_["fPipeUpData_up"]->Get("pileup");
-	hCorrections1D_["hPileUpData_down"] = (TH1D*) fCorrections_["fPipeUpData_down"]->Get("pileup");
-	fCorrections_["fPipeUpMC"] = pTFile(new TFile("input_corrections/MC_Fall15_PU25_V1.root","read") );
-	hCorrections1D_["hPileUpMC"] = (TH1D*) fCorrections_["fPipeUpMC"] -> Get("pileup") ;
+	fCorrections_["fPileUpData_central"] = pTFile(new TFile("input_corrections/PileUp_2015Dec_central.root","read") );
+	fCorrections_["fPileUpData_up"] = pTFile(new TFile("input_corrections/PileUp_2015Dec_up.root","read") );
+	fCorrections_["fPileUpData_down"] = pTFile(new TFile("input_corrections/PileUp_2015Dec_down.root","read") );
+	hCorrections1D_["hPileUpData_central"] = (TH1D*) fCorrections_["fPileUpData_central"]->Get("pileup");
+	hCorrections1D_["hPileUpData_up"] = (TH1D*) fCorrections_["fPileUpData_up"]->Get("pileup");
+	hCorrections1D_["hPileUpData_down"] = (TH1D*) fCorrections_["fPileUpData_down"]->Get("pileup");
+	fCorrections_["fPileUpMC"] = pTFile(new TFile("input_corrections/MC_Fall15_PU25_V1.root","read") );
+	hCorrections1D_["hPileUpMC"] = (TH1D*) fCorrections_["fPileUpMC"] -> Get("pileup") ;
 
 
 
@@ -367,6 +401,62 @@ void JetAnalysisBase::writeHistograms(){
 
 }
 
+void JetAnalysisBase::fillHistograms(const std::shared_ptr<Collection<Jet> > &offlineJets){
+
+	if(TEST) std::cout<<"I'm in JetAnalysisBase::fillHistograms"<<std::endl;
+	auto weight = 1;
+	if(isMC()) {
+		weight = weight_["dEta"] * weight_["Lumi"] * weight_["2DPt"] * weight_["BTag"] * weight_["PU_central"];
+	}
+	Jet jet1 = offlineJets->at(0);
+	Jet jet2 = offlineJets->at(1);
+
+	(histo_.getHisto())["jet_pt1"]->Fill(jet1.pt(),weight);
+	(histo_.getHisto())["jet_pt2"]->Fill(jet2.pt(),weight);
+
+	(histo_.getHisto())["jet_eta1"]->Fill(jet1.eta(),weight);
+	(histo_.getHisto())["jet_eta2"]->Fill(jet2.eta(),weight);
+
+	(histo_.getHisto())["jet_phi1"]->Fill(jet1.phi(),weight);
+	(histo_.getHisto())["jet_phi2"]->Fill(jet2.phi(),weight);
+
+	(histo_.getHisto())["jet_btag_csv1"]->Fill(jet1.btag(),weight);
+	(histo_.getHisto())["jet_btag_csv2"]->Fill(jet2.btag(),weight);
+
+	(histo_.getHisto())["jet_btag_cmva1"]->Fill(jet1.btag("btag_csvmva"),weight);
+	(histo_.getHisto())["jet_btag_cmva2"]->Fill(jet2.btag("btag_csvmva"),weight);
+
+	(histo_.getHisto())["jet_deta12"]->Fill(jet1.eta() - jet2.eta(),weight);
+
+	(histo_.getHisto())["jet_dR12"]->Fill(jet1.deltaR(jet2),weight);
+
+	TLorentzVector obj12;
+	obj12 = jet1.p4() + jet2.p4();
+	(histo_.getHisto())["diJet_pt"]->Fill(obj12.Pt(),weight);
+	(histo_.getHisto())["diJet_eta"]->Fill(obj12.Eta(),weight);
+	(histo_.getHisto())["diJet_phi"]->Fill(obj12.Phi(),weight);
+
+}
+
+void JetAnalysisBase::runAnalysis(const std::string &json, const std::string &output, const int &size){
+	this->setupAnalysis(json);
+	this->SetupStandardOutputFile(output);
+	this->makeHistograms(size);
+	this->applySelection();
+}
+
+const bool findStrings(const std::string & input, const std::string & needful){
+	std::string input1 = input;
+	std::string input2 = needful;
+	std::transform(input1.begin(),input1.end(),input1.begin(),tolower);
+	std::transform(input2.begin(),input2.end(),input2.begin(),tolower);
+//	boost::algorithm::string::to_upper(input1);
+//	boost::algorithm::string::to_upper(input2);
+	if(input1.find(input2) != std::string::npos) return true;
+	else return false;
+}
+
+/*
 void JetAnalysisBase::fillHistograms(const tools::Jet &jet1, const tools::Jet &jet2){
 	auto weight = 0;
 	if(isMC()) weight = weight_["dEta"] * weight_["Lumi"];
@@ -384,3 +474,18 @@ void JetAnalysisBase::fillHistograms(const tools::Jet &jet1, const tools::Jet &j
 	(histo_.getHisto())["diJet_eta"]->Fill(obj12.Eta(),weight);
 
 }
+
+const bool JetAnalysisBase::leadingJetSelection(const int & iJet, const tools::Jet & Jet){
+	bool flag = false;
+	if(TEST) std::cout<<"I'm in JetAnalysisBase::leadingJetSelection"<<std::endl;
+
+	//Selection of good Leading Jets:
+	//Only jets that pass Loose identification will be considered
+	if(!Jet.idLoose()) return false;
+	if(Jet.pt() < pt1_) return false;
+	if(Jet.eta() > eta1_) return false;
+
+	flag = true;
+	return flag;
+}
+*/
