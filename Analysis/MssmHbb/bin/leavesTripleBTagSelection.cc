@@ -26,7 +26,7 @@ int main(int argc, char * argv[])
 
 	// Input files list
 	//std::string inputList = "rootFileListBTagCSV.txt";
-	std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/76X/Pythia8_QCD/QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8.txt";
+	std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/76X/filtered/MSSMHbb/SUSYGluGluToBBHToBB_M-1100_TuneCUETP8M1_13TeV-pythia8.txt";
 
 	// Initialisation of MssmHbb class
 	MssmHbb analysis(inputList);
@@ -137,6 +137,9 @@ int main(int argc, char * argv[])
 
       //Used to clean values of the variables for the new event
       analysis.cleanVariables();
+
+      //mHat correction to signal MC:
+      if(analysis.isSignalMc() && !analysis.mHatCut(0.7)) continue;
 
       //Define Jet Collection
       auto offlineJets = analysis.collection<Jet>("Jets");

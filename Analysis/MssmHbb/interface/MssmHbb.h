@@ -88,6 +88,9 @@ namespace analysis {
            const char * getTriggerLogicName();
            int getTriggerResult();
            const bool & getLowMSelection();
+           bool isSignalMc() const;
+           double getMHat()	const;
+           bool mHatCut(const double & value) const;
 
            //Default cuts
            const double & Pt1Cut();
@@ -97,7 +100,11 @@ namespace analysis {
            const double & BTag1Cut();
            const double & BTag2Cut();
            const double & BTag3Cut();
-         
+
+
+           void setSignalMc(bool signalMc);
+           int returnMassPoint() const;
+
             // ----------member data ---------------------------
          protected:
            std::vector<std::string> triggerObjectName_;
@@ -118,6 +125,8 @@ namespace analysis {
            double btag1_cut__;
            double btag2_cut__;
            double btag3_cut__;
+           bool signalMC_;
+           int Mpoint__;
 
            double factorizationPtWeight1D(const double &);
            double dEtaWeight(const double &);
@@ -142,12 +151,20 @@ namespace analysis {
       }
 
       inline void MssmHbb::setLowMSelection(const bool & type){lowMSelection_ = type; this->SetupConstants();}
+      inline void MssmHbb::setSignalMc(bool signalMc) {signalMC_ = signalMc;	}
 
       //Gets
       inline std::vector<std::string> MssmHbb::getTriggerObjectNames() {return triggerObjectName_;}
       inline const char * MssmHbb::getTriggerLogicName(){ return triggerLogicName_.c_str();	}
       inline std::string MssmHbb::getOutPutFileName(){ return outPutName_; }
       inline int MssmHbb::getTriggerResult(){ return this->triggerResult(triggerLogicName_.c_str());}
+      inline bool MssmHbb::isSignalMc() const { return signalMC_;}
+      inline double MssmHbb::getMHat() const {return mHat_;}
+      inline bool MssmHbb::mHatCut(const double & value) const {
+    	  if (!isSignalMc()) return false;
+    	  if (mHat_ < value * returnMassPoint()) return false;
+    	  else return true;
+      }
 
       //Cuts
       inline const double & MssmHbb::Pt1Cut(){ return pt1_cut__;}
@@ -161,6 +178,9 @@ namespace analysis {
       inline const double & MssmHbb::BTag3Cut(){ return btag3_cut__;}
 
       inline const bool & MssmHbb::getLowMSelection(){ return lowMSelection_;}
+
+
+
 
    }
 }

@@ -30,6 +30,9 @@ using namespace analysis::mssmhbb;
 //
 // constructors and destructor
 //
+
+const bool findStrings(const std::string & input, const std::string & needful);
+
 MssmHbb::MssmHbb(const std::string & inputFilelist, const std::string & evtinfo) : Analysis(inputFilelist,evtinfo), BasicTree(this->isMC())
 {
 	if(this->isMC()){
@@ -50,6 +53,10 @@ MssmHbb::MssmHbb(const std::string & inputFilelist, const std::string & evtinfo)
 	this->triggerResults("MssmHbb/Events/TriggerResults");
 	// Tree for Vertices
 	this->addTree<Vertex> ("Vertices","MssmHbb/Events/offlineSlimmedPrimaryVertices");
+
+
+	if(findStrings(inputFilelist,"susy")) signalMC_ = true;
+	else signalMC_ = false;
 
 	Ntot_ = this->size();
 
@@ -158,6 +165,10 @@ void MssmHbb::setBranches(){
 		OutTree_->Branch("bq",&bq_,"bq/I");
 		OutTree_->Branch("qc",&qc_,"qc/I");
 
+		if(this->isSignalMc()){
+			OutTree_->Branch("mHat",&mHat_,"mHat/D");
+		}
+
 	}
 
 	//Set basic branches
@@ -189,6 +200,15 @@ void MssmHbb::cleanVariables(){
 		bq_ = 0;
 		bc_ = 0;
 		qc_ = 0;
+
+		mHat_ = -100;
+	      //mHat correction   to signal MC:
+		if(isSignalMc()) {
+			double p_prot = 13000. /2.;
+	    	double p1 = this->pdf().x.first * p_prot;
+	    	double p2 = this->pdf().x.second * p_prot;
+	    	mHat_ = std::sqrt((p1+p2)*(p1+p2) - (p1-p2)*(p1-p2));
+	      }
 
 	}
 }
@@ -330,4 +350,31 @@ double MssmHbb::twoDPtWeight(TH2F *histo, const double &pt1, const double &pt2){
 // member functions
 //
 // ------------ method called for each event  ------------
+
+int MssmHbb::returnMassPoint() const {
+	int Mpoint = 0;
+	if(!isSignalMc()){
+		return 0;
+	}
+	std::string MassPos = "_M-";
+	auto p1 = inputFilelist_.find(MassPos) + 3;
+	if(p1 == std::string::npos) {
+		std::cerr<<"FileNames were cahnged!!!!"<<std::endl;
+		exit(1);
+	}
+	auto p2 = inputFilelist_.find("_",p1);
+	std::string MpointString = inputFilelist_.substr(p1,size_t(p2-p1));
+	Mpoint = std::stoi(MpointString);
+	return Mpoint;
+}
+
+const bool findStrings(const std::string & input, const std::string & needful){
+	std::string input1 = input;
+	std::string input2 = needful;
+	std::transform(input1.begin(),input1.end(),input1.begin(),tolower);
+	std::transform(input2.begin(),input2.end(),input2.begin(),tolower);
+	if(input1.find(input2) != std::string::npos) return true;
+	else return false;
+}
+
 

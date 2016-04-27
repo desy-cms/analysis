@@ -158,6 +158,9 @@ protected:
 
     //Functions:
 
+    //generated:
+    double mHat_;
+
 
 private:
 
