@@ -109,6 +109,9 @@ namespace analysis {
             FilterResults generatorFilter(const std::string & path);
             void listGeneratorFilter();
             
+            // Event Filter
+            FilterResults eventFilter(const std::string & path);
+            
             // Matching to trigger objects
             template <class Object1, class Object2>
             void match(const std::string & collection, const std::string & match_collection, const float & deltaR = 0.5);
@@ -131,6 +134,7 @@ namespace analysis {
             std::map<std::string, bool> triggerResults_;
             std::map<int,std::vector<std::string> > goodLumi_;
             FilterResults genfilter_;
+            FilterResults evtfilter_;
             
             // default collections
             std::string defaultGenParticle_;
@@ -153,6 +157,7 @@ namespace analysis {
             void treeInit_(const std::string & unique_name, const std::string & path);
             TChain * t_xsection_;
             TChain * t_genfilter_;
+            TChain * t_evtfilter_;
             TChain * t_event_;
             TChain * t_triggerResults_;
 

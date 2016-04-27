@@ -298,6 +298,36 @@ void Analysis::listGeneratorFilter()
 
 }
 
+FilterResults Analysis::eventFilter(const std::string & path)
+{
+   t_evtfilter_  = new TChain(path.c_str());
+   t_evtfilter_ -> AddFileInfoList(fileList_);
+
+   unsigned int ntotal;
+   unsigned int nfiltered;
+   unsigned int sumtotal = 0;
+   unsigned int sumfiltered = 0;
+
+   t_evtfilter_ -> SetBranchAddress("nEventsTotal", &ntotal);
+   t_evtfilter_ -> SetBranchAddress("nEventsFiltered", &nfiltered);
+
+   for ( int i = 0; i < t_evtfilter_->GetEntries(); ++i )
+   {
+      t_evtfilter_ -> GetEntry(i);
+      sumtotal += ntotal;
+      sumfiltered += nfiltered;
+   }
+
+
+   evtfilter_.total = sumtotal;
+   evtfilter_.filtered = sumfiltered;
+   evtfilter_.efficiency = float(sumfiltered)/sumtotal;
+
+   return evtfilter_;
+}
+
+
+
 void Analysis::processJsonFile(const std::string & fileName)
 {
 	std::string scriptName = "source $CMSSW_BASE/src/Analysis/Tools/interface/strip.sh ";
