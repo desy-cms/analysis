@@ -17,7 +17,7 @@ JetAnalysisBase(inputFilelist,lowM,test) {
 	if(lowM){
 		triggerLogicName_ = "HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v";
 		triggerObjectName_ = {"hltL1sL1DoubleJetC100","hltDoubleJetsC100","hltDoublePFJetsC100","hltDoubleBTagCSV0p9","hltDoublePFJetsC100MaxDeta1p6"};
-        pt1_ = 100.; pt2_ = 100.;;
+        pt1_ = 100.; pt2_ = 100.;
         btag1_ = 0.935; btag2_ = 0.935;
 	}
 	else {
@@ -64,13 +64,9 @@ const bool selectionDoubleB::leadingJetSelection(const std::shared_ptr<tools::Co
 	return true;
 }
 
-void selectionDoubleB::fillHistograms(const std::shared_ptr<Collection<Jet> > &offlineJets){
+void selectionDoubleB::fillHistograms(const std::shared_ptr<Collection<Jet> > &offlineJets, const double & weight){
 //	if(TEST) std::cout<<"I'm in doubleB::fillHistograms"<<std::endl;
 
-	auto weight = 1;
-	if(isMC()) {
-		weight = weight_["dEta"] * weight_["Lumi"] * weight_["2DPt"] * weight_["BTag"] * weight_["PileUpCentral"];
-	}
 	Jet jet1 = offlineJets->at(0);
 	Jet jet2 = offlineJets->at(1);
 
@@ -98,5 +94,14 @@ void selectionDoubleB::fillHistograms(const std::shared_ptr<Collection<Jet> > &o
 	(histo_.getHisto())["diJet_pt"]->Fill(obj12.Pt(),weight);
 	(histo_.getHisto())["diJet_eta"]->Fill(obj12.Eta(),weight);
 	(histo_.getHisto())["diJet_phi"]->Fill(obj12.Phi(),weight);
+	if(isMC()) (histo_.getHisto())["diJet_m"]->Fill(obj12.M(),weight);
 
+}
+
+const double selectionDoubleB::assignWeight(){
+	double weight = 1;
+	if(isMC()) {
+		weight = weight_["dEta"] * weight_["Lumi"] * weight_["2DPt"] * weight_["BTag"] * weight_["PU_central"];
+	}
+	return weight;
 }

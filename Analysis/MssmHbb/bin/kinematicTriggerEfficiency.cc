@@ -54,7 +54,7 @@ int main(int argc, char * argv[])
 	cmdLineOptions.add_options()
 	    ("help,h", "Produce help message.")
 	    ("verbose,v", value<int>()->default_value(0), "More verbose output.")
-	    ("input_files,i", value<std::string>()->default_value("/nfs/dust/cms/user/shevchen/samples/miniaod/76X/MSSMHbb/SUSYGluGluToBBHToBB_M-400_TuneCUETP8M1_13TeV-pythia8.txt"),"Input .txt file with NTuples")
+	    ("input_files,i", value<std::string>()->default_value("/nfs/dust/cms/user/shevchen/samples/miniaod/76X/filtered/MSSMHbb/SUSYGluGluToBBHToBB_M-300_TuneCUETP8M1_13TeV-pythia8.txt"),"Input .txt file with NTuples")
 	    ("output_file,o", value<std::string>()->default_value(""), "Output file name, if not specified will be created automatically")
 		("json_file,j", value<std::string>()
 				 ->default_value(cmsswBase+"/src/Analysis/MssmHbb/bin/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt"),

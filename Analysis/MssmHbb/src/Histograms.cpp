@@ -48,7 +48,7 @@ void Histograms::Make(const int &size) {
 	histo_["diJet_pt"]			=  new TH1D("diJet_pt","p_{T} of the di-Jet object;di-Jet p_{T}, [GeV]",size,0.,1500.);
 	histo_["diJet_eta"]			=  new TH1D("diJet_eta","#eta of the di-Jet object; di-Jet #eta",(int)size/2,-2.5,2.5);
 	histo_["diJet_phi"]			=  new TH1D("diJet_phi","#phi of the di-Jet object; di-Jet #phi",(int)size/2,0,2.*TMath::Pi());
-	histo_["diJet_m"]			=  new TH1D("diJet_m","M_{12} of the di_jet object; di-Jet M_{12}, [GeV]",size,0.,1500);
+	histo_["diJet_m"]			=  new TH1D("diJet_m","M_{12} of the di-Jet object; di-Jet M_{12}, [GeV]",size,0.,1500);
 
 	//Signal templates
 	//SFb

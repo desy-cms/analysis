@@ -62,12 +62,16 @@ namespace analysis{
         void applySelection();
         //setup all corrections, ttrees etc
         virtual void setupAnalysis(const std::string & json);
+        //run everything
         virtual void runAnalysis(const std::string &json, const std::string &output = "", const int &size = 100);
         // virtual method that create histogrmas
         virtual void makeHistograms(const int &size = 100);
         //Create standart output file name
         void SetupStandardOutputFile(const std::string & outputFileName = "");
         void createOutputFile(const std::string &name );
+
+        //write histograms and close the output file.
+        virtual void writeHistograms();
 
         struct ScaleFactor{
         	ScaleFactor() : central(0), up(0), down (0) {};
@@ -95,11 +99,17 @@ namespace analysis{
         std::vector<std::string> triggerObjectName_;
         bool signalMC_ = false;
         pTFile outputFile_;
+        double JESshift_;
 
         //Protected methods
-        virtual void fillHistograms(const std::shared_ptr<tools::Collection<tools::Jet> > & offlineJets);
-//        virtual void fillHistograms(const tools::Jet &LeadingJet, const tools::Jet &sub_LeadingJet);
-        virtual void writeHistograms();
+        virtual void fillHistograms(const std::shared_ptr<tools::Collection<tools::Jet> > & offlineJets, const double & weight);
+        //virtual void fillHistograms(const tools::Jet &LeadingJet, const tools::Jet &sub_LeadingJet);
+        //method to assign total weight
+        const double assignWeight();
+        //Modify jet Collection
+        virtual std::shared_ptr<tools::Collection<tools::Jet> > modifyJetCollection(tools::Jet & jet,
+        																	  std::shared_ptr<tools::Collection<tools::Jet> > & initialJets
+																			  );
 //        const virtual bool leadingJetSelection(const int & iJet, const tools::Jet & Jet);
         const virtual bool leadingJetSelection(const std::shared_ptr<tools::Collection<tools::Jet> > & offlineJets);
         const virtual bool OnlineSelection(const analysis::tools::Jet &fLeadOfflineJet,const analysis::tools::Jet &sLeadOfflineJet);

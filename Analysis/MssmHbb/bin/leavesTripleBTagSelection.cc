@@ -26,7 +26,7 @@ int main(int argc, char * argv[])
 
 	// Input files list
 	//std::string inputList = "rootFileListBTagCSV.txt";
-	std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/76X/v2/BTagCSVData/Run2015C_25ns-16Dec2015-v1.txt";
+	std::string inputList = "/nfs/dust/cms/user/shevchen/samples/miniaod/76X/MSSMHbb/SUSYGluGluToBBHToBB_M-400_TuneCUETP8M1_13TeV-pythia8.txt";
 
 	// Initialisation of MssmHbb class
 	MssmHbb analysis(inputList);
@@ -163,7 +163,7 @@ int main(int argc, char * argv[])
       	analysis.addHt(jet.pt());
 
       	//Only jets that pass Loose identification will be considered
-		if(!jet.idLoose()) continue;
+//		if(!jet.idLoose()) continue;
 		counter++;
 
 		//Only first 5 jets is taken into account
@@ -176,11 +176,13 @@ int main(int argc, char * argv[])
 
 		//Selection cuts for first three leading jets
 		if(counter == 1 || counter == 2 || counter == 3 ){
+			if(!jet.idLoose()) break;
 
 			if(counter == 1 || counter == 2){
 				if(jet.pt() < analysis.Pt1Cut()) break;
 				if(abs(jet.eta()) > 2.2) break;
 				if(jet.btag() < analysis.BTag1Cut()) break;
+
 
 				if(counter == 2){
 					if(abs(LeadJet[0].eta() - LeadJet[1].eta()) > analysis.dEtaCut()) break;

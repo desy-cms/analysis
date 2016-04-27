@@ -32,10 +32,11 @@ namespace analysis{
 			//Overwrite Leading jet selection from JetAnalysisBase class
 			virtual const bool leadingJetSelection(const std::shared_ptr<tools::Collection<tools::Jet> > & offlineJets);
 			//Overwrite Methods to work with histograms:
-			virtual void fillHistograms(const std::shared_ptr<tools::Collection<tools::Jet> > &offlineJets);
+			virtual void fillHistograms(const std::shared_ptr<tools::Collection<tools::Jet> > &offlineJets, const double & weight);
+			//Overwrite assignWeight method:
+			const double assignWeight();
 
-		private:
-
+			//Selection constants
 	        double pt1_;
 	        double pt2_;
 	        double eta1_ = 2.2;
@@ -44,6 +45,9 @@ namespace analysis{
 	        double btag2_;
 	        double dEta_ = 1.6;
 	        double dR_ = 1.;
+
+		private:
+
 		};
 	}
 }
