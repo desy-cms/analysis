@@ -186,27 +186,42 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
     ## I recommend using the version number explicitly to be able to compare
     ## however for production one has to be careful that all versions are included.
     ## Thinking of a better solution...
-    								        'HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v',
-    								        'HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v',
-    								        'HLT_DoubleJetsC112_DoubleBTagCSV0p85_DoublePFJetsC172_v',
-    								        'HLT_DoubleJetsC112_DoubleBTagCSV0p9_DoublePFJetsC112MaxDeta1p6_v',
+                                    'HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v',
+                                    'HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v',
+                                    'HLT_DoubleJetsC112_DoubleBTagCSV0p85_DoublePFJetsC172_v',
+                                    'HLT_DoubleJetsC112_DoubleBTagCSV0p9_DoublePFJetsC112MaxDeta1p6_v',
+                                    'HLT_PFJet60_v',
+                                    'HLT_PFJet80_v',
+                                    'HLT_PFJet140_v',
                                    ),
     TriggerObjectStandAlone  = cms.VInputTag(
                                              cms.InputTag("selectedPatTrigger","","PAT"),
                                              ),
     TriggerObjectLabels    = cms.vstring  (
-    											"hltL1sL1DoubleJetC100",
-    											"hltDoubleJetsC100",
-    											"hltDoublePFJetsC100",
-    											"hltDoublePFJetsC100MaxDeta1p6",
-    											"hltDoublePFJetsC160",
-    											"hltDoubleBTagCSV0p85",
-    											"hltDoubleBTagCSV0p9",
-    											"hltL1sL1DoubleJetC112",
-    											"hltDoubleJetsC112",
-    											"hltDoublePFJetsC112",
-    											"hltDoublePFJetsC112MaxDeta1p6",
-    											"hltDoublePFJetsC172",
+                                           "hltL1sL1DoubleJetC100",
+                                           "hltDoubleJetsC100",
+                                           "hltDoublePFJetsC100",
+                                           "hltDoublePFJetsC100MaxDeta1p6",
+                                           "hltDoublePFJetsC160",
+                                           "hltDoubleBTagCSV0p85",
+                                           "hltDoubleBTagCSV0p9",
+                                           "hltL1sL1DoubleJetC112",
+                                           "hltDoubleJetsC112",
+                                           "hltDoublePFJetsC112",
+                                           "hltDoublePFJetsC112MaxDeta1p6",
+                                           "hltDoublePFJetsC172",
+                                           "hltL1sL1SingleJet36",
+                                           "hltSingleCaloJet40",
+                                           "hltPFJetsCorrectedMatchedToCaloJets40",
+                                           "hltSinglePFJet60",
+                                           "hltL1sL1SingleJet52",
+                                           "hltPFJetsCorrectedMatchedToCaloJets50",
+                                           "hltSingleCaloJet50",
+                                           "hltSinglePFJet80",
+                                           "hltL1sL1SingleJet92",
+                                           "hltPFJetsCorrectedMatchedToCaloJets110",
+                                           "hltSingleCaloJet110",
+                                           "hltSinglePFJet140",
                                    ),
 #    L1ExtraJets     = cms.VInputTag(
 #                                    cms.InputTag("l1extraParticles","Central","RECO"),
@@ -225,7 +240,6 @@ process.p = cms.Path(
                       process.slimmedJetsPuppiCorrFactorsReapplyJEC  * process. slimmedJetsPuppiReapplyJEC *
                       process.slimmedJetsAK8PFCorrFactorsReapplyJEC  * process. slimmedJetsAK8PFCHSSoftDropPackedReapplyJEC *
                       process.jetCounterFilter * process.jetKinematicFilter *
-                      process.jetBTagFilter *
                       process.FilteredEvents *
                       process.MssmHbb
                     )
