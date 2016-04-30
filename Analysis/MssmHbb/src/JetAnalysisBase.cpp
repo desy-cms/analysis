@@ -70,7 +70,9 @@ void JetAnalysisBase::applySelection(){
 	bool goodLeadingJets = false;
 	double totWeight = 0;
 	TLorentzVector diJetObject;
+	double Ht;
 	Jet LeadJet[5];
+	ScaleFactor sf[5];
 	//Event loop:
 	auto nevents = 0;
 	if(TEST) nevents = 50;
@@ -87,7 +89,8 @@ void JetAnalysisBase::applySelection(){
 
 	    //Define Jet Collection
 		auto offlineJets = this->collection<Jet>("Jets");
-		auto shiftedJets = std::shared_ptr<Collection<Jet> >( new Collection<Jet>);
+		auto shiftedJets = std::make_shared<Collection<Jet> >();
+//		auto shiftedJets = std::shared_ptr<Collection<Jet> >( new Collection<Jet>);
 
 		//Define MC specific collections:
 		if(isMC()){
@@ -104,9 +107,7 @@ void JetAnalysisBase::applySelection(){
 	    auto offlinePrimaryVertices = this->collection<Vertex>("Vertices");
 
 	    goodLeadingJets = false;
-	    auto Ht = 0.;
-	    //Declare SFb
-	    ScaleFactor sf[5];
+	    Ht = 0.;
 
 	    //Jet Selection
 	    for( int iJet = 0; iJet < offlineJets -> size(); ++iJet){
@@ -120,15 +121,19 @@ void JetAnalysisBase::applySelection(){
 	    		//Selection of good Leading Jets:
 	    		if(!jet.idLoose()) break;
 //	    		if(!this->leadingJetSelection(shiftedJets)) break;
+
+	    	    //Clear SFb
+	    	    sf[iJet].clear();
+
 	    		LeadJet[iJet] = jet;
 
 	    		//Calculate SFb
 	    		if(isMC()){
 	    			if(iJet < 2){
-	    				sf[iJet] = calculateBTagSF(jet,false);
+//	    				sf[iJet] = calculateBTagSF(jet, btagOP1_);
 	    			}
 	    			if(iJet == 2){
-	    				sf[iJet] = calculateBTagSF(jet,true);
+//	    				sf[iJet] = calculateBTagSF(jet,btagOP3_);
 	    			}
 	    		}
 
@@ -162,13 +167,26 @@ void JetAnalysisBase::applySelection(){
         	  weight_["PtEff_up"]		= weight_["2DPt"] + 2.*std::abs(weight_["2DPt"] - weight_["FactorPt"]);
         	  weight_["PtEff_down"]		= weight_["2DPt"] - 2.*std::abs(weight_["2DPt"] - weight_["FactorPt"]);
 
-        	  weight_["SFb_central"]	= sf[0].central * sf[1].central;
-        	  weight_["SFb_up"]			= (2.*(sf[0].up - sf[0].central) + sf[0].central) * (2.*(sf[1].up - sf[1].central) + sf[1].central);
-        	  weight_["SFb_down"]		= (2.*(sf[0].down - sf[0].central) + sf[0].central) * (2.*(sf[1].down - sf[1].central) + sf[1].central);
-        	  if(nJets_ == 3) {
-        		  weight_["SFb_central"] 	*= sf[2].central;
-        		  weight_["SFb_up"]			*= (2.*(sf[2].up - sf[2].central) + sf[2].central);
-        		  weight_["SFb_down"]		*= (2.*(sf[2].down - sf[2].central) + sf[2].central);
+        	  weight_["SFl_central"] = 1;
+        	  weight_["SFl_up"] = 1;
+        	  weight_["SFl_down"] = 1;
+
+        	  weight_["SFb_central"] = 1;
+        	  weight_["SFb_up"] = 1;
+        	  weight_["SFb_down"] = 1;
+
+        	  //..........................SF weight...............
+        	  for(int i = 0; i<nJets_;++i){
+        		  if(sf[i].flavour != 0){ //only for b/c
+        			  weight_["SFb_central"] 	*= sf[i].central;
+        			  weight_["SFb_up"]			*= (2.*(sf[i].up - sf[i].central) + sf[i].central);
+        			  weight_["SFb_down"]		*= (2.*(sf[i].down - sf[i].central) + sf[i].central);
+        		  }
+        		  else {
+        			  weight_["SFl_central"] 	*= sf[i].central;
+        			  weight_["SFl_up"]			*= (2.*(sf[i].up - sf[i].central) + sf[i].central);
+        			  weight_["SFl_down"]		*= (2.*(sf[i].down - sf[i].central) + sf[i].central);
+        		  }
         	  }
 
         	  //Selection depending weights
@@ -183,9 +201,7 @@ void JetAnalysisBase::applySelection(){
 
 	    }
 
-
 	    totWeight = this->assignWeight();
-	    std::cout<<totWeight<<std::endl;
 	    this->fillHistograms(shiftedJets,totWeight);
 
 	}
@@ -203,8 +219,8 @@ const bool JetAnalysisBase::leadingJetSelection(const std::shared_ptr<tools::Col
 	Jet jet1 = offlineJets->at(0);
 	Jet jet2 = offlineJets->at(1);
 
-	if(jet1.pt() < pt1_ || jet2.pt() < pt1_) return false;
-	if(jet1.pt() < eta1_ || jet2.pt() < eta1_) return false;
+	if(jet1.pt() < pt1_ || jet2.pt() < pt2_) return false;
+	if(jet1.eta() < eta1_ || jet2.eta() < eta2_) return false;
 
 	return true;
 }
@@ -246,94 +262,97 @@ void JetAnalysisBase::loadCorrections(){
 	TH1::AddDirectory(0);
 	if(lowM_){
 		//Online BTag Trigger Efficiency produced by Ye Chen
-		fCorrections_["fRelBTagEff"] = pTFile(new TFile("input_corrections/RelOnlineBTagCSV0p9Eff_PtEta.root","read") );
+		fCorrections_["fRelBTagEff"] = std::make_unique<TFile>("input_corrections/RelOnlineBTagCSV0p9Eff_PtEta.root","read");
 		hCorrections1D_["hRelBTagEff0p9"] 		=	  (TH1D*) fCorrections_["fRelBTagEff"] -> Get("heh4") ;			// eta <0.9
 		hCorrections1D_["hRelBTagEff0p9_1p4"] 	=	 (TH1D*) fCorrections_["fRelBTagEff"] -> Get("heh3") ;		// 1.4 > eta >0.9
 		hCorrections1D_["hRelBTagEff1p4_2p5"] 	= 	 (TH1D*) fCorrections_["fRelBTagEff"] -> Get("heh2") ;		// 2.5 > eta > 1.4
 
 		//Online Pt trigger efficiency:
-		fCorrections_["fPtTriggerEff"] = pTFile (new TFile("input_corrections/TwoDPtLowMassEfficiency.root","read") );
+		fCorrections_["fPtTriggerEff"] = std::make_unique<TFile>("input_corrections/TwoDPtLowMassEfficiency.root","read");
 		hCorrections2D_["hPtTriggerEff"] = (TH2D*) fCorrections_["fPtTriggerEff"] ->Get("TwoDEff_Num") ; // 2D
 
 		// Add Ht reweighting:
-		fCorrections_["fHtWeight"] = pTFile (new TFile("input_corrections/HtRatio.root","read") );
+		fCorrections_["fHtWeight"] = std::make_unique<TFile>("input_corrections/HtRatio.root","read");
 		hCorrections1D_["hHtWeight"] =  (TH1D*) fCorrections_["fHtWeight"] -> Get("hRatio") ;
 
 	}
 	else {
 
 		// For high mass trigger only 2D efficiency were provided
-		fCorrections_["fRelBTagEff"] = pTFile (new TFile("input_corrections/TwoDBTagCSV0p85_2D_PtEta.root","read") );
+		fCorrections_["fRelBTagEff"] = std::make_unique<TFile>("input_corrections/TwoDBTagCSV0p85_2D_PtEta.root","read");
 		hCorrections2D_["hRelBTagEff2D"] = (TH2D*) fCorrections_["fRelBTagEff"] ->Get("h2ehn") ;
 
 		//Online Pt trigger efficiency:
-		fCorrections_["fPtTriggerEff"] = pTFile (new TFile("input_corrections/TwoDPtHighMassEfficiency.root","read") );
+		fCorrections_["fPtTriggerEff"] = std::make_unique<TFile>("input_corrections/TwoDPtHighMassEfficiency.root","read");
 		hCorrections2D_["hPtTriggerEff"]  = (TH2D*) fCorrections_["fPtTriggerEff"] ->Get("TwoDEff_Num"); // 2D
 
 		// Add Ht reweighting:
-		fCorrections_["fHtWeight"] = pTFile (new TFile("input_corrections/HtRatio.root","read") );
+		fCorrections_["fHtWeight"] = std::make_unique<TFile>("input_corrections/HtRatio.root","read");
 		hCorrections1D_["hHtWeight"] =  (TH1D*) fCorrections_["fHtWeight"] -> Get("hRatio") ;
 
 	}
-	fCorrections_["fPileUpData_central"] = pTFile(new TFile("input_corrections/PileUp_2015Dec_central.root","read") );
-	fCorrections_["fPileUpData_up"] = pTFile(new TFile("input_corrections/PileUp_2015Dec_up.root","read") );
-	fCorrections_["fPileUpData_down"] = pTFile(new TFile("input_corrections/PileUp_2015Dec_down.root","read") );
+	fCorrections_["fPileUpData_central"] = std::make_unique<TFile>("input_corrections/PileUp_2015Dec_central.root","read");
+	fCorrections_["fPileUpData_up"] = std::make_unique<TFile>("input_corrections/PileUp_2015Dec_up.root","read");
+	fCorrections_["fPileUpData_down"] = std::make_unique<TFile>("input_corrections/PileUp_2015Dec_down.root","read");
 	hCorrections1D_["hPileUpData_central"] = (TH1D*) fCorrections_["fPileUpData_central"]->Get("pileup");
 	hCorrections1D_["hPileUpData_up"] = (TH1D*) fCorrections_["fPileUpData_up"]->Get("pileup");
 	hCorrections1D_["hPileUpData_down"] = (TH1D*) fCorrections_["fPileUpData_down"]->Get("pileup");
-	fCorrections_["fPileUpMC"] = pTFile(new TFile("input_corrections/MC_Fall15_PU25_V1.root","read") );
+	fCorrections_["fPileUpMC"] = std::make_unique<TFile>("input_corrections/MC_Fall15_PU25_V1.root","read");
 	hCorrections1D_["hPileUpMC"] = (TH1D*) fCorrections_["fPileUpMC"] -> Get("pileup") ;
 
 
 
-	BTagCalibrationLib_ = std::unique_ptr<BTagCalibration> (new BTagCalibration("csvv2", "input_corrections/SFbLib.csv") );
-	SFb_["J12_central"] = pSFReader (new BTagCalibrationReader(BTagCalibrationLib_.get(),               // calibration instance
-            													BTagEntry::OP_TIGHT,  // operating point
-																"mujets",               // measurement type
-																"central"));           // systematics type);
-	SFb_["J12_up"] = pSFReader (new BTagCalibrationReader(BTagCalibrationLib_.get(), BTagEntry::OP_TIGHT, "mujets", "up") );
-	SFb_["J12_down"] = pSFReader (new BTagCalibrationReader(BTagCalibrationLib_.get(), BTagEntry::OP_TIGHT, "mujets", "down") );
+	BTagCalibrationLib_ = std::make_unique<BTagCalibration>("csvv2", "input_corrections/SFbLib.csv");
 
-	BTagEntry::OperatingPoint op;
-	if(lowM_) op = BTagEntry::OP_MEDIUM;
-	else op = BTagEntry::OP_LOOSE;
-	SFb_["J3_central"] = pSFReader (new BTagCalibrationReader(BTagCalibrationLib_.get(), op, "mujets", "central") );
-	SFb_["J3_up"] = pSFReader (new BTagCalibrationReader(BTagCalibrationLib_.get(), op , "mujets", "up") );
-	SFb_["J3_down"] = pSFReader (new BTagCalibrationReader(BTagCalibrationLib_.get(), op , "mujets", "down") );
+//	SFb_["J12_central"] = std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(),               // calibration instance
+//            													BTagEntry::OP_TIGHT,  // operating point
+//																"mujets",               // measurement type
+//																"central");           // systematics type);
+//	SFb_["J12_up"] = std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(), BTagEntry::OP_TIGHT, "mujets", "up");
+//	SFb_["J12_down"] = std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(), BTagEntry::OP_TIGHT, "mujets", "down");
+//
+//	BTagEntry::OperatingPoint op;
+//	if(lowM_) op = BTagEntry::OP_MEDIUM;
+//	else op = BTagEntry::OP_LOOSE;
+//	SFb_["J3_central"] = std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(), op, "mujets", "central") ;
+//	SFb_["J3_up"] = std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(), op , "mujets", "up") ;
+//	SFb_["J3_down"] = std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(), op , "mujets", "down") ;
 
 	//Declare weights:
 	pWeight_ = std::unique_ptr<Weights>(new Weights(lowM_));
 
 }
 
-const JetAnalysisBase::ScaleFactor JetAnalysisBase::calculateBTagSF(const tools::Jet & jet, const bool & thirdJ){
+const JetAnalysisBase::ScaleFactor JetAnalysisBase::calculateBTagSF(const tools::Jet & jet,const int & op){
 
-	double btagJetPt = 0;
-	btagJetPt = jet.pt();
-	bool DoubleUncertainty = false;
-	if(btagJetPt >= 670.){
-		btagJetPt = 669; //Doesn't work at the limit, so that I add "-1"
-		DoubleUncertainty = true;
-	}
+	std::string measurementType;
+	BTagEntry::JetFlavor flav_b;
+	double pt_limit = jet.pt();
+	bool doubleUncertainty = false;
+	if(jet.flavour() == 0){ flav_b = BTagEntry::FLAV_UDSG;	measurementType = "incl"; }
+	else if(jet.flavour() == 5){ flav_b = BTagEntry::FLAV_B; measurementType = "mujets"; }
+	else if(jet.flavour() == 4){ flav_b = BTagEntry::FLAV_C; measurementType = "mujets"; }
+	else {std::cerr<<"non b/c/udsg flavour in JetAnalysisBase::calculateBTagSF. Exception."<<std::endl; exit(1); }
+
+	if(measurementType == "incl" && pt_limit >= 1000){ pt_limit = 999; doubleUncertainty = true; }
+	else if(measurementType == "mujets" && pt_limit >= 670. ){ pt_limit = 669; doubleUncertainty = true; }
 
 	ScaleFactor sf;
+	BTagCalibrationReader readerCentral(BTagCalibrationLib_.get(),(BTagEntry::OperatingPoint)op,measurementType,"central");
+	BTagCalibrationReader readerUp(BTagCalibrationLib_.get(),(BTagEntry::OperatingPoint)op,measurementType,"up");
+	BTagCalibrationReader readerDown(BTagCalibrationLib_.get(),(BTagEntry::OperatingPoint)op,measurementType,"down");
 
-	if(!thirdJ){
-		sf.central 	= SFb_["J12_central"]->eval(BTagEntry::FLAV_B, jet.eta(), btagJetPt);
-		sf.up		= SFb_["J12_up"]->eval(BTagEntry::FLAV_B,jet.eta(), btagJetPt);
-		sf.down		= SFb_["J12_down"]->eval(BTagEntry::FLAV_B,jet.eta(), btagJetPt);
-	}
-	else {
-		sf.central 	= SFb_["J3_central"]->eval(BTagEntry::FLAV_B, jet.eta(), btagJetPt);
-		sf.up		= SFb_["J3_up"]->eval(BTagEntry::FLAV_B,jet.eta(), btagJetPt);
-		sf.down		= SFb_["J3_down"]->eval(BTagEntry::FLAV_B,jet.eta(), btagJetPt);
-	}
+	sf.central 	= readerCentral	.eval(flav_b,jet.eta(), pt_limit);
+	sf.up		= readerUp		.eval(flav_b,jet.eta(), pt_limit);
+	sf.down		= readerDown	.eval(flav_b,jet.eta(), pt_limit);
+	sf.flavour  = jet.flavour();
 
-	// If Pt > Maximum - uncertinties should be doubled and calculated with the extremum value
-	if(DoubleUncertainty){
+	if(doubleUncertainty){
 		sf.up 	= 2*(sf.up - sf.central) + sf.central;
 		sf.down = 2*(sf.down - sf.central) + sf.central;
 	}
+
+
 
 	return sf;
 }
@@ -386,11 +405,11 @@ void JetAnalysisBase::createOutputFile(const std::string &name){
 
 	if(name.find(".root") == std::string::npos) finale_name += ".root";
 	if(finale_name.find("/") != std::string::npos){
-		outputFile_ = pTFile(new TFile(finale_name.c_str(),"RECREATE"));
+		outputFile_ = std::make_unique<TFile>(finale_name.c_str(),"RECREATE");
 	}
 	else {
 		finale_name = cmsswBase + "/src/Analysis/MssmHbb/output/" + finale_name;
-		outputFile_ = pTFile(new TFile(finale_name.c_str(),"RECREATE"));
+		outputFile_ = std::make_unique<TFile>(finale_name.c_str(),"RECREATE");
 	}
 	std::cout<<"File: "<<finale_name<<" was created"<<std::endl;
 }

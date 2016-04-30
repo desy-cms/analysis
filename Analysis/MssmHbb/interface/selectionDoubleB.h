@@ -36,18 +36,6 @@ namespace analysis{
 			//Overwrite assignWeight method:
 			const double assignWeight();
 
-			//Selection constants
-	        double pt1_;
-	        double pt2_;
-	        double eta1_ = 2.2;
-	        double eta2_ = 2.2;
-	        double btag1_;
-	        double btag2_;
-	        double dEta_ = 1.6;
-	        double dR_ = 1.;
-
-		private:
-
 		};
 	}
 }

@@ -74,15 +74,18 @@ namespace analysis{
         virtual void writeHistograms();
 
         struct ScaleFactor{
-        	ScaleFactor() : central(0), up(0), down (0) {};
-        	ScaleFactor(const double & centr, const double & upper, const double & lower) :
+        	ScaleFactor() : central(0), up(0), down (0), flavour(-100) {};
+        	ScaleFactor(const double & centr, const double & upper, const double & lower, const int & flav) :
         		central(centr),
         		up(upper),
-        		down(lower) {};
+        		down(lower),
+				flavour(flav) {};
         	~ScaleFactor(){};
-        	double central;
-        	double up;
-        	double down;
+        	void clear(){central = -100, up = -100, down = -100, flavour = -100;}
+        	double 	central;
+        	double 	up;
+        	double 	down;
+        	int		flavour;
         };
 
         //Return std::vector that contains names of all trigger objects
@@ -114,6 +117,21 @@ namespace analysis{
         const virtual bool leadingJetSelection(const std::shared_ptr<tools::Collection<tools::Jet> > & offlineJets);
         const virtual bool OnlineSelection(const analysis::tools::Jet &fLeadOfflineJet,const analysis::tools::Jet &sLeadOfflineJet);
 
+		//Selection constants
+        double pt1_ = 100;
+        double pt2_ = 100;
+        double pt3_ =  40;
+        double eta1_ = 2.2;
+        double eta2_ = 2.2;
+        double btag1_= 0.935;
+        double btag2_= 0.935;
+        double btag3_= 0.46;
+        double dEta_ = 1.6;
+        double dR_ = 1.;
+        int btagOP1_ = 2; //OPerating points for BTag. 0 - Loose, 1 - Mid, 2 - Tight
+        int btagOP2_ = 2;
+        int btagOP3_ = 0;
+
 	private:
 
         std::unique_ptr<Weights> pWeight_;
@@ -124,14 +142,8 @@ namespace analysis{
         std::map<std::string,pSFReader > SFb_;
         std::unique_ptr<BTagCalibration> BTagCalibrationLib_;
 
-        const double pt1_ = 80.;
-        const double pt3_ = 30.;
-        const double eta1_ = 2.4;
-        const double dEta_ = 100.;
-        const double dR_ = 1.;
-
         //Scale Factors calculation
-        const ScaleFactor calculateBTagSF(const tools::Jet & Jet, const bool & thirdJ);
+        const ScaleFactor calculateBTagSF(const tools::Jet & jet,const int & op);
 
 
 	};

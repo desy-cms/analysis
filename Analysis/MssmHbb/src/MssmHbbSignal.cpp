@@ -19,6 +19,7 @@ MssmHbbSignal::MssmHbbSignal(const std::string & inputFilelist, const bool & low
 	nJets_ = 3;
 	if(lowM){
         btag3_ = 0.8;
+        btagOP3_ = 1;
 	}
 	else {
         btag3_ = 0.46;
@@ -85,6 +86,9 @@ void MssmHbbSignal::fillHistograms(const std::shared_ptr<Collection<Jet> > &offl
 			(histo_.getHisto())["template_SFb_up"]->Fill(obj12.M(),weight/weight_["SFb_central"] * weight_["SFb_up"]);
 			(histo_.getHisto())["template_SFb_down"]->Fill(obj12.M(),weight/weight_["SFb_central"] * weight_["SFb_down"]);
 
+			(histo_.getHisto())["template_SFl_up"]->Fill(obj12.M(),weight/weight_["SFl_central"] * weight_["SFl_up"]);
+			(histo_.getHisto())["template_SFl_down"]->Fill(obj12.M(),weight/weight_["SFl_central"] * weight_["SFl_down"]);
+
 			(histo_.getHisto())["template_PU_up"]->Fill(obj12.M(),weight/weight_["PU_central"] * weight_["PU_up"]);
 			(histo_.getHisto())["template_PU_down"]->Fill(obj12.M(),weight/weight_["PU_central"] * weight_["PU_down"]);
 
@@ -98,20 +102,6 @@ void MssmHbbSignal::fillHistograms(const std::shared_ptr<Collection<Jet> > &offl
 	else if (JESshift_ == 1){
 		(histo_.getHisto())["template_JES_up"]->Fill(obj12.M(),weight);
 	}
-		//Special case for JES
-//		Jet JES_jet1_up(jet1.pt()*(1+2.*jet1.jecUncert()),jet1.eta(),jet1.phi(),jet1.e()*(1.+2.*jet1.jecUncert()));
-//		Jet JES_jet1_down(jet1.pt()*(1-2.*jet1.jecUncert()),jet1.eta(),jet1.phi(),jet1.e()*(1.-2.*jet1.jecUncert()));
-//
-//		Jet JES_jet2_up(jet2.pt()*(1+2.*jet2.jecUncert()),jet2.eta(),jet2.phi(),jet2.e()*(1.+2.*jet2.jecUncert()));
-//		Jet JES_jet2_down(jet2.pt()*(1-2.*jet2.jecUncert()),jet2.eta(),jet2.phi(),jet2.e()*(1.-2.*jet2.jecUncert()));
-
-//		(histo_.getHisto())["template_JES_up"]->Fill((JES_jet1_up.p4() + JES_jet2_up.p4()).M(),weight);
-//		(histo_.getHisto())["template_JES_down"]->Fill((JES_jet1_down.p4() + JES_jet2_down.p4()).M(),weight);
-
-//		std::cout<<"JES: "<<2.*jet1.jecUncert()<<" "<<2.*jet2.jecUncert()<<" \n Mass: "<<obj12.M()<<" "<<(JES_jet1_up.p4() + JES_jet2_up.p4()).M()<<" "<<(JES_jet1_down.p4() + JES_jet2_down.p4()).M()<<std::endl;
-
-//		(histo_.getHisto())["template_JES_up"]->Fill(obj12.M(),weight/weight_["JES_central"] * weight_["JES_up"]);
-//		(histo_.getHisto())["template_JES_down"]->Fill(obj12.M(),weight/weight_["JES_central"] * weight_["JES_down"]);
 
 //	if(TEST) std::cout<<"I'm out of MssmHbbSignal::fillHistograms"<<std::endl;
 }
@@ -138,7 +128,7 @@ void MssmHbbSignal::writeHistograms(){
 const double MssmHbbSignal::assignWeight(){
 	double weight = 1;
 	if(isMC()) {
-		weight = weight_["dEta"] * weight_["Lumi"] * weight_["2DPt"] * weight_["BTag"] * weight_["PU_central"] * weight_["SFb_central"];
+		weight = weight_["dEta"] * weight_["Lumi"] * weight_["2DPt"] * weight_["BTag"] * weight_["PU_central"] * weight_["SFb_central"] * weight_["SFl_central"];
 	}
 	return weight;
 }

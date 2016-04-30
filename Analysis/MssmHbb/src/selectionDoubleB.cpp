@@ -25,6 +25,7 @@ JetAnalysisBase(inputFilelist,lowM,test) {
 		triggerObjectName_ = {"hltL1sL1DoubleJetC100","hltDoubleJetsC100","hltDoubleBTagCSV0p85","hltDoublePFJetsC160"};
         pt1_ = 160.; pt2_ = 160.;
         btag1_ = 0.8; btag2_ = 0.8;
+        btagOP1_ = 1; btagOP2_ = 1;
 	}
 
 }

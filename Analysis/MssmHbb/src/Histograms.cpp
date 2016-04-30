@@ -56,6 +56,10 @@ void Histograms::Make(const int &size) {
 	histo_["template_SFb_down"]			= new TH1D("template_SFb_down","",size,0.,1500);
 	histo_["template_SFb_up"]			= new TH1D("template_SFb_up","",size,0.,1500);
 
+	//SFl
+	histo_["template_SFl_down"]			= new TH1D("template_SFl_down","",size,0.,1500);
+	histo_["template_SFl_up"]			= new TH1D("template_SFl_up","",size,0.,1500);
+
 	//JES
 	histo_["template_JES_down"]			= new TH1D("template_JES_down","",size,0.,1500);
 	histo_["template_JES_up"]			= new TH1D("template_JES_up","",size,0.,1500);
