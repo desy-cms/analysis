@@ -75,7 +75,7 @@ void JetAnalysisBase::applySelection(){
 	ScaleFactor sf[5];
 	//Event loop:
 	auto nevents = 0;
-	if(TEST) nevents = 50;
+	if(TEST) nevents = 5000;
 	else nevents = this->size();
 
 	for(auto i = 0; i < nevents; ++ i){
@@ -130,10 +130,10 @@ void JetAnalysisBase::applySelection(){
 	    		//Calculate SFb
 	    		if(isMC()){
 	    			if(iJet < 2){
-//	    				sf[iJet] = calculateBTagSF(jet, btagOP1_);
+	    				sf[iJet] = calculateBTagSF(jet,btagOP1_);
 	    			}
 	    			if(iJet == 2){
-//	    				sf[iJet] = calculateBTagSF(jet,btagOP3_);
+	    				sf[iJet] = calculateBTagSF(jet,btagOP3_);
 	    			}
 	    		}
 
@@ -303,20 +303,45 @@ void JetAnalysisBase::loadCorrections(){
 
 
 	BTagCalibrationLib_ = std::make_unique<BTagCalibration>("csvv2", "input_corrections/SFbLib.csv");
+	SFb_["OP0_FLAV_B_central"] = std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(),             // calibration instance
+																	BTagEntry::OperatingPoint::OP_LOOSE,  		// operating point
+																	"mujets",               					// measurement type
+																	"central");           						// systematics type);
 
-//	SFb_["J12_central"] = std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(),               // calibration instance
-//            													BTagEntry::OP_TIGHT,  // operating point
-//																"mujets",               // measurement type
-//																"central");           // systematics type);
-//	SFb_["J12_up"] = std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(), BTagEntry::OP_TIGHT, "mujets", "up");
-//	SFb_["J12_down"] = std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(), BTagEntry::OP_TIGHT, "mujets", "down");
-//
-//	BTagEntry::OperatingPoint op;
-//	if(lowM_) op = BTagEntry::OP_MEDIUM;
-//	else op = BTagEntry::OP_LOOSE;
-//	SFb_["J3_central"] = std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(), op, "mujets", "central") ;
-//	SFb_["J3_up"] = std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(), op , "mujets", "up") ;
-//	SFb_["J3_down"] = std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(), op , "mujets", "down") ;
+	SFb_["OP0_FLAV_B_up"] 			= std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(),BTagEntry::OperatingPoint::OP_LOOSE,"mujets","up");
+	SFb_["OP0_FLAV_B_down"] 		= std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(),BTagEntry::OperatingPoint::OP_LOOSE,"mujets","down");
+
+	SFb_["OP0_FLAV_C_central"] 		= std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(),BTagEntry::OperatingPoint::OP_LOOSE,"mujets","central");
+	SFb_["OP0_FLAV_C_up"] 			= std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(),BTagEntry::OperatingPoint::OP_LOOSE,"mujets","up");
+	SFb_["OP0_FLAV_C_down"] 		= std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(),BTagEntry::OperatingPoint::OP_LOOSE,"mujets","down");
+
+	SFb_["OP0_FLAV_UDSG_central"] 	= std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(),BTagEntry::OperatingPoint::OP_LOOSE,"incl","central");
+	SFb_["OP0_FLAV_UDSG_up"] 		= std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(),BTagEntry::OperatingPoint::OP_LOOSE,"incl","up");
+	SFb_["OP0_FLAV_UDSG_down"] 		= std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(),BTagEntry::OperatingPoint::OP_LOOSE,"incl","down");
+
+	SFb_["OP1_FLAV_B_central"] 		= std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(),BTagEntry::OperatingPoint::OP_MEDIUM,"mujets","central");
+	SFb_["OP1_FLAV_B_up"] 			= std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(),BTagEntry::OperatingPoint::OP_MEDIUM,"mujets","up");
+	SFb_["OP1_FLAV_B_down"] 		= std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(),BTagEntry::OperatingPoint::OP_MEDIUM,"mujets","down");
+
+	SFb_["OP1_FLAV_C_central"] 		= std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(),BTagEntry::OperatingPoint::OP_MEDIUM,"mujets","central");
+	SFb_["OP1_FLAV_C_up"] 			= std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(),BTagEntry::OperatingPoint::OP_MEDIUM,"mujets","up");
+	SFb_["OP1_FLAV_C_down"] 		= std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(),BTagEntry::OperatingPoint::OP_MEDIUM,"mujets","down");
+
+	SFb_["OP1_FLAV_UDSG_central"] 	= std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(),BTagEntry::OperatingPoint::OP_MEDIUM,"incl","central");
+	SFb_["OP1_FLAV_UDSG_up"] 		= std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(),BTagEntry::OperatingPoint::OP_MEDIUM,"incl","up");
+	SFb_["OP1_FLAV_UDSG_down"] 		= std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(),BTagEntry::OperatingPoint::OP_MEDIUM,"incl","down");
+
+	SFb_["OP2_FLAV_B_central"] 		= std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(),BTagEntry::OperatingPoint::OP_TIGHT,"mujets","central");
+	SFb_["OP2_FLAV_B_up"] 			= std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(),BTagEntry::OperatingPoint::OP_TIGHT,"mujets","up");
+	SFb_["OP2_FLAV_B_down"] 		= std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(),BTagEntry::OperatingPoint::OP_TIGHT,"mujets","down");
+
+	SFb_["OP2_FLAV_C_central"] 		= std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(),BTagEntry::OperatingPoint::OP_TIGHT,"mujets","central");
+	SFb_["OP2_FLAV_C_up"] 			= std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(),BTagEntry::OperatingPoint::OP_TIGHT,"mujets","up");
+	SFb_["OP2_FLAV_C_down"] 		= std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(),BTagEntry::OperatingPoint::OP_TIGHT,"mujets","down");
+
+	SFb_["OP2_FLAV_UDSG_central"] 	= std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(),BTagEntry::OperatingPoint::OP_TIGHT,"incl","central");
+	SFb_["OP2_FLAV_UDSG_up"] 		= std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(),BTagEntry::OperatingPoint::OP_TIGHT,"incl","up");
+	SFb_["OP2_FLAV_UDSG_down"] 		= std::make_unique<BTagCalibrationReader>(BTagCalibrationLib_.get(),BTagEntry::OperatingPoint::OP_TIGHT,"incl","down");
 
 	//Declare weights:
 	pWeight_ = std::unique_ptr<Weights>(new Weights(lowM_));
@@ -329,30 +354,31 @@ const JetAnalysisBase::ScaleFactor JetAnalysisBase::calculateBTagSF(const tools:
 	BTagEntry::JetFlavor flav_b;
 	double pt_limit = jet.pt();
 	bool doubleUncertainty = false;
-	if(jet.flavour() == 0){ flav_b = BTagEntry::FLAV_UDSG;	measurementType = "incl"; }
-	else if(jet.flavour() == 5){ flav_b = BTagEntry::FLAV_B; measurementType = "mujets"; }
-	else if(jet.flavour() == 4){ flav_b = BTagEntry::FLAV_C; measurementType = "mujets"; }
+	if(jet.flavour() == 0)		{ flav_b = BTagEntry::FLAV_UDSG	; measurementType = "FLAV_UDSG"; }
+	else if(jet.flavour() == 5)	{ flav_b = BTagEntry::FLAV_B	; measurementType = "FLAV_B"; }
+	else if(jet.flavour() == 4)	{ flav_b = BTagEntry::FLAV_C	; measurementType = "FLAV_C"; }
 	else {std::cerr<<"non b/c/udsg flavour in JetAnalysisBase::calculateBTagSF. Exception."<<std::endl; exit(1); }
 
-	if(measurementType == "incl" && pt_limit >= 1000){ pt_limit = 999; doubleUncertainty = true; }
-	else if(measurementType == "mujets" && pt_limit >= 670. ){ pt_limit = 669; doubleUncertainty = true; }
+	std::string operation_point;
+	if(op == 0){ operation_point = "OP0";}
+	else if( op == 1) {operation_point = "OP1";}
+	else if( op == 2) {operation_point = "OP2";}
+	else {std::cerr<<"wrong operation point was provided in JetAnalysisBase::calculateBTagSF. Exception."<<std::endl; exit(1);}
+
+	if(jet.flavour() == 0 && pt_limit >= 1000)		{ pt_limit = 999; doubleUncertainty = true; }
+	else if(jet.flavour() != 0 && pt_limit >= 670. ){ pt_limit = 669; doubleUncertainty = true; }
 
 	ScaleFactor sf;
-	BTagCalibrationReader readerCentral(BTagCalibrationLib_.get(),(BTagEntry::OperatingPoint)op,measurementType,"central");
-	BTagCalibrationReader readerUp(BTagCalibrationLib_.get(),(BTagEntry::OperatingPoint)op,measurementType,"up");
-	BTagCalibrationReader readerDown(BTagCalibrationLib_.get(),(BTagEntry::OperatingPoint)op,measurementType,"down");
 
-	sf.central 	= readerCentral	.eval(flav_b,jet.eta(), pt_limit);
-	sf.up		= readerUp		.eval(flav_b,jet.eta(), pt_limit);
-	sf.down		= readerDown	.eval(flav_b,jet.eta(), pt_limit);
+ 	sf.central 	= SFb_[operation_point + "_" + measurementType + "_" + "central"]->eval(flav_b,jet.eta(),pt_limit);
+	sf.up 		= SFb_[operation_point + "_" + measurementType + "_" + "up"]		->eval(flav_b,jet.eta(),pt_limit);
+	sf.down		= SFb_[operation_point + "_" + measurementType + "_" + "down"]	->eval(flav_b,jet.eta(),pt_limit);
 	sf.flavour  = jet.flavour();
 
 	if(doubleUncertainty){
 		sf.up 	= 2*(sf.up - sf.central) + sf.central;
 		sf.down = 2*(sf.down - sf.central) + sf.central;
 	}
-
-
 
 	return sf;
 }
