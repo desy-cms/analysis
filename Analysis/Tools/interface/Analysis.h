@@ -60,8 +60,15 @@ namespace analysis {
             int  lumiSection();
             bool isMC();
             
+            // PileupInfo
             int   nPileup();
             float nTruePileup();
+            
+            // GenEventInfo
+            double genWeight();
+            double genScale();
+            PDF    pdf();
+            
 
             // Trees
             template<class Object>
@@ -102,6 +109,9 @@ namespace analysis {
             FilterResults generatorFilter(const std::string & path);
             void listGeneratorFilter();
             
+            // Event Filter
+            FilterResults eventFilter(const std::string & path);
+            
             // Matching to trigger objects
             template <class Object1, class Object2>
             void match(const std::string & collection, const std::string & match_collection, const float & deltaR = 0.5);
@@ -124,6 +134,7 @@ namespace analysis {
             std::map<std::string, bool> triggerResults_;
             std::map<int,std::vector<std::string> > goodLumi_;
             FilterResults genfilter_;
+            FilterResults evtfilter_;
             
             // default collections
             std::string defaultGenParticle_;
@@ -135,6 +146,10 @@ namespace analysis {
             
             int n_pu_;
             float n_true_pu_;
+            
+            double genWeight_;
+            double genScale_;
+            PDF    pdf_;
 
             int nevents_;
 
@@ -142,6 +157,7 @@ namespace analysis {
             void treeInit_(const std::string & unique_name, const std::string & path);
             TChain * t_xsection_;
             TChain * t_genfilter_;
+            TChain * t_evtfilter_;
             TChain * t_event_;
             TChain * t_triggerResults_;
 
@@ -278,6 +294,10 @@ namespace analysis {
       
       inline int   Analysis::nPileup()      { return n_pu_;      }
       inline float Analysis::nTruePileup()  { return n_true_pu_; }
+      
+      inline double Analysis::genWeight()   { return genWeight_; }
+      inline double Analysis::genScale()    { return genScale_;  }
+      inline PDF    Analysis::pdf()         { return pdf_;       }
       
 //      inline std::string Analysis::getGenParticleCollection() { return genParticleCollection_; }
 

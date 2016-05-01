@@ -17,14 +17,30 @@ for pset in process.GlobalTag.toGet.value():
 process.GlobalTag.RefreshEachRun = cms.untracked.bool( False )
 process.GlobalTag.ReconnectEachRun = cms.untracked.bool( False )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
-output_file = 'test_mc.root'
+output_file = '/nfs/dust/cms/user/walsh/tmp/test_mc_hbbM300_2.root'
 ## TFileService
 process.TFileService = cms.Service("TFileService",
 	fileName = cms.string(output_file)
 )
 
+## ============ TRIGGER FILTER =============== 
+## Enable below at cms.Path if needed 
+process.triggerSelection = cms.EDFilter( "TriggerResultsFilter",
+    triggerConditions = cms.vstring(
+                        'HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v*',
+                        'HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v*',
+                        'HLT_DoubleJetsC112_DoubleBTagCSV0p85_DoublePFJetsC172_v*',
+                        'HLT_DoubleJetsC112_DoubleBTagCSV0p9_DoublePFJetsC112MaxDeta1p6_v*',
+    ),
+    hltResults = cms.InputTag( "TriggerResults", "", "HLT" ),
+    l1tResults = cms.InputTag( "" ),
+    l1tIgnoreMask = cms.bool( False ),
+    l1techIgnorePrescales = cms.bool( False ),
+    daqPartitions = cms.uint32( 1 ),
+    throw = cms.bool( True )
+)
 
 ## ============ EVENT FILTER COUNTER ===============
 ## Filter counter (maybe more useful for MC)
@@ -46,6 +62,7 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
     ## Monte Carlo only
     GenFilterInfo   = cms.InputTag("genFilterEfficiencyProducer"),
     GenRunInfo      = cms.InputTag("generator"),
+    GenEventInfo    = cms.InputTag("generator"),
     GenJets         = cms.VInputTag(cms.InputTag("slimmedGenJets")),
     GenParticles    = cms.VInputTag(cms.InputTag("prunedGenParticles")),
     PileupInfo      = cms.InputTag("slimmedAddPileupInfo"),
@@ -109,6 +126,7 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
 
 process.p = cms.Path(
                       process.TotalEvents *
+#                      process.triggerSelection *   # use this carefully!!!
                       process.primaryVertexFilter *
                       process.FilteredEvents *
                       process.MssmHbb
@@ -119,7 +137,8 @@ readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 readFiles.extend( [
-       '/store/mc/RunIIFall15MiniAODv2/SUSYGluGluToBBHToBB_M-300_TuneCUETP8M1_13TeV-pythia8/MINIAODSIM/PU25nsData2015v1Raw_76X_mcRun2_asymptotic_v12-v1/00000/0A91D2C2-12C6-E511-B7E7-90B11C050AD4.root',
+#       '/store/mc/RunIIFall15MiniAODv2/SUSYGluGluToBBHToBB_M-300_TuneCUETP8M1_13TeV-pythia8/MINIAODSIM/PU25nsData2015v1Raw_76X_mcRun2_asymptotic_v12-v1/00000/0A91D2C2-12C6-E511-B7E7-90B11C050AD4.root',
+       '/store/mc/RunIIFall15MiniAODv2/SUSYGluGluToBBHToBB_M-300_TuneCUETP8M1_13TeV-pythia8/MINIAODSIM/PU25nsData2015v1Raw_76X_mcRun2_asymptotic_v12-v1/00000/0C785886-08C6-E511-9748-90B11C2CB7A9.root',
 ] );
 
 
