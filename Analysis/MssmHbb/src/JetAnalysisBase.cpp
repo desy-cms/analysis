@@ -13,8 +13,9 @@ using namespace analysis::mssmhbb;
 
 const bool findStrings(const std::string & input, const std::string & needful);
 
-JetAnalysisBase::JetAnalysisBase(const std::string & inputFilelist, const bool & lowM, const bool & test) :
+JetAnalysisBase::JetAnalysisBase(const std::string & inputFilelist, const double & dataLumi, const bool & lowM, const bool & test) :
 								 Analysis(inputFilelist,"MssmHbb/Events/EventInfo"),
+								 dataLumi_(dataLumi),
 								 lowM_(lowM),
 								 triggerLogicName_(""),
 								 nJets_(1),
@@ -90,12 +91,20 @@ void JetAnalysisBase::applySelection(){
 	    //Define Jet Collection
 		auto offlineJets = this->collection<Jet>("Jets");
 		auto shiftedJets = std::make_shared<Collection<Jet> >();
-//		auto shiftedJets = std::shared_ptr<Collection<Jet> >( new Collection<Jet>);
 
 		//Define MC specific collections:
 		if(isMC()){
-			auto genJets = this->collection<Jet>("GenJets");
-			auto genPart = this->collection<GenParticle>("GenParticles");
+//			auto genJets = this->collection<Jet>("GenJets");
+//			auto genPart = this->collection<GenParticle>("GenParticles");
+
+			//mHat cut for signal MC
+			if(signalMC_){
+				double p_prot = 13000. /2.;
+		    	double p1 = this->pdf().x.first * p_prot;
+		    	double p2 = this->pdf().x.second * p_prot;
+		    	double mHat = std::sqrt((p1+p2)*(p1+p2) - (p1-p2)*(p1-p2));
+		    	if(mHat < 0.7 * returnMassPoint()) continue;
+			}
 		}
 
 		if(offlineJets->size() < nJets_ ) continue;
@@ -155,7 +164,7 @@ void JetAnalysisBase::applySelection(){
         	  weight_["dEta"]     		= pWeight_->dEtaWeight(abs(LeadJet[0].eta() - LeadJet[1].eta()));
         	  weight_["2DPt"]     		= pWeight_->TwoDPtWeight(hCorrections2D_["hPtTriggerEff"],LeadJet[0].pt(),LeadJet[1].pt());
         	  //TODO: Data luminosity!!!
-        	  weight_["Lumi"] 			=pWeight_->LumiWeight(2318.278306,this->luminosity());
+        	  weight_["Lumi"] 			=pWeight_->LumiWeight(dataLumi_,this->luminosity());
         	  weight_["Ht"]       		= pWeight_->HtWeight(hCorrections1D_["hHtWeight"],Ht);
 
         	  //2SIGMA variation!!!!!!
@@ -512,4 +521,21 @@ std::shared_ptr<tools::Collection<tools::Jet> > JetAnalysisBase::modifyJetCollec
 						){
 	if(TEST) std::cout<<"I'm in JetAnalysisBase::modifyJetCollection"<<std::endl;
 	return initialJets;
+}
+
+int JetAnalysisBase::returnMassPoint() const {
+	int Mpoint = 0;
+	if(signalMC_){
+		return 0;
+	}
+	std::string MassPos = "_M-";
+	auto p1 = inputFilelist_.find(MassPos) + 3;
+	if(p1 == std::string::npos) {
+		std::cerr<<"FileNames were cahnged!!!!"<<std::endl;
+		exit(1);
+	}
+	auto p2 = inputFilelist_.find("_",p1);
+	std::string MpointString = inputFilelist_.substr(p1,size_t(p2-p1));
+	Mpoint = std::stoi(MpointString);
+	return Mpoint;
 }

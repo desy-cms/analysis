@@ -23,7 +23,8 @@ namespace analysis{
 //			friend class ReverseB;
 		public:
 			selectionDoubleB(const std::string & inputFilelist,
-						const bool & lowM = true,
+							const double & dataLumi,
+							const bool & lowM = true,
 							const bool & test = true);
 			virtual ~selectionDoubleB();
 

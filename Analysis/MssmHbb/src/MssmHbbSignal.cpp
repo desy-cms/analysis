@@ -13,8 +13,8 @@ using namespace analysis::mssmhbb;
 
 std::string constructTemplateName(const std::string & name);
 
-MssmHbbSignal::MssmHbbSignal(const std::string & inputFilelist, const bool & lowM, const bool & test) :
-								selectionDoubleB(inputFilelist,lowM,test)
+MssmHbbSignal::MssmHbbSignal(const std::string & inputFilelist,const double & dataLumi, const bool & lowM, const bool & test) :
+								selectionDoubleB(inputFilelist,dataLumi,lowM,test)
 {
 	nJets_ = 3;
 	if(lowM){

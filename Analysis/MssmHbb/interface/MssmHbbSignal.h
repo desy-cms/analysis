@@ -21,8 +21,9 @@ namespace analysis{
 		class MssmHbbSignal : public analysis::mssmhbb::selectionDoubleB {
 			public:
 				MssmHbbSignal(const std::string & inputFilelist,
+								const double & dataLumi,
 								const bool & lowM = true,
-									const bool & test = true);
+								const bool & test = true);
 				virtual ~MssmHbbSignal();
 
 				//Overwrite Leading jet selection from JetAnalysisBase class

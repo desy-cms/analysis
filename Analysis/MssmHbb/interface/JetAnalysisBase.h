@@ -45,7 +45,7 @@ namespace analysis{
 	public:
 
 		//Default constructor
-		JetAnalysisBase(const std::string & inputFilelist, const bool & lowM = true, const bool & test = true);
+		JetAnalysisBase(const std::string & inputFilelist, const double & dataLumi, const bool & lowM = true, const bool & test = true);
 		virtual ~JetAnalysisBase();
 
         //Add trigger Object Trees
@@ -93,6 +93,7 @@ namespace analysis{
 
 	protected:
 
+        double dataLumi_;
         const bool lowM_;
         std::string triggerLogicName_;
         int nJets_;
@@ -116,6 +117,7 @@ namespace analysis{
 //        const virtual bool leadingJetSelection(const int & iJet, const tools::Jet & Jet);
         const virtual bool leadingJetSelection(const std::shared_ptr<tools::Collection<tools::Jet> > & offlineJets);
         const virtual bool OnlineSelection(const analysis::tools::Jet &fLeadOfflineJet,const analysis::tools::Jet &sLeadOfflineJet);
+        int returnMassPoint() const;
 
 		//Selection constants
         double pt1_ = 100;

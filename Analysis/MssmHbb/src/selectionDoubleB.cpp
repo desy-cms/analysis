@@ -11,8 +11,8 @@ using namespace analysis;
 using namespace analysis::tools;
 using namespace analysis::mssmhbb;
 
-selectionDoubleB::selectionDoubleB(const std::string & inputFilelist, const bool & lowM, const bool & test) :
-JetAnalysisBase(inputFilelist,lowM,test) {
+selectionDoubleB::selectionDoubleB(const std::string & inputFilelist, const double & dataLumi, const bool & lowM, const bool & test) :
+JetAnalysisBase(inputFilelist,dataLumi,lowM,test) {
 	nJets_ = 2;
 	if(lowM){
 		triggerLogicName_ = "HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v";
