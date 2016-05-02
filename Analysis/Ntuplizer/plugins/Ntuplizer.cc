@@ -220,6 +220,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       edm::InputTag genFilterInfo_;
       edm::InputTag totalEvents_;
       edm::InputTag filteredEvents_;
+      edm::InputTag filteredMHatEvents_;
       edm::InputTag genRunInfo_;
       
       edm::InputTag pileupInfo_;
@@ -227,7 +228,8 @@ class Ntuplizer : public edm::EDAnalyzer {
      
       edm::EDGetTokenT<GenFilterInfo> genFilterInfoToken_;      
       edm::EDGetTokenT<edm::MergeableCounter> totalEventsToken_;      
-      edm::EDGetTokenT<edm::MergeableCounter> filteredEventsToken_;      
+      edm::EDGetTokenT<edm::MergeableCounter> filteredEventsToken_;
+      edm::EDGetTokenT<edm::MergeableCounter> filteredMHatEventsToken_;
       edm::EDGetTokenT<GenRunInfoProduct> genRunInfoToken_;
            
       edm::EDGetTokenT<std::vector<PileupSummaryInfo> > pileupInfoToken_;      
@@ -331,6 +333,7 @@ Ntuplizer::Ntuplizer(const edm::ParameterSet& config) //:   // initialization of
       if ( inputTag == "GenFilterInfo" )  { genFilterInfoToken_  = consumes<GenFilterInfo,edm::InLumi>(collection);         genFilterInfo_   = collection;}
       if ( inputTag == "TotalEvents" )    { totalEventsToken_    = consumes<edm::MergeableCounter,edm::InLumi>(collection); totalEvents_     = collection;}
       if ( inputTag == "FilteredEvents" ) { filteredEventsToken_ = consumes<edm::MergeableCounter,edm::InLumi>(collection); filteredEvents_  = collection;}
+      if ( inputTag == "FilteredMHatEvents" ) { filteredMHatEventsToken_ = consumes<edm::MergeableCounter,edm::InLumi>(collection); filteredMHatEvents_  = collection;}
       if ( inputTag == "GenRunInfo" )     { genRunInfoToken_     = consumes<GenRunInfoProduct,edm::InRun>(collection);      genRunInfo_      = collection;}
 
       if ( inputTag == "PileupInfo" )     { pileupInfoToken_     = consumes<std::vector<PileupSummaryInfo> >(collection);   pileupInfo_      = collection;}
@@ -710,10 +713,11 @@ Ntuplizer::beginJob()
       // Event filter
       if ( do_eventfilter_ )
       {
-         eventCounters_.resize(2);
+         eventCounters_.resize(3);
          if ( inputTag == "TotalEvents" )     { eventCounters_[0] = totalEvents_;    ++nCounters; }
          if ( inputTag == "FilteredEvents" )  { eventCounters_[1] = filteredEvents_; ++nCounters; }
-         if ( nCounters == 2 ) metadata_ -> SetEventFilter(eventCounters_);
+         if ( inputTag == "FilteredMHatEvents" )  {eventCounters_[2] = filteredMHatEvents_; ++nCounters; }
+         if ( nCounters == 3 ) metadata_ -> SetEventFilter(eventCounters_);
       }
       // Pileup Info
 //       if ( inputTag == "PileupInfo" && is_mc_ )

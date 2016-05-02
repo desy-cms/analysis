@@ -14,9 +14,9 @@ if TYPE == 'DATA':
 if TYPE == 'MC':
 	UNITS_PER_JOB   = 10
 PSET            = '/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/Ntuplizer/test/btagcsv_76x_expert.py'
-CAMPAIGN        = 'Fall15.76X.20160427'
+CAMPAIGN        = 'Fall15.76X.20160502'
 BASEOUTDIR      = '/store/user/rshevche/Analysis/Ntuples/' + PROCESS
-URL             = '/nfs/dust/cms/user/shevchen/samples/miniaod/76X/'
+URL             = '/nfs/dust/cms/user/shevchen/samples/miniaod/76X/mHat'
 #URL             = 'http://www.desy.de/~walsh/cms/analysis/samples/miniaod'
 
 # ---
@@ -37,7 +37,7 @@ if __name__ == '__main__':
    
    if TYPE == 'MC':
       config.Data.splitting   = 'FileBased'
-      config.JobType.psetName = '/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/Ntuplizer/test/Rainer.py'
+      config.JobType.psetName = '/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/Ntuplizer/test/signal_76x_expert.py'
    if TYPE == 'DATA':
       config.Data.splitting   = 'LumiBased'
       config.JobType.psetName = PSET
