@@ -53,6 +53,7 @@ namespace analysis {
 
             // Event
             int  numberEvents();
+            int  numberGenEvents();
             int  numberFilteredGenEvents();
             int  size();
             void event(const int & event, const bool & addCollections = true);
@@ -288,7 +289,8 @@ namespace analysis {
 // ========================================================
 
       inline int   Analysis::numberEvents() 	{ return nevents_;   }
-      inline int   Analysis::numberFilteredGenEvents()	{ return evtfilter_.filtered; }
+      inline int   Analysis::numberFilteredGenEvents()	{ return evtfilter_.mHatFiltered; }
+      inline int   Analysis::numberGenEvents()	{ return genfilter_.total; }
       inline int   Analysis::size()         	{ return nevents_;   }
       inline int   Analysis::event()        	{ return event_;     }
       inline int   Analysis::run()          	{ return run_  ;     }

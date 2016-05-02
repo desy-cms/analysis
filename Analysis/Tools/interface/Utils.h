@@ -9,6 +9,7 @@ namespace analysis {
          int   total;
          int   filtered;
          float efficiency;
+         int   mHatFiltered;
       };
       
       struct PDF

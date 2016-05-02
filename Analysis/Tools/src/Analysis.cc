@@ -311,17 +311,23 @@ FilterResults Analysis::eventFilter(const std::string & path)
    t_evtfilter_ -> SetBranchAddress("nEventsTotal", &ntotal);
    t_evtfilter_ -> SetBranchAddress("nEventsFiltered", &nfiltered);
 
+   unsigned int nMHatFiltered = 0;
+   unsigned int sumMHatFiltered = 0;
+   t_evtfilter_ -> SetBranchAddress("nEventsFilteredMHat",&nMHatFiltered);
+
    for ( int i = 0; i < t_evtfilter_->GetEntries(); ++i )
    {
       t_evtfilter_ -> GetEntry(i);
       sumtotal += ntotal;
       sumfiltered += nfiltered;
+      sumMHatFiltered += nMHatFiltered;
    }
 
 
    evtfilter_.total = sumtotal;
    evtfilter_.filtered = sumfiltered;
    evtfilter_.efficiency = float(sumfiltered)/sumtotal;
+   evtfilter_.mHatFiltered = sumMHatFiltered;
 
    return evtfilter_;
 }
@@ -339,8 +345,9 @@ void Analysis::listEventFilter()
       std::cout << std::endl;
       return;
    }
-   std::cout << "Total events      = " << evtfilter_.total << std::endl;
-   std::cout << "Filtered events   = " << evtfilter_.filtered << std::endl;
+   std::cout << "Total events            = " << evtfilter_.total << std::endl;
+   std::cout << "Filtered events         = " << evtfilter_.filtered << std::endl;
+   std::cout << "Filtered only by mHat   = " << evtfilter_.mHatFiltered << std::endl;
    std::cout << "Event Filter Efficiency = " << evtfilter_.efficiency << std::endl;
 
    std::cout << "=======================================================" << std::endl;

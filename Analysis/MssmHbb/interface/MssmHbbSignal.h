@@ -15,6 +15,7 @@
 
 #include "Analysis/MssmHbb/interface/JetAnalysisBase.h"
 #include "Analysis/MssmHbb/interface/selectionDoubleB.h"
+#include "Analysis/MssmHbb/interface/Utils.h"
 
 namespace analysis{
 	namespace mssmhbb{
@@ -36,6 +37,8 @@ namespace analysis{
 				void writeHistograms();
 				//Overwrite runner
 				void runAnalysis(const std::string &json, const std::string &output = "", const int &size = 100);
+				//Calculate Signal Efficiency
+				void signalEfficiency();
 
 
 			protected:

@@ -19,6 +19,12 @@ Histograms::~Histograms() {
 
 void Histograms::Make(const int &size) {
 	//Declare All Basic Histograms
+	histo_["TotalNumberOfGenEvents"] 		= new TH1I("TotalNumberOfGenEvents","Total number of generated events",1,0,5.e+08);
+	histo_["NumberOfGenEvents_afterMHat"] 	= new TH1I("NumberOfGenEvents_afterMHat","Total number of generated events after mHat cut",1,0,5.e+08);
+	histo_["NumberOfFilteredEvents"]		= new TH1I("NumberOfFilteredEvents","Number of filtered events",1,0,5.e+08);
+	histo_["NumberOfSelectedEvents"]		= new TH1I("NumberOfSelectedEvents","Number of selected events",1,0,5.e+08);
+	histo_["xsection"]						= new TH1D("xsection","Cross section in pb",1,0,5.e+08);
+
 	histo_["jet_pt1"]			=  new TH1D("jet_pt1","p_{T} of the first Leading Jet; Leading Jet p_{T}, [GeV]",size,0.,1500.);
 	histo_["jet_pt2"]			=  new TH1D("jet_pt2","p_{T} of the second Leading Jet; sub-Leading Jet p_{T}, [GeV]",size,0.,1500.);
 	histo_["jet_pt3"]			=  new TH1D("jet_pt3","p_{T} of the Third Leading Jet; third-Leading Jet p_{T}, [GeV]",size,0.,1500.);

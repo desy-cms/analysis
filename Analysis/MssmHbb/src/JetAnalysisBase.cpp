@@ -79,6 +79,7 @@ void JetAnalysisBase::applySelection(){
 	ScaleFactor sf[5];
 	//Event loop:
 	auto nevents = 0;
+	int ncand = 0;
 	if(TEST) nevents = 5000;
 	else nevents = this->size();
 
@@ -100,11 +101,11 @@ void JetAnalysisBase::applySelection(){
 //			auto genJets = this->collection<Jet>("GenJets");
 //			auto genPart = this->collection<GenParticle>("GenParticles");
 
-			//mHat cut for signal MC
-			if(signalMC_){
-		    	if(this->mHat() < 0.7 * returnMassPoint()) continue;
-			}
-		}
+//			//mHat cut for signal MC
+//			if(signalMC_){
+//		    	if(this->mHat() < 0.7 * returnMassPoint()) std::cout<<"WTF "<<this->mHat()<<std::endl;
+//			}
+//		}
 
 		if(offlineJets->size() < nJets_ ) continue;
 
@@ -214,15 +215,21 @@ void JetAnalysisBase::applySelection(){
 
 	    totWeight = this->assignWeight();
 	    this->fillHistograms(shiftedJets,totWeight);
+	    ++ncand;
 
 	}
 
+	(histo_.getHisto())["TotalNumberOfGenEvents"] -> Fill(this->numberGenEvents());
+	(histo_.getHisto())["NumberOfGenEvents_afterMHat"] -> Fill(this->numberFilteredGenEvents());
+	(histo_.getHisto())["NumberOfFilteredEvents"] -> Fill(this->size());
+	if(signalMC_) (histo_.getHisto())["xsection"] -> Fill(xsection_[returnMassPoint()]);
+	else (histo_.getHisto())["xsection"] -> Fill(this->crossSection());
+	(histo_.getHisto())["NumberOfSelectedEvents"] -> Fill(ncand);
+
 //	this->writeHistograms();
 //	outputFile_->Close();
-
+	}
 }
-
-
 const bool JetAnalysisBase::leadingJetSelection(const std::shared_ptr<tools::Collection<tools::Jet> > & offlineJets){
 	if(TEST) std::cout<<"I'm in JetAnalysisBase::leadingJetSelection::shared_ptr"<<std::endl;
 	//Selection of good Leading Jets:

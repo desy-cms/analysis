@@ -155,6 +155,16 @@ std::string constructTemplateName(const std::string & name){
 	return full_name;
 }
 
+std::shared_ptr<tools::Collection<tools::Jet> > MssmHbbSignal::modifyJetCollection(tools::Jet & jet,
+						std::shared_ptr<tools::Collection<tools::Jet> > & initialJets
+						){
+	Jet shiftedJet = jet;
+	TLorentzVector p4Shift = jet.p4() * (1 + 2. * JESshift_ * jet.jecUncert());
+	jet.p4(p4Shift);
+	initialJets->add(jet);
+	return initialJets;
+}
+
 void MssmHbbSignal::runAnalysis(const std::string &json, const std::string &output, const int &size){
 
 	this->setupAnalysis(json);
@@ -177,12 +187,5 @@ void MssmHbbSignal::runAnalysis(const std::string &json, const std::string &outp
 
 }
 
-std::shared_ptr<tools::Collection<tools::Jet> > MssmHbbSignal::modifyJetCollection(tools::Jet & jet,
-						std::shared_ptr<tools::Collection<tools::Jet> > & initialJets
-						){
-	Jet shiftedJet = jet;
-	TLorentzVector p4Shift = jet.p4() * (1 + 2. * JESshift_ * jet.jecUncert());
-	jet.p4(p4Shift);
-	initialJets->add(jet);
-	return initialJets;
-}
+
+
