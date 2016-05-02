@@ -21,20 +21,24 @@ JetAnalysisBase::JetAnalysisBase(const std::string & inputFilelist, const double
 								 nJets_(1),
 								 TEST(test){
 	if(this->isMC()){
+		//Define MC type
+		if(findStrings(inputFilelist,"susy")) signalMC_ = true;
+		else signalMC_ = false;
+		if(signalMC_) this->setupXSections();
+
 		//Add specific to MC trees
-		this->addTree<GenParticle>("GenParticles","MssmHbb/Events/prunedGenParticles");
-		this->addTree<Jet>("GenJets","MssmHbb/Events/slimmedGenJets");
+//		this->addTree<GenParticle>("GenParticles","MssmHbb/Events/prunedGenParticles");
+//		this->addTree<Jet>("GenJets","MssmHbb/Events/slimmedGenJets");
 
 		// Add MC information:
 		this->crossSections("MssmHbb/Metadata/CrossSections");
 		this->generatorFilter("MssmHbb/Metadata/GeneratorFilter");
+		this->eventFilter("MssmHbb/Metadata/EventFilter");
 
 		// Show MC information
 		this->listCrossSections();
 		this->listGeneratorFilter();
-
-		if(findStrings(inputFilelist,"susy")) signalMC_ = true;
-		else signalMC_ = false;
+		this->listEventFilter();
 
 		JESshift_ = 0;
 	}
@@ -66,7 +70,6 @@ void JetAnalysisBase::setupAnalysis(const std::string & json){
 void JetAnalysisBase::applySelection(){
 
 	if(TEST) std::cout<<"I'm in applySelection"<<std::endl;
-	if(TEST) std::cout<<"NJets: "<<nJets_<<std::endl;
 
 	bool goodLeadingJets = false;
 	double totWeight = 0;
@@ -99,11 +102,7 @@ void JetAnalysisBase::applySelection(){
 
 			//mHat cut for signal MC
 			if(signalMC_){
-				double p_prot = 13000. /2.;
-		    	double p1 = this->pdf().x.first * p_prot;
-		    	double p2 = this->pdf().x.second * p_prot;
-		    	double mHat = std::sqrt((p1+p2)*(p1+p2) - (p1-p2)*(p1-p2));
-		    	if(mHat < 0.7 * returnMassPoint()) continue;
+		    	if(this->mHat() < 0.7 * returnMassPoint()) continue;
 			}
 		}
 
@@ -164,7 +163,10 @@ void JetAnalysisBase::applySelection(){
         	  weight_["dEta"]     		= pWeight_->dEtaWeight(abs(LeadJet[0].eta() - LeadJet[1].eta()));
         	  weight_["2DPt"]     		= pWeight_->TwoDPtWeight(hCorrections2D_["hPtTriggerEff"],LeadJet[0].pt(),LeadJet[1].pt());
         	  //TODO: Data luminosity!!!
-        	  weight_["Lumi"] 			=pWeight_->LumiWeight(dataLumi_,this->luminosity());
+        	  if(!signalMC_) {
+        		  weight_["Lumi"] 			=pWeight_->LumiWeight(dataLumi_,this->luminosity());
+        	  }
+        	  else weight_["Lumi"] 			=pWeight_->LumiWeight(dataLumi_,this->numberFilteredGenEvents()/xsection_[returnMassPoint()]);
         	  weight_["Ht"]       		= pWeight_->HtWeight(hCorrections1D_["hHtWeight"],Ht);
 
         	  //2SIGMA variation!!!!!!
@@ -525,7 +527,7 @@ std::shared_ptr<tools::Collection<tools::Jet> > JetAnalysisBase::modifyJetCollec
 
 int JetAnalysisBase::returnMassPoint() const {
 	int Mpoint = 0;
-	if(signalMC_){
+	if(!signalMC_){
 		return 0;
 	}
 	std::string MassPos = "_M-";
@@ -539,3 +541,29 @@ int JetAnalysisBase::returnMassPoint() const {
 	Mpoint = std::stoi(MpointString);
 	return Mpoint;
 }
+
+void JetAnalysisBase::setupXSections(){
+    xsection_[100] = 5.23;	//5.22917222713
+    xsection_[120] = 41.79;	//41.7887314999
+    xsection_[160] = 75.32;	//75.3185132566
+    xsection_[200] = 35.42;	//35.4180244078
+    xsection_[250] = 15.55;	//15.5527782822
+    xsection_[300] = 7.64;	//7.63976194847
+    xsection_[350] = 4.1; 	//4.09571617045
+    xsection_[400] = 2.34;	//2.34044663823
+    xsection_[500] = 0.88;	//0.877385402091
+    xsection_[600] = 0.377;	//0.376766971183
+    xsection_[700] = 0.18;	//0.17940535717
+    xsection_[900] = 0.051;	//0.0507664661841
+    xsection_[1100] = 0.018;//0.0180548176636
+    xsection_[1300] = 0.008;//0.00802737010696
+}
+
+const double JetAnalysisBase::mHat(){
+	double p_prot = 13000. /2.;
+	double p1 = this->pdf().x.first * p_prot;
+	double p2 = this->pdf().x.second * p_prot;
+	double mHat_ = std::sqrt((p1+p2)*(p1+p2) - (p1-p2)*(p1-p2));
+	return mHat_;
+}
+

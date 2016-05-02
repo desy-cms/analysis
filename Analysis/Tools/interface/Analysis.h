@@ -53,6 +53,7 @@ namespace analysis {
 
             // Event
             int  numberEvents();
+            int  numberFilteredGenEvents();
             int  size();
             void event(const int & event, const bool & addCollections = true);
             int  event();
@@ -111,7 +112,8 @@ namespace analysis {
             
             // Event Filter
             FilterResults eventFilter(const std::string & path);
-            
+            void listEventFilter();
+
             // Matching to trigger objects
             template <class Object1, class Object2>
             void match(const std::string & collection, const std::string & match_collection, const float & deltaR = 0.5);
@@ -285,19 +287,20 @@ namespace analysis {
       
 // ========================================================
 
-      inline int   Analysis::numberEvents() { return nevents_;   }
-      inline int   Analysis::size()         { return nevents_;   }
-      inline int   Analysis::event()        { return event_;     }
-      inline int   Analysis::run()          { return run_  ;     }
-      inline int   Analysis::lumiSection()  { return lumi_ ;     }
-      inline bool  Analysis::isMC()         { return is_mc_ ;    }
+      inline int   Analysis::numberEvents() 	{ return nevents_;   }
+      inline int   Analysis::numberFilteredGenEvents()	{ return evtfilter_.filtered; }
+      inline int   Analysis::size()         	{ return nevents_;   }
+      inline int   Analysis::event()        	{ return event_;     }
+      inline int   Analysis::run()          	{ return run_  ;     }
+      inline int   Analysis::lumiSection()  	{ return lumi_ ;     }
+      inline bool  Analysis::isMC()         	{ return is_mc_ ;    }
       
-      inline int   Analysis::nPileup()      { return n_pu_;      }
-      inline float Analysis::nTruePileup()  { return n_true_pu_; }
+      inline int   Analysis::nPileup()      	{ return n_pu_;      }
+      inline float Analysis::nTruePileup()  	{ return n_true_pu_; }
       
-      inline double Analysis::genWeight()   { return genWeight_; }
-      inline double Analysis::genScale()    { return genScale_;  }
-      inline PDF    Analysis::pdf()         { return pdf_;       }
+      inline double Analysis::genWeight()   	{ return genWeight_; }
+      inline double Analysis::genScale()    	{ return genScale_;  }
+      inline PDF    Analysis::pdf()         	{ return pdf_;       }
       
 //      inline std::string Analysis::getGenParticleCollection() { return genParticleCollection_; }
 

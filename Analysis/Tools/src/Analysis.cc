@@ -326,7 +326,29 @@ FilterResults Analysis::eventFilter(const std::string & path)
    return evtfilter_;
 }
 
+void Analysis::listEventFilter()
+{
+   std::cout << "=======================================================" << std::endl;
+   std::cout << "  EVENT FILTER" << std::endl;
+   std::cout << "=======================================================" << std::endl;
+   if ( t_evtfilter_ == NULL )
+   {
+      std::cout << "No event tree has been declared." << std::endl;
+      std::cout << "=======================================================" << std::endl;
+      std::cout << std::endl;
+      std::cout << std::endl;
+      return;
+   }
+   std::cout << "Total events      = " << evtfilter_.total << std::endl;
+   std::cout << "Filtered events   = " << evtfilter_.filtered << std::endl;
+   std::cout << "Event Filter Efficiency = " << evtfilter_.efficiency << std::endl;
 
+   std::cout << "=======================================================" << std::endl;
+   std::cout << std::endl;
+   std::cout << std::endl;
+
+
+}
 
 void Analysis::processJsonFile(const std::string & fileName)
 {
@@ -376,22 +398,4 @@ bool Analysis::selectJson()
     }
     return lumi;
 }
-
-// Way to get the Trigger names independent of Run period
-/*
-void triggerNames(std::string &trueTriggerNames,const char *myTriggerNames, TTree * t_Trig)
-{
-	TObjArray *mycopy = (TObjArray *)t_Trig->GetListOfBranches()->Clone();
-	TString names;
-	
-	for (int i = 0; i < mycopy -> GetEntries(); ++i)
-	{
-		names = mycopy->At(i)->GetName();
-		if( names.Contains(myTriggerNames) ) trueTriggerNames = (std::string)mycopy->At(i)->GetName();
-		std::cout<<"name = "<<names<<std::endl;
-	}
-	
-}
-*/
-
  

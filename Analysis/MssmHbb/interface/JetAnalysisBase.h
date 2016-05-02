@@ -146,7 +146,13 @@ namespace analysis{
 
         //Scale Factors calculation
         const ScaleFactor calculateBTagSF(const tools::Jet & jet,const int & op);
+        //mHat calculation
+        const double mHat();
+        //Setup xsections
+        void setupXSections();
 
+        //Signal xsections
+        std::map<int,double> xsection_;
 
 	};
 
