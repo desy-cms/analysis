@@ -214,13 +214,13 @@ double Analysis::crossSection(const std::string & xs)
 
 double Analysis::luminosity()
 {
-	return (nevents_ / this -> crossSection() );
+	return (evtfilter_.total / this -> crossSection() );
 }
 
 double Analysis::luminosity(const std::string & xs)
 {
 	if ( t_xsection_ == NULL ) return -1.;
-	return (nevents_ / this -> crossSection(xs));
+	return (evtfilter_.total / this -> crossSection(xs));
 }
 
 void   Analysis::listCrossSections()

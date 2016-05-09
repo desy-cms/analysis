@@ -126,10 +126,11 @@ void MssmHbbSignal::writeHistograms(){
 }
 
 const double MssmHbbSignal::assignWeight(){
-	double weight = 1;
+double weight = 1;
 	if(isMC()) {
 		weight = weight_["dEta"] * weight_["Lumi"] * weight_["2DPt"] * weight_["BTag"] * weight_["PU_central"] * weight_["SFb_central"] * weight_["SFl_central"];
 	}
+	//std::cout<<" weight = "<<weight<<" "<<weight_["dEta"]<<" "<<weight_["Lumi"]<<" "<<weight_["2DPt"]<<" "<<weight_["BTag"]<<" "<<weight_["PU_central"]<<" "<<weight_["SFb_central"]<<" "<<weight_["SFl_central"]<<std::endl;
 	return weight;
 }
 

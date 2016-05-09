@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <vector>
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
@@ -23,6 +24,7 @@
 #include "Analysis/MssmHbb/interface/MssmHbbSignal.h"
 #include "Analysis/MssmHbb/interface/selectionDoubleB.h"
 
+namespace fs = boost::filesystem;
 
 using namespace std;
 using namespace analysis::mssmhbb;
@@ -122,7 +124,7 @@ int main(int argc, char * argv[])
         }
         else
         {
-        	ifstream ifs(config_file.c_str());
+        	std::ifstream ifs(config_file.c_str());
         	if (!ifs) {
         		cerr<<"wrong file name. Exception."<<endl;;
         		exit(1);
@@ -144,20 +146,72 @@ int main(int argc, char * argv[])
 	  auto test_		 =  output_vm["test"].as<int>();
 	  auto lumi_				= output_vm["lumi"].as<double>();
 
+	  //Check whether input file contain only .root files or .txt
+	  std::string line;
+	  std::ifstream infile(inputList_);
+	  if(infile){
+		  while(std::getline(infile, line)){
+			  fs::path p(line);
+			  try{
+				  if(fs::exists(p)){
+					  if(fs::extension(p) == ".root"){
+						  std::cout<<"THIS is ROOT"<<std::endl;
+
+	//					  if(boost::iequals(selection_,"mssmhbb")){
+	//						  MssmHbbSignal analysis(inputList_,lumi_,lowM_,test_);//,analysis_);
+	//						  analysis.runAnalysis(json_file_,output_,100);
+	//
+	//					  }
+	//					  else if (boost::iequals(selection_,"trigger")){
+	//						  ;
+	//					  }
+	//					  else if (boost::iequals(selection_,"2bjet")){
+	//						  selectionDoubleB analysis(inputList_,lumi_,lowM_);
+	//					  }
+						  break;
+					  }
+					  else if (fs::extension(p) == ".txt"){
+
+						  if(boost::iequals(selection_,"mssmhbb")){
+						  MssmHbbSignal analysis(line,lumi_,lowM_,test_);//,analysis_);
+						  analysis.runAnalysis(json_file_,output_,100);
+
+						  }
+						  else if (boost::iequals(selection_,"trigger")){
+							  ;
+						  }
+						  else if (boost::iequals(selection_,"2bjet")){
+							  selectionDoubleB analysis(inputList_,lumi_,lowM_);
+						  }
+
+					  }
+					  else {
+						  std::cerr<<"Wrong files extension"<<std::endl;
+						  exit(4);
+					  }
+
+				  }
+				  else{
+					  std::cerr<<"Input file is empty"<<std::endl;
+					  exit(3);
+				  }
+			  }
+			  catch (const fs::filesystem_error& ex) {
+			      cout << ex.what() << '\n';
+			    }
+		  }
+
+	  }
+	  else {
+		  std::cerr<<"Error wrong file name."<<std::endl;
+		  exit(2);
+	  }
+
+	  /*
 
 	  //Start to apply input:
 	  //TODO: Factoring pattern should be applied: http://stackoverflow.com/questions/34519878/decide-what-constructor-call-based-on-user-input/34520081
-	  if(boost::iequals(selection_,"mssmhbb")){
-		  MssmHbbSignal analysis(inputList_,lumi_,lowM_,test_);//,analysis_);
-		  analysis.runAnalysis(json_file_,output_,100);
 
-	  }
-	  else if (boost::iequals(selection_,"trigger")){
-		  ;
-	  }
-	  else if (boost::iequals(selection_,"2bjet")){
-		  selectionDoubleB analysis(inputList_,lumi_,lowM_);
-	  }
 
 /**/
 

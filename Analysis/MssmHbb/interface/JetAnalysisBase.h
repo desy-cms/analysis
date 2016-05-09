@@ -109,7 +109,7 @@ namespace analysis{
         virtual void fillHistograms(const std::shared_ptr<tools::Collection<tools::Jet> > & offlineJets, const double & weight);
         //virtual void fillHistograms(const tools::Jet &LeadingJet, const tools::Jet &sub_LeadingJet);
         //method to assign total weight
-        const double assignWeight();
+        virtual const double assignWeight();
         //Modify jet Collection
         virtual std::shared_ptr<tools::Collection<tools::Jet> > modifyJetCollection(tools::Jet & jet,
         																	  std::shared_ptr<tools::Collection<tools::Jet> > & initialJets
