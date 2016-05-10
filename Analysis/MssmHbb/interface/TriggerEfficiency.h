@@ -5,46 +5,62 @@
  *      Author: rostyslav
  */
 
-#ifndef ANALYSIS_MSSMHBB_SRC_JETANALYSISBASE_H_
-#define ANALYSIS_MSSMHBB_SRC_JETANALYSISBASE_H_
+#ifndef ANALYSIS_MSSMHBB_SRC_TRIGGEREFFICIENCY_H_
+#define ANALYSIS_MSSMHBB_SRC_TRIGGEREFFICIENCY_H_
 
-// system include files
+#include <iostream>
 #include <memory>
-#include <vector>
 #include <string>
-#include <boost/filesystem.hpp>
-#include <boost/program_options.hpp>
-#include <boost/program_options/variables_map.hpp>
-#include <boost/algorithm/string/join.hpp>
-#include "TSystem.h"
-//
-// user include files
+#include <map>
 
-#include "Analysis/Tools/interface/Analysis.h"
+#include "Analysis/MssmHbb/interface/JetAnalysisBase.h"
+#include "Analysis/MssmHbb/interface/selectionDoubleB.h"
 
 namespace analysis{
 	namespace mssmhbb{
-	template<class Object>
-	class JetAnalysisBase {
-	public:
+		class TriggerEfficiency : public analysis::mssmhbb::selectionDoubleB {
+			public:
+			TriggerEfficiency(const std::string & inputFilelist,
+								const double & dataLumi,
+								const bool & lowM = true,
+								const bool & test = true);
+				virtual ~TriggerEfficiency();
 
-		//Default constructor
-		JetAnalysisBase(const int & argc, char * argv[]);
+				//Overwrite Leading jet selection from JetAnalysisBase class
+				const bool leadingJetSelection(const std::shared_ptr<tools::Collection<tools::Jet> > & offlineJets);
+				//Overwrite Methods to work with histograms:
+				void fillHistograms(const std::shared_ptr<tools::Collection<tools::Jet> > &offlineJets, const double & weight);
+				//Overwrite assignWeight method:
+				const double assignWeight();
+				//Overwrite writeHistograms method
+				void writeHistograms();
+				//Overwrite runner
+				void runAnalysis(const std::string &json, const std::string &output = "", const int &size = 100);
+				//Calculate Signal Efficiency
+				void signalEfficiency();
 
-		//Template constructors
-		template <> JetAnalysisBase<"TriggerEfficiency">(const int & argc, char * argv[]);
-		virtual ~JetAnalysisBase();
+				//Trigger matching
+				//PF100
+		        bool matchToPF60(const analysis::tools::Jet & jet);
+		        bool matchToPF100_PF60(const analysis::tools::Jet & jet);
+		        bool matchToPF80(const analysis::tools::Jet & jet);
+		        bool matchToPF100_PF80(const analysis::tools::Jet & jet);
+		        bool matchToPF100dEta1p6_PF60(const analysis::tools::Jet & jet1, const analysis::tools::Jet & jet2);
+		        bool matchToPF100L3_PF60(const analysis::tools::Jet & jet);
+		        bool matchToPF100dEta1p6_PF80(const analysis::tools::Jet & jet1, const analysis::tools::Jet & jet2);
+		        bool matchToPF100L3_PF80(const analysis::tools::Jet & jet);
 
-	protected:
+		        bool matchToPF160_PF60(const analysis::tools::Jet & jet);
+		        bool matchToPF160_PF80(const analysis::tools::Jet & jet);
 
-		boost::program_options::variables_map input_map_;
-		Analysis *analysis_;
-		const auto cmsswBase_;
-	};
+			protected:
 
+			private:
+
+		};
 	}
 }
 
 
 
-#endif /* ANALYSIS_MSSMHBB_SRC_JETANALYSISBASE_H_ */
+#endif /* ANALYSIS_MSSMHBB_SRC_TRIGGEREFFICIENCY_H_ */

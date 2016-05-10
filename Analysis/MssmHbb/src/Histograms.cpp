@@ -84,16 +84,92 @@ void Histograms::Make(const int &size) {
 
 //	syst_["Pileup"]
 
-	eff_["eff_2DPtTrigger_lowM_pt"]		=  new TEfficiency("eff_2DPtTrigger_lowM_pt","2D kinematic Trigger Efficiency, Low M trigger;Leading Jet p^{(1)}_{T}, [GeV]; sub-Leading Jet p^{(1)}_{T}, [GeV]; #epsilon",size,0.,500.);
-	eff_["eff_2DPtTrigger_highM_pt"]	=  new TEfficiency("eff_2DPtTrigger_highM_pt","2D kinematic Trigger Efficiency, High M trigger;Leading Jet p^{(1)}_{T}, [GeV]; sub-Leading Jet p^{(1)}_{T}, [GeV]; #epsilon",size,0.,500.);
-	eff_["eff_dEta_lowM"]				=  new TEfficiency("eff_dEta_lowM","#Delta #eta kinematic trigger Efficiency; |#Delta #eta|",(int)size/2,0,1.8);
+	// Trigger Efficiency Histograms:
+	//PF60 for PF100
+	histo_["KinTrigEff_1D_Pf60_Pf100_pt1"]		= new TH1D("KinTrigEff_1D_Pf60_Pf100_pt1","1D Kinematic Trigger Efficiency with PF60 f(pt1)",(int)size/2,0.,500.);
+	histo_["KinTrigEff_1D_Pf60_Pf100_pt2"]		= new TH1D("KinTrigEff_1D_Pf60_Pf100_pt2","1D Kinematic Trigger Efficiency with PF60 f(pt2)",(int)size/2,0.,500.);
+	histo_["KinTrigEff_1D_Pf60_Pf100_eta1"]		= new TH1D("KinTrigEff_1D_Pf60_Pf100_eta1","1D Kinematic Trigger Efficiency with PF60 f(eta1)",(int)size/2,-2.5,2.5);
+	histo_["KinTrigEff_1D_Pf60_Pf100_eta2"]		= new TH1D("KinTrigEff_1D_Pf60_Pf100_eta2","1D Kinematic Trigger Efficiency with PF60 f(eta2)",(int)size/2,-2.5,2.5);
 
-}
+	histo_["KinTrigEff_Num_1D_Pf60_Pf100_pt1"]	= new TH1D("KinTrigEff_Num_1D_Pf60_Pf100_pt1","1D Kinematic Trigger Efficiency with PF60 f(pt1)",(int)size/2,0.,500.);
+	histo_["KinTrigEff_Num_1D_Pf60_Pf100_pt2"]	= new TH1D("KinTrigEff_Num_1D_Pf60_Pf100_pt2","1D Kinematic Trigger Efficiency with PF60 f(pt2)",(int)size/2,0.,500.);
+	histo_["KinTrigEff_Num_1D_Pf60_Pf100_eta1"]	= new TH1D("KinTrigEff_Num_1D_Pf60_Pf100_eta1","1D Kinematic Trigger Efficiency with PF60 f(eta1)",(int)size/2,-2.5,2.5);
+	histo_["KinTrigEff_Num_1D_Pf60_Pf100_eta2"]	= new TH1D("KinTrigEff_Num_1D_Pf60_Pf100_eta2","1D Kinematic Trigger Efficiency with PF60 f(eta2)",(int)size/2,-2.5,2.5);
 
-std::map<std::string, TEfficiency* >& Histograms::getEff() {
-	return eff_;
+	histo_["KinTrigEff_Den_1D_Pf60_Pf100_pt1"]	= new TH1D("KinTrigEff_Den_1D_Pf60_Pf100_pt1","1D Kinematic Trigger Efficiency with PF60 f(pt1)",(int)size/2,0.,500.);
+	histo_["KinTrigEff_Den_1D_Pf60_Pf100_pt2"]	= new TH1D("KinTrigEff_Den_1D_Pf60_Pf100_pt2","1D Kinematic Trigger Efficiency with PF60 f(pt2)",(int)size/2,0.,500.);
+	histo_["KinTrigEff_Den_1D_Pf60_Pf100_eta1"]	= new TH1D("KinTrigEff_Den_1D_Pf60_Pf100_eta1","1D Kinematic Trigger Efficiency with PF60 f(eta1)",(int)size/2,-2.5,2.5);
+	histo_["KinTrigEff_Den_1D_Pf60_Pf100_eta2"]	= new TH1D("KinTrigEff_Den_1D_Pf60_Pf100_eta2","1D Kinematic Trigger Efficiency with PF60 f(eta2)",(int)size/2,-2.5,2.5);
+
+	double Bins2DPF100[] = {50.,90.,96.,112.,118.,124,130.,135.,140.,145,150,170,200,250,360,500};
+	histo2D_["KinTrigEff_2D_Pf60_Pf100"]		= new TH2D("KinTrigEff_2D_Pf60_Pf100","2D Kinematic Trigger Efficiency with PF60 f(pt1,pt2)",sizeof(Bins2DPF100)/sizeof(double),Bins2DPF100,sizeof(Bins2DPF100)/sizeof(double),Bins2DPF100);
+	histo2D_["KinTrigEff_Num_2D_Pf60_Pf100"]	= new TH2D("KinTrigEff_Num_2D_Pf60_Pf100","2D Kinematic Trigger Efficiency with PF60 f(pt1,pt2)",sizeof(Bins2DPF100)/sizeof(double),Bins2DPF100,sizeof(Bins2DPF100)/sizeof(double),Bins2DPF100);
+	histo2D_["KinTrigEff_Den_2D_Pf60_Pf100"]	= new TH2D("KinTrigEff_Den_2D_Pf60_Pf100","2D Kinematic Trigger Efficiency with PF60 f(pt1,pt2)",sizeof(Bins2DPF100)/sizeof(double),Bins2DPF100,sizeof(Bins2DPF100)/sizeof(double),Bins2DPF100);
+
+	//PF80 for PF100
+	histo_["KinTrigEff_1D_Pf80_Pf100_pt1"]		= new TH1D("KinTrigEff_1D_Pf80_Pf100_pt1","1D Kinematic Trigger Efficiency with PF80 f(pt1)",(int)size/2,0.,500.);
+	histo_["KinTrigEff_1D_Pf80_Pf100_pt2"]		= new TH1D("KinTrigEff_1D_Pf80_Pf100_pt2","1D Kinematic Trigger Efficiency with PF80 f(pt2)",(int)size/2,0.,500.);
+	histo_["KinTrigEff_1D_Pf80_Pf100_eta1"]		= new TH1D("KinTrigEff_1D_Pf80_Pf100_eta1","1D Kinematic Trigger Efficiency with PF80 f(eta1)",(int)size/2,-2.5,2.5);
+	histo_["KinTrigEff_1D_Pf80_Pf100_eta2"]		= new TH1D("KinTrigEff_1D_Pf80_Pf100_eta2","1D Kinematic Trigger Efficiency with PF80 f(eta2)",(int)size/2,-2.5,2.5);
+
+	histo_["KinTrigEff_Num_1D_Pf80_Pf100_pt1"]	= new TH1D("KinTrigEff_Num_1D_Pf80_Pf100_pt1","1D Kinematic Trigger Efficiency with PF80 f(pt1)",(int)size/2,0.,500.);
+	histo_["KinTrigEff_Num_1D_Pf80_Pf100_pt2"]	= new TH1D("KinTrigEff_Num_1D_Pf80_Pf100_pt2","1D Kinematic Trigger Efficiency with PF80 f(pt2)",(int)size/2,0.,500.);
+	histo_["KinTrigEff_Num_1D_Pf80_Pf100_eta1"]	= new TH1D("KinTrigEff_Num_1D_Pf80_Pf100_eta1","1D Kinematic Trigger Efficiency with PF80 f(eta1)",(int)size/2,-2.5,2.5);
+	histo_["KinTrigEff_Num_1D_Pf80_Pf100_eta2"]	= new TH1D("KinTrigEff_Num_1D_Pf80_Pf100_eta2","1D Kinematic Trigger Efficiency with PF80 f(eta2)",(int)size/2,-2.5,2.5);
+
+	histo_["KinTrigEff_Den_1D_Pf80_Pf100_pt1"]	= new TH1D("KinTrigEff_Den_1D_Pf80_Pf100_pt1","1D Kinematic Trigger Efficiency with PF80 f(pt1)",(int)size/2,0.,500.);
+	histo_["KinTrigEff_Den_1D_Pf80_Pf100_pt2"]	= new TH1D("KinTrigEff_Den_1D_Pf80_Pf100_pt2","1D Kinematic Trigger Efficiency with PF80 f(pt2)",(int)size/2,0.,500.);
+	histo_["KinTrigEff_Den_1D_Pf80_Pf100_eta1"]	= new TH1D("KinTrigEff_Den_1D_Pf80_Pf100_eta1","1D Kinematic Trigger Efficiency with PF80 f(eta1)",(int)size/2,-2.5,2.5);
+	histo_["KinTrigEff_Den_1D_Pf80_Pf100_eta2"]	= new TH1D("KinTrigEff_Den_1D_Pf80_Pf100_eta2","1D Kinematic Trigger Efficiency with PF80 f(eta2)",(int)size/2,-2.5,2.5);
+
+	//dEta for PF100
+	histo_["KinTrigEff_1D_Pf80_Pf100_dEta"]		= new TH1D("KinTrigEff_1D_Pf80_Pf100_dEta","1D Kinematic Trigger Efficiency with PF80 f(dEta)",(int)size/2,0.,2.5);
+	histo_["KinTrigEff_Num_1D_Pf80_Pf100_dEta"]	= new TH1D("KinTrigEff_Num_1D_Pf80_Pf100_dEta","1D Kinematic Trigger Efficiency with PF80 f(dEta)",(int)size/2,0.,2.5);
+	histo_["KinTrigEff_Den_1D_Pf80_Pf100_dEta"]	= new TH1D("KinTrigEff_Den_1D_Pf80_Pf100_dEta","1D Kinematic Trigger Efficiency with PF80 f(dEta)",(int)size/2,0.,2.5);
+
+	//PF60 for PF160
+	histo_["KinTrigEff_1D_Pf60_Pf160_pt1"]		= new TH1D("KinTrigEff_1D_Pf60_Pf160_pt1","1D Kinematic Trigger Efficiency with PF60 f(pt1)",(int)size/2,0.,500.);
+	histo_["KinTrigEff_1D_Pf60_Pf160_pt2"]		= new TH1D("KinTrigEff_1D_Pf60_Pf160_pt2","1D Kinematic Trigger Efficiency with PF60 f(pt2)",(int)size/2,0.,500.);
+	histo_["KinTrigEff_1D_Pf60_Pf160_eta1"]		= new TH1D("KinTrigEff_1D_Pf60_Pf160_eta1","1D Kinematic Trigger Efficiency with PF60 f(eta1)",(int)size/2,-2.5,2.5);
+	histo_["KinTrigEff_1D_Pf60_Pf160_eta2"]		= new TH1D("KinTrigEff_1D_Pf60_Pf160_eta2","1D Kinematic Trigger Efficiency with PF60 f(eta2)",(int)size/2,-2.5,2.5);
+
+	histo_["KinTrigEff_Num_1D_Pf60_Pf160_pt1"]	= new TH1D("KinTrigEff_Num_1D_Pf60_Pf160_pt1","1D Kinematic Trigger Efficiency with PF60 f(pt1)",(int)size/2,0.,500.);
+	histo_["KinTrigEff_Num_1D_Pf60_Pf160_pt2"]	= new TH1D("KinTrigEff_Num_1D_Pf60_Pf160_pt2","1D Kinematic Trigger Efficiency with PF60 f(pt2)",(int)size/2,0.,500.);
+	histo_["KinTrigEff_Num_1D_Pf60_Pf160_eta1"]	= new TH1D("KinTrigEff_Num_1D_Pf60_Pf160_eta1","1D Kinematic Trigger Efficiency with PF60 f(eta1)",(int)size/2,-2.5,2.5);
+	histo_["KinTrigEff_Num_1D_Pf60_Pf160_eta2"]	= new TH1D("KinTrigEff_Num_1D_Pf60_Pf160_eta2","1D Kinematic Trigger Efficiency with PF60 f(eta2)",(int)size/2,-2.5,2.5);
+
+	histo_["KinTrigEff_Den_1D_Pf60_Pf160_pt1"]	= new TH1D("KinTrigEff_Den_1D_Pf60_Pf160_pt1","1D Kinematic Trigger Efficiency with PF60 f(pt1)",(int)size/2,0.,500.);
+	histo_["KinTrigEff_Den_1D_Pf60_Pf160_pt2"]	= new TH1D("KinTrigEff_Den_1D_Pf60_Pf160_pt2","1D Kinematic Trigger Efficiency with PF60 f(pt2)",(int)size/2,0.,500.);
+	histo_["KinTrigEff_Den_1D_Pf60_Pf160_eta1"]	= new TH1D("KinTrigEff_Den_1D_Pf60_Pf160_eta1","1D Kinematic Trigger Efficiency with PF60 f(eta1)",(int)size/2,-2.5,2.5);
+	histo_["KinTrigEff_Den_1D_Pf60_Pf160_eta2"]	= new TH1D("KinTrigEff_Den_1D_Pf60_Pf160_eta2","1D Kinematic Trigger Efficiency with PF60 f(eta2)",(int)size/2,-2.5,2.5);
+
+	double Bins2DPf160[] = {120.,140.,150,160,170,180,190,200,220,240,260,300,350,400,500};
+	histo2D_["KinTrigEff_2D_Pf60_Pf160"]		= new TH2D("KinTrigEff_2D_Pf60_Pf160","2D Kinematic Trigger Efficiency with PF60 f(pt1,pt2)",sizeof(Bins2DPf160)/sizeof(double),Bins2DPf160,sizeof(Bins2DPf160)/sizeof(double),Bins2DPf160);
+	histo2D_["KinTrigEff_Num_2D_Pf60_Pf160"]	= new TH2D("KinTrigEff_Num_2D_Pf60_Pf160","2D Kinematic Trigger Efficiency with PF60 f(pt1,pt2)",sizeof(Bins2DPf160)/sizeof(double),Bins2DPf160,sizeof(Bins2DPf160)/sizeof(double),Bins2DPf160);
+	histo2D_["KinTrigEff_Den_2D_Pf60_Pf160"]	= new TH2D("KinTrigEff_Den_2D_Pf60_Pf160","2D Kinematic Trigger Efficiency with PF60 f(pt1,pt2)",sizeof(Bins2DPf160)/sizeof(double),Bins2DPf160,sizeof(Bins2DPf160)/sizeof(double),Bins2DPf160);
+
+	//PF80 for PF160
+	histo_["KinTrigEff_1D_Pf80_Pf160_pt1"]		= new TH1D("KinTrigEff_1D_Pf80_Pf160_pt1","1D Kinematic Trigger Efficiency with PF80 f(pt1)",(int)size/2,0.,500.);
+	histo_["KinTrigEff_1D_Pf80_Pf160_pt2"]		= new TH1D("KinTrigEff_1D_Pf80_Pf160_pt2","1D Kinematic Trigger Efficiency with PF80 f(pt2)",(int)size/2,0.,500.);
+	histo_["KinTrigEff_1D_Pf80_Pf160_eta1"]		= new TH1D("KinTrigEff_1D_Pf80_Pf160_eta1","1D Kinematic Trigger Efficiency with PF80 f(eta1)",(int)size/2,-2.5,2.5);
+	histo_["KinTrigEff_1D_Pf80_Pf160_eta2"]		= new TH1D("KinTrigEff_1D_Pf80_Pf160_eta2","1D Kinematic Trigger Efficiency with PF80 f(eta2)",(int)size/2,-2.5,2.5);
+
+	histo_["KinTrigEff_Num_1D_Pf80_Pf160_pt1"]	= new TH1D("KinTrigEff_Num_1D_Pf80_Pf160_pt1","1D Kinematic Trigger Efficiency with PF80 f(pt1)",(int)size/2,0.,500.);
+	histo_["KinTrigEff_Num_1D_Pf80_Pf160_pt2"]	= new TH1D("KinTrigEff_Num_1D_Pf80_Pf160_pt2","1D Kinematic Trigger Efficiency with PF80 f(pt2)",(int)size/2,0.,500.);
+	histo_["KinTrigEff_Num_1D_Pf80_Pf160_eta1"]	= new TH1D("KinTrigEff_Num_1D_Pf80_Pf160_eta1","1D Kinematic Trigger Efficiency with PF80 f(eta1)",(int)size/2,-2.5,2.5);
+	histo_["KinTrigEff_Num_1D_Pf80_Pf160_eta2"]	= new TH1D("KinTrigEff_Num_1D_Pf80_Pf160_eta2","1D Kinematic Trigger Efficiency with PF80 f(eta2)",(int)size/2,-2.5,2.5);
+
+	histo_["KinTrigEff_Den_1D_Pf80_Pf160_pt1"]	= new TH1D("KinTrigEff_Den_1D_Pf80_Pf160_pt1","1D Kinematic Trigger Efficiency with PF80 f(pt1)",(int)size/2,0.,500.);
+	histo_["KinTrigEff_Den_1D_Pf80_Pf160_pt2"]	= new TH1D("KinTrigEff_Den_1D_Pf80_Pf160_pt2","1D Kinematic Trigger Efficiency with PF80 f(pt2)",(int)size/2,0.,500.);
+	histo_["KinTrigEff_Den_1D_Pf80_Pf160_eta1"]	= new TH1D("KinTrigEff_Den_1D_Pf80_Pf160_eta1","1D Kinematic Trigger Efficiency with PF80 f(eta1)",(int)size/2,-2.5,2.5);
+	histo_["KinTrigEff_Den_1D_Pf80_Pf160_eta2"]	= new TH1D("KinTrigEff_Den_1D_Pf80_Pf160_eta2","1D Kinematic Trigger Efficiency with PF80 f(eta2)",(int)size/2,-2.5,2.5);
+
 }
 
 std::map<std::string, TH1* >& Histograms::getHisto() {
 	return histo_;
+}
+
+std::map<std::string, TH2*>& Histograms::getHisto2D() {
+	return histo2D_;
 }

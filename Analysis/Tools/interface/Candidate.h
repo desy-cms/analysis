@@ -44,7 +44,7 @@ namespace analysis {
             /// constructor from 3-momentum information
             Candidate(const float & px, const float & py, const float & pz);
             /// destructor
-           ~Candidate();
+           virtual ~Candidate();
             
            // Get
            /// returns the x component of the momentum

@@ -45,13 +45,13 @@
 //
 //
 //        std::map<std::string, Systematics > & getSystematics();
-		std::map<std::string, TEfficiency* >& getEff();
 		std::map<std::string, TH1 * >& getHisto();
+		std::map<std::string, TH2*>& getHisto2D();
 
 	protected:
 //		std::map<std::string, Systematics > syst_;
 		std::map<std::string,TH1* > histo_;
-		std::map<std::string,TEfficiency* > eff_;
+		std::map<std::string,TH2* > histo2D_;
 
 	};
 
