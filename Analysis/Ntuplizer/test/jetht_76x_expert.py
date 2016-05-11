@@ -34,12 +34,7 @@ process.triggerSelection = cms.EDFilter( "TriggerResultsFilter",
                                     'HLT_PFJet60_v*',
                                     'HLT_PFJet80_v*',
                                     'HLT_PFJet140_v*',
-                                    'HLT_PFJet200_v*',
-                                    'HLT_PFJet260_v*',
-                                    'HLT_PFJet320_v*',
-                                    'HLT_PFJet400_v*',
-                                    'HLT_PFJet450_v*',
-                                    'HLT_PFJet500_v*'
+                                    'HLT_PFJet200_v*'
     ),
     hltResults = cms.InputTag( "TriggerResults", "", "HLT" ),
     l1tResults = cms.InputTag( "" ),
@@ -105,6 +100,25 @@ process.primaryVertexFilter = cms.EDFilter("VertexSelector",
    cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2"), # ndof>thr=4 corresponds to sum(track_weigths) > (thr+3)/2 = 3.5 so typically 4 good tracks
    filter = cms.bool(True),   # otherwise it won't filter the events, just produce an empty vertex collection.
 )
+## ===========    JET N FILTER  ==============
+process.jetCounterFilter = cms.EDFilter("CandViewCountFilter",
+    src = cms.InputTag("slimmedJetsPuppiReapplyJEC"), # new slimmed Jets
+    minNumber = cms.uint32(2),
+    )
+
+## ============ KINEMATIC JET FILTER ===============
+process.jetKinematicFilter = cms.EDFilter("kinematicJetFilter",
+    src = cms.InputTag("slimmedJetsPuppiReapplyJEC"),
+    pt = cms.vdouble(85.,85.),
+    eta = cms.vdouble(2.5,2.5),
+)
+
+## ============ BTAG JET FILTER ===============
+process.jetBTagFilter = cms.EDFilter("btagJetFilter",
+    src = cms.InputTag("slimmedJetsPuppiReapplyJEC"),
+    algo = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
+    btag = cms.vdouble(0.5,0.5),
+)
 
 ## ============  THE NTUPLIZER!!!  ===============
 process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
@@ -142,28 +156,28 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
                                     ), 
     BTagAlgorithms = cms.vstring   (
                                     "pfCombinedInclusiveSecondaryVertexV2BJetTags",
-                                     "combinedSecondaryVertexBJetTags",
-                                     "pfJetBProbabilityBJetTags",
-                                     "pfJetProbabilityBJetTags",
-                                     "pfTrackCountingHighPurBJetTags",
-                                     "pfTrackCountingHighEffBJetTags",
-                                     "pfSimpleSecondaryVertexHighEffBJetTags",
-                                     "pfSimpleSecondaryVertexHighPurBJetTags",
+#                                     "combinedSecondaryVertexBJetTags",
+#                                     "pfJetBProbabilityBJetTags",
+#                                     "pfJetProbabilityBJetTags",
+#                                     "pfTrackCountingHighPurBJetTags",
+#                                     "pfTrackCountingHighEffBJetTags",
+#                                     "pfSimpleSecondaryVertexHighEffBJetTags",
+#                                     "pfSimpleSecondaryVertexHighPurBJetTags",
                                      "pfCombinedSecondaryVertexV2BJetTags",
-                                     "pfCombinedSecondaryVertexSoftLeptonBJetTags",
+#                                     "pfCombinedSecondaryVertexSoftLeptonBJetTags",
                                      "pfCombinedMVAV2BJetTags",
                                    ),
     BTagAlgorithmsAlias = cms.vstring   (
                                          "btag_csvivf",
-                                          "btag_csv",
-                                          "btag_jetbprob",
-                                          "btag_jetprob",
-                                          "btag_tchp",
-                                          "btag_tche",
-                                          "btag_svhe",
-                                          "btag_svhp",
+#                                          "btag_csv",
+#                                          "btag_jetbprob",
+#                                          "btag_jetprob",
+#                                          "btag_tchp",
+#                                          "btag_tche",
+#                                          "btag_svhe",
+#                                          "btag_svhp",
                                           "btag_csvv2",
-                                          "btag_csvlep",
+#                                          "btag_csvlep",
                                           "btag_csvmva",
                                         ),
     TriggerResults  = cms.VInputTag(cms.InputTag("TriggerResults","","HLT")),
@@ -175,12 +189,7 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
                                     "HLT_PFJet60_v",
                                     "HLT_PFJet80_v",
                                     "HLT_PFJet140_v",
-                                    "HLT_PFJet200_v",
-                                    "HLT_PFJet260_v",
-                                    "HLT_PFJet320_v",
-                                    "HLT_PFJet400_v",
-                                    "HLT_PFJet450_v",
-                                    "HLT_PFJet500_v"
+                                    "HLT_PFJet200_v"
                                    ),
     TriggerObjectStandAlone  = cms.VInputTag(
                                              cms.InputTag("selectedPatTrigger"),
@@ -205,23 +214,7 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
                                            "hltL1sL1SingleJet128",
                                            "hltPFJetsCorrectedMatchedToCaloJets170",
                                            "hltSingleCaloJet170",
-                                           "hltSinglePFJet200",
-                                           "hltL1sL1SingleJet200",
-                                           "hltPFJetsCorrectedMatchedToCaloJets210",
-                                           "hltSingleCaloJet210",
-                                           "hltSinglePFJet260",
-                                           "hltPFJetsCorrectedMatchedToCaloJets270",
-                                           "hltSingleCaloJet270",
-                                           "hltSinglePFJet320",
-                                           "hltPFJetsCorrectedMatchedToCaloJets350",
-                                           "hltSingleCaloJet350",
-                                           "hltSinglePFJet400",
-                                           "hltPFJetsCorrectedMatchedToCaloJets400",
-                                           "hltSingleCaloJet400",
-                                           "hltSinglePFJet450",
-                                           "hltPFJetsCorrectedMatchedToCaloJets450",
-                                           "hltSingleCaloJet450",
-                                           "hltSinglePFJet500",
+                                           "hltSinglePFJet200"
                                    ),
 #    L1ExtraJets     = cms.VInputTag(
 #                                    cms.InputTag("l1extraParticles","Central","RECO"),
@@ -235,12 +228,13 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
 
 process.p = cms.Path(
                       process.TotalEvents *
-                      process.triggerSelection *
                       process.primaryVertexFilter *
-                      process.FilteredEvents *
                       process.slimmedJetsCorrFactorsReapplyJEC       * process. slimmedJetsReapplyJEC *
                       process.slimmedJetsPuppiCorrFactorsReapplyJEC  * process. slimmedJetsPuppiReapplyJEC *
                       process.slimmedJetsAK8PFCorrFactorsReapplyJEC  * process. slimmedJetsAK8PFCHSSoftDropPackedReapplyJEC *
+                      process.jetCounterFilter * process.jetKinematicFilter *
+                      process.jetBTagFilter *
+                      process.FilteredEvents *
                       process.MssmHbb
                     )
 
