@@ -15,7 +15,6 @@
 
 #include "Analysis/MssmHbb/interface/JetAnalysisBase.h"
 #include "Analysis/MssmHbb/interface/selectionDoubleB.h"
-#include "Analysis/MssmHbb/interface/Utils.h"
 
 namespace analysis{
 	namespace mssmhbb{

@@ -59,7 +59,7 @@ namespace analysis{
         void loadCorrections();
 
         //Method that make an event loop
-        void applySelection();
+        virtual void applySelection();
         //setup all corrections, ttrees etc
         virtual void setupAnalysis(const std::string & json);
         //run everything
@@ -104,6 +104,7 @@ namespace analysis{
         bool signalMC_ = false;
         pTFile outputFile_;
         double JESshift_;
+        std::string baseOutputName_;
 
         //Protected methods
         virtual void fillHistograms(const std::shared_ptr<tools::Collection<tools::Jet> > & offlineJets, const double & weight);

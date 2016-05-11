@@ -27,7 +27,7 @@ JetAnalysisBase(inputFilelist,dataLumi,lowM,test) {
         btag1_ = 0.8; btag2_ = 0.8;
         btagOP1_ = 1; btagOP2_ = 1;
 	}
-
+	baseOutputName_ = "DoubleB";
 }
 
 selectionDoubleB::~selectionDoubleB() {

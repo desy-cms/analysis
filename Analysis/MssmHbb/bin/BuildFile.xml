@@ -9,4 +9,3 @@
 
 <flags   LDFLAGS="-lCore -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lz -pthread -lm -ldl -lboost_program_options -rdynamic"/>
 <bin   name="AllInOneTool" file="AllInOneTool.cpp" />
-<bin   name="leavesTripleBTagSelection" file="leavesTripleBTagSelection.cc" />

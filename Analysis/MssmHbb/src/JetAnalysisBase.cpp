@@ -53,6 +53,7 @@ JetAnalysisBase::JetAnalysisBase(const std::string & inputFilelist, const double
 	this->addTree<Vertex> ("Vertices","MssmHbb/Events/offlineSlimmedPrimaryVertices");
 
 	triggerObjectName_ = {"hltL1sL1DoubleJetC100","hltDoubleJetsC100","hltDoubleBTagCSV0p85","hltDoublePFJetsC160"};
+	baseOutputName_ = "JetAnalysisBase";
 }
 
 JetAnalysisBase::~JetAnalysisBase() {
@@ -411,7 +412,7 @@ void JetAnalysisBase::SetupStandardOutputFile(const std::string & outputFileName
 	if(outputFileName == ""){
 		//get the full file name and path from the Tree
 		std::string fullName = this->tree<Jet>("Jets")->PhysicsObjectTree<Jet>::PhysicsObjectTreeBase::TreeBase::tree()->GetFile()->GetName();
-		std::string outputName = "Selection";
+		std::string outputName = baseOutputName_;
 		if(lowM_) outputName += "_lowM_";
 		else {outputName += "_highM_";}
 

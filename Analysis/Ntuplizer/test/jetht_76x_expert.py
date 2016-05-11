@@ -233,7 +233,7 @@ process.p = cms.Path(
                       process.slimmedJetsPuppiCorrFactorsReapplyJEC  * process. slimmedJetsPuppiReapplyJEC *
                       process.slimmedJetsAK8PFCorrFactorsReapplyJEC  * process. slimmedJetsAK8PFCHSSoftDropPackedReapplyJEC *
                       process.jetCounterFilter * process.jetKinematicFilter *
-                      process.jetBTagFilter *
+#                      process.jetBTagFilter *
                       process.FilteredEvents *
                       process.MssmHbb
                     )

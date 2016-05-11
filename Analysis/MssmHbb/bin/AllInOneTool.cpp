@@ -17,7 +17,6 @@
 #include "TH2.h"
 #include "stdlib.h"
 
-#include "Analysis/MssmHbb/interface/MssmHbb.h"
 #include "Analysis/MssmHbb/interface/json.h"
 #include "Analysis/MssmHbb/interface/BTagCalibrationStandalone.h"
 #include "Analysis/MssmHbb/interface/Weights.h"

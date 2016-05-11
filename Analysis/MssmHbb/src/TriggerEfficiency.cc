@@ -23,6 +23,7 @@ TriggerEfficiency::TriggerEfficiency(const std::string & inputFilelist,const dou
 	eta2_ = 2.4;
 	triggerLogicName_ = "HLT_PFJet60_v";
 	triggerObjectName_ = {"hltL1sL1SingleJet36","hltSingleCaloJet40","hltSinglePFJet60"};
+	baseOutputName_ = "TriggerEff";
 }
 
 TriggerEfficiency::~TriggerEfficiency() {

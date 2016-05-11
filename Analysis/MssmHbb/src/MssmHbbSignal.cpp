@@ -24,6 +24,7 @@ MssmHbbSignal::MssmHbbSignal(const std::string & inputFilelist,const double & da
 	else {
         btag3_ = 0.46;
 	}
+	baseOutputName_ = "MssmHbbSignal";
 }
 
 MssmHbbSignal::~MssmHbbSignal() {
