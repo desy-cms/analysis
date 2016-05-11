@@ -304,12 +304,6 @@ namespace analysis {
       inline double Analysis::genScale()    	{ return genScale_;  }
       inline PDF    Analysis::pdf()         	{ return pdf_;       }
       
-      inline double Analysis::genWeight()   { return genWeight_; }
-      inline double Analysis::genScale()    { return genScale_;  }
-      inline PDF    Analysis::pdf()         { return pdf_;       }
-      
-//      inline std::string Analysis::getGenParticleCollection() { return genParticleCollection_; }
-
    }
 }
 
