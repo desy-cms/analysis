@@ -67,7 +67,6 @@ namespace analysis {
             // ----------member data ---------------------------
             unsigned int    nTotal_;
             unsigned int    nFiltr_;
-            unsigned int	nFiltrMHat_;
             double          efficiency_;
             unsigned int    nTried_;
             double          wTotal_;

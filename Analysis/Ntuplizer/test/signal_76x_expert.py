@@ -119,7 +119,7 @@ readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring()
 
 readFiles.extend( [
-	'/store/mc/RunIIFall15MiniAODv2/SUSYGluGluToBBHToBB_M-1300_TuneCUETP8M1_13TeV-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/10000/08569244-E4B8-E511-8D20-141877410E71.root',
+	'/store/mc/RunIIFall15MiniAODv2/SUSYGluGluToBBHToBB_M-700_TuneCUETP8M1_13TeV-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/10000/02671EB3-3EB8-E511-8974-3417EBE64561.root',
 ] );
 
 secFiles.extend( [

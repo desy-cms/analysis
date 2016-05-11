@@ -45,6 +45,7 @@ Metadata::Metadata(edm::Service<TFileService> & fs, const bool & is_mc, const st
    
    vdefinitions_.clear();
    mainDir_ = fs->mkdir(dir);
+   mHatDir_ = fs->mkdir("mHatFilter");
    
 //   fs_ = &fs;
    
@@ -87,8 +88,9 @@ void Metadata::Fill()
    for ( auto & definitions : vdefinitions_ )
       definitions -> Fill();
    
-   if ( isGenFilter_ ) genfilter_ -> Fill();
-   if ( isEvtFilter_ ) evtfilter_ -> Fill();
+   if ( isGenFilter_ ) 		genfilter_ 		-> Fill();
+   if ( isEvtFilter_ ) 		evtfilter_ 		-> Fill();
+   if ( isMHatEvtFilter_) 	mHatEvtFilter_ 	-> Fill();
    
    treeDS_ -> Fill();
    
@@ -132,12 +134,18 @@ void Metadata::SetEventFilter(const std::vector<edm::InputTag> & filterInfos )
    isEvtFilter_ = true;
 }
 
+void Metadata::SetMHatEventFilter(const std::vector<edm::InputTag> & filterInfos )
+{
+	mHatEvtFilter_ = pEvtFilter( new EvtFilter(mHatDir_, filterInfos ));
+   isMHatEvtFilter_ = true;
+}
+
 
 void Metadata::IncrementEventFilters( edm::LuminosityBlock const& lumi )
 {
-   
-   if ( isGenFilter_ ) genfilter_ -> Increment(lumi);
-   if ( isEvtFilter_ ) evtfilter_ -> Increment(lumi);
+   if ( isGenFilter_ ) 		genfilter_ 		-> Increment(lumi);
+   if ( isEvtFilter_ ) 		evtfilter_ 		-> Increment(lumi);
+   if ( isMHatEvtFilter_) 	mHatEvtFilter_ 	-> Increment(lumi);
 }
 
 GenFilter & Metadata::GetGeneratorFilter()
