@@ -149,7 +149,6 @@ void JetAnalysisBase::applySelection(){
 	    	}
 	    }
 	    if(!goodLeadingJets) continue;
-
 	    //Should return true for trigger efficiency study
 	    if(!isMC() && !OnlineSelection(shiftedJets->at(0),shiftedJets->at(1))) continue;
 	    if(!this->leadingJetSelection(shiftedJets)) continue;
@@ -232,36 +231,6 @@ void JetAnalysisBase::applySelection(){
 //	this->writeHistograms();
 //	outputFile_->Close();
 }
-const bool JetAnalysisBase::leadingJetSelection(const std::shared_ptr<tools::Collection<tools::Jet> > & offlineJets){
-	if(TEST) std::cout<<"I'm in JetAnalysisBase::leadingJetSelection::shared_ptr"<<std::endl;
-	//Selection of good Leading Jets:
-	//Only jets that pass Loose identification will be considered
-	Jet jet1 = offlineJets->at(0);
-	Jet jet2 = offlineJets->at(1);
-
-	if(jet1.pt() < pt1_ || jet2.pt() < pt2_) return false;
-	if(jet1.eta() < eta1_ || jet2.eta() < eta2_) return false;
-
-	return true;
-}
-
-const bool JetAnalysisBase::OnlineSelection(const analysis::tools::Jet &fLeadOfflineJet,
-							  const analysis::tools::Jet &sLeadOfflineJet){
-
-	for(const auto & triggerObject : triggerObjectName_){
-		const Candidate *onlineJet1 = fLeadOfflineJet.matched(triggerObject);
-		const Candidate *onlineJet2 = sLeadOfflineJet.matched(triggerObject);
-
-		if(!onlineJet1 || !onlineJet2 || onlineJet1 == onlineJet2) return false;
-		//Check dEta condition
-		if(triggerObject.find("MaxDeta1p6") != std::string::npos){
-			if(std::abs(onlineJet1->eta() - onlineJet2-> eta()) > 1.6) return false;
-		}
-	}
-
-	return true;
-}
-
 void JetAnalysisBase::addTriggerObjects(const std::vector<std::string> &triggerObjectName, const std::string & path)
 {
 
@@ -366,6 +335,36 @@ void JetAnalysisBase::loadCorrections(){
 	//Declare weights:
 	pWeight_ = std::unique_ptr<Weights>(new Weights(lowM_));
 
+}
+
+const bool JetAnalysisBase::leadingJetSelection(const std::shared_ptr<tools::Collection<tools::Jet> > & offlineJets){
+	if(TEST) std::cout<<"I'm in JetAnalysisBase::leadingJetSelection::shared_ptr"<<std::endl;
+	//Selection of good Leading Jets:
+	//Only jets that pass Loose identification will be considered
+	Jet jet1 = offlineJets->at(0);
+	Jet jet2 = offlineJets->at(1);
+
+	if(jet1.pt() < pt1_ || jet2.pt() < pt2_) return false;
+	if(jet1.eta() < eta1_ || jet2.eta() < eta2_) return false;
+
+	return true;
+}
+
+const bool JetAnalysisBase::OnlineSelection(const analysis::tools::Jet &fLeadOfflineJet,
+							  const analysis::tools::Jet &sLeadOfflineJet){
+
+	for(const auto & triggerObject : triggerObjectName_){
+		const Candidate *onlineJet1 = fLeadOfflineJet.matched(triggerObject);
+		const Candidate *onlineJet2 = sLeadOfflineJet.matched(triggerObject);
+
+		if(!onlineJet1 || !onlineJet2 || onlineJet1 == onlineJet2) return false;
+		//Check dEta condition
+		if(triggerObject.find("MaxDeta1p6") != std::string::npos){
+			if(std::abs(onlineJet1->eta() - onlineJet2-> eta()) > 1.6) return false;
+		}
+	}
+
+	return true;
 }
 
 const JetAnalysisBase::ScaleFactor JetAnalysisBase::calculateBTagSF(const tools::Jet & jet,const int & op){
@@ -531,6 +530,8 @@ std::shared_ptr<tools::Collection<tools::Jet> > JetAnalysisBase::modifyJetCollec
 						std::shared_ptr<tools::Collection<tools::Jet> > & initialJets
 						){
 	if(TEST) std::cout<<"I'm in JetAnalysisBase::modifyJetCollection"<<std::endl;
+
+	initialJets->add(jet);
 	return initialJets;
 }
 
