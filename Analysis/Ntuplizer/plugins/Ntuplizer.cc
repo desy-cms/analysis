@@ -723,7 +723,6 @@ Ntuplizer::beginJob()
 
          if ( nCounters == 2 ) 		metadata_ -> SetEventFilter(eventCounters_);
          if ( nMHatCounters == 2)	metadata_ -> SetMHatEventFilter(mHatEventCounters_);
-         std::cout<<nMHatCounters<<std::endl;
       }
       // Pileup Info
 //       if ( inputTag == "PileupInfo" && is_mc_ )

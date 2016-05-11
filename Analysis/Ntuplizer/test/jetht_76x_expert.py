@@ -17,7 +17,7 @@ for pset in process.GlobalTag.toGet.value():
 process.GlobalTag.RefreshEachRun = cms.untracked.bool( False )
 process.GlobalTag.ReconnectEachRun = cms.untracked.bool( False )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 output_file = 'output.root'
 ## TFileService
@@ -34,7 +34,11 @@ process.triggerSelection = cms.EDFilter( "TriggerResultsFilter",
                                     'HLT_PFJet60_v*',
                                     'HLT_PFJet80_v*',
                                     'HLT_PFJet140_v*',
-                                    'HLT_PFJet200_v*'
+                                    'HLT_PFJet200_v*',
+                                    'HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v*',
+                        			'HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v*',
+                        			'HLT_DoubleJetsC112_DoubleBTagCSV0p85_DoublePFJetsC172_v*',
+                        			'HLT_DoubleJetsC112_DoubleBTagCSV0p9_DoublePFJetsC112MaxDeta1p6_v*',
     ),
     hltResults = cms.InputTag( "TriggerResults", "", "HLT" ),
     l1tResults = cms.InputTag( "" ),
@@ -189,7 +193,11 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
                                     "HLT_PFJet60_v",
                                     "HLT_PFJet80_v",
                                     "HLT_PFJet140_v",
-                                    "HLT_PFJet200_v"
+                                    "HLT_PFJet200_v",
+                                    "HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v",
+    								"HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v",
+    								"HLT_DoubleJetsC112_DoubleBTagCSV0p85_DoublePFJetsC172_v",
+    								"HLT_DoubleJetsC112_DoubleBTagCSV0p9_DoublePFJetsC112MaxDeta1p6_v"
                                    ),
     TriggerObjectStandAlone  = cms.VInputTag(
                                              cms.InputTag("selectedPatTrigger"),
@@ -214,7 +222,20 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
                                            "hltL1sL1SingleJet128",
                                            "hltPFJetsCorrectedMatchedToCaloJets170",
                                            "hltSingleCaloJet170",
-                                           "hltSinglePFJet200"
+                                           "hltSinglePFJet200",
+                                           
+                                           "hltL1sL1DoubleJetC100",
+    										"hltDoubleJetsC100",
+    										"hltDoublePFJetsC100",
+    										"hltDoublePFJetsC100MaxDeta1p6",
+    										"hltDoublePFJetsC160",
+    										"hltDoubleBTagCSV0p85",
+    										"hltDoubleBTagCSV0p9",
+    										"hltL1sL1DoubleJetC112",
+	   										"hltDoubleJetsC112",
+    										"hltDoublePFJetsC112",
+    										"hltDoublePFJetsC112MaxDeta1p6",
+    										"hltDoublePFJetsC172"
                                    ),
 #    L1ExtraJets     = cms.VInputTag(
 #                                    cms.InputTag("l1extraParticles","Central","RECO"),
@@ -228,6 +249,7 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
 
 process.p = cms.Path(
                       process.TotalEvents *
+                      process.triggerSelection *
                       process.primaryVertexFilter *
                       process.slimmedJetsCorrFactorsReapplyJEC       * process. slimmedJetsReapplyJEC *
                       process.slimmedJetsPuppiCorrFactorsReapplyJEC  * process. slimmedJetsPuppiReapplyJEC *
