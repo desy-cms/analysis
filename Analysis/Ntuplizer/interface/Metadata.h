@@ -81,6 +81,7 @@ namespace analysis {
             
             void SetGeneratorFilter(const edm::InputTag & );
             void SetEventFilter(const std::vector<edm::InputTag> &);
+            void SetMHatEventFilter(const std::vector<edm::InputTag> &);
             void IncrementEventFilters( edm::LuminosityBlock const& );
             
             void SetCrossSections( const edm::Run  &, const edm::InputTag &, const double & myxs = -1. );
@@ -94,13 +95,16 @@ namespace analysis {
             
 //            edm::Service<TFileService> * fs_;
             TFileDirectory mainDir_;
+            TFileDirectory mHatDir_;
             
             std::vector<pDefinitions> vdefinitions_;
             
             bool isGenFilter_;
             bool isEvtFilter_;
+            bool isMHatEvtFilter_;
             pGenFilter  genfilter_;
             pEvtFilter  evtfilter_;
+            pEvtFilter  mHatEvtFilter_;
             
             
             pTFileService pfs_;

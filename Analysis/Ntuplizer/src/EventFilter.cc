@@ -81,7 +81,6 @@ EventFilter<T>::EventFilter(TFileDirectory & subDir, const std::vector<edm::Inpu
    tree_ = subDir.make<TTree>(category.c_str(),category.c_str());
    
    tree_ -> Branch("nEventsTotal"    , &this->nTotal_     , "nEventsTotal/i");
-   tree_ -> Branch("nEventsFilteredMHat", &this->nFiltrMHat_, "nEventsFilteredMHat/i");
    tree_ -> Branch("nEventsFiltered" , &this->nFiltr_     , "nEventsFiltered/i");
    tree_ -> Branch("filterEfficiency", &this->efficiency_ , "filterEfficiency/D");
 
@@ -197,10 +196,6 @@ void EventFilter<edm::MergeableCounter>::Increment(edm::LuminosityBlock const& l
       Handle <MergeableCounter> filtrHandler;
       lumi.getByLabel(collections_[1],filtrHandler);
       nFiltr_ += filtrHandler -> value;
-
-      Handle <MergeableCounter> filtrMHATHandler;
-      lumi.getByLabel(collections_[2],filtrMHATHandler);
-      nFiltrMHat_ += filtrMHATHandler -> value;
 
    }
    

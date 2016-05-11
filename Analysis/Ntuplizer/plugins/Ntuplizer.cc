@@ -236,6 +236,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       edm::EDGetTokenT<GenEventInfoProduct> genEventInfoToken_;      
       
       InputTags eventCounters_;
+      InputTags mHatEventCounters_;
       
       std::map<std::string, TTree*> tree_; // using pointers instead of smart pointers, could not Fill() with smart pointer???
 
@@ -692,6 +693,7 @@ Ntuplizer::beginJob()
    // InputTag (single, i.e. not vector)
    
    int nCounters = 0;
+   int nMHatCounters = 0;
    for ( auto & inputTag : inputTags_ )
    {
       edm::InputTag collection = config_.getParameter<edm::InputTag>(inputTag);
@@ -713,11 +715,15 @@ Ntuplizer::beginJob()
       // Event filter
       if ( do_eventfilter_ )
       {
-         eventCounters_.resize(3);
-         if ( inputTag == "TotalEvents" )     { eventCounters_[0] = totalEvents_;    ++nCounters; }
+         eventCounters_.resize(2);
+         mHatEventCounters_.resize(2);
+         if ( inputTag == "TotalEvents" )     { eventCounters_[0] = totalEvents_; mHatEventCounters_[0] = totalEvents_; ++nCounters; ++nMHatCounters; }
          if ( inputTag == "FilteredEvents" )  { eventCounters_[1] = filteredEvents_; ++nCounters; }
-         if ( inputTag == "FilteredMHatEvents" )  {eventCounters_[2] = filteredMHatEvents_; ++nCounters; }
-         if ( nCounters == 3 ) metadata_ -> SetEventFilter(eventCounters_);
+         if ( inputTag == "FilteredMHatEvents" )  { mHatEventCounters_[1] = filteredMHatEvents_; ++nMHatCounters; }
+
+         if ( nCounters == 2 ) 		metadata_ -> SetEventFilter(eventCounters_);
+         if ( nMHatCounters == 2)	metadata_ -> SetMHatEventFilter(mHatEventCounters_);
+         std::cout<<nMHatCounters<<std::endl;
       }
       // Pileup Info
 //       if ( inputTag == "PileupInfo" && is_mc_ )
