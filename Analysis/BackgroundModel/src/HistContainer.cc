@@ -1,13 +1,12 @@
-#include <sstream>
 #include "TFile.h"
-#include "Analysis/BackgroundModel/interface/DataContainer.h"
+#include "Analysis/BackgroundModel/interface/HistContainer.h"
 #include "Analysis/BackgroundModel/interface/Tools.h"
 
 
 using namespace analysis::backgroundmodel;
 
 
-DataContainer::DataContainer(const std::string& input) : histFileName_(input) {
+HistContainer::HistContainer(const std::string& input) : histFileName_(input) {
   data_ = getHistogram_("data");
   data_->GetSumw2()->Set(0);
   bbH_ = getHistogram_("bbH");
@@ -17,7 +16,7 @@ DataContainer::DataContainer(const std::string& input) : histFileName_(input) {
     backgroundTemplates_.push_back(getHistogram_(bkg));
     if (bkg == bkgNames.front()) {
       summedBackground_ =
-	staticCastUnique<TH1>(backgroundTemplates_.front()->Clone("background"));
+        staticCastUnique<TH1>(backgroundTemplates_.front()->Clone("background"));
       summedBackground_->SetDirectory(0);
     } else {
       summedBackground_->Add(backgroundTemplates_.back().get());
@@ -26,25 +25,25 @@ DataContainer::DataContainer(const std::string& input) : histFileName_(input) {
 }
 
 
-DataContainer::~DataContainer() = default;
+HistContainer::~HistContainer() = default;
 
 
-std::unique_ptr<TH1> DataContainer::data() const {
+std::unique_ptr<TH1> HistContainer::data() const {
   return uniqueClone_(*data_);
 }
 
 
-std::unique_ptr<TH1> DataContainer::bbH() const {
+std::unique_ptr<TH1> HistContainer::bbH() const {
   return uniqueClone_(*bbH_);
 }
 
 
-std::unique_ptr<TH1> DataContainer::background() const {
+std::unique_ptr<TH1> HistContainer::background() const {
   return uniqueClone_(*summedBackground_);
 }
 
 
-std::vector<std::unique_ptr<TH1> > DataContainer::backgrounds() const {
+std::vector<std::unique_ptr<TH1> > HistContainer::backgrounds() const {
   std::vector<std::unique_ptr<TH1> > result;
   for (const auto& bkg: backgroundTemplates_) {
     result.emplace_back(uniqueClone_(*bkg));
@@ -53,14 +52,14 @@ std::vector<std::unique_ptr<TH1> > DataContainer::backgrounds() const {
 }
 
 
-void DataContainer::show() const {
+void HistContainer::show() const {
   std::cout << "Data events:            " << data_->Integral() << std::endl;
   std::cout << "Expected signal events: " << bbH_->Integral() << std::endl;
   std::cout << "Background events:      " << summedBackground_->Integral() << std::endl;
 }
 
 
-std::unique_ptr<TH1> DataContainer::getHistogram_(const std::string& name) const {
+std::unique_ptr<TH1> HistContainer::getHistogram_(const std::string& name) const {
   TFile file(histFileName_.c_str(), "read");
   std::unique_ptr<TH1> hist =
     staticCastUnique<TH1>(file.Get((name+"_Mbb").c_str())->Clone(name.c_str()));
@@ -71,10 +70,8 @@ std::unique_ptr<TH1> DataContainer::getHistogram_(const std::string& name) const
 }
 
 
-std::unique_ptr<TH1> DataContainer::uniqueClone_(const TH1& original) {
-  std::unique_ptr<TH1> clone(static_cast<TH1*>(original.Clone()));
-  std::stringstream uniqueName;
-  uniqueName << original.GetName() << "_" << clone.get();
-  clone->SetName(uniqueName.str().c_str());
+std::unique_ptr<TH1> HistContainer::uniqueClone_(const TH1& original) {
+  std::unique_ptr<TH1> clone(static_cast<TH1*>(uniqueClone(&original)));
+  if (clone != nullptr) clone->SetDirectory(0);
   return clone;
 }

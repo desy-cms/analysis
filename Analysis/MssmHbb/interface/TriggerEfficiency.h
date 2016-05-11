@@ -1,86 +1,66 @@
-#ifndef Analysis_MssmHbb_TriggerEfficiency_h
-#define Analysis_MssmHbb_TriggerEfficiency_h 1
+/*
+ * JetAnalysisBase.h
+ *
+ *  Created on: 17 апр. 2016 г.
+ *      Author: rostyslav
+ */
 
-// -*- C++ -*-
-//
-// Package:    Analysis/MssmHbb
-// Class:      TriggerEfficiency
-// 
-/**\class TriggerEfficiency TriggerEfficiency.cc Analysis/MssmHbb/src/TriggerEfficiency.cc
+#ifndef ANALYSIS_MSSMHBB_SRC_TRIGGEREFFICIENCY_H_
+#define ANALYSIS_MSSMHBB_SRC_TRIGGEREFFICIENCY_H_
 
- Description: [one line class summary]
-
- Implementation:
-     [Notes on implementation]
-*/
-//
-// Original Author:  Rostyslav Shevchenko
-//         Created:  Wed, 25 Nov 2015 14:24:08 GMT
-//
-//
-
-// system include files
+#include <iostream>
 #include <memory>
-#include <vector>
 #include <string>
-// 
-// user include files
+#include <map>
 
-#include "Analysis/Tools/interface/Analysis.h"
-#include "Analysis/MssmHbb/interface/MssmHbb.h"
-#include "TBranch.h"
-#include "TTree.h"
+#include "Analysis/MssmHbb/interface/JetAnalysisBase.h"
+#include "Analysis/MssmHbb/interface/selectionDoubleB.h"
 
-//
-// class declaration
-//
+namespace analysis{
+	namespace mssmhbb{
+		class TriggerEfficiency : public analysis::mssmhbb::selectionDoubleB {
+			public:
+			TriggerEfficiency(const std::string & inputFilelist,
+								const double & dataLumi,
+								const bool & lowM = true,
+								const bool & test = true);
+				virtual ~TriggerEfficiency();
 
-namespace analysis {
-   namespace mssmhbb {
+				//Overwrite Leading jet selection from JetAnalysisBase class
+				const bool leadingJetSelection(const std::shared_ptr<tools::Collection<tools::Jet> > & offlineJets);
+				//Overwrite Methods to work with histograms:
+				void fillHistograms(const std::shared_ptr<tools::Collection<tools::Jet> > &offlineJets, const double & weight);
+				//Overwrite assignWeight method:
+				const double assignWeight();
+				//Overwrite writeHistograms method
+				void writeHistograms();
+				//Overwrite runner
+				void runAnalysis(const std::string &json, const std::string &output = "", const int &size = 100);
+				//Calculate Signal Efficiency
+				void signalEfficiency();
 
-      class TriggerEfficiency : public MssmHbb {
-         public:
-            TriggerEfficiency(const std::string & inputFilelist, const std::string & evtinfo = "MssmHbb/Events/EventInfo");
-           ~TriggerEfficiency();
-           
-           //Set Output Branches
-           void setBranches();
+				//Trigger matching
+				//PF100
+		        bool matchToPF60(const analysis::tools::Jet & jet);
+		        bool matchToPF100_PF60(const analysis::tools::Jet & jet);
+		        bool matchToPF80(const analysis::tools::Jet & jet);
+		        bool matchToPF100_PF80(const analysis::tools::Jet & jet);
+		        bool matchToPF100dEta1p6_PF60(const analysis::tools::Jet & jet1, const analysis::tools::Jet & jet2);
+		        bool matchToPF100L3_PF60(const analysis::tools::Jet & jet);
+		        bool matchToPF100dEta1p6_PF80(const analysis::tools::Jet & jet1, const analysis::tools::Jet & jet2);
+		        bool matchToPF100L3_PF80(const analysis::tools::Jet & jet);
 
-           //Clean variables
-           void cleanVariables();
+		        bool matchToPF160_PF60(const analysis::tools::Jet & jet);
+		        bool matchToPF160_PF80(const analysis::tools::Jet & jet);
 
-           //Set Number of The trigger Objects in the event
-           void setTriggerObjectVars();
-           bool matchToPF60(const analysis::tools::Jet & jet);
-           bool matchToPF80(const analysis::tools::Jet & jet);
-           bool matchToPF100(const analysis::tools::Jet & jet);
-           bool matchToPF100L3(const analysis::tools::Jet & jet);
-           bool matchToPF160(const analysis::tools::Jet & jet);
-           bool matchToPF100dEta1p6(const analysis::tools::Jet & jet1, const analysis::tools::Jet & jet2);
+			protected:
 
-           void setTopology(const bool & topology);
+			private:
 
-         protected:
-           int NTrigObj_[20];
-           int LeadMatch60_[20];
-           int LeadMatch80_[20];
-           int LeadMatch100_[20];
-           int LeadMatch160_[20];
-           int LeadMatch100dEta1p6_;
-           int LeadMatch100L3_[20];
-
-           int PFJet80_;
-           int PFJet60_;
-
-           int doubleJetTolopogy_;
-
-         
-
-      };
-      
-      inline void TriggerEfficiency::setTopology(const bool & topology){ doubleJetTolopogy_ = topology;}
-
-   }
+		};
+	}
 }
 
-#endif  // Analysis_MssmHbb_TriggerEfficiency_h
+
+
+#endif /* ANALYSIS_MSSMHBB_SRC_TRIGGEREFFICIENCY_H_ */

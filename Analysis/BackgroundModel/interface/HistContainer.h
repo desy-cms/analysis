@@ -1,5 +1,5 @@
-#ifndef Analysis_BackgroundModel_DataContainer_h
-#define Analysis_BackgroundModel_DataContainer_h 1
+#ifndef Analysis_BackgroundModel_HistContainer_h
+#define Analysis_BackgroundModel_HistContainer_h 1
 
 #include <string>
 #include <vector>
@@ -10,10 +10,10 @@
 namespace analysis {
   namespace backgroundmodel {
 
-    class DataContainer {
+    class HistContainer {
     public:
-      DataContainer(const std::string& input);
-      virtual ~DataContainer();
+      HistContainer(const std::string& input);
+      virtual ~HistContainer();
 
       std::unique_ptr<TH1> data() const;
       std::unique_ptr<TH1> bbH() const;
@@ -35,4 +35,4 @@ namespace analysis {
   }
 }
 
-#endif  // Analysis_BackgroundModel_DataContainer_h
+#endif  // Analysis_BackgroundModel_HistContainer_h

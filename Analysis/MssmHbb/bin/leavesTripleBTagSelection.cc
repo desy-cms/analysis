@@ -139,7 +139,7 @@ int main(int argc, char * argv[])
       analysis.cleanVariables();
 
       //mHat correction to signal MC:
-      if(analysis.isSignalMc() && !analysis.mHatCut(0.7)) continue;
+      //if(analysis.isSignalMc() && !analysis.mHatCut(0.7)) continue;
 
       //Define Jet Collection
       auto offlineJets = analysis.collection<Jet>("Jets");
@@ -166,7 +166,7 @@ int main(int argc, char * argv[])
       	analysis.addHt(jet.pt());
 
       	//Only jets that pass Loose identification will be considered
-		if(!jet.idLoose()) continue;
+//		if(!jet.idLoose()) continue;
 		counter++;
 
 		//Only first 5 jets is taken into account
@@ -179,11 +179,13 @@ int main(int argc, char * argv[])
 
 		//Selection cuts for first three leading jets
 		if(counter == 1 || counter == 2 || counter == 3 ){
+			if(!jet.idLoose()) break;
 
 			if(counter == 1 || counter == 2){
 				if(jet.pt() < analysis.Pt1Cut()) break;
 				if(abs(jet.eta()) > 2.2) break;
 				if(jet.btag() < analysis.BTag1Cut()) break;
+
 
 				if(counter == 2){
 					if(abs(LeadJet[0].eta() - LeadJet[1].eta()) > analysis.dEtaCut()) break;
