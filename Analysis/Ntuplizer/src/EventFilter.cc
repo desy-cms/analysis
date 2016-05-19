@@ -196,6 +196,7 @@ void EventFilter<edm::MergeableCounter>::Increment(edm::LuminosityBlock const& l
       Handle <MergeableCounter> filtrHandler;
       lumi.getByLabel(collections_[1],filtrHandler);
       nFiltr_ += filtrHandler -> value;
+
    }
    
 }
