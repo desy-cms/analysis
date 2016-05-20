@@ -25,9 +25,9 @@ public:
 	RatioPlots(const PublicationStatus status);
 	virtual ~RatioPlots();
 
-	TH1F *DrawRatio(TH1 *numerator, TH1 *denumerator, TH1 *systErr = 0, TLegend *leg = 0, TCanvas *can = 0);
-	TH1F *DrawRatio(TH1 *histo, TF1 *fit, std::string fitName, TCanvas *can = 0);
-	TH1F *DrawRatio(TH1 *numerator, TH1 *denumerator, TGraphAsymmErrors *systErr = NULL, TLegend *leg = NULL, TCanvas *can = NULL);
+	TH1 *DrawRatio(TH1 *numerator, TH1 *denumerator, TH1 *systErr = 0, TLegend *leg = 0, TCanvas *can = 0);
+	TH1 *DrawRatio(TH1 *histo, TF1 *fit, std::string fitName, TCanvas *can = 0);
+	TH1 *DrawRatio(TH1 *numerator, TH1 *denumerator, TGraphAsymmErrors *systErr = NULL, TLegend *leg = NULL, TCanvas *can = NULL);
 	void DrawPhaseSpaceDescription(float x1, float y1, float x2, float y2);
 	bool FindMaximum(TH1*,TH1*);
 	TGraphAsymmErrors * CreateSystTGraph(TH1 *central, TH1 *up, TH1 *down);
@@ -92,7 +92,7 @@ TGraphAsymmErrors * RatioPlots::CreateSystTGraph(TH1 *central, TH1 *up, TH1* dow
 	return result;
 }
 
-TH1F* RatioPlots::DrawRatio(TH1 *numerator, TH1 *denumerator, TH1 *systErr, TLegend *leg, TCanvas *can){
+TH1* RatioPlots::DrawRatio(TH1 *numerator, TH1 *denumerator, TH1 *systErr, TLegend *leg, TCanvas *can){
 
 	TH1::SetDefaultSumw2();
 	//Create Top pad for this canva
@@ -140,7 +140,7 @@ TH1F* RatioPlots::DrawRatio(TH1 *numerator, TH1 *denumerator, TH1 *systErr, TLeg
 	pad2_ -> Draw();
 	pad2_ -> cd();
 
-	TH1F * hRatio = (TH1F*)numerator->Clone("hRatio");
+	TH1 * hRatio = (TH1*)numerator->Clone("hRatio");
 	hRatio -> Sumw2();
 	hRatio -> Divide(denumerator);
 	hRatio -> Draw();
@@ -169,7 +169,7 @@ TH1F* RatioPlots::DrawRatio(TH1 *numerator, TH1 *denumerator, TH1 *systErr, TLeg
 	return hRatio;
 }
 
-TH1F* RatioPlots::DrawRatio(TH1 *histo, TF1 * fit, std::string fitName, TCanvas *can){
+TH1* RatioPlots::DrawRatio(TH1 *histo, TF1 * fit, std::string fitName, TCanvas *can){
 
 	TH1::SetDefaultSumw2();
 	//Create Top pad for this canva
@@ -178,7 +178,7 @@ TH1F* RatioPlots::DrawRatio(TH1 *histo, TF1 * fit, std::string fitName, TCanvas 
 	pad1_ -> Draw();
 	pad1_ -> cd();
 
-	TH1F * hRatio = (TH1F*)histo->Clone("hRatio");
+	TH1 * hRatio = (TH1*)histo->Clone("hRatio");
 	histo -> Fit(fit,"R+");
 	char name[200];
 	sprintf(name,"}{#chi^{2}/ndf = %.2f}",fit->GetChisquare()/fit->GetNDF());
@@ -215,7 +215,7 @@ TH1F* RatioPlots::DrawRatio(TH1 *histo, TF1 * fit, std::string fitName, TCanvas 
 	return hRatio;
 }
 
-TH1F* RatioPlots::DrawRatio(TH1 *numerator, TH1 *denumerator, TGraphAsymmErrors *systErr, TLegend *leg, TCanvas *can){
+TH1* RatioPlots::DrawRatio(TH1 *numerator, TH1 *denumerator, TGraphAsymmErrors *systErr, TLegend *leg, TCanvas *can){
 
 	//Create Top pad for this canva
 	pad1_ = new TPad("pad1","pad1",0,0.3,1,1);
@@ -252,7 +252,7 @@ TH1F* RatioPlots::DrawRatio(TH1 *numerator, TH1 *denumerator, TGraphAsymmErrors 
 	pad2_ -> Draw();
 	pad2_ -> cd();
 
-	TH1F * hRatio = (TH1F*)numerator->Clone("hRatio");
+	TH1 * hRatio = (TH1*)numerator->Clone("hRatio");
 	hRatio -> Divide(denumerator);
 	hRatio -> Draw();
 

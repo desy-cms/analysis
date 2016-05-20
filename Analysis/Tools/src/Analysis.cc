@@ -298,8 +298,22 @@ void Analysis::listGeneratorFilter()
 
 }
 
-FilterResults Analysis::eventFilter(const std::string & path)
+FilterResults Analysis::eventFilter(const std::string & path,const std::string &mHatPath)
 {
+	if(mHatPath != ""){
+		std::shared_ptr<TChain> mHatTree = std::make_shared<TChain>(mHatPath.c_str());
+		mHatTree->AddFileInfoList(fileList_);
+		unsigned int nmhatfiltered;
+		unsigned int sumMHatFiltered = 0;
+		mHatTree -> SetBranchAddress("nEventsFiltered", &nmhatfiltered);
+		for( int i = 0; i < mHatTree->GetEntries(); ++i ){
+			mHatTree -> GetEntry(i);
+			sumMHatFiltered += nmhatfiltered;
+		}
+		evtfilter_.mHatFiltered = sumMHatFiltered;
+	}
+	else evtfilter_.mHatFiltered = 0;
+
    t_evtfilter_  = new TChain(path.c_str());
    t_evtfilter_ -> AddFileInfoList(fileList_);
 
@@ -311,23 +325,17 @@ FilterResults Analysis::eventFilter(const std::string & path)
    t_evtfilter_ -> SetBranchAddress("nEventsTotal", &ntotal);
    t_evtfilter_ -> SetBranchAddress("nEventsFiltered", &nfiltered);
 
-   unsigned int nMHatFiltered = 0;
-   unsigned int sumMHatFiltered = 0;
-   t_evtfilter_ -> SetBranchAddress("nEventsFilteredMHat",&nMHatFiltered);
-
    for ( int i = 0; i < t_evtfilter_->GetEntries(); ++i )
    {
       t_evtfilter_ -> GetEntry(i);
       sumtotal += ntotal;
       sumfiltered += nfiltered;
-      sumMHatFiltered += nMHatFiltered;
    }
 
 
    evtfilter_.total = sumtotal;
    evtfilter_.filtered = sumfiltered;
    evtfilter_.efficiency = float(sumfiltered)/sumtotal;
-   evtfilter_.mHatFiltered = sumMHatFiltered;
 
    return evtfilter_;
 }

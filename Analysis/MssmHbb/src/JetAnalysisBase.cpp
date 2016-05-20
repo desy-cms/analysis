@@ -33,7 +33,8 @@ JetAnalysisBase::JetAnalysisBase(const std::string & inputFilelist, const double
 		// Add MC information:
 		this->crossSections("MssmHbb/Metadata/CrossSections");
 		this->generatorFilter("MssmHbb/Metadata/GeneratorFilter");
-		this->eventFilter("MssmHbb/Metadata/EventFilter");
+		if(signalMC_) this->eventFilter("MssmHbb/Metadata/EventFilter","MssmHbb/mHatFilter/EventFilter");
+		else this->eventFilter("MssmHbb/Metadata/EventFilter");
 
 		// Show MC information
 		this->listCrossSections();
@@ -89,9 +90,6 @@ void JetAnalysisBase::applySelection(){
 		//Select only good JSon runs for Data
 		if(!isMC() && !this->selectJson() ) continue;
 
-		//Trigger Selection
-		if(!isMC() && !this->triggerResult(triggerLogicName_)) continue;
-
 	    //Define Jet Collection
 		auto offlineJets = this->collection<Jet>("Jets");
 		auto shiftedJets = std::make_shared<Collection<Jet> >();
@@ -110,7 +108,8 @@ void JetAnalysisBase::applySelection(){
 		if(offlineJets->size() < nJets_ ) continue;
 
 		//Match offline Jets to online Objects
-		if(!isMC()) this->match<Jet,TriggerObject>("Jets",this->getTriggerObjectNames());
+
+		this->match<Jet,TriggerObject>("Jets",this->getTriggerObjectNames());
 
 	    //Define Vertex collection
 	    auto offlinePrimaryVertices = this->collection<Vertex>("Vertices");
@@ -151,7 +150,6 @@ void JetAnalysisBase::applySelection(){
 	    }
 	    if(!goodLeadingJets) continue;
 	    //Should return true for trigger efficiency study
-	    if(!isMC() && !OnlineSelection(shiftedJets->at(0),shiftedJets->at(1))) continue;
 	    if(!this->leadingJetSelection(shiftedJets)) continue;
 	    //Weights:
 	    if(isMC()){

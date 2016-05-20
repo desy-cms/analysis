@@ -62,12 +62,12 @@ bool Candidate::matchTo(const std::vector<Candidate> * cands, const std::string 
    
    if ( ! cands )
    {
-      this -> matched_[name] = NULL;
+      this -> matched_[name] = nullptr;
       return status;
    }
 
-   const Candidate * cand = NULL;
-   const Candidate * nearcand = NULL;
+   const Candidate * cand = nullptr;
+   const Candidate * nearcand = nullptr;
    float minDeltaR = 100.;
    for ( size_t i = 0; i < cands->size() ; ++i )
    {
@@ -86,7 +86,7 @@ bool Candidate::matchTo(const std::vector<Candidate> * cands, const std::string 
    }
 
    else {
-     this -> matched_[name] = NULL;
+     this -> matched_[name] = nullptr;
    }
    
    return status;

@@ -112,7 +112,7 @@ namespace analysis {
             void listGeneratorFilter();
             
             // Event Filter
-            FilterResults eventFilter(const std::string & path);
+            FilterResults eventFilter(const std::string & path, const std::string &mHatPath = "");
             void listEventFilter();
 
             // Matching to trigger objects

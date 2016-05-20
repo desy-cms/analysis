@@ -82,10 +82,10 @@ namespace analysis{
 				flavour(flav) {};
         	~ScaleFactor(){};
         	void clear(){central = -100, up = -100, down = -100, flavour = -100;}
-        	double 	central;
-        	double 	up;
-        	double 	down;
-        	int		flavour;
+        	double 	central{};
+        	double 	up{};
+        	double 	down{};
+        	int		flavour{};
         };
 
         //Return std::vector that contains names of all trigger objects
@@ -93,18 +93,18 @@ namespace analysis{
 
 	protected:
 
-        double dataLumi_;
-        const bool lowM_;
-        std::string triggerLogicName_;
-        int nJets_;
-        Histograms histo_;
-        const bool TEST;
-        std::map<std::string, double > weight_;
-        std::vector<std::string> triggerObjectName_;
+        double dataLumi_{};
+        const bool lowM_{};
+        std::string triggerLogicName_{};
+        int nJets_{};
+        Histograms histo_{};
+        const bool TEST{};
+        std::map<std::string, double > weight_{};
+        std::vector<std::string> triggerObjectName_{};
         bool signalMC_ = false;
-        pTFile outputFile_;
-        double JESshift_;
-        std::string baseOutputName_;
+        pTFile outputFile_{};
+        double JESshift_{};
+        std::string baseOutputName_{};
 
         //Protected methods
         virtual void fillHistograms(const std::shared_ptr<tools::Collection<tools::Jet> > & offlineJets, const double & weight);

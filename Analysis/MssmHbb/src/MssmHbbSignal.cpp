@@ -45,6 +45,12 @@ const bool MssmHbbSignal::leadingJetSelection(const std::shared_ptr<tools::Colle
 	Jet jet2 = offlineJets->at(1);
 	Jet jet3 = offlineJets->at(2);
 
+	//Trigger Selection
+	if(!isMC() && !this->triggerResult(triggerLogicName_)) return false;
+
+	//Online selection:
+	if(!isMC() && !this->OnlineSelection(jet1,jet2)) return false;
+
 	//Pt requirements
 	if (jet3.pt() < pt3_) return false;
 

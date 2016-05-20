@@ -19,10 +19,10 @@ TriggerEfficiency::TriggerEfficiency(const std::string & inputFilelist,const dou
 	nJets_ = 2;
 	pt1_ = 90;
 	pt2_ = 90;
-	eta1_ = 2.4;
-	eta2_ = 2.4;
+	eta1_ = 2.2;
+	eta2_ = 2.2;
 	triggerLogicName_ = "HLT_PFJet60_v";
-	triggerObjectName_ = {"hltL1sL1SingleJet36","hltSingleCaloJet40","hltSinglePFJet60"};
+	triggerObjectName_ = {"hltL1sL1SingleJet36","hltSingleCaloJet40","hltSinglePFJet60","hltL1sL1SingleJet52","hltSingleCaloJet50","hltSinglePFJet80"};
 	baseOutputName_ = "TriggerEff";
 }
 
@@ -61,13 +61,13 @@ void TriggerEfficiency::fillHistograms(const std::shared_ptr<Collection<Jet> > &
 	if(lowM_){
 		if(matchToPF100_PF60(jet1)) (histo_.getHisto())["KinTrigEff_Num_1D_Pf60_Pf100_pt1"]->Fill(jet1.pt(),weight);
 		if(matchToPF60(jet1)) 		(histo_.getHisto())["KinTrigEff_Den_1D_Pf60_Pf100_pt1"]->Fill(jet1.pt(),weight);
-
+		
 		if(matchToPF100_PF60(jet2)) (histo_.getHisto())["KinTrigEff_Num_1D_Pf60_Pf100_pt2"]->Fill(jet2.pt(),weight);
 		if(matchToPF60(jet2)) 		(histo_.getHisto())["KinTrigEff_Den_1D_Pf60_Pf100_pt2"]->Fill(jet2.pt(),weight);
-
+		
 		if(matchToPF100_PF60(jet1)) (histo_.getHisto())["KinTrigEff_Num_1D_Pf60_Pf100_eta1"]->Fill(jet1.eta(),weight);
 		if(matchToPF60(jet1)) 		(histo_.getHisto())["KinTrigEff_Den_1D_Pf60_Pf100_eta1"]->Fill(jet1.eta(),weight);
-
+		
 		if(matchToPF100_PF60(jet2)) (histo_.getHisto())["KinTrigEff_Num_1D_Pf60_Pf100_eta2"]->Fill(jet2.eta(),weight);
 		if(matchToPF60(jet2)) 		(histo_.getHisto())["KinTrigEff_Den_1D_Pf60_Pf100_eta2"]->Fill(jet2.eta(),weight);
 
@@ -82,18 +82,36 @@ void TriggerEfficiency::fillHistograms(const std::shared_ptr<Collection<Jet> > &
 
 		if(matchToPF100_PF80(jet2)) (histo_.getHisto())["KinTrigEff_Num_1D_Pf80_Pf100_eta2"]->Fill(jet2.eta(),weight);
 		if(matchToPF80(jet2)) 		(histo_.getHisto())["KinTrigEff_Den_1D_Pf80_Pf100_eta2"]->Fill(jet2.eta(),weight);
-
+		
 		if(matchToPF100dEta1p6_PF60(jet1,jet2)) 								(histo_.getHisto())["KinTrigEff_Num_1D_Pf60_Pf100_dEta"]->Fill(std::abs(jet1.eta()-jet2.eta()),weight);
 		if(matchToPF100L3_PF60(jet1) && matchToPF100L3_PF60(jet2)) 				(histo_.getHisto())["KinTrigEff_Den_1D_Pf60_Pf100_dEta"]->Fill(std::abs(jet1.eta()-jet2.eta()),weight);
 
 		if(matchToPF100dEta1p6_PF80(jet1,jet2)) 								(histo_.getHisto())["KinTrigEff_Num_1D_Pf80_Pf100_dEta"]->Fill(std::abs(jet1.eta()-jet2.eta()),weight);
 		if(matchToPF100L3_PF80(jet1) && matchToPF100L3_PF60(jet2)) 				(histo_.getHisto())["KinTrigEff_Den_1D_Pf80_Pf100_dEta"]->Fill(std::abs(jet1.eta()-jet2.eta()),weight);
 
-		if(matchToPF100_PF60(jet1) && matchToPF100_PF60(jet2))	(histo_.getHisto2D())["KinTrigEff_Num_2D_Pf60_Pf100"]->Fill(jet1.pt(),jet2.pt(),weight);
-		if(matchToPF60(jet1) && matchToPF60(jet2))				(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf60_Pf100"]->Fill(jet1.pt(),jet2.pt(),weight);
+		if(matchToPF100_PF60(jet1) && matchToPF100_PF60(jet2))	(histo_.getHisto2D())["KinTrigEff_Num_2D_Pf60_Pf100_pt1vspt2"]->Fill(jet1.pt(),jet2.pt(),weight);	// pt1 vs pt2
+		if(matchToPF60(jet1) && matchToPF60(jet2))				(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf60_Pf100_pt1vspt2"]->Fill(jet1.pt(),jet2.pt(),weight);
 
-		if(matchToPF100_PF80(jet1) && matchToPF100_PF80(jet2))	(histo_.getHisto2D())["KinTrigEff_Num_2D_Pf80_Pf100"]->Fill(jet1.pt(),jet2.pt(),weight);
-		if(matchToPF80(jet1) && matchToPF80(jet2))				(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf80_Pf100"]->Fill(jet1.pt(),jet2.pt(),weight);
+		if(matchToPF100_PF60(jet1) && matchToPF100_PF60(jet2))	(histo_.getHisto2D())["KinTrigEff_Num_2D_Pf60_Pf100_pt2vspt1"]->Fill(jet2.pt(),jet1.pt(),weight);	// pt2 vs pt1
+		if(matchToPF60(jet1) && matchToPF60(jet2))				(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf60_Pf100_pt2vspt1"]->Fill(jet2.pt(),jet1.pt(),weight);
+
+		if(matchToPF100_PF80(jet1) && matchToPF100_PF80(jet2))	(histo_.getHisto2D())["KinTrigEff_Num_2D_Pf80_Pf100_pt1vspt2"]->Fill(jet1.pt(),jet2.pt(),weight);	// pt1 vs pt2
+		if(matchToPF80(jet1) && matchToPF80(jet2))				(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf80_Pf100_pt1vspt2"]->Fill(jet1.pt(),jet2.pt(),weight);
+
+		if(matchToPF100_PF80(jet1) && matchToPF100_PF80(jet2))	(histo_.getHisto2D())["KinTrigEff_Num_2D_Pf80_Pf100_pt2vspt1"]->Fill(jet2.pt(),jet1.pt(),weight);	// pt2 vs pt1
+		if(matchToPF80(jet1) && matchToPF80(jet2))				(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf80_Pf100_pt2vspt1"]->Fill(jet2.pt(),jet1.pt(),weight);
+
+		if(matchToPF100_PF80(jet1)) (histo_.getHisto())["KinTrigEff_Num_1D_Pf80_Pf100_finebins_pt1"]->Fill(jet1.pt(),weight);
+		if(matchToPF80(jet1)) 		(histo_.getHisto())["KinTrigEff_Den_1D_Pf80_Pf100_finebins_pt1"]->Fill(jet1.pt(),weight);
+
+		//eta dependence
+		if(std::abs(jet1.eta()) < 1. && std::abs(jet2.eta()) < 1.){
+			if(matchToPF100_PF80(jet1) && matchToPF100_PF80(jet2))	(histo_.getHisto2D())["KinTrigEff_Num_2D_Pf80_Pf100_eta_l1_pt1vspt2"]->Fill(jet1.pt(),jet2.pt(),weight);	// pt1 vs pt2
+			if(matchToPF80(jet1) && matchToPF80(jet2))				(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf80_Pf100_eta_l1_pt1vspt2"]->Fill(jet1.pt(),jet2.pt(),weight);
+
+			if(matchToPF100_PF80(jet1) && matchToPF100_PF80(jet2))	(histo_.getHisto2D())["KinTrigEff_Num_2D_Pf80_Pf100_eta_l1_pt2vspt1"]->Fill(jet2.pt(),jet1.pt(),weight);	// pt2 vs pt1
+			if(matchToPF80(jet1) && matchToPF80(jet2))				(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf80_Pf100_eta_l1_pt2vspt1"]->Fill(jet2.pt(),jet1.pt(),weight);
+		}
 	}
 	else{
 
@@ -121,12 +139,17 @@ void TriggerEfficiency::fillHistograms(const std::shared_ptr<Collection<Jet> > &
 		if(matchToPF160_PF80(jet2)) (histo_.getHisto())["KinTrigEff_Num_1D_Pf80_Pf160_eta2"]->Fill(jet2.eta(),weight);
 		if(matchToPF80(jet2)) 		(histo_.getHisto())["KinTrigEff_Den_1D_Pf80_Pf160_eta2"]->Fill(jet2.eta(),weight);
 
-		if(matchToPF160_PF60(jet1) && matchToPF160_PF60(jet2))	(histo_.getHisto2D())["KinTrigEff_Num_2D_Pf60_Pf160"]->Fill(jet1.pt(),jet2.pt(),weight);
-		if(matchToPF60(jet1) && matchToPF60(jet2))				(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf60_Pf160"]->Fill(jet1.pt(),jet2.pt(),weight);
+		if(matchToPF160_PF60(jet1) && matchToPF160_PF60(jet2))	(histo_.getHisto2D())["KinTrigEff_Num_2D_Pf60_Pf160_pt1vspt2"]->Fill(jet1.pt(),jet2.pt(),weight);
+		if(matchToPF60(jet1) && matchToPF60(jet2))				(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf60_Pf160_pt1vspt2"]->Fill(jet1.pt(),jet2.pt(),weight);
 
-		if(matchToPF160_PF80(jet1) && matchToPF160_PF80(jet2))	(histo_.getHisto2D())["KinTrigEff_Num_2D_Pf80_Pf160"]->Fill(jet1.pt(),jet2.pt(),weight);
-		if(matchToPF80(jet1) && matchToPF80(jet2))				(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf80_Pf160"]->Fill(jet1.pt(),jet2.pt(),weight);
+		if(matchToPF160_PF60(jet1) && matchToPF160_PF60(jet2))	(histo_.getHisto2D())["KinTrigEff_Num_2D_Pf60_Pf160_pt2vspt1"]->Fill(jet2.pt(),jet1.pt(),weight);
+		if(matchToPF60(jet1) && matchToPF60(jet2))				(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf60_Pf160_pt2vspt1"]->Fill(jet2.pt(),jet1.pt(),weight);
 
+		if(matchToPF160_PF80(jet1) && matchToPF160_PF80(jet2))	(histo_.getHisto2D())["KinTrigEff_Num_2D_Pf80_Pf160_pt1vspt2"]->Fill(jet1.pt(),jet2.pt(),weight);
+		if(matchToPF80(jet1) && matchToPF80(jet2))				(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf80_Pf160_pt1vspt2"]->Fill(jet1.pt(),jet2.pt(),weight);
+
+		if(matchToPF160_PF80(jet1) && matchToPF160_PF80(jet2))	(histo_.getHisto2D())["KinTrigEff_Num_2D_Pf80_Pf160_pt2vspt1"]->Fill(jet2.pt(),jet1.pt(),weight);
+		if(matchToPF80(jet1) && matchToPF80(jet2))				(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf80_Pf160_pt2vspt1"]->Fill(jet2.pt(),jet1.pt(),weight);
 	}
 
 }
@@ -148,8 +171,16 @@ void TriggerEfficiency::writeHistograms(){
 		(histo_.getHisto())["KinTrigEff_1D_Pf60_Pf100_dEta"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_Pf60_Pf100_dEta"],(histo_.getHisto())["KinTrigEff_Den_1D_Pf60_Pf100_dEta"],1,1,"b");
 		(histo_.getHisto())["KinTrigEff_1D_Pf80_Pf100_dEta"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_Pf80_Pf100_dEta"],(histo_.getHisto())["KinTrigEff_Den_1D_Pf80_Pf100_dEta"],1,1,"b");
 
-		(histo_.getHisto2D())["KinTrigEff_2D_Pf60_Pf100"] -> Divide((histo_.getHisto2D())["KinTrigEff_Num_2D_Pf60_Pf100"],(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf60_Pf100"],1,1,"b");
-		(histo_.getHisto2D())["KinTrigEff_2D_Pf80_Pf100"] -> Divide((histo_.getHisto2D())["KinTrigEff_Num_2D_Pf80_Pf100"],(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf80_Pf100"],1,1,"b");
+		(histo_.getHisto2D())["KinTrigEff_2D_Pf60_Pf100_pt1vspt2"] -> Divide((histo_.getHisto2D())["KinTrigEff_Num_2D_Pf60_Pf100_pt1vspt2"],(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf60_Pf100_pt1vspt2"],1,1,"b");
+		(histo_.getHisto2D())["KinTrigEff_2D_Pf80_Pf100_pt1vspt2"] -> Divide((histo_.getHisto2D())["KinTrigEff_Num_2D_Pf80_Pf100_pt1vspt2"],(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf80_Pf100_pt1vspt2"],1,1,"b");
+
+		(histo_.getHisto2D())["KinTrigEff_2D_Pf60_Pf100_pt2vspt1"] -> Divide((histo_.getHisto2D())["KinTrigEff_Num_2D_Pf60_Pf100_pt2vspt1"],(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf60_Pf100_pt2vspt1"],1,1,"b");
+		(histo_.getHisto2D())["KinTrigEff_2D_Pf80_Pf100_pt2vspt1"] -> Divide((histo_.getHisto2D())["KinTrigEff_Num_2D_Pf80_Pf100_pt2vspt1"],(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf80_Pf100_pt2vspt1"],1,1,"b");
+
+		(histo_.getHisto2D())["KinTrigEff_2D_Pf80_Pf100_eta_l1_pt1vspt2"] -> Divide((histo_.getHisto2D())["KinTrigEff_Num_2D_Pf80_Pf100_eta_l1_pt1vspt2"],(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf80_Pf100_eta_l1_pt1vspt2"],1,1,"b");
+		(histo_.getHisto2D())["KinTrigEff_2D_Pf80_Pf100_eta_l1_pt2vspt1"] -> Divide((histo_.getHisto2D())["KinTrigEff_Num_2D_Pf80_Pf100_eta_l1_pt2vspt1"],(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf80_Pf100_eta_l1_pt2vspt1"],1,1,"b");
+
+		(histo_.getHisto())["KinTrigEff_1D_Pf80_Pf100_finebins_pt1"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_Pf80_Pf100_finebins_pt1"],(histo_.getHisto())["KinTrigEff_Den_1D_Pf80_Pf100_finebins_pt1"],1,1,"b");
 	}
 	else{
 
@@ -163,8 +194,11 @@ void TriggerEfficiency::writeHistograms(){
 		(histo_.getHisto())["KinTrigEff_1D_Pf80_Pf160_eta1"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_Pf80_Pf160_eta1"],(histo_.getHisto())["KinTrigEff_Den_1D_Pf80_Pf160_eta1"],1,1,"b");
 		(histo_.getHisto())["KinTrigEff_1D_Pf80_Pf160_eta2"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_Pf80_Pf160_eta2"],(histo_.getHisto())["KinTrigEff_Den_1D_Pf80_Pf160_eta2"],1,1,"b");
 
-		(histo_.getHisto2D())["KinTrigEff_2D_Pf60_Pf160"] -> Divide((histo_.getHisto2D())["KinTrigEff_Num_2D_Pf60_Pf160"],(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf60_Pf160"],1,1,"b");
-		(histo_.getHisto2D())["KinTrigEff_2D_Pf80_Pf160"] -> Divide((histo_.getHisto2D())["KinTrigEff_Num_2D_Pf80_Pf160"],(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf80_Pf160"],1,1,"b");
+		(histo_.getHisto2D())["KinTrigEff_2D_Pf60_Pf160_pt1vspt2"] -> Divide((histo_.getHisto2D())["KinTrigEff_Num_2D_Pf60_Pf160_pt1vspt2"],(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf60_Pf160_pt1vspt2"],1,1,"b");
+		(histo_.getHisto2D())["KinTrigEff_2D_Pf80_Pf160_pt1vspt2"] -> Divide((histo_.getHisto2D())["KinTrigEff_Num_2D_Pf80_Pf160_pt1vspt2"],(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf80_Pf160_pt1vspt2"],1,1,"b");
+
+		(histo_.getHisto2D())["KinTrigEff_2D_Pf60_Pf160_pt2vspt1"] -> Divide((histo_.getHisto2D())["KinTrigEff_Num_2D_Pf60_Pf160_pt2vspt1"],(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf60_Pf160_pt2vspt1"],1,1,"b");
+		(histo_.getHisto2D())["KinTrigEff_2D_Pf80_Pf160_pt2vspt1"] -> Divide((histo_.getHisto2D())["KinTrigEff_Num_2D_Pf80_Pf160_pt2vspt1"],(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf80_Pf160_pt2vspt1"],1,1,"b");
 	}
 
 	std::string full_name;
@@ -173,7 +207,23 @@ void TriggerEfficiency::writeHistograms(){
 	outputFile_->mkdir("TriggerEfficiencies","different trigger efficiencies");
 	for(const auto & h: (histo_.getHisto())){
 		if(h.second->GetEntries() == 0) continue; 			//skip empty histograms
-		if(h.first.find("TrigEff_Din") != std::string::npos || h.first.find("TrigEff_Num") != std::string::npos) continue;	// skip Numerators and Den
+		//if(h.first.find("TrigEff_Den") != std::string::npos || h.first.find("TrigEff_Num") != std::string::npos) continue;	// skip Numerators and Den
+		if(h.first.find("TrigEff") != std::string::npos){
+			outputFile_->cd("TriggerEfficiencies");
+			h.second->Write();
+			outputFile_->cd("");
+		}
+		else {
+			outputFile_->cd("distributions");
+			h.second->Write();
+			outputFile_->cd("");
+		}
+	}
+
+	//2d Efficiency:
+	for(const auto & h: (histo_.getHisto2D())){
+		if(h.second->GetEntries() == 0) continue; 			//skip empty histograms
+		//if(h.first.find("TrigEff_Den") != std::string::npos || h.first.find("TrigEff_Num") != std::string::npos) continue;	// skip Numerators and Den
 		if(h.first.find("TrigEff") != std::string::npos){
 			outputFile_->cd("TriggerEfficiencies");
 			h.second->Write();
@@ -201,7 +251,7 @@ double weight = 1;
 void TriggerEfficiency::runAnalysis(const std::string &json, const std::string &output, const int &size){
 
 	this->setupAnalysis(json);
-	std::cout<<"Total number of events: "<<this->size()<<std::endl;
+	std::cout<<"\n Total number of events: "<<this->size()<<std::endl;
 	this->makeHistograms(size);
 	this->SetupStandardOutputFile(output);
 	this->applySelection();
@@ -226,10 +276,7 @@ bool TriggerEfficiency::matchToPF100_PF60(const Jet &jet){
 	const Candidate * l2 = jet.matched("hltSingleCaloJet40");
 	const Candidate * l3 = jet.matched("hltSinglePFJet60");
 	if( l1 && l2 && l3 && l1->pt() >= 100 && l2->pt() >= 100 && l3->pt() >= 100  ) matched = true;
-
-	delete l1;
-	delete l2;
-	delete l3;
+	
 	return matched;
 }
 
@@ -240,9 +287,6 @@ bool TriggerEfficiency::matchToPF100_PF80(const Jet &jet){
 	const Candidate * l3 = jet.matched("hltSinglePFJet80");
 	if( l1 && l2 && l3 && l1->pt() >= 100 && l2->pt() >= 100 && l3->pt() >= 100  ) matched = true;
 
-	delete l1;
-	delete l2;
-	delete l3;
 	return matched;
 }
 
@@ -252,8 +296,6 @@ bool TriggerEfficiency::matchToPF100dEta1p6_PF60(const Jet &jet1 , const Jet &je
 	const Candidate * J2l3 = jet2.matched("hltSinglePFJet60");
 	if( J1l3 && J2l3 && J1l3->pt() >= 100 && J2l3->pt() >= 100 && std::abs(J1l3->eta() - J2l3->eta()) <= 1.6) matched = true;
 
-	delete J1l3;
-	delete J2l3;
 	return matched;
 }
 
@@ -263,8 +305,6 @@ bool TriggerEfficiency::matchToPF100dEta1p6_PF80(const Jet &jet1 , const Jet &je
 	const Candidate * J2l3 = jet2.matched("hltSinglePFJet80");
 	if( J1l3 && J2l3 && J1l3->pt() >= 100 && J2l3->pt() >= 100 && std::abs(J1l3->eta() - J2l3->eta()) <= 1.6) matched = true;
 
-	delete J1l3;
-	delete J2l3;
 	return matched;
 }
 
@@ -275,9 +315,6 @@ bool TriggerEfficiency::matchToPF160_PF60(const Jet &jet){
 	const Candidate * l3 = jet.matched("hltSinglePFJet60");
 	if( l1 && l2 && l3 && l1->pt() >= 100 && l2->pt() >= 100 && l3->pt() >= 160  ) matched = true;
 
-	delete l1;
-	delete l2;
-	delete l3;
 	return matched;
 }
 
@@ -288,9 +325,6 @@ bool TriggerEfficiency::matchToPF160_PF80(const Jet &jet){
 	const Candidate * l3 = jet.matched("hltSinglePFJet80");
 	if( l1 && l2 && l3 && l1->pt() >= 100 && l2->pt() >= 100 && l3->pt() >= 160  ) matched = true;
 
-	delete l1;
-	delete l2;
-	delete l3;
 	return matched;
 }
 
@@ -300,7 +334,6 @@ bool TriggerEfficiency::matchToPF100L3_PF60(const analysis::tools::Jet & jet){
 	const Candidate * l3 = jet.matched("hltSinglePFJet60");
 	if(l3 && l3->pt() >= 100) matched = true;
 
-	delete l3;
 	return matched;
 }
 
@@ -309,6 +342,5 @@ bool TriggerEfficiency::matchToPF100L3_PF80(const analysis::tools::Jet & jet){
 	const Candidate * l3 = jet.matched("hltSinglePFJet80");
 	if(l3 && l3->pt() >= 100) matched = true;
 
-	delete l3;
 	return matched;
 }

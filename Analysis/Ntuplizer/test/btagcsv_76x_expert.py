@@ -219,7 +219,7 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
 
 process.p = cms.Path(
                       process.TotalEvents *
-                      process.triggerSelection *      # switch off for BTagCSV 2015C
+                      #process.triggerSelection *      # switch off for BTagCSV 2015C
                       process.primaryVertexFilter *
                       process.slimmedJetsCorrFactorsReapplyJEC       * process. slimmedJetsReapplyJEC *
                       process.slimmedJetsPuppiCorrFactorsReapplyJEC  * process. slimmedJetsPuppiReapplyJEC *
