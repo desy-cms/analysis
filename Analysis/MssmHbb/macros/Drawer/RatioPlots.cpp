@@ -25,11 +25,13 @@ public:
 	RatioPlots(const PublicationStatus status);
 	virtual ~RatioPlots();
 
-	TH1 *DrawRatio(TH1 *numerator, TH1 *denumerator, TH1 *systErr = 0, TLegend *leg = 0, TCanvas *can = 0);
+	TH1 *DrawRatio(TH1 *numerator, TH1 *denumerator, TCanvas *can = nullptr, TH1 *systErr = nullptr, TLegend *leg = nullptr);
 	TH1 *DrawRatio(TH1 *histo, TF1 *fit, std::string fitName, TCanvas *can = 0);
-	TH1 *DrawRatio(TH1 *numerator, TH1 *denumerator, TGraphAsymmErrors *systErr = NULL, TLegend *leg = NULL, TCanvas *can = NULL);
+	TH1 *DrawRatio(TH1 *numerator, TH1 *denumerator, TGraphAsymmErrors *systErr = nullptr, TLegend *leg = nullptr, TCanvas *can = nullptr);
+	TGraphAsymmErrors *DrawRatio(TGraphAsymmErrors *numerator, TGraphAsymmErrors *denumerator, TCanvas *can = nullptr, TLegend *leg = nullptr, TGraphAsymmErrors *systErr = nullptr);
 	void DrawPhaseSpaceDescription(float x1, float y1, float x2, float y2);
 	bool FindMaximum(TH1*,TH1*);
+	bool FindMaximum(TGraphAsymmErrors*,TGraphAsymmErrors*);
 	TGraphAsymmErrors * CreateSystTGraph(TH1 *central, TH1 *up, TH1 *down);
 
 
@@ -92,7 +94,7 @@ TGraphAsymmErrors * RatioPlots::CreateSystTGraph(TH1 *central, TH1 *up, TH1* dow
 	return result;
 }
 
-TH1* RatioPlots::DrawRatio(TH1 *numerator, TH1 *denumerator, TH1 *systErr, TLegend *leg, TCanvas *can){
+TH1* RatioPlots::DrawRatio(TH1 *numerator, TH1 *denumerator, TCanvas *can, TH1 *systErr, TLegend *leg){
 
 	TH1::SetDefaultSumw2();
 	//Create Top pad for this canva
@@ -285,9 +287,95 @@ TH1* RatioPlots::DrawRatio(TH1 *numerator, TH1 *denumerator, TGraphAsymmErrors *
 	return hRatio;
 }
 
+TGraphAsymmErrors * RatioPlots::DrawRatio(TGraphAsymmErrors *numerator, TGraphAsymmErrors *denumerator, TCanvas *can = nullptr,TLegend *leg = nullptr, TGraphAsymmErrors *systErr = nullptr){
+	TH1::SetDefaultSumw2();
+	//Create Top pad for this canva
+	pad1_ = new TPad("pad1","pad1",0,0.3,1,1);
+	pad1_ -> SetBottomMargin(0.0);
+	pad1_ -> Draw();
+	pad1_ -> cd();
+	std::cout<<"WTF"<<std::endl;
+	numerator -> SetMarkerStyle(20);
+
+	denumerator->SetMarkerStyle(21);
+	denumerator->SetMarkerColor(2);
+
+	if(!FindMaximum(numerator,denumerator))
+	{
+		if(systErr) numerator->SetMaximum(denumerator->GetMaximum() + .2* denumerator->GetMaximum());
+		else numerator->SetMaximum(denumerator->GetMaximum() + .1* denumerator->GetMaximum());
+	}
+	numerator -> Draw("AP");
+	std::cout<<"WTF"<<std::endl;
+	if(systErr){
+	systErr->SetLineColor(2);
+	systErr->SetLineWidth(2);
+//	systErr->SetLineStyle(3);
+	systErr->SetFillColor(kMagenta-10);
+	systErr->SetFillStyle(1001);
+//	systErr -> Draw("E1 same");
+	er_1->Draw();
+	systErr -> Draw("E2 same");
+	er_0->Draw();
+	}
+
+	er_1->Draw();
+	denumerator -> Draw("P same");
+	er_0->Draw();
+	numerator -> Draw("P same");
+
+	if(leg) leg->Draw();
+	style_.standardTitle()->Draw();
+	std::cout<<"WTF"<<std::endl;
+	can->cd();
+	pad2_ = new TPad("pad2","pad2",0,0.0,1,0.3);
+	pad2_ -> SetTopMargin(0.0);
+	pad2_ -> SetBottomMargin(0.35);
+	pad2_ -> Draw();
+	pad2_ -> cd();
+
+	std::cout<<"WTF"<<std::endl;
+	TGraphAsymmErrors * hRatio = (TGraphAsymmErrors*)numerator->Clone("hRatio");
+//	hRatio->Divide(numerator->GetHistogram(),denumerator->GetHistogram(),"pois");
+
+	double *num_x = numerator->GetX();
+	double *num_y = numerator->GetY();
+	double *den_x = denumerator->GetX();
+	double *den_y = denumerator->GetY();
+	for( int i = 0; i < numerator->GetN(); ++i){
+//
+		double val = num_y[i-1]/den_y[i-1];
+		hRatio->SetPoint(i,num_x[i-1],val);
+		double el = numerator->GetErrorYlow(i)/denumerator->GetErrorYlow(i)* std::sqrt( std::pow((num_y[i-1])/numerator->GetErrorYlow(i),2) + std::pow((den_y[i-1])/denumerator->GetErrorYlow(i),2) );
+		hRatio->SetPointEYlow(i,0);
+		double eu = numerator->GetErrorYhigh(i)/denumerator->GetErrorYhigh(i)* std::sqrt( std::pow((num_y[i-1])/numerator->GetErrorYhigh(i),2) + std::pow((den_y[i-1])/denumerator->GetErrorYhigh(i),2) );
+		hRatio->SetPointEYhigh(i,0);
+//		std::cout<<i<<" "<<val<<" up+/- "<<eu<<" dn+/- "<<el<<std::endl;
+//		std::cout<<"down: "<<numerator->GetErrorXlow(i)/denumerator->GetErrorXlow(i)<<" "<<std::sqrt( std::pow((num_y[i-1])/numerator->GetErrorXlow(i),2) + std::pow((den_y[i-1])/denumerator->GetErrorXlow(i),2) )<<std::endl;
+	}
+	hRatio -> Draw("AP");
+
+	TLine *horizLine = new TLine(numerator->GetXaxis()->GetXmin(),1,numerator->GetXaxis()->GetXmax(),1);
+	horizLine -> SetLineStyle(2);
+	horizLine -> Draw();
+
+//	SetBottomStyle(hRatio);
+
+	hRatio -> GetYaxis() -> SetRangeUser(ratioRange_.first,ratioRange_.second);
+	hRatio -> GetYaxis() -> SetTitle(ratioTitle_.c_str());
+	hRatio -> GetXaxis() -> SetTitle(numerator->GetXaxis()->GetTitle());
+
+	return hRatio;
+}
+
 
 
 bool RatioPlots::FindMaximum(TH1* first, TH1 *second){
+	if(first->GetMaximum() > second->GetMaximum()) return true;
+	else return false;
+}
+
+bool RatioPlots::FindMaximum(TGraphAsymmErrors* first, TGraphAsymmErrors *second){
 	if(first->GetMaximum() > second->GetMaximum()) return true;
 	else return false;
 }

@@ -44,7 +44,7 @@ int highMTriggerEfficiency(){
 	TF1 *fit = new TF1("fit",finaleFunction,100,500,4);
 	fit->SetParameters(1.16893e-01,1.05584e+02,1.16893e-01,1.05584e+02);
 	auto hLowMRatio = (TH1F*) ratio.DrawRatio(pf100Eff,fit,"Sigmoid*Sigmoid",oneDFitLowM);
-
+	std::cout<<"NEvents = "<<pf100Eff->GetEntries()<<std::endl;
 
 	oneDFitLowM->SaveAs("pictures/OneDEfficiencyLowM.pdf");
 

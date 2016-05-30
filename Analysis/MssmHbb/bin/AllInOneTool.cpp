@@ -31,6 +31,8 @@ using namespace analysis::mssmhbb;
 using namespace analysis::tools;
 using namespace boost::program_options;
 
+const bool findStrings(const std::string & input, const std::string & needful);
+void addBackgroundTemplate(const std::string & signal_template, const std::string & bg_template, const std::string & bgHisto = "QCD");
 // =============================================================================================
 int main(int argc, char * argv[])
 {
@@ -219,9 +221,34 @@ int main(int argc, char * argv[])
 	return 0;
 }
 
+const bool findStrings(const std::string & input, const std::string & needful){
+	std::string input1 = input;
+	std::string input2 = needful;
+	std::transform(input1.begin(),input1.end(),input1.begin(),tolower);
+	std::transform(input2.begin(),input2.end(),input2.begin(),tolower);
+	if(input1.find(input2) != std::string::npos) return true;
+	else return false;
+}
 
-/*
-/nfs/dust/cms/user/shevchen/samples/miniaod/BTagCSVData/Run2015D-PromptReco-v4.root
-/nfs/dust/cms/user/shevchen/samples/miniaod/BTagCSVData/Run2015C_25ns-05Oct2015-v1.root
-/nfs/dust/cms/user/shevchen/samples/miniaod/BTagCSVData/Run2015D-05Oct2015-v1.root
-*/
+void addBackgroundTemplate(const std::string & signal_template, const std::string & bg_template, const std::string & bgHisto){
+
+	TFile fsignal(signal_template.c_str(),"UPDATE");	// Opening file for writing;
+	if(fsignal.IsZombie()){
+		std::cerr<<"Error opening file: "<<signal_template<<std::endl;
+		exit(0);
+	}
+	TFile fbg(bg_template.c_str(),"READ");
+	if(fbg.IsZombie()){
+		std::cerr<<"Error opening file: "<<bg_template<<std::endl;
+		exit(1);
+	}
+	//Check whether
+	if(!fbg.GetListOfKeys()->Contains(bgHisto.c_str())){
+		std::cerr<<"No histo: "<<bgHisto.c_str()<<" in file: "<<bg_template<<std::endl;
+		exit(2);
+	}
+	TH1D * hBg = (TH1D*) fbg.Get(bgHisto.c_str());
+	fsignal.cd(); //Needed to write bg histo to signal file and not to Bg file
+	hBg->Write("QCD");
+
+}

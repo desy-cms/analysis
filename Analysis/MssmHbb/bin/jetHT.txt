@@ -1,0 +1,2 @@
+/nfs/dust/cms/user/shevchen/samples/miniaod/2015/76X/filtered/JetHT/Run2015D-16Dec2015-v1.txt
+/nfs/dust/cms/user/shevchen/samples/miniaod/2015/76X/filtered/JetHT/Run2015C_25ns-16Dec2015-v1.txt
