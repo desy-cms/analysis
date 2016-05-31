@@ -11,11 +11,16 @@ int main(int argc, char * argv[])
    Btagging btagging("rootFileList.txt","MssmHbb/Events/EventInfo");
 
    // Jet stuff
-   btagging.jetsCollection("Jets", "MssmHbb/Events/slimmedJetsPuppi"); 
-   btagging.workingPoint(0.941);
-   btagging.flavourDefinition("Hadron"); // default
-   btagging.ptMin(20.);                  // default
-   btagging.etaMax(2.5);                 // default
+   btagging.jetsCollection("MssmHbb/Events/slimmedJetsReapplyJEC"); 
+   // GenParticles (when needed)
+   btagging.genParticlesCollection("MssmHbb/Events/prunedGenParticles"); 
+   btagging.workingPoint(0.935);
+//   btagging.flavourDefinition();  // default "Hadron"
+//   btagging.btagAlgorithm();      // default "btag_csvivf"
+   btagging.ptMin();               // default  20. (GeV)
+   btagging.etaMax();              // default  2.5
+   btagging.flavourDefinition("Extended");
+   btagging.extendedFlavour();    // default rmax = 0.4, ptmin = 5.
    
    // Histograms binning
    const static int nptbins = 17;
