@@ -262,6 +262,33 @@ void Candidates<T>::Kinematics()
          {
             jecUncert_[n] = -1.;
          }
+
+         //JER
+         if(jerRecord_ != ""){
+             // SetUp Jet parameters
+        	 JME::JetParameters jerParamRes;
+        	 jerParamRes.setJetPt(pt_[n]);
+        	 jerParamRes.setJetEta(eta_[n]);
+        	 jerParamRes.setRho(std::sqrt(px_[n]*px_[n] + py_[n]*py_[n] + pz_[n]*pz_[n]));
+
+        	 // Return JER
+//        	 jerResolution_[n] 	= res_.getResolution(jerParamRes);
+
+        	 JME::JetParameters jerParamSF;
+        	 jerParamSF.set(JME::Binning::JetEta, eta_[n]);
+        	 jerParamSF.set(JME::Binning::Rho, std::sqrt(px_[n]*px_[n] + py_[n]*py_[n] + pz_[n]*pz_[n]));
+
+//        	 jerSF_[n]			= res_sf_.getScaleFactor(jerParamSF);
+//        	 jerSFUp_[n]		= res_sf_. getScaleFactor(jerParamSF,Variation::UP);
+//        	 jerSFDown_[n]		= res_sf_. getScaleFactor(jerParamSF,Variation::DOWN);
+
+         }
+         else{
+        	 jerResolution_[n] 	= -1;
+        	 jerSF_[n]			= -1;
+        	 jerSFUp_[n]		= -1;
+        	 jerSFDown_[n]		= -1;
+         }
       }
       if ( is_pfjet_ )
       {
@@ -353,6 +380,12 @@ void Candidates<T>::Fill(const edm::Event& event, const edm::EventSetup& setup)
       JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
       jecUnc_ = std::unique_ptr<JetCorrectionUncertainty>(new JetCorrectionUncertainty(JetCorPar));
    }
+   if (jerRecord_ != "" ){
+//	   res_ 	= JME::JetResolution::get(setup,input_collection_.label());
+//	   res_sf_ 	= JME::JetResolutionScaleFactor::get(setup,input_collection_.label());
+	   res_ 	= res_.get(setup,input_collection_.label());
+	   res_sf_ 	= res_sf_.get(setup,input_collection_.label());
+   }
    
    Fill(event);
 }
@@ -395,6 +428,10 @@ void Candidates<T>::Branches()
          
 //         if ( jecRecord_ != "" )
             tree_->Branch("jecUncert", jecUncert_, "jecUncert[n]/F");
+            tree_->Branch("jerResolution",jerResolution_,"jerResolution[n]/F");
+            tree_->Branch("jerSF",jerSF_,"jerSF[n]/F");
+            tree_->Branch("jerSFUp",jerSFUp_,"jerSFUp[n]/F");
+            tree_->Branch("jerSFDown",jerSFDown_,"jerSFDown[n]/F");
          
       }
       if ( is_pfjet_ || is_patjet_ )
@@ -430,9 +467,10 @@ void Candidates<T>::Branches()
    
 }
 template <typename T>
-void Candidates<T>::Init( const std::vector<TitleAlias> & btagVars, const std::string & jr )
+void Candidates<T>::Init( const std::vector<TitleAlias> & btagVars, const std::string & jec, const std::string & jer)
 {
-   jecRecord_ = jr;
+   jecRecord_ = jec;
+   jerRecord_ = jer;
    Init(btagVars);
 }
 

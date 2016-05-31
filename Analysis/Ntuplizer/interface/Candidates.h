@@ -32,6 +32,7 @@
 #include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
+#include "JetMETCorrections/Modules/interface/JetResolution.h"
 
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -58,7 +59,7 @@ namespace analysis {
 //            void Init(const std::vector<std::string> &btagAlgos = std::vector<std::string>(), const std::vector<std::string> & btagAlgosAlias = std::vector<std::string>()	);
 //            void Init(const std::map<std::string, TitleIndex> & btagVars = std::map<std::string,TitleIndex>()	);
 //            void Init(const std::vector<TitleAlias> & btagVars = std::vector<TitleAlias>()	);
-            void Init(const std::vector<TitleAlias> & , const std::string &	);
+            void Init(const std::vector<TitleAlias> & , const std::string & , const std::string &);
             void Init(const std::vector<TitleAlias> &	);
             void Init();
             void Branches();
@@ -78,7 +79,10 @@ namespace analysis {
             edm::InputTag input_collection_;
             
             std::string jecRecord_;
+            std::string jerRecord_;
             std::unique_ptr<JetCorrectionUncertainty> jecUnc_;
+           	JME::JetResolution res_{};
+           	JME::JetResolutionScaleFactor res_sf_{};
             
             // particles kinematics for the ntuple
             int   n_;
@@ -101,6 +105,10 @@ namespace analysis {
             float jetid_[15][maxCandidates];
             
             float jecUncert_[maxCandidates];
+            float jerResolution_[maxCandidates];
+            float jerSF_[maxCandidates];
+            float jerSFUp_[maxCandidates];
+            float jerSFDown_[maxCandidates];
             
             int pdg_[maxCandidates];
             int status_[maxCandidates];

@@ -77,6 +77,7 @@
 
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "JetMETCorrections/Modules/interface/JetResolution.h"
 
 
 #include "Analysis/Ntuplizer/interface/EventFilter.h"
@@ -199,6 +200,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       std::vector< std::string > triggerObjectLabels_;
       std::vector< TitleAlias >  btagVars_;
       std::vector< std::string > jecRecords_;
+      std::vector< std::string > jerRecords_;
       
       std::map<std::string, edm::EDGetTokenT<l1extra::L1JetParticleCollection> > l1JetTokens_;
       std::map<std::string, edm::EDGetTokenT<l1extra::L1MuonParticleCollection> > l1MuonTokens_;
@@ -470,7 +472,6 @@ Ntuplizer::beginJob()
    if ( config_.exists("UseFullName") )
       use_full_name_ = config_.getParameter<bool> ("UseFullName");
 
-   
    edm::Service<TFileService> fs;
    
    TFileDirectory eventsDir = fs -> mkdir("Events");
@@ -518,6 +519,13 @@ Ntuplizer::beginJob()
    {
       jecRecords_ = config_.getParameter< std::vector<std::string> >("JECRecords");
    }
+
+   //JER Records (from .txt file or GT)
+   jerRecords_.clear();
+   if( do_patjets_ && config_.exists("JERRecords")){
+	   jerRecords_ = config_.getParameter< std::vector< std::string> >("JERRecords");
+   }
+
    //
    size_t nPatJets = 0;
    if ( do_patjets_ )
@@ -529,6 +537,12 @@ Ntuplizer::beginJob()
       exit(-1);
    }
    
+   if ( nPatJets > jerRecords_.size() && jerRecords_.size() != 0 )
+   {
+      std::cout << "*** ERROR ***  Ntuplizer: Number of JER Records less than the number of PatJet collections." << std::endl;;
+      exit(-1);
+   }
+
    // Event info tree
    eventinfo_ = pEventInfo (new EventInfo(eventsDir));
    if ( do_pileupinfo_ )
@@ -604,12 +618,13 @@ Ntuplizer::beginJob()
          if ( inputTags == "PatJets" )
          {
             if ( patJetCounter == 0 && jecRecords_.size() > 0  ) std::cout << "*** Jet Energy Corrections Records - PatJets ***" << std::endl;
+            if ( patJetCounter == 0 && jerRecords_.size() > 0  ) std::cout << "*** Jet Energy Resolutions Records - PatJets ***" << std::endl;
             patjets_collections_.push_back( pPatJetCandidates( new PatJetCandidates(collection, tree_[name], is_mc_ ) ));
-            if ( jecRecords_.size() > 0 )
+            if ( jecRecords_.size() > 0 && jerRecords_.size() > 0 )
             {
-               patjets_collections_.back() -> Init(btagVars_,jecRecords_[patJetCounter]);
-               if ( jecRecords_[patJetCounter] != "" )
-                  std::cout << name << " => "  << jecRecords_[patJetCounter] << std::endl;
+               patjets_collections_.back() -> Init(btagVars_,jecRecords_[patJetCounter],jerRecords_[patJetCounter]);
+               if ( jecRecords_[patJetCounter] != "" ) 	std::cout << name << " => "  << jecRecords_[patJetCounter] << std::endl;
+               if ( jerRecords_[patJetCounter] != "") 	std::cout<<" JER: "<<jerRecords_[patJetCounter]<<std::endl;
             }
             else
             {
