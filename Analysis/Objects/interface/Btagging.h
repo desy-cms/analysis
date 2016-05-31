@@ -46,6 +46,7 @@ namespace analysis {
             void efficiencies(const std::string &);
             void jetsCollection(const std::string &);
             void jetsCollection(const std::string &, const std::string &);
+            void genParticlesCollection(const std::string &);
             void efficiencyHistograms();
             void workingPoint(const float &);
             void ptBinning(const int & , const float *);
@@ -53,6 +54,8 @@ namespace analysis {
             void ptMin(const float & ptmin = 20.);
             void etaMax(const float & etamax = 2.5);
             void flavourDefinition(const std::string & flavdef = "Hadron");
+            void btagAlgorithm(const std::string & balgo = "btag_csvivf");
+            void extendedFlavour(const float & rmax = 0.4, const float & ptmin = 5.);
            
          
             // ----------member data ---------------------------
@@ -60,15 +63,19 @@ namespace analysis {
                
          private:
             std::string jets_;
+            std::string genparticles_;
             float wp_;
             float ptmin_;
             float etamax_;
             std::string flavdef_;
+            std::string balgo_;
             std::map<std::string,TH2F *> h2d_eff_;
             int nptbins_;
             const float * ptbins_;
             int netabins_;
             const float * etabins_;
+            float xfrmax_;
+            float xfptmin_;
             
 
       };
@@ -79,6 +86,8 @@ namespace analysis {
       inline void  Btagging::ptMin(const float & ptmin) { ptmin_ = ptmin; }
       inline void  Btagging::etaMax(const float & etamax) { etamax_ = etamax; }
       inline void  Btagging::flavourDefinition(const std::string & flavdef) { flavdef_ = flavdef; }
+      inline void  Btagging::btagAlgorithm(const std::string & balgo) { balgo_ = balgo; }
+      inline void  Btagging::extendedFlavour(const float & rmax , const float & ptmin ) { xfrmax_ = rmax ; xfptmin_ = ptmin; }
    }
 }
 

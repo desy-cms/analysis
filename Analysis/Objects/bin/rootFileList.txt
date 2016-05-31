@@ -1,0 +1,1 @@
+/pnfs/desy.de/cms/tier2/store/user/rshevche/Analysis/Ntuples/Pythia8_QCD/MINIAODSIM/Fall15.76X.20160310/QCD_Pt_170to300_TuneCUETP8M1_13TeV_pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/160310_205621/0000/output_1.root
