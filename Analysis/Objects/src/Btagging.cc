@@ -117,12 +117,19 @@ void Btagging::efficiencies()
             if ( abs(jet.flavour(flavdef_)) != 5 && abs(jet.flavour(flavdef_)) != 4 ) flavour = "l";
          }
          
-         h2d_eff_["h_"+flavour+"jet_pt_eta"]   ->Fill(jet.pt(),fabs(jet.eta()));
+         // Some workaround to allow negative bins of eta
+         if ( etabins_[0] < 0 )
+            h2d_eff_["h_"+flavour+"jet_pt_eta"]   ->Fill(jet.pt(),jet.eta());
+         else
+            h2d_eff_["h_"+flavour+"jet_pt_eta"]   ->Fill(jet.pt(),fabs(jet.eta()));
          
          // Working point histograms
          if ( jet.btag(balgo_) > wp_ )
          {
-            h2d_eff_["h_"+flavour+"jet_pt_eta_wp"]->Fill(jet.pt(),fabs(jet.eta()));
+            if ( etabins_[0] < 0. )
+               h2d_eff_["h_"+flavour+"jet_pt_eta_wp"]->Fill(jet.pt(),jet.eta());
+            else
+               h2d_eff_["h_"+flavour+"jet_pt_eta_wp"]->Fill(jet.pt(),fabs(jet.eta()));
          }
 
       }
