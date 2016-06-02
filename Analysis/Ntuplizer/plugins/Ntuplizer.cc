@@ -438,6 +438,7 @@ void Ntuplizer::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       // trigger objects
       for ( auto & collection : triggerobjects_collections_ )
          collection -> Fill(event);
+         
 }
 
 
@@ -514,10 +515,19 @@ Ntuplizer::beginJob()
    }
    
    // JEC Record (from CondDB)
+   std::vector<std::string > m_resolutions_files;
+   std::vector<std::string > m_scale_factors_files;
    jecRecords_.clear();
    if ( do_patjets_ && config_.exists("JECRecords") )
    {
       jecRecords_ = config_.getParameter< std::vector<std::string> >("JECRecords");
+      if(config_.exists("JERResFiles")){
+      	m_resolutions_files = config_.getParameter< std::vector<std::string > >("JERResFiles");
+      }
+      if(config_.exists("JERSfFiles")){
+      	m_scale_factors_files = config_.getParameter< std::vector<std::string > >("JERSfFiles");
+      }
+
    }
 
    //JER Records (from .txt file or GT)
@@ -533,14 +543,20 @@ Ntuplizer::beginJob()
    
    if ( nPatJets > jecRecords_.size() && jecRecords_.size() != 0 )
    {
-      std::cout << "*** ERROR ***  Ntuplizer: Number of JEC Records less than the number of PatJet collections." << std::endl;;
+      std::cout << "*** ERROR ***  Ntuplizer: Number of JEC Records less than the number of PatJet collections." << std::endl;
       exit(-1);
    }
    
    if ( nPatJets > jerRecords_.size() && jerRecords_.size() != 0 )
    {
-      std::cout << "*** ERROR ***  Ntuplizer: Number of JER Records less than the number of PatJet collections." << std::endl;;
+      std::cout << "*** ERROR ***  Ntuplizer: Number of JER Records less than the number of PatJet collections." << std::endl;
       exit(-1);
+   }
+   
+   if ( jerRecords_.size() != 0 && m_resolutions_files.size() != 0 && m_scale_factors_files.size()!=0 &&(jerRecords_.size() != m_resolutions_files.size() || jerRecords_.size() != m_scale_factors_files.size()) )
+   {
+   		std::cerr << "*** ERROR *** Ntuplizer: Number of JER Records are not the same as number of provided input files. " <<std::endl;
+   		exit(-1);
    }
 
    // Event info tree
@@ -622,9 +638,15 @@ Ntuplizer::beginJob()
             patjets_collections_.push_back( pPatJetCandidates( new PatJetCandidates(collection, tree_[name], is_mc_ ) ));
             if ( jecRecords_.size() > 0 && jerRecords_.size() > 0 )
             {
-               patjets_collections_.back() -> Init(btagVars_,jecRecords_[patJetCounter],jerRecords_[patJetCounter]);
+            	if(m_resolutions_files.size() != 0 && m_resolutions_files[patJetCounter] != "" && m_scale_factors_files[patJetCounter] != ""){
+            		patjets_collections_.back() -> Init(btagVars_,jecRecords_[patJetCounter],jerRecords_[patJetCounter],m_resolutions_files[patJetCounter],m_scale_factors_files[patJetCounter] );
+            	}
+            	
+            	else {
+            		patjets_collections_.back() -> Init(btagVars_,jecRecords_[patJetCounter],jerRecords_[patJetCounter]);
+            	}
                if ( jecRecords_[patJetCounter] != "" ) 	std::cout << name << " => "  << jecRecords_[patJetCounter] << std::endl;
-               if ( jerRecords_[patJetCounter] != "") 	std::cout<<" JER: "<<jerRecords_[patJetCounter]<<std::endl;
+               if ( jerRecords_[patJetCounter] != "") 	std::cout<<"JER: "<<jerRecords_[patJetCounter]<<std::endl;
             }
             else
             {
