@@ -17,8 +17,8 @@ TriggerEfficiency::TriggerEfficiency(const std::string & inputFilelist,const dou
 								selectionDoubleB(inputFilelist,dataLumi,lowM,test)
 {
 	nJets_ = 2;
-	pt1_ = 90;
-	pt2_ = 90;
+	pt1_ = 100;
+	pt2_ = 100;
 	eta1_ = 2.2;
 	eta2_ = 2.2;
 	dR_ = 1.;
@@ -34,7 +34,7 @@ TriggerEfficiency::~TriggerEfficiency() {
 
 const bool TriggerEfficiency::leadingJetSelection(const std::shared_ptr<tools::Collection<tools::Jet> > & offlineJets){
 
-	if(TEST) std::cout<<"I'm in TriggerEfficiency::leadingJetSelection"<<std::endl;
+//	if(TEST) std::cout<<"I'm in TriggerEfficiency::leadingJetSelection"<<std::endl;
 
 	Jet jet1 = offlineJets->at(0);
 	Jet jet2 = offlineJets->at(1);
@@ -50,23 +50,67 @@ const bool TriggerEfficiency::leadingJetSelection(const std::shared_ptr<tools::C
 	//deltaR requirements
 	if (jet1.deltaR(jet2) <= dR_) return false;
 
+	//true b-jets (FOR TEST only)
+//	if( isMC() && jet1.flavour("Hadron") != 5) return false;
+//	if( isMC() && jet2.flavour("Hadron") != 5) return false;
+
 	return true;
 }
 
 void TriggerEfficiency::fillHistograms(const std::shared_ptr<Collection<Jet> > &offlineJets, const double & weight){
 
-	if(TEST) std::cout<<"I'm in TriggerEfficiency::fillHistograms"<<std::endl;
+//	if(TEST) std::cout<<"I'm in TriggerEfficiency::fillHistograms"<<std::endl;
 
 	Jet jet1 = offlineJets->at(0);
 	Jet jet2 = offlineJets->at(1);
 
 	selectionDoubleB::fillHistograms(offlineJets,weight);
 
+	(histo_.getHisto())["jet_turnOn_pt1"]->Fill(jet1.pt(),weight);
+	(histo_.getHisto())["Genjet_turnOn_pt1"]->Fill((genJets_->at(0)).pt(),weight);
+
+	if(matchToPF100_PF80(jet1)){
+		const Candidate * j1l1 = jet1.matched("hltL1sL1SingleJet52");
+		const Candidate * j1l2 = jet1.matched("hltSingleCaloJet50");
+		const Candidate * j1l3 = jet1.matched("hltSinglePFJet80");
+
+		(histo_.getHisto())["onlobject_L1_pt1"]->Fill(j1l1->pt(),weight);
+		(histo_.getHisto())["onlobject_L2_pt1"]->Fill(j1l2->pt(),weight);
+		(histo_.getHisto())["onlobject_L3_pt1"]->Fill(j1l3->pt(),weight);
+
+		(histo_.getHisto())["onlobject_turnOn_L1_pt1"]->Fill(j1l1->pt(),weight);
+		(histo_.getHisto())["onlobject_turnOn_L2_pt1"]->Fill(j1l2->pt(),weight);
+		(histo_.getHisto())["onlobject_turnOn_L3_pt1"]->Fill(j1l3->pt(),weight);
+
+		(histo_.getHisto())["onlobject_L1_eta1"]->Fill(j1l1->eta(),weight);
+		(histo_.getHisto())["onlobject_L2_eta1"]->Fill(j1l2->eta(),weight);
+		(histo_.getHisto())["onlobject_L3_eta1"]->Fill(j1l3->eta(),weight);
+
+		(histo_.getHisto2D())["onlobject_L1_pt1_vs_off"]->Fill(j1l1->pt(),jet1.pt(),weight);
+		(histo_.getHisto2D())["onlobject_L2_pt1_vs_off"]->Fill(j1l2->pt(),jet1.pt(),weight);
+		(histo_.getHisto2D())["onlobject_L3_pt1_vs_off"]->Fill(j1l3->pt(),jet1.pt(),weight);
+
+		(histo_.getHisto2D())["onlobject_turnOn_L1_pt1_vs_off"]->Fill(j1l1->pt(),jet1.pt(),weight);
+		(histo_.getHisto2D())["onlobject_turnOn_L2_pt1_vs_off"]->Fill(j1l2->pt(),jet1.pt(),weight);
+		(histo_.getHisto2D())["onlobject_turnOn_L3_pt1_vs_off"]->Fill(j1l3->pt(),jet1.pt(),weight);
+
+		(histo_.getHisto())["onlobject_turnOn_L1ovOff_pt1"]->Fill(j1l1->pt()/jet1.pt(),weight);
+		(histo_.getHisto())["onlobject_turnOn_L2ovOff_pt1"]->Fill(j1l2->pt()/jet1.pt(),weight);
+		(histo_.getHisto())["onlobject_turnOn_L3ovOff_pt1"]->Fill(j1l3->pt()/jet1.pt(),weight);
+	}
+
 	if(matchToPF100_PF80(jet1)) (histo_.getHisto())["KinTrigEff_pt1_distr_matched_PFJet80"]->Fill(jet1.pt(),weight);
 	if(matchToPF80(jet1)) (histo_.getHisto())["KinTrigEff_pt1_distr_not_matched_PFJet80"]->Fill(jet1.pt(),weight);
 
 	if(matchToPF100_PF80(jet1)) (histo_.getHisto())["KinTrigEff_eta1_distr_matched_PFJet80"]->Fill(jet1.eta(),weight);
 	if(matchToPF80(jet1)) (histo_.getHisto())["KinTrigEff_eta1_distr_not_matched_PFJet80"]->Fill(jet1.eta(),weight);
+
+	if(offlineJets->size() >= 3){ if(offlineJets->at(2).pt() > 30) (histo_.getHisto())["jet_dR13"]->Fill(jet1.deltaR(offlineJets->at(2)),weight);}
+	if(offlineJets->size() >= 4){ if(offlineJets->at(3).pt() > 30) (histo_.getHisto())["jet_dR14"]->Fill(jet1.deltaR(offlineJets->at(3)),weight);}
+	if(offlineJets->size() >= 5){ if(offlineJets->at(4).pt() > 30) (histo_.getHisto())["jet_dR15"]->Fill(jet1.deltaR(offlineJets->at(4)),weight);}
+	if(offlineJets->size() >= 6){ if(offlineJets->at(5).pt() > 30) (histo_.getHisto())["jet_dR16"]->Fill(jet1.deltaR(offlineJets->at(5)),weight);}
+	if(offlineJets->size() >= 7){ if(offlineJets->at(6).pt() > 30) (histo_.getHisto())["jet_dR17"]->Fill(jet1.deltaR(offlineJets->at(6)),weight);}
+	if(offlineJets->size() >= 8){ if(offlineJets->at(7).pt() > 30) (histo_.getHisto())["jet_dR18"]->Fill(jet1.deltaR(offlineJets->at(7)),weight);}
 
 	if(lowM_){
 		if(matchToPF100_PF80(jet1) && std::abs(jet1.eta()) < 1.5 ) (histo_.getHisto())["KinTrigEff_Num_1D_PF80_PF100_pt1_central_eta"]->Fill(jet1.pt(),weight);
@@ -138,6 +182,11 @@ void TriggerEfficiency::fillHistograms(const std::shared_ptr<Collection<Jet> > &
 
 		if(matchToPF100_PF60(jet2))	(histo_.getHisto2D())["KinTrigEff_Num_2D_PF60_PF100_pt2eta2"]->Fill(jet2.pt(),std::abs(jet2.eta()),weight);
 		if(matchToPF60(jet2))		(histo_.getHisto2D())["KinTrigEff_Den_2D_PF60_PF100_pt2eta2"]->Fill(jet2.pt(),std::abs(jet2.eta()),weight);
+
+		if(isMC()){
+			if(matchToPF100_PF80(jet1)) (histo_.getHisto())["KinTrigEff_Num_1D_True_PF80_PF100_pt1"]->Fill(jet1.pt(),weight);
+			(histo_.getHisto())["KinTrigEff_Den_1D_True_PF80_PF100_pt1"]->Fill(jet1.pt(),weight);
+		}
 	}
 	else{
 

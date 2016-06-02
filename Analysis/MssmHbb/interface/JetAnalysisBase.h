@@ -106,6 +106,9 @@ namespace analysis{
         double JESshift_{};
         std::string baseOutputName_{};
 
+        //generated jetcollection:
+        std::shared_ptr<tools::Collection<tools::Jet > > genJets_;
+
         //Protected methods
         virtual void fillHistograms(const std::shared_ptr<tools::Collection<tools::Jet> > & offlineJets, const double & weight);
         //virtual void fillHistograms(const tools::Jet &LeadingJet, const tools::Jet &sub_LeadingJet);

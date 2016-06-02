@@ -28,7 +28,7 @@ JetAnalysisBase::JetAnalysisBase(const std::string & inputFilelist, const double
 
 		//Add specific to MC trees
 //		this->addTree<GenParticle>("GenParticles","MssmHbb/Events/prunedGenParticles");
-//		this->addTree<Jet>("GenJets","MssmHbb/Events/slimmedGenJets");
+		if(isMC()) this->addTree<Jet>("GenJets","MssmHbb/Events/slimmedGenJets");
 
 		// Add MC information:
 		this->crossSections("MssmHbb/Metadata/CrossSections");
@@ -58,7 +58,7 @@ JetAnalysisBase::JetAnalysisBase(const std::string & inputFilelist, const double
 }
 
 JetAnalysisBase::~JetAnalysisBase() {
-	if(TEST) std::cout<<"I'm at ~JetAnalysisBase"<<std::endl;
+//	if(TEST) std::cout<<"I'm at ~JetAnalysisBase"<<std::endl;
 	// TODO Auto-generated destructor stub
 }
 
@@ -66,12 +66,12 @@ void JetAnalysisBase::setupAnalysis(const std::string & json){
 	if(!isMC()) this->processJsonFile(json);
 	this->loadCorrections();
 	this->addTriggerObjects(triggerObjectName_);
-	if(TEST) std::cout<<"I'm in setupAnalysis"<<std::endl;
+//	if(TEST) std::cout<<"I'm in setupAnalysis"<<std::endl;
 }
 
 void JetAnalysisBase::applySelection(){
 
-	if(TEST) std::cout<<"I'm in applySelection"<<std::endl;
+//	if(TEST) std::cout<<"I'm in applySelection"<<std::endl;
 
 	bool goodLeadingJets = false;
 	double totWeight = 0;
@@ -81,7 +81,7 @@ void JetAnalysisBase::applySelection(){
 	ScaleFactor sf[5];
 	//Event loop:
 	auto nevents = 0;
-	if(TEST) nevents = 5000;
+	if(TEST) nevents = 0.4*this->size();
 	else nevents = this->size();
 
 	for(auto i = 0; i < nevents; ++ i){
@@ -95,8 +95,9 @@ void JetAnalysisBase::applySelection(){
 		auto shiftedJets = std::make_shared<Collection<Jet> >();
 
 		//Define MC specific collections:
-//		if(isMC()){
-//			auto genJets = this->collection<Jet>("GenJets");
+		if(isMC()){
+			genJets_ = (std::shared_ptr<Collection<Jet> >) this->collection<Jet>("GenJets");
+		}
 //			auto genPart = this->collection<GenParticle>("GenParticles");
 
 //			//mHat cut for signal MC
@@ -337,7 +338,7 @@ void JetAnalysisBase::loadCorrections(){
 }
 
 const bool JetAnalysisBase::leadingJetSelection(const std::shared_ptr<tools::Collection<tools::Jet> > & offlineJets){
-	if(TEST) std::cout<<"I'm in JetAnalysisBase::leadingJetSelection::shared_ptr"<<std::endl;
+//	if(TEST) std::cout<<"I'm in JetAnalysisBase::leadingJetSelection::shared_ptr"<<std::endl;
 	//Selection of good Leading Jets:
 	//Only jets that pass Loose identification will be considered
 	Jet jet1 = offlineJets->at(0);
@@ -468,7 +469,7 @@ void JetAnalysisBase::writeHistograms(){
 
 void JetAnalysisBase::fillHistograms(const std::shared_ptr<Collection<Jet> > &offlineJets, const double & weight){
 
-	if(TEST) std::cout<<"I'm in JetAnalysisBase::fillHistograms"<<std::endl;
+//	if(TEST) std::cout<<"I'm in JetAnalysisBase::fillHistograms"<<std::endl;
 
 	Jet jet1 = offlineJets->at(0);
 	Jet jet2 = offlineJets->at(1);
@@ -528,7 +529,7 @@ const double JetAnalysisBase::assignWeight(){
 std::shared_ptr<tools::Collection<tools::Jet> > JetAnalysisBase::modifyJetCollection(tools::Jet & jet,
 						std::shared_ptr<tools::Collection<tools::Jet> > & initialJets
 						){
-	if(TEST) std::cout<<"I'm in JetAnalysisBase::modifyJetCollection"<<std::endl;
+//	if(TEST) std::cout<<"I'm in JetAnalysisBase::modifyJetCollection"<<std::endl;
 
 	initialJets->add(jet);
 	return initialJets;

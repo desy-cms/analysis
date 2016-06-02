@@ -51,6 +51,8 @@ using namespace analysis::tools;
 template <class Object>
 Collection<Object>::Collection()
 {
+	size_ = 0;
+	candidates_.clear();
 }
 template <class Object>
 Collection<Object>::Collection(const Objects & objects, const std::string & name)

@@ -71,8 +71,12 @@ void selectionDoubleB::fillHistograms(const std::shared_ptr<Collection<Jet> > &o
 	Jet jet1 = offlineJets->at(0);
 	Jet jet2 = offlineJets->at(1);
 
+	(histo_.getHisto())["NumberOfJets"]->Fill(offlineJets->size());
+
 	(histo_.getHisto())["jet_pt1"]->Fill(jet1.pt(),weight);
 	(histo_.getHisto())["jet_pt2"]->Fill(jet2.pt(),weight);
+
+	(histo_.getHisto())["jet12_assym"]->Fill((jet1.pt()-jet2.pt())/(jet1.pt()+jet2.pt()),weight);
 
 	(histo_.getHisto())["jet_eta1"]->Fill(jet1.eta(),weight);
 	(histo_.getHisto())["jet_eta2"]->Fill(jet2.eta(),weight);
@@ -89,6 +93,24 @@ void selectionDoubleB::fillHistograms(const std::shared_ptr<Collection<Jet> > &o
 	(histo_.getHisto())["jet_deta12"]->Fill(jet1.eta() - jet2.eta(),weight);
 
 	(histo_.getHisto())["jet_dR12"]->Fill(jet1.deltaR(jet2),weight);
+
+	if(isMC() && genJets_->size()>1){
+		Jet genjet1 = genJets_->at(0);
+		Jet genjet2 = genJets_->at(1);
+		(histo_.getHisto())["Genjet_pt1"]->Fill(genjet1.pt(),weight);
+		(histo_.getHisto())["Genjet_pt2"]->Fill(genjet2.pt(),weight);
+
+		(histo_.getHisto())["Genjet_eta1"]->Fill(genjet1.eta(),weight);
+		(histo_.getHisto())["Genjet_eta2"]->Fill(genjet2.eta(),weight);
+
+		(histo_.getHisto())["Genjet_phi1"]->Fill(genjet1.phi(),weight);
+        (histo_.getHisto())["Genjet_phi2"]->Fill(genjet2.phi(),weight);
+
+		(histo_.getHisto())["jet_flavor1"]->Fill(jet1.flavour(),weight);
+        (histo_.getHisto())["jet_flavor2"]->Fill(jet2.flavour(),weight);
+
+        (histo_.getHisto2D())["Genjet_vs_off_pt1"]->Fill(genjet1.pt(),jet1.pt(),weight);
+	}
 
 	TLorentzVector obj12;
 	obj12 = jet1.p4() + jet2.p4();

@@ -133,7 +133,7 @@ TH1* RatioPlots::DrawRatio(TH1 *numerator, TH1 *denumerator, TCanvas *can, TH1 *
 	numerator -> Draw("same");
 
 	if(leg) leg->Draw();
-	style_.standardTitle()->Draw();
+//	style_.standardTitle()->Draw();
 
 	can->cd();
 	pad2_ = new TPad("pad2","pad2",0,0.0,1,0.3);
@@ -190,7 +190,7 @@ TH1* RatioPlots::DrawRatio(TH1 *histo, TF1 * fit, std::string fitName, TCanvas *
 	fitLegend -> AddEntry(fit,fitName.c_str(),"l");
 	histo -> Draw();
 	fitLegend->Draw();
-	style_.standardTitle()->Draw();
+//	style_.standardTitle()->Draw();
 //	std::cout<<fit->GetChisquare()<<" "<<fit->GetNDF()<<" "<<fit->GetChisquare()/fit->GetNDF()<<std::endl;
 
 	can->cd();

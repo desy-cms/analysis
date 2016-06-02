@@ -221,15 +221,6 @@ int main(int argc, char * argv[])
 	return 0;
 }
 
-const bool findStrings(const std::string & input, const std::string & needful){
-	std::string input1 = input;
-	std::string input2 = needful;
-	std::transform(input1.begin(),input1.end(),input1.begin(),tolower);
-	std::transform(input2.begin(),input2.end(),input2.begin(),tolower);
-	if(input1.find(input2) != std::string::npos) return true;
-	else return false;
-}
-
 void addBackgroundTemplate(const std::string & signal_template, const std::string & bg_template, const std::string & bgHisto){
 
 	TFile fsignal(signal_template.c_str(),"UPDATE");	// Opening file for writing;

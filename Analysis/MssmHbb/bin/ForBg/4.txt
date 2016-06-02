@@ -1,0 +1,2 @@
+/nfs/dust/cms/user/shevchen/samples/miniaod/2015/76X/filtered/Pythia8_QCD_noBTagFilter/QCD_Pt_120to170_TuneCUETP8M1_13TeV_pythia8.txt
+/nfs/dust/cms/user/shevchen/samples/miniaod/2015/76X/filtered/Pythia8_QCD_noBTagFilter/QCD_Pt_1400to1800_TuneCUETP8M1_13TeV_pythia8.txt

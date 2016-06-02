@@ -46,6 +46,7 @@ namespace analysis {
            ~Collection();
            
            int size();
+           void setSize(const int & size);
            Object & at(const int & index);
            void add(const Object & object);
            
@@ -80,7 +81,8 @@ namespace analysis {
       template <class Object> inline std::string Collection<Object>::name() const          { return name_; }
 
       // Sets
-      template <class Object> inline void   Collection<Object>::add(const Object & object) { objects_.push_back(object); }
+      template <class Object> inline void   Collection<Object>::add(const Object & object) { objects_.push_back(object); ++size_;  }
+      template <class Object> inline void   Collection<Object>::setSize(const int & size) { size_ = size; }
 
    }
 }
