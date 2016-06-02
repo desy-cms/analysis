@@ -60,6 +60,7 @@ namespace analysis {
 //            void Init(const std::map<std::string, TitleIndex> & btagVars = std::map<std::string,TitleIndex>()	);
 //            void Init(const std::vector<TitleAlias> & btagVars = std::vector<TitleAlias>()	);
             void Init(const std::vector<TitleAlias> & , const std::string & , const std::string &);
+            void Init(const std::vector<TitleAlias> & , const std::string & , const std::string & , const std::string & , const std::string &);
             void Init(const std::vector<TitleAlias> &	);
             void Init();
             void Branches();
@@ -78,11 +79,13 @@ namespace analysis {
             std::string configParameter_;
             edm::InputTag input_collection_;
             
-            std::string jecRecord_;
-            std::string jerRecord_;
+            std::string jecRecord_{};
+            std::string jerRecord_{};
+            std::string jerResFile_;
+            std::string jerSfFile_;
             std::unique_ptr<JetCorrectionUncertainty> jecUnc_;
-           	JME::JetResolution res_{};
-           	JME::JetResolutionScaleFactor res_sf_{};
+           	JME::JetResolution res_;
+           	JME::JetResolutionScaleFactor res_sf_;
             
             // particles kinematics for the ntuple
             int   n_;

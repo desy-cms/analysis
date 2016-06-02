@@ -53,6 +53,8 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include "JetMETCorrections/Modules/interface/JetResolution.h"
+
 #include "TTree.h"
 
 
@@ -272,16 +274,16 @@ void Candidates<T>::Kinematics()
         	 jerParamRes.setRho(std::sqrt(px_[n]*px_[n] + py_[n]*py_[n] + pz_[n]*pz_[n]));
 
         	 // Return JER
-//        	 jerResolution_[n] 	= res_.getResolution(jerParamRes);
+        	 jerResolution_[n] 	= res_.getResolution(jerParamRes);
 
         	 JME::JetParameters jerParamSF;
         	 jerParamSF.set(JME::Binning::JetEta, eta_[n]);
         	 jerParamSF.set(JME::Binning::Rho, std::sqrt(px_[n]*px_[n] + py_[n]*py_[n] + pz_[n]*pz_[n]));
 
-//        	 jerSF_[n]			= res_sf_.getScaleFactor(jerParamSF);
-//        	 jerSFUp_[n]		= res_sf_. getScaleFactor(jerParamSF,Variation::UP);
-//        	 jerSFDown_[n]		= res_sf_. getScaleFactor(jerParamSF,Variation::DOWN);
-
+        	 jerSF_[n]			= res_sf_.getScaleFactor(jerParamSF);
+        	 jerSFUp_[n]		= res_sf_. getScaleFactor(jerParamSF,Variation::UP);
+        	 jerSFDown_[n]		= res_sf_. getScaleFactor(jerParamSF,Variation::DOWN);
+        	 
          }
          else{
         	 jerResolution_[n] 	= -1;
@@ -380,11 +382,18 @@ void Candidates<T>::Fill(const edm::Event& event, const edm::EventSetup& setup)
       JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
       jecUnc_ = std::unique_ptr<JetCorrectionUncertainty>(new JetCorrectionUncertainty(JetCorPar));
    }
+   
    if (jerRecord_ != "" ){
-//	   res_ 	= JME::JetResolution::get(setup,input_collection_.label());
-//	   res_sf_ 	= JME::JetResolutionScaleFactor::get(setup,input_collection_.label());
-	   res_ 	= res_.get(setup,input_collection_.label());
-	   res_sf_ 	= res_sf_.get(setup,input_collection_.label());
+   		if(jerResFile_ != "" && jerSfFile_ != ""){
+	   		res_    = JME::JetResolution(jerResFile_);
+	   		res_sf_ = JME::JetResolutionScaleFactor(jerSfFile_);
+   		}
+   		else {
+   	   		std::string label_pt = jerRecord_ + "_pt";
+	   		res_ 	= JME::JetResolution::get(setup,label_pt);
+	   		std::string label_sf = jerRecord_;
+	   		res_sf_ 	= JME::JetResolutionScaleFactor::get(setup,label_sf);
+	   	}
    }
    
    Fill(event);
@@ -471,6 +480,16 @@ void Candidates<T>::Init( const std::vector<TitleAlias> & btagVars, const std::s
 {
    jecRecord_ = jec;
    jerRecord_ = jer;
+   Init(btagVars);
+}
+
+template <typename T>
+void Candidates<T>::Init( const std::vector<TitleAlias> & btagVars, const std::string & jec, const std::string & jer, const std::string &res_file, const std::string & sf_file)
+{
+   jecRecord_ = jec;
+   jerRecord_ = jer;
+   jerResFile_ = res_file;
+   jerSfFile_  = sf_file;
    Init(btagVars);
 }
 
