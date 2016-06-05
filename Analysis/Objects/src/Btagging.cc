@@ -38,6 +38,7 @@ Btagging::Btagging(const std::string & inputFilelist, const std::string & evtinf
    etamax_  = 2.5;
    xfrmax_  = 0.4;
    xfptmin_ = 5.;
+   lumi_    = -1.;
 }
 
 Btagging::~Btagging()
@@ -64,7 +65,19 @@ void Btagging::efficiencies()
    
    efficiencyHistograms();
    
-   std::cout << "*** Btagging::efficiencies() running on " << nentries << " events." << std::endl; 
+   std::cout << "*** Btagging::efficiencies() " << std::endl;
+   std::cout << "    - Total number of events  = " << nentries << " events" << std::endl; 
+   
+   float lumiScale = 1.;
+   if ( lumi_ > 0 )
+   {
+      float sampleLumi = nentries/this->crossSection();
+      lumiScale  = lumi_/sampleLumi;
+      std::cout << "    - Target luminosity       = " << lumi_ << " pb-1" << std::endl;
+      std::cout << "    - Sample cross section    = " << this->crossSection() << " pb" << std::endl;
+      std::cout << "    - Luminosity scale factor = " << lumiScale << std::endl;
+   }
+   
    
    for ( int i = 0 ; i < nentries ; ++i )
    {
@@ -137,7 +150,16 @@ void Btagging::efficiencies()
       
    }
    
-   // Efficiency histograms
+   // Scale to luminosity (need to consider possible generator filter)
+   if ( lumi_ > 0. )
+   {
+      for ( auto & histo : h2d_eff_ )
+      {
+         histo.second->Scale(lumiScale);
+      }
+   }
+   
+   // Efficiency histograms (TODO: TEfficiency objects instead)
    // B JETS
    h2d_eff_["h_bjet_eff_pt_eta"] = (TH2F*) h2d_eff_["h_bjet_pt_eta_wp"] -> Clone("h_bjet_eff_pt_eta");
    h2d_eff_["h_bjet_eff_pt_eta"] -> Divide(h2d_eff_["h_bjet_pt_eta"]);
@@ -197,6 +219,11 @@ void Btagging::genParticlesCollection(const std::string & path)
 {
    genparticles_ = "GenParticles";
    this->addTree<GenParticle>(genparticles_,path);
+}
+
+void Btagging::scaleLuminosity(const float & lumi)
+{
+   lumi_ = lumi;
 }
 
 

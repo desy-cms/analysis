@@ -10,10 +10,15 @@ int main(int argc, char * argv[])
    // Intantiation of btagging object
    Btagging btagging("rootFileList.txt","MssmHbb/Events/EventInfo");
 
+// COLLECTIONS
    // Jet stuff
    btagging.jetsCollection("MssmHbb/Events/slimmedJetsReapplyJEC"); 
    // GenParticles (when needed)
    btagging.genParticlesCollection("MssmHbb/Events/prunedGenParticles"); 
+   // Cross sections
+   btagging.crossSections("MssmHbb/Metadata/CrossSections");
+   
+   // ------
    btagging.workingPoint(0.935);
 //   btagging.flavourDefinition();  // default "Hadron"
 //   btagging.btagAlgorithm();      // default "btag_csvivf"
@@ -21,6 +26,8 @@ int main(int argc, char * argv[])
    btagging.etaMax();              // default  2.5
    btagging.flavourDefinition("Extended");
    btagging.extendedFlavour();    // default rmax = 0.4, ptmin = 5.
+   
+   btagging.scaleLuminosity(10000.);
    
    // Histograms binning
    const static int nptbins = 17;
