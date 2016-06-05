@@ -77,6 +77,10 @@ void Btagging::efficiencies()
       std::cout << "    - Sample cross section    = " << this->crossSection() << " pb" << std::endl;
       std::cout << "    - Luminosity scale factor = " << lumiScale << std::endl;
    }
+   else
+   {
+      std::cout << "    - No luminosity scaling will be performed." << std::endl;
+   }
    
    
    for ( int i = 0 ; i < nentries ; ++i )
