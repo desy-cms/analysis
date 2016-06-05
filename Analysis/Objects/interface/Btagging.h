@@ -56,6 +56,8 @@ namespace analysis {
             void flavourDefinition(const std::string & flavdef = "Hadron");
             void btagAlgorithm(const std::string & balgo = "btag_csvivf");
             void extendedFlavour(const float & rmax = 0.4, const float & ptmin = 5.);
+            
+            void scaleLuminosity(const float & lumi);  // in pb-1
            
          
             // ----------member data ---------------------------
@@ -76,6 +78,7 @@ namespace analysis {
             const float * etabins_;
             float xfrmax_;
             float xfptmin_;
+            float lumi_;
             
 
       };
