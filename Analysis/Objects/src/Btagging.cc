@@ -203,10 +203,6 @@ void Btagging::efficiencies()
    TFile out(Form("BtagEfficiencies_%s_%1.3f.root",balgo_.c_str(),wp_),"recreate");
    for ( auto & histo : h2d_eff_ )
    {
-      histo.second->SetDrawOption("LEGO");
-      histo.second->GetXaxis()->SetTitle("pT (GeV)");
-      histo.second->GetYaxis()->SetTitle("eta");
-      histo.second->GetZaxis()->SetTitle("entries");
       if ( histo.first.find("eff") != std::string::npos )
          histo.second->GetZaxis()->SetTitle("efficiency");
       
@@ -274,6 +270,14 @@ void Btagging::efficiencyHistograms()
       h2d_eff_["h_ccjet_pt_eta_wp"] = new TH2F("h_ccjet_pt_eta_wp","",nptbins_,ptbins_,netabins_,etabins_);
       
    }
-      
+   
+   for ( auto & histo : h2d_eff_ )
+   {
+      histo.second -> Sumw2();
+      histo.second -> SetDrawOption("LEGO");
+      histo.second -> GetXaxis() -> SetTitle("pT (GeV)");
+      histo.second -> GetYaxis() -> SetTitle("eta");
+      histo.second -> GetZaxis() -> SetTitle("entries");
+   }
    
 }
