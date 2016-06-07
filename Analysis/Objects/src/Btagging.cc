@@ -31,14 +31,16 @@ using namespace analysis::objects;
 //
 Btagging::Btagging(const std::string & inputFilelist, const std::string & evtinfo) : Object(inputFilelist,evtinfo)
 {
-   jets_    = "Jets";
-   flavdef_ = "Hadron";
-   balgo_   = "btag_csvivf";
-   ptmin_   = 20.;
-   etamax_  = 2.5;
-   xfrmax_  = 0.4;
-   xfptmin_ = 5.;
-   lumi_    = -1.;
+   jets_     = "Jets";
+   flavdef_  = "Hadron";
+   balgo_    = "btag_csvivf";
+   ptmin_    = 20.;
+   etamax_   = 2.5;
+   xfrmax_   = 0.4;
+   xfptmin_  = 5.;
+   lumi_     = -1.;
+   njetsmin_ = 1;
+   njetsmax_ = -1;
 }
 
 Btagging::~Btagging()
@@ -114,10 +116,22 @@ void Btagging::efficiencies()
          }
       }
       
+      std::vector<Jet> selJets;
       for ( int j = 0 ; j < jets->size() ; ++j )
       {
-         auto jet = jets->at(j);
+         Jet jet = jets->at(j);
          if ( !jet.idLoose() || jet.pt() < ptmin_ || fabs(jet.eta()) > etamax_ ) continue;
+         selJets.push_back(jet);
+         if ( njetsmax_ > 0 && int(selJets.size()) == njetsmax_ ) break;
+      }
+      
+      if ( int(selJets.size()) < njetsmin_ ) continue;
+      
+      for ( size_t j = 0 ; j < selJets.size() ; ++j )
+      {
+         Jet jet = selJets.at(j);
+//         if ( !jet.idLoose() || jet.pt() < ptmin_ || fabs(jet.eta()) > etamax_ ) continue;
+         
          
          std::string flavour;
 
@@ -148,7 +162,7 @@ void Btagging::efficiencies()
             else
                h2d_eff_["h_"+flavour+"jet_pt_eta_wp"]->Fill(jet.pt(),fabs(jet.eta()));
          }
-
+         
       }
       
       
