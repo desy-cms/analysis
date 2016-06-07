@@ -19,15 +19,20 @@ int main(int argc, char * argv[])
    btagging.crossSections("MssmHbb/Metadata/CrossSections");
    
    // ------
-   btagging.workingPoint(0.935);
-//   btagging.flavourDefinition();  // default "Hadron"
-//   btagging.btagAlgorithm();      // default "btag_csvivf"
-   btagging.ptMin();               // default  20. (GeV)
-   btagging.etaMax();              // default  2.5
-   btagging.flavourDefinition("Extended");
-   btagging.extendedFlavour();    // default rmax = 0.4, ptmin = 5.
+   // Jets selection
+   btagging.ptMin(20.);                    // default  20. (GeV)
+   btagging.etaMax(2.5);                   // default  2.5
+   btagging.njetsMin(1);                   // default 1
+   btagging.njetsMax(1);                   // default -1 (i.e. no max number of jets)
    
-   btagging.scaleLuminosity(10000.);
+   // btag related definitions
+   btagging.flavourDefinition("Extended"); // default "Hadron"
+   btagging.btagAlgorithm();               // default "btag_csvivf"
+   btagging.workingPoint(0.935);
+   btagging.extendedFlavour(0.4,5.);       // default rmax = 0.4, ptmin = 5.
+   
+   // Lumi scale
+   btagging.scaleLuminosity(10000.);       // in pb^-1
    
    // Histograms binning
    const static int nptbins = 17;

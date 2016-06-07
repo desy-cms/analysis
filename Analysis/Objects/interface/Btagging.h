@@ -53,6 +53,8 @@ namespace analysis {
             void etaBinning(const  int & , const float * );
             void ptMin(const float & ptmin = 20.);
             void etaMax(const float & etamax = 2.5);
+            void njetsMin(const int & njetsmin = 1);
+            void njetsMax(const int & njetsmax = -1);
             void flavourDefinition(const std::string & flavdef = "Hadron");
             void btagAlgorithm(const std::string & balgo = "btag_csvivf");
             void extendedFlavour(const float & rmax = 0.4, const float & ptmin = 5.);
@@ -69,6 +71,8 @@ namespace analysis {
             float wp_;
             float ptmin_;
             float etamax_;
+            int   njetsmin_;
+            int   njetsmax_;
             std::string flavdef_;
             std::string balgo_;
             std::map<std::string,TH2F *> h2d_eff_;
@@ -88,6 +92,8 @@ namespace analysis {
       inline void  Btagging::etaBinning(const int & nbins,  const float * bins) { netabins_ = nbins; etabins_ = bins; }
       inline void  Btagging::ptMin(const float & ptmin) { ptmin_ = ptmin; }
       inline void  Btagging::etaMax(const float & etamax) { etamax_ = etamax; }
+      inline void  Btagging::njetsMin(const int & njetsmin) { njetsmin_ = njetsmin; }
+      inline void  Btagging::njetsMax(const int & njetsmax) { njetsmax_ = njetsmax; }
       inline void  Btagging::flavourDefinition(const std::string & flavdef) { flavdef_ = flavdef; }
       inline void  Btagging::btagAlgorithm(const std::string & balgo) { balgo_ = balgo; }
       inline void  Btagging::extendedFlavour(const float & rmax , const float & ptmin ) { xfrmax_ = rmax ; xfptmin_ = ptmin; }
