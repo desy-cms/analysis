@@ -24,6 +24,7 @@ int main(int argc, char * argv[])
    btagging.etaMax(2.5);                   // default  2.5
    btagging.njetsMin(1);                   // default 1
    btagging.njetsMax(1);                   // default -1 (i.e. no max number of jets)
+   btagging.deltaRMin(1.);                 // default -1 (i.e. no deltaR selection; only for exlusive njets > 1)
    
    // btag related definitions
    btagging.flavourDefinition("Extended"); // default "Hadron"
@@ -32,7 +33,7 @@ int main(int argc, char * argv[])
    btagging.extendedFlavour(0.4,5.);       // default rmax = 0.4, ptmin = 5.
    
    // Lumi scale
-   btagging.scaleLuminosity(10000.);       // in pb^-1
+//   btagging.scaleLuminosity(10000.);       // in pb^-1
    
    // Histograms binning
    const static int nptbins = 17;
