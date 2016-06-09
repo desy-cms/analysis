@@ -41,6 +41,8 @@ Btagging::Btagging(const std::string & inputFilelist, const std::string & evtinf
    lumi_     = -1.;
    njetsmin_ = 1;
    njetsmax_ = -1;
+   drmin_    = -1.;
+   doperjet_ = false;
 }
 
 Btagging::~Btagging()
@@ -61,11 +63,22 @@ Btagging::~Btagging()
 // }
 
 //void Btagging::efficiencies(const std::string & coll)
-void Btagging::efficiencies()
+void Btagging::efficiencies(const int & nevts)
 {
    int nentries = this->size();
    
-   efficiencyHistograms();
+   if ( nevts > 0 )
+      nentries = nevts;
+   
+   // histograms
+   histograms();
+   if ( njetsmin_ == njetsmax_ )
+      histogramsPerJet();
+   histogramsSettings();
+   
+   //
+   if ( njetsmin_ != njetsmax_ && njetsmin_ < 2 ) // no sense to apply deltaR between jets
+      drmin_ = -1.;
    
    std::cout << "*** Btagging::efficiencies() " << std::endl;
    std::cout << "    - Total number of events  = " << nentries << " events" << std::endl; 
@@ -127,6 +140,21 @@ void Btagging::efficiencies()
       
       if ( int(selJets.size()) < njetsmin_ ) continue;
       
+      if ( drmin_ > 0 ) // select only events in which the selected jets have deltaR above certain value
+      {
+         bool ok = true;
+         for ( size_t j1 = 0 ; j1 < selJets.size()-1 ; ++j1 )
+         {
+            Jet jet1 = selJets.at(j1);
+            for ( size_t j2 = j1+1 ; j2 < selJets.size() ; ++j2 )
+            {
+               Jet jet2 = selJets.at(j2);
+               if ( jet1.deltaR(jet2) < drmin_ ) ok = false;
+            }
+         }
+         if ( ! ok ) continue;
+      }
+      
       for ( size_t j = 0 ; j < selJets.size() ; ++j )
       {
          Jet jet = selJets.at(j);
@@ -162,6 +190,25 @@ void Btagging::efficiencies()
             else
                h2d_eff_["h_"+flavour+"jet_pt_eta_wp"]->Fill(jet.pt(),fabs(jet.eta()));
          }
+
+         if ( doperjet_ ) // this more or less repeats what was done above in case of exclusive number of jets
+         {
+            // Some workaround to allow negative bins of eta
+            if ( etabins_[0] < 0 )
+               h2d_eff_[Form("h_%sjet%i_pt_eta",flavour.c_str(),int(j+1))]   ->Fill(jet.pt(),jet.eta());
+            else
+               h2d_eff_[Form("h_%sjet%i_pt_eta",flavour.c_str(),int(j+1))]   ->Fill(jet.pt(),fabs(jet.eta()));
+            
+            // Working point histograms
+            if ( jet.btag(balgo_) > wp_ )
+            {
+               if ( etabins_[0] < 0. )
+                  h2d_eff_[Form("h_%sjet%i_pt_eta_wp",flavour.c_str(),int(j+1))]->Fill(jet.pt(),jet.eta());
+               else
+                  h2d_eff_[Form("h_%sjet%i_pt_eta_wp",flavour.c_str(),int(j+1))]->Fill(jet.pt(),fabs(jet.eta()));
+            }
+            
+         }         
          
       }
       
@@ -199,6 +246,32 @@ void Btagging::efficiencies()
       
    }      
    
+   if ( doperjet_ ) // this more or less repeats what was done above in case of exclusive number of jets
+   {
+      for ( int i = 0; i < njetsmax_ ; ++i )
+      {
+         // B JETS
+         h2d_eff_[Form("h_bjet%i_eff_pt_eta",i+1)] = (TH2F*) h2d_eff_[Form("h_bjet%i_pt_eta_wp",i+1)] -> Clone(Form("h_bjet%i_eff_pt_eta",i+1));
+         h2d_eff_[Form("h_bjet%i_eff_pt_eta",i+1)] -> Divide(h2d_eff_[Form("h_bjet%i_pt_eta",i+1)]);
+         // C JETS
+         h2d_eff_[Form("h_cjet%i_eff_pt_eta",i+1)] = (TH2F*) h2d_eff_[Form("h_cjet%i_pt_eta_wp",i+1)] -> Clone(Form("h_cjet%i_eff_pt_eta",i+1));
+         h2d_eff_[Form("h_cjet%i_eff_pt_eta",i+1)] -> Divide(h2d_eff_[Form("h_cjet%i_pt_eta",i+1)]);
+         // UDSG JETS
+         h2d_eff_[Form("h_ljet%i_eff_pt_eta",i+1)] = (TH2F*) h2d_eff_[Form("h_ljet%i_pt_eta_wp",i+1)] -> Clone(Form("h_ljet%i_eff_pt_eta",i+1));
+         h2d_eff_[Form("h_ljet%i_eff_pt_eta",i+1)] -> Divide(h2d_eff_[Form("h_ljet%i_pt_eta",i+1)]);
+         
+         if ( genparticles_ == "GenParticles" && flavdef_ == "Extended" )
+         {
+            // B JETS
+            h2d_eff_[Form("h_bbjet%i_eff_pt_eta",i+1)] = (TH2F*) h2d_eff_[Form("h_bbjet%i_pt_eta_wp",i+1)] -> Clone(Form("h_bbjet%i_eff_pt_eta",i+1));
+            h2d_eff_[Form("h_bbjet%i_eff_pt_eta",i+1)] -> Divide(h2d_eff_[Form("h_bbjet%i_pt_eta",i+1)]);
+            // C JETS
+            h2d_eff_[Form("h_ccjet%i_eff_pt_eta",i+1)] = (TH2F*) h2d_eff_[Form("h_ccjet%i_pt_eta_wp",i+1)] -> Clone(Form("h_ccjet%i_eff_pt_eta",i+1));
+            h2d_eff_[Form("h_ccjet%i_eff_pt_eta",i+1)] -> Divide(h2d_eff_[Form("h_ccjet%i_pt_eta",i+1)]);
+            
+         }      
+      }
+   }
    // Output
    TFile out(Form("BtagEfficiencies_%s_%1.3f.root",balgo_.c_str(),wp_),"recreate");
    for ( auto & histo : h2d_eff_ )
@@ -242,7 +315,7 @@ void Btagging::scaleLuminosity(const float & lumi)
 
 
 
-void Btagging::efficiencyHistograms()
+void Btagging::histograms()
 {
    if ( ! h2d_eff_.empty() ) return;  // histograms have been defined
    
@@ -270,7 +343,47 @@ void Btagging::efficiencyHistograms()
       h2d_eff_["h_ccjet_pt_eta_wp"] = new TH2F("h_ccjet_pt_eta_wp","",nptbins_,ptbins_,netabins_,etabins_);
       
    }
+      
+}
+
+void Btagging::histogramsPerJet()
+{
+
+   if ( njetsmin_ != njetsmax_ || njetsmin_ < 2 )  return;  // for simplicity only for exclusive number of jets 
    
+   doperjet_ = true;
+   
+   for ( int i = 0; i < njetsmax_ ; ++i )
+   {
+      // B JETS
+      h2d_eff_[Form("h_bjet%i_pt_eta",i+1)]    = new TH2F(Form("h_bjet%i_pt_eta",i+1)   ,"",nptbins_,ptbins_,netabins_,etabins_);
+      h2d_eff_[Form("h_bjet%i_pt_eta_wp",i+1)] = new TH2F(Form("h_bjet%i_pt_eta_wp",i+1),"",nptbins_,ptbins_,netabins_,etabins_);
+      
+      // C JETS
+      h2d_eff_[Form("h_cjet%i_pt_eta",i+1)]    = new TH2F(Form("h_cjet%i_pt_eta",i+1)   ,"",nptbins_,ptbins_,netabins_,etabins_);
+      h2d_eff_[Form("h_cjet%i_pt_eta_wp",i+1)] = new TH2F(Form("h_cjet%i_pt_eta_wp",i+1),"",nptbins_,ptbins_,netabins_,etabins_);
+      
+      // C JETS
+      h2d_eff_[Form("h_ljet%i_pt_eta",i+1)]    = new TH2F(Form("h_ljet%i_pt_eta",i+1)   ,"",nptbins_,ptbins_,netabins_,etabins_);
+      h2d_eff_[Form("h_ljet%i_pt_eta_wp",i+1)] = new TH2F(Form("h_ljet%i_pt_eta_wp",i+1),"",nptbins_,ptbins_,netabins_,etabins_);
+      
+      
+      if ( genparticles_ == "GenParticles" && flavdef_ == "Extended" )
+      {
+         // B JETS
+         h2d_eff_[Form("h_bbjet%i_pt_eta",i+1)]    = new TH2F(Form("h_bbjet%i_pt_eta",i+1)   ,"",nptbins_,ptbins_,netabins_,etabins_);
+         h2d_eff_[Form("h_bbjet%i_pt_eta_wp",i+1)] = new TH2F(Form("h_bbjet%i_pt_eta_wp",i+1),"",nptbins_,ptbins_,netabins_,etabins_);
+         
+         // C JETS
+         h2d_eff_[Form("h_ccjet%i_pt_eta",i+1)]    = new TH2F(Form("h_ccjet%i_pt_eta",i+1)   ,"",nptbins_,ptbins_,netabins_,etabins_);
+         h2d_eff_[Form("h_ccjet%i_pt_eta_wp",i+1)] = new TH2F(Form("h_ccjet%i_pt_eta_wp",i+1),"",nptbins_,ptbins_,netabins_,etabins_);
+         
+      }
+   }
+   
+}
+void Btagging::histogramsSettings()
+{
    for ( auto & histo : h2d_eff_ )
    {
       histo.second -> Sumw2();

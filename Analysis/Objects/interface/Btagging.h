@@ -42,17 +42,20 @@ namespace analysis {
             Btagging(const std::string & inputFilelist, const std::string & evtinfo = "MssmHbb/Events/EventInfo");
            ~Btagging();
            
-            void efficiencies();
+            void efficiencies(const int & nevts = -1);
             void efficiencies(const std::string &);
             void jetsCollection(const std::string &);
             void jetsCollection(const std::string &, const std::string &);
             void genParticlesCollection(const std::string &);
-            void efficiencyHistograms();
+            void histograms();
+            void histogramsPerJet();
+            void histogramsSettings();
             void workingPoint(const float &);
             void ptBinning(const int & , const float *);
             void etaBinning(const  int & , const float * );
             void ptMin(const float & ptmin = 20.);
             void etaMax(const float & etamax = 2.5);
+            void deltaRMin(const float & drmin = -1.);
             void njetsMin(const int & njetsmin = 1);
             void njetsMax(const int & njetsmax = -1);
             void flavourDefinition(const std::string & flavdef = "Hadron");
@@ -71,6 +74,7 @@ namespace analysis {
             float wp_;
             float ptmin_;
             float etamax_;
+            float drmin_;
             int   njetsmin_;
             int   njetsmax_;
             std::string flavdef_;
@@ -84,6 +88,8 @@ namespace analysis {
             float xfptmin_;
             float lumi_;
             
+            bool doperjet_;
+            
 
       };
       
@@ -92,6 +98,7 @@ namespace analysis {
       inline void  Btagging::etaBinning(const int & nbins,  const float * bins) { netabins_ = nbins; etabins_ = bins; }
       inline void  Btagging::ptMin(const float & ptmin) { ptmin_ = ptmin; }
       inline void  Btagging::etaMax(const float & etamax) { etamax_ = etamax; }
+      inline void  Btagging::deltaRMin(const float & drmin) { drmin_ = drmin; }
       inline void  Btagging::njetsMin(const int & njetsmin) { njetsmin_ = njetsmin; }
       inline void  Btagging::njetsMax(const int & njetsmax) { njetsmax_ = njetsmax; }
       inline void  Btagging::flavourDefinition(const std::string & flavdef) { flavdef_ = flavdef; }
