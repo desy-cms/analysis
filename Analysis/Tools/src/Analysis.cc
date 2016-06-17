@@ -17,7 +17,9 @@
 #include <cstdlib>
 //
 // user include files
+#include "TKey.h"
 #include "Analysis/Tools/interface/Analysis.h"
+#include <boost/algorithm/string.hpp>
 
 using namespace analysis;
 using namespace analysis::tools;
@@ -73,6 +75,9 @@ Analysis::Analysis(const std::string & inputFilelist, const std::string & evtinf
    } else {
      is_mc_ = false;
    }
+   
+   btageff_algo_    = "";
+   btageff_flavour_ = "";
    
    //if(is_mc_) crossSection();
 
@@ -375,6 +380,60 @@ bool Analysis::selectJson()
       else continue;
     }
     return lumi;
+}
+
+void Analysis::addBtagEfficiencies(const std::string & filename)
+{
+   fileBtagEff_ = new TFile(filename.c_str(),"OLD");
+   std::string ftitle = fileBtagEff_->GetTitle();
+   std::vector<std::string> field;
+   if ( ftitle != "" )
+   {
+      boost::split(field, ftitle, boost::is_any_of(":"));
+      btageff_flavour_ = field[0];
+      btageff_algo_    = field[1];
+   }
+   
+   TList * mylist = fileBtagEff_->GetListOfKeys();
+   for ( int i = 0 ; i < mylist->GetSize() ; ++i  )
+   {
+      std::string className = ((TKey*) mylist -> At(i)) -> GetClassName();
+      std::string objName   = ((TKey*) mylist -> At(i)) -> GetName();
+      if ( className == "TH2F" )
+         h2_btageff_[objName] = (TH2F*) fileBtagEff_->Get(objName.c_str());
+   }
+   
+}
+
+float Analysis::btagEfficiency(const analysis::tools::Jet & jet, const int & rank)
+{
+   float eff = 0.;
+   std::string flav;
+   std::string srank;
+   if ( rank < 1 ) srank = "";
+   else            srank = Form("%i",rank);
+   if ( btageff_flavour_ == "Extended" || btageff_flavour_ == "extended" )
+   {
+      flav = jet.extendedFlavour();
+      if ( flav == "udsg" ) flav = "l";
+   }
+   else
+   {
+      int iflav = jet.flavour(btageff_flavour_);
+      if ( abs(iflav) == 5 )                flav = "b";
+      if ( abs(iflav) == 4 )                flav = "c";
+      if ( abs(iflav) < 4 || iflav == 21 )  flav = "l";
+   }
+   float pt = jet.pt();
+   float eta = fabs(jet.eta());
+   
+   std::string hname = Form("h_%sjet%s_eff_pt_eta",flav.c_str(),srank.c_str());
+
+   int bin = h2_btageff_[hname] -> FindBin(pt,eta);
+   
+   eff = h2_btageff_[hname] -> GetBinContent(bin);
+         
+   return eff;
 }
 
 // Way to get the Trigger names independent of Run period

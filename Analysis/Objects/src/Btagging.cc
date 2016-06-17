@@ -273,7 +273,7 @@ void Btagging::efficiencies(const int & nevts)
       }
    }
    // Output
-   TFile out(Form("BtagEfficiencies_%s_%1.3f.root",balgo_.c_str(),wp_),"recreate");
+   TFile out(Form("BtagEfficiencies_%s_%1.3f.root",balgo_.c_str(),wp_),"recreate",Form("%s:%s:%1.3f",flavdef_.c_str(),balgo_.c_str(),wp_));
    for ( auto & histo : h2d_eff_ )
    {
       if ( histo.first.find("eff") != std::string::npos )
@@ -282,7 +282,6 @@ void Btagging::efficiencies(const int & nevts)
       histo.second->Write();
    }
    out.Close();
-   
    
 }
 
