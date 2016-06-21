@@ -129,6 +129,10 @@ namespace analysis {
             float btagEfficiency(const analysis::tools::Jet &, const int & rank = 0);
             void  btagEfficienciesAlgo(const std::string & );
             void  btagEfficienciesFlavour(const std::string & );
+            
+            
+            float scaleLuminosity(const float & lumi);  // in pb-1
+
 
             // ----------member data ---------------------------
          protected:
@@ -185,6 +189,9 @@ namespace analysis {
             
             // Collections
             std::map<std::string, boost::any > c_any_;
+            
+            // Luminosity
+            float mylumi_;
             
          private:
 
@@ -315,7 +322,6 @@ namespace analysis {
       
       inline void Analysis::btagEfficienciesAlgo(const std::string & algo )      { btageff_algo_    = algo; }
       inline void Analysis::btagEfficienciesFlavour(const std::string & flavour) { btageff_flavour_ = flavour; }
-      
       
 //      inline std::string Analysis::getGenParticleCollection() { return genParticleCollection_; }
 

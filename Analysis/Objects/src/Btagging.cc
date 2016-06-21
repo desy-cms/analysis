@@ -38,7 +38,7 @@ Btagging::Btagging(const std::string & inputFilelist, const std::string & evtinf
    etamax_   = 2.5;
    xfrmax_   = 0.4;
    xfptmin_  = 5.;
-   lumi_     = -1.;
+   lumiTarget_= -1.;
    njetsmin_ = 1;
    njetsmax_ = -1;
    drmin_    = -1.;
@@ -84,11 +84,11 @@ void Btagging::efficiencies(const int & nevts)
    std::cout << "    - Total number of events  = " << nentries << " events" << std::endl; 
    
    float lumiScale = 1.;
-   if ( lumi_ > 0 )
+   if ( lumiTarget_ > 0 )
    {
       float sampleLumi = nentries/this->crossSection();
-      lumiScale  = lumi_/sampleLumi;
-      std::cout << "    - Target luminosity       = " << lumi_ << " pb-1" << std::endl;
+      lumiScale  = lumiTarget_/sampleLumi;
+      std::cout << "    - Target luminosity       = " << lumiTarget_ << " pb-1" << std::endl;
       std::cout << "    - Sample cross section    = " << this->crossSection() << " pb" << std::endl;
       std::cout << "    - Luminosity scale factor = " << lumiScale << std::endl;
    }
@@ -216,7 +216,7 @@ void Btagging::efficiencies(const int & nevts)
    }
    
    // Scale to luminosity (need to consider possible generator filter)
-   if ( lumi_ > 0. )
+   if ( lumiTarget_ > 0. )
    {
       for ( auto & histo : h2d_eff_ )
       {
@@ -309,7 +309,7 @@ void Btagging::genParticlesCollection(const std::string & path)
 
 void Btagging::scaleLuminosity(const float & lumi)
 {
-   lumi_ = lumi;
+   lumiTarget_ = lumi;
 }
 
 
