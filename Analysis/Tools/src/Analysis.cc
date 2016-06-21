@@ -79,6 +79,9 @@ Analysis::Analysis(const std::string & inputFilelist, const std::string & evtinf
    btageff_algo_    = "";
    btageff_flavour_ = "";
    
+   mylumi_= -1.;
+
+   
    //if(is_mc_) crossSection();
 
 }
@@ -226,6 +229,17 @@ double Analysis::luminosity(const std::string & xs)
 {
 	if ( t_xsection_ == NULL ) return -1.;
 	return (nevents_ / this -> crossSection(xs));
+}
+
+float Analysis::scaleLuminosity(const float & lumi)
+{
+   float lumiScale = 1.;
+   mylumi_ = lumi;
+   if ( mylumi_ < 0 ) return lumiScale;
+   
+   lumiScale  = mylumi_/this->luminosity();
+   return lumiScale;
+   
 }
 
 void   Analysis::listCrossSections()
