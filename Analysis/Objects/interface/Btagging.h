@@ -86,7 +86,7 @@ namespace analysis {
             const float * etabins_;
             float xfrmax_;
             float xfptmin_;
-            float lumi_;
+            float lumiTarget_;
             
             bool doperjet_;
             
