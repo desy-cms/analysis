@@ -41,8 +41,10 @@ Btagging::Btagging(const std::string & inputFilelist, const std::string & evtinf
    lumiTarget_= -1.;
    njetsmin_ = 1;
    njetsmax_ = -1;
+   nbtags_   = njetsmin_;
    drmin_    = -1.;
    doperjet_ = false;
+
 }
 
 Btagging::~Btagging()
@@ -65,21 +67,28 @@ Btagging::~Btagging()
 //void Btagging::efficiencies(const std::string & coll)
 void Btagging::efficiencies(const int & nevts)
 {
+   
    int nentries = this->size();
    
    if ( nevts > 0 )
       nentries = nevts;
+
+   // number of jets and btags: setting proper values   
+   if ( njetsmin_ < 1 )         njetsmin_ = 1;
+   if ( njetsmax_ > 0 && njetsmin_ > njetsmax_ ) njetsmax_ = njetsmin_;
+   if ( njetsmax_ > 0 && nbtags_ > njetsmax_ )   nbtags_ = njetsmax_;
+   if ( nbtags_ > njetsmin_ || nbtags_ < 1 )     nbtags_ = njetsmin_;
+   if ( njetsmin_ < 2 ) // no sense to apply deltaR between jets
+      drmin_ = -1.;
+   
    
    // histograms
    histograms();
-   if ( njetsmin_ == njetsmax_ )
+   if ( nbtags_ > 1 )
       histogramsPerJet();
    histogramsSettings();
    
    //
-   if ( njetsmin_ != njetsmax_ && njetsmin_ < 2 ) // no sense to apply deltaR between jets
-      drmin_ = -1.;
-   
    std::cout << "*** Btagging::efficiencies() " << std::endl;
    std::cout << "    - Total number of events  = " << nentries << " events" << std::endl; 
    
@@ -129,24 +138,27 @@ void Btagging::efficiencies(const int & nevts)
          }
       }
       
+      // Select jets
       std::vector<Jet> selJets;
       for ( int j = 0 ; j < jets->size() ; ++j )
       {
          Jet jet = jets->at(j);
          if ( !jet.idLoose() || jet.pt() < ptmin_ || fabs(jet.eta()) > etamax_ ) continue;
          selJets.push_back(jet);
-         if ( njetsmax_ > 0 && int(selJets.size()) == njetsmax_ ) break;
+//         if ( njetsmax_ > 0 && int(selJets.size()) == njetsmax_ ) break;  // BUG: FIXED BELOW
       }
       
       if ( int(selJets.size()) < njetsmin_ ) continue;
+      // Exclusive selection
+      if ( njetsmax_ > 0 && int(selJets.size()) > njetsmax_ ) continue;
       
-      if ( drmin_ > 0 ) // select only events in which the selected jets have deltaR above certain value
+      if ( drmin_ > 0 ) // select only events in which the minimmum number of selected jets have deltaR above certain value
       {
          bool ok = true;
-         for ( size_t j1 = 0 ; j1 < selJets.size()-1 ; ++j1 )
+         for ( int j1 = 0 ; j1 < njetsmin_-1 ; ++j1 )
          {
             Jet jet1 = selJets.at(j1);
-            for ( size_t j2 = j1+1 ; j2 < selJets.size() ; ++j2 )
+            for ( int j2 = j1+1 ; j2 < njetsmin_ ; ++j2 )
             {
                Jet jet2 = selJets.at(j2);
                if ( jet1.deltaR(jet2) < drmin_ ) ok = false;
@@ -155,26 +167,12 @@ void Btagging::efficiencies(const int & nevts)
          if ( ! ok ) continue;
       }
       
-      for ( size_t j = 0 ; j < selJets.size() ; ++j )
+      // btagging on selected jets, but only for nbtags
+      for ( int j = 0 ; j < nbtags_ ; ++j )
       {
          Jet jet = selJets.at(j);
-//         if ( !jet.idLoose() || jet.pt() < ptmin_ || fabs(jet.eta()) > etamax_ ) continue;
          
-         
-         std::string flavour;
-
-         if ( flavdef_ == "Extended" )
-         {
-            flavour = jet.extendedFlavour();
-            if ( flavour == "udsg" ) flavour = "l";
-
-         }
-         else
-         {
-            if ( abs(jet.flavour(flavdef_)) == 5 ) flavour = "b";
-            if ( abs(jet.flavour(flavdef_)) == 4 ) flavour = "c";
-            if ( abs(jet.flavour(flavdef_)) != 5 && abs(jet.flavour(flavdef_)) != 4 ) flavour = "l";
-         }
+         std::string flavour = flavour_(jet);
          
          // Some workaround to allow negative bins of eta
          if ( etabins_[0] < 0 )
@@ -348,11 +346,12 @@ void Btagging::histograms()
 void Btagging::histogramsPerJet()
 {
 
-   if ( njetsmin_ != njetsmax_ || njetsmin_ < 2 )  return;  // for simplicity only for exclusive number of jets 
+//   if ( njetsmin_ != njetsmax_ || njetsmin_ < 2 )  return;  // for simplicity only for exclusive number of jets 
+   if ( nbtags_ < 2 )  return;  // only makes sense with more than one jets
    
    doperjet_ = true;
    
-   for ( int i = 0; i < njetsmax_ ; ++i )
+   for ( int i = 0; i < nbtags_ ; ++i )
    {
       // B JETS
       h2d_eff_[Form("h_bjet%i_pt_eta",i+1)]    = new TH2F(Form("h_bjet%i_pt_eta",i+1)   ,"",nptbins_,ptbins_,netabins_,etabins_);
@@ -392,4 +391,23 @@ void Btagging::histogramsSettings()
       histo.second -> GetZaxis() -> SetTitle("entries");
    }
    
+}
+
+std::string Btagging::flavour_(const Jet & jet)
+{
+   std::string flavour;
+   if ( flavdef_ == "Extended" )
+   {
+      flavour = jet.extendedFlavour();
+      if ( flavour == "udsg" ) flavour = "l";
+
+   }
+   else
+   {
+      if ( abs(jet.flavour(flavdef_)) == 5 ) flavour = "b";
+      if ( abs(jet.flavour(flavdef_)) == 4 ) flavour = "c";
+      if ( abs(jet.flavour(flavdef_)) != 5 && abs(jet.flavour(flavdef_)) != 4 ) flavour = "l";
+   }
+   
+   return flavour;
 }
