@@ -8,10 +8,19 @@
 #include "TH1.h"
 #include "TH2.h"
 #include <iostream>
+#include "TMath.h"
 
 #include "cmath"
 
 #include "Analysis/MssmHbb/interface/Weights.h"
+
+double sigmoid(const double &x, double *par){
+	return 1./(1.+exp( -par[0] * (x - par[1]) ));
+}
+
+double func_erf(const double &x, double *par){
+	return 1 / 2. * (1 + par[0]*TMath::Erf((x-par[1])/(sqrt(2)*par[2])));
+}
 
 double Weights::FactorizationPtWeight(const double & pt1, const double & pt2){
 
@@ -44,6 +53,121 @@ double Weights::FactorizationPtWeight(const double & pt1, const double & pt2){
 	}
 
 	return weight;
+}
+
+double Weights::triggerCorrectionFunction(const double & pt, const double & eta){
+
+	if(pt <= 0 || std::abs(eta)>100){
+		std::cerr<<"Error: in Weights::triggerCorrectionFunction wrong pt (<0) or |eta|>100"<<std::endl;
+		exit(0);
+	}
+
+	double par_data[15];
+	double par_mc[15];
+	double data;
+	double mc;
+	//Low M case
+	if(lowM_){
+		if(std::abs(eta) >= 0 && std::abs(eta) <=0.6){
+			par_data[0] = 0.01793; par_data[1] = -152.4; par_data[2] = 0.119; par_data[3] = 105;
+			data = sigmoid(pt,par_data)*sigmoid(pt,par_data+2);
+			par_mc[0] = 105.1; par_mc[1] = -285.6; par_mc[2] = 0.1196; par_mc[3] = 106.1; par_mc[4] = 0.9999; par_mc[5] = -79.09; par_mc[6] = 86.02;
+			mc   = sigmoid(pt,par_mc)*sigmoid(pt,par_mc+2)*func_erf(pt,par_mc+4);
+		}
+		else if(std::abs(eta) >0.6 && std::abs(eta) <=1.7){
+			par_data[0] = 0.09786; par_data[1] = 105.2; par_data[2] = 0.4661; par_data[3] = 101.5;
+			data = sigmoid(pt,par_data)*sigmoid(pt,par_data+2);
+			par_mc[0] = 185.8; par_mc[1] = -919.2; par_mc[2] = 0.1182; par_mc[3] = 108.; par_mc[4] = 0.9999; par_mc[5] = -66.07; par_mc[6] = 84.45;
+			mc   = sigmoid(pt,par_mc)*sigmoid(pt,par_mc+2)*func_erf(pt,par_mc+4);
+		}
+		else if(std::abs(eta) > 1.7 && std::abs(eta) < 2.2){
+			par_data[0] = 0.01771; par_data[1] = 111.6; par_data[2] = 0.04307; par_data[3] = 51.66;
+			data = sigmoid(pt,par_data)*sigmoid(pt,par_data+2);
+			par_mc[0] = 64.45; par_mc[1] = -122; par_mc[2] = 0.1707; par_mc[3] = 110.3; par_mc[4] = 0.9988; par_mc[5] = -17.53; par_mc[6] = 68.63;
+			mc   = sigmoid(pt,par_mc)*sigmoid(pt,par_mc+2)*func_erf(pt,par_mc+4);
+		}
+		else{
+			std::cerr<<"Error: WRONG ETA in Weights::triggerCorrectionFunction"<<std::endl;
+			exit(-1);
+		}
+	}
+	//High Mass
+	else{
+		if(std::abs(eta) >= 0 && std::abs(eta) <=0.6){
+			par_data[0] = 0.008951; par_data[1] = -427.9; par_data[2] = 0.1461; par_data[3] = 158.3;
+			data = sigmoid(pt,par_data)*sigmoid(pt,par_data+2);
+			par_mc[0] = 99.51; par_mc[1] = -385.; par_mc[2] = 0.1891; par_mc[3] = 159.1; par_mc[4] = 0.9998; par_mc[5] = -115.6; par_mc[6] = 119.1;
+			mc   = sigmoid(pt,par_mc)*sigmoid(pt,par_mc+2)*func_erf(pt,par_mc+4);
+		}
+		else if(std::abs(eta) >0.6 && std::abs(eta) <=1.7){
+			par_data[0] = 0.01579; par_data[1] = -117.1; par_data[2] = 0.1415; par_data[3] = 161.5;
+			data = sigmoid(pt,par_data)*sigmoid(pt,par_data+2);
+			par_mc[0] = 122.2; par_mc[1] = -324.3; par_mc[2] = 0.1563; par_mc[3] = 161.7; par_mc[4] = 0.9998; par_mc[5] = -140.8; par_mc[6] = 128.6;
+			mc   = sigmoid(pt,par_mc)*sigmoid(pt,par_mc+2)*func_erf(pt,par_mc+4);
+		}
+		else if(std::abs(eta) > 1.7 && std::abs(eta) < 2.2){
+			par_data[0] = 0.2366; par_data[1] = 86.47; par_data[2] = 0.1485; par_data[3] = 170.2;
+			data = sigmoid(pt,par_data)*sigmoid(pt,par_data+2);
+			par_mc[0] = 40.48; par_mc[1] = -103.7; par_mc[2] = 0.03285; par_mc[3] = 43.11; par_mc[4] = 0.9988; par_mc[5] = 167.4; par_mc[6] = 8.899;
+			mc   = sigmoid(pt,par_mc)*sigmoid(pt,par_mc+2)*func_erf(pt,par_mc+4);
+		}
+		else{
+			std::cerr<<"Error: WRONG ETA in Weights::triggerCorrectionFunction"<<std::endl;
+			exit(-1);
+		}
+	}
+
+	return data/mc;
+}
+
+double Weights::PtTriggerEfficiency(const double &pt, const double &eta){
+	if(pt <= 0 || std::abs(eta)>100){
+		std::cerr<<"Error: in Weights::triggerCorrectionFunction wrong pt (<0) or |eta|>100"<<std::endl;
+		exit(0);
+	}
+
+	double par_data[15];
+	double data;
+	//Low M case
+	if(lowM_){
+		if(std::abs(eta) >= 0 && std::abs(eta) <=0.6){
+			par_data[0] = 0.01793; par_data[1] = -152.4; par_data[2] = 0.119; par_data[3] = 105;
+			data = sigmoid(pt,par_data)*sigmoid(pt,par_data+2);
+		}
+		else if(std::abs(eta) >0.6 && std::abs(eta) <=1.7){
+			par_data[0] = 0.09786; par_data[1] = 105.2; par_data[2] = 0.4661; par_data[3] = 101.5;
+			data = sigmoid(pt,par_data)*sigmoid(pt,par_data+2);
+		}
+		else if(std::abs(eta) > 1.7 && std::abs(eta) < 2.2){
+			par_data[0] = 0.01771; par_data[1] = 111.6; par_data[2] = 0.04307; par_data[3] = 51.66;
+			data = sigmoid(pt,par_data)*sigmoid(pt,par_data+2);
+		}
+		else{
+			std::cerr<<"Error: WRONG ETA in Weights::triggerCorrectionFunction"<<std::endl;
+			exit(-1);
+		}
+	}
+	//High Mass
+	else{
+		if(std::abs(eta) >= 0 && std::abs(eta) <=0.6){
+			par_data[0] = 0.008951; par_data[1] = -427.9; par_data[2] = 0.1461; par_data[3] = 158.3;
+			data = sigmoid(pt,par_data)*sigmoid(pt,par_data+2);
+		}
+		else if(std::abs(eta) >0.6 && std::abs(eta) <=1.7){
+			par_data[0] = 0.01579; par_data[1] = -117.1; par_data[2] = 0.1415; par_data[3] = 161.5;
+			data = sigmoid(pt,par_data)*sigmoid(pt,par_data+2);
+		}
+		else if(std::abs(eta) > 1.7 && std::abs(eta) < 2.2){
+			par_data[0] = 0.2366; par_data[1] = 86.47; par_data[2] = 0.1485; par_data[3] = 170.2;
+			data = sigmoid(pt,par_data)*sigmoid(pt,par_data+2);
+		}
+		else{
+			std::cerr<<"Error: WRONG ETA in Weights::triggerCorrectionFunction"<<std::endl;
+			exit(-1);
+		}
+	}
+
+	return data;
 }
 
 double Weights::TwoDPtWeight(TH2 *histo, const double & pt1, const double & pt2){

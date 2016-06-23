@@ -49,7 +49,11 @@
 		std::map<std::string, TH2*>& getHisto2D();
 
 	protected:
+
+		void DeclareDataMCHistograms(const int &size = 100);
+
 //		std::map<std::string, Systematics > syst_;
+		int size_;
 		std::map<std::string,TH1* > histo_;
 		std::map<std::string,TH2* > histo2D_;
 

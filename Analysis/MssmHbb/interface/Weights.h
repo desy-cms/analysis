@@ -16,8 +16,14 @@ public:
 	Weights(const bool & selection): lowM_(selection) {};
 	virtual ~Weights() { std::cout<<"I'm at ~Weights"<<std::endl; };
 
-	// Factorized Pt trigger efficiency weight
+	// Factorized Pt trigger efficiency weight in 74X
 	double FactorizationPtWeight(const double & pt1, const double &pt2);
+
+	//New pT Correction function for 2015 trigger efficiency
+	double triggerCorrectionFunction(const double & pt, const double & eta);
+
+	//Systematics for pT trigger efficiency:
+	double PtTriggerEfficiency(const double &pt, const double &eta);
 
 	// 2D Pt trigger Efficiency weight
 	double TwoDPtWeight(TH2 *histo, const double &pt1, const double &pt2);

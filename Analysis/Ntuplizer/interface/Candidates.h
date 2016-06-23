@@ -59,8 +59,8 @@ namespace analysis {
 //            void Init(const std::vector<std::string> &btagAlgos = std::vector<std::string>(), const std::vector<std::string> & btagAlgosAlias = std::vector<std::string>()	);
 //            void Init(const std::map<std::string, TitleIndex> & btagVars = std::map<std::string,TitleIndex>()	);
 //            void Init(const std::vector<TitleAlias> & btagVars = std::vector<TitleAlias>()	);
-            void Init(const std::vector<TitleAlias> & , const std::string & , const std::string &);
-            void Init(const std::vector<TitleAlias> & , const std::string & , const std::string & , const std::string & , const std::string &);
+            void Init(const std::vector<TitleAlias> & , const std::string & , const std::string &, const edm::EDGetTokenT<double> & rho);
+            void Init(const std::vector<TitleAlias> & , const std::string & , const std::string & , const std::string & , const std::string &, const edm::EDGetTokenT<double> & rho);
             void Init(const std::vector<TitleAlias> &	);
             void Init();
             void Branches();
@@ -120,6 +120,8 @@ namespace analysis {
             double x1_;
             double x2_;
             double mHat_;
+            double rho_;
+            edm::EDGetTokenT<double> RhoToken_;
             
             // met specifics
             float sigxx_[maxCandidates];

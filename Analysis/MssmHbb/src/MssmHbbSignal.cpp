@@ -46,10 +46,10 @@ const bool MssmHbbSignal::leadingJetSelection(const std::shared_ptr<tools::Colle
 	Jet jet3 = offlineJets->at(2);
 
 	//Trigger Selection
-	if(!isMC() && !this->triggerResult(triggerLogicName_)) return false;
+	if(!this->triggerResult(triggerLogicName_)) return false;
 
 	//Online selection:
-	if(!isMC() && !this->OnlineSelection(jet1,jet2)) return false;
+	if(!this->OnlineSelection(jet1,jet2)) return false;
 
 	//Pt requirements
 	if (jet3.pt() < pt3_) return false;
@@ -77,8 +77,12 @@ void MssmHbbSignal::fillHistograms(const std::shared_ptr<Collection<Jet> > &offl
 	TLorentzVector obj12;
 	obj12 = jet1.p4() + jet2.p4();
 
-	if(JESshift_ == 0){
+	if(JESshift_ == 0 && JERshift_ == 0){
+//		std::cout<<"JERshift: "<<JERshift_<<" Match: "<<jet1.matched(genJets_->name())<<" sf: "<<jet1.JerSf()<<" pt: "<<jet1.pt()<<std::endl;
 		selectionDoubleB::fillHistograms(offlineJets,weight);
+
+		(histo_.getHisto())["data_Mbb_230"]->Fill(obj12.M(),weight);
+		(histo_.getHisto())["data_Mbb_220"]->Fill(obj12.M(),weight);
 
 		(histo_.getHisto())["jet_pt3"]->Fill(jet3.pt(),weight);
 		(histo_.getHisto())["jet_eta3"]->Fill(jet3.eta(),weight);
@@ -103,13 +107,20 @@ void MssmHbbSignal::fillHistograms(const std::shared_ptr<Collection<Jet> > &offl
 			(histo_.getHisto())["template_PtEff_down"]->Fill(obj12.M(),weight/weight_["PtEff_central"] * weight_["PtEff_down"]);
 		}
 	}
-	else if (JESshift_ == -1){
+	else if (JESshift_ < 0 && JERshift_ == 0){
 		(histo_.getHisto())["template_JES_down"]->Fill(obj12.M(),weight);
 	}
-	else if (JESshift_ == 1){
+	else if (JESshift_ > 0 && JERshift_ == 0){
 		(histo_.getHisto())["template_JES_up"]->Fill(obj12.M(),weight);
 	}
-
+	else if (JERshift_ > 0 && JESshift_ == 0){
+		(histo_.getHisto())["template_JER_up"]->Fill(obj12.M(),weight);
+//		std::cout<<"JERshift: "<<JERshift_<<" Match: "<<jet1.matched(genJets_->name())<<" sf: "<<jet1.JerSfUp()<<" pt: "<<jet1.pt()<<std::endl;
+	}
+	else if (JERshift_ < 0 && JESshift_ == 0){
+		(histo_.getHisto())["template_JER_down"]->Fill(obj12.M(),weight);
+//		std::cout<<"JERshift: "<<JERshift_<<" Match: "<<jet1.matched(genJets_->name())<<" sf: "<<jet1.JerSfDown()<<" pt: "<<jet1.pt()<<std::endl;
+	}
 //	if(TEST) std::cout<<"I'm out of MssmHbbSignal::fillHistograms"<<std::endl;
 }
 
@@ -135,7 +146,7 @@ void MssmHbbSignal::writeHistograms(){
 const double MssmHbbSignal::assignWeight(){
 double weight = 1;
 	if(isMC()) {
-		weight = weight_["dEta"] * weight_["Lumi"] * weight_["2DPt"] * weight_["BTag"] * weight_["PU_central"] * weight_["SFb_central"] * weight_["SFl_central"];
+		weight = weight_["Lumi"] * weight_["PtEff_central"] * weight_["PU_central"] * weight_["SFb_central"] * weight_["SFl_central"];
 	}
 	//std::cout<<" weight = "<<weight<<" "<<weight_["dEta"]<<" "<<weight_["Lumi"]<<" "<<weight_["2DPt"]<<" "<<weight_["BTag"]<<" "<<weight_["PU_central"]<<" "<<weight_["SFb_central"]<<" "<<weight_["SFl_central"]<<std::endl;
 	return weight;
@@ -159,6 +170,9 @@ std::string constructTemplateName(const std::string & name){
 		full_name = full_name.substr(0,full_name.size() - 5);
 		full_name = process + "_" + channel + "_" + collaboration + "_" + full_name + "_" + energy + "Down";
 	}
+	else if(name.find("Mbb") != std::string::npos){
+		full_name = process + "_" + full_name;
+	}
 
 	return full_name;
 }
@@ -167,7 +181,7 @@ std::shared_ptr<tools::Collection<tools::Jet> > MssmHbbSignal::modifyJetCollecti
 						std::shared_ptr<tools::Collection<tools::Jet> > & initialJets
 						){
 	Jet shiftedJet = jet;
-	TLorentzVector p4Shift = jet.p4() * (1 + 2. * JESshift_ * jet.jecUncert());
+	TLorentzVector p4Shift = jet.p4() * (1 + 2.* JESshift_ * jet.jecUncert());
 	jet.p4(p4Shift);
 	initialJets->add(jet);
 	return initialJets;
@@ -178,20 +192,40 @@ void MssmHbbSignal::runAnalysis(const std::string &json, const std::string &outp
 	this->setupAnalysis(json);
 	std::cout<<"Total number of events: "<<this->size()<<std::endl;
 	this->makeHistograms(size);
-	this->SetupStandardOutputFile();
-	for(int i = 0; i < 3 ; ++i){
-		std::string name = output;
-		if(i==0) JESshift_ = 0;
-		else if (i == 1){
-			JESshift_ = 1;
-		}
-		else {
-			JESshift_ = - 1;
+	this->SetupStandardOutputFile(output);
+	if(signalMC_){
+		for(int i = 0; i < 3 ; ++i){
+			JERshift_ = 0;
+			if(i==0) JESshift_ = 0;
+			else if (i == 1){
+				JESshift_ = 1;
+			}
+			else {
+				JESshift_ = - 1;
+			}
+
+			this->applySelection();
 		}
 
+		for(int i = 1; i < 3; ++i){
+			JESshift_ = 0;
+			if (i == 1){
+				JERshift_ = 2;
+			}
+			else {
+				JERshift_ = -2;
+			}
+				this->applySelection();
+
+		}
+	}
+	else{
+		JERshift_ = 0;
+		JESshift_ = 0;
 		this->applySelection();
 	}
 	this->writeHistograms();
+
 
 }
 

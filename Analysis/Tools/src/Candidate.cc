@@ -92,6 +92,47 @@ bool Candidate::matchTo(const std::vector<Candidate> * cands, const std::string 
    return status;
 }
 
+bool Candidate::matchTo(const std::vector<Candidate> * cands, const std::string & name, const float & delta_pT, const float & deltaR)
+{
+   bool status = false;
+
+
+   if ( ! cands )
+   {
+      this -> matched_[name] = nullptr;
+      return status;
+   }
+
+   const Candidate * cand = nullptr;
+   const Candidate * nearcand = nullptr;
+   float minDeltaR = deltaR + 1; 		// Assign more real value;
+   float dpT = 0.;
+   float dpTmin = delta_pT + 1;
+   for ( size_t i = 0; i < cands->size() ; ++i )
+   {
+      cand = &(cands->at(i));
+      dpT = std::abs(this->pt() - cand->pt());
+      if(this->deltaR(*cand) < minDeltaR && dpT < dpTmin)
+      {
+         minDeltaR = this->deltaR(*cand);
+         dpTmin    = dpT;
+         nearcand = cand;
+      }
+   }
+
+   if(minDeltaR < deltaR && dpTmin < delta_pT)
+   {
+     this->matched_[name]=nearcand;
+     status = true;
+   }
+
+   else {
+     this -> matched_[name] = nullptr;
+   }
+
+   return status;
+}
+
 // Gets
 float Candidate::px()   const { return p4_.Px() ; }
 float Candidate::py()   const { return p4_.Py() ; }

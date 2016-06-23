@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import os
 
 process = cms.Process("MssmHbb")
 
@@ -82,6 +83,54 @@ process.slimmedJetsAK8PFCHSSoftDropPackedReapplyJEC = patJetsUpdated.clone(
   jetCorrFactorsSource = cms.VInputTag(cms.InputTag("slimmedJetsAK8PFCorrFactorsReapplyJEC"))
   )
 
+## ============= Jet Energy Resolution =============
+
+process.load('Configuration.StandardSequences.Services_cff')
+process.load("JetMETCorrections.Modules.JetResolutionESProducer_cfi")
+from CondCore.DBCommon.CondDBSetup_cfi import *
+
+process.jer_AK4PFchs = cms.ESSource("PoolDBESSource",CondDBSetup,toGet = cms.VPSet(
+            # Resolution
+            cms.PSet(
+                record = cms.string('JetResolutionRcd'),
+                tag    = cms.string('JR_Fall15_25nsV2_MC_PtResolution_AK4PFchs'),
+                label  = cms.untracked.string('AK4PFchs_pt')
+                ),
+
+            # Scale factors
+            cms.PSet(
+                record = cms.string('JetResolutionScaleFactorRcd'),
+                tag    = cms.string('JR_Fall15_25nsV2_MC_SF_AK4PFchs'),
+                label  = cms.untracked.string('AK4PFchs')
+                ),
+            ),
+        connect = cms.string('sqlite_fip:Analysis/Ntuplizer/data/jer_files/Fall15_25nsV2_MC.db')
+        )
+
+process.es_prefer_jer_AK4PFchs = cms.ESPrefer('PoolDBESSource', 'jer_AK4PFchs')
+
+process.jer_AK8PFchs = cms.ESSource("PoolDBESSource",CondDBSetup,toGet = cms.VPSet(
+            # Resolution
+            cms.PSet(
+                record = cms.string('JetResolutionRcd'),
+                tag    = cms.string('JR_Fall15_25nsV2_MC_PtResolution_AK8PFchs'),
+                label  = cms.untracked.string('AK8PFchs_pt')
+                ),
+
+            # Scale factors
+            cms.PSet(
+                record = cms.string('JetResolutionScaleFactorRcd'),
+                tag    = cms.string('JR_Fall15_25nsV2_MC_SF_AK8PFchs'),
+                label  = cms.untracked.string('AK8PFchs')
+                ),
+            ),
+        connect = cms.string('sqlite_fip:Analysis/Ntuplizer/data/jer_files/Fall15_25nsV2_MC.db')
+        )
+
+process.es_prefer_jer_AK8PFchs = cms.ESPrefer('PoolDBESSource', 'jer_AK8PFchs')
+
+## =================================================
+
 
 ## ============ EVENT FILTER COUNTER ===============
 ## Filter counter (maybe more useful for MC)
@@ -97,20 +146,20 @@ process.primaryVertexFilter = cms.EDFilter("VertexSelector",
 )
 ## ===========    JET N FILTER  ==============
 process.jetCounterFilter = cms.EDFilter("CandViewCountFilter",
-    src = cms.InputTag("slimmedJetsPuppiReapplyJEC"), # new slimmed Jets
+    src = cms.InputTag("slimmedJetsReapplyJEC"), # new slimmed Jets
     minNumber = cms.uint32(2),
     )
 
 ## ============ KINEMATIC JET FILTER ===============
 process.jetKinematicFilter = cms.EDFilter("kinematicJetFilter",
-    src = cms.InputTag("slimmedJetsPuppiReapplyJEC"),
+    src = cms.InputTag("slimmedJetsReapplyJEC"),
     pt = cms.vdouble(85.,85.),
     eta = cms.vdouble(2.5,2.5),
 )
 
 ## ============ BTAG JET FILTER ===============
 process.jetBTagFilter = cms.EDFilter("btagJetFilter",
-    src = cms.InputTag("slimmedJetsPuppiReapplyJEC"),
+    src = cms.InputTag("slimmedJetsReapplyJEC"),
     algo = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
     btag = cms.vdouble(0.5,0.5),
 )
@@ -119,7 +168,7 @@ readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring()
 
 readFiles.extend( [
-	'/store/mc/RunIIFall15MiniAODv2/SUSYGluGluToBBHToBB_M-700_TuneCUETP8M1_13TeV-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/10000/02671EB3-3EB8-E511-8974-3417EBE64561.root',
+	'/store/mc/RunIIFall15MiniAODv2/SUSYGluGluToBBHToBB_M-500_TuneCUETP8M1_13TeV-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/50000/02FAE716-8DB8-E511-851C-002590A83190.root',
 ] );
 
 secFiles.extend( [
@@ -149,22 +198,32 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
     TotalEvents     = cms.InputTag("TotalEvents"),
     FilteredEvents  = cms.InputTag("FilteredEvents"),
     FilteredMHatEvents  = cms.InputTag("FilteredMHatEvents"),
+    Rho				= cms.InputTag("fixedGridRhoFastjetAll"),
+    JERResFiles		= cms.vstring(
+#    								os.environ["CMSSW_BASE"] + "/src/Analysis/Ntuplizer/data/jer_files/Fall15_25nsV2_DATA_PtResolution_AK4PFchs.txt",
+#    								os.environ["CMSSW_BASE"] + "/src/Analysis/Ntuplizer/data/jer_files/Fall15_25nsV2_DATA_PtResolution_AK4PFPuppi.txt",
+#    								os.environ["CMSSW_BASE"] + "/src/Analysis/Ntuplizer/data/jer_files/Fall15_25nsV2_DATA_PtResolution_AK8PFchs.txt",
+    								),
+    JERSfFiles		= cms.vstring(
+#    								os.environ["CMSSW_BASE"] + "/src/Analysis/Ntuplizer/data/jer_files/Fall15_25nsV2_DATA_SF_AK4PFchs.txt",
+#    								os.environ["CMSSW_BASE"] + "/src/Analysis/Ntuplizer/data/jer_files/Fall15_25nsV2_DATA_SF_AK4PFPuppi.txt",
+#    								os.environ["CMSSW_BASE"] + "/src/Analysis/Ntuplizer/data/jer_files/Fall15_25nsV2_DATA_SF_AK8PFchs.txt"
+    								),
     PatJets         = cms.VInputTag(   # Be careful with the correction uncertainties!!!
-#                                    cms.InputTag("slimmedJets","","PAT"),
-#                                    cms.InputTag("slimmedJetsPuppi","","PAT"),
-#                                    cms.InputTag("slimmedJetsAK8PFCHSSoftDropPacked","SubJets","PAT"),
                                     cms.InputTag("slimmedJetsReapplyJEC"),
-                                    cms.InputTag("slimmedJetsPuppiReapplyJEC"),
+#                                    cms.InputTag("slimmedJetsPuppiReapplyJEC"),
                                     cms.InputTag("slimmedJetsAK8PFCHSSoftDropPackedReapplyJEC")
-                                    ),
-    JECRecords      = cms.vstring  (
-#                                    "",
-#                                    "",
-#                                    "",
+                                    ), 
+    JERRecords		= cms.vstring  (
                                     "AK4PFchs",
-                                    "AK4PFPuppi",
+#                                    "AK4PFPuppi",
                                     "AK8PFchs",
-                                    ),
+    								),
+    JECRecords      = cms.vstring  (
+                                    "AK4PFchs",
+#                                    "AK4PFPuppi",
+                                    "AK8PFchs",
+                                    ),   
     PatMETs         = cms.VInputTag(
                                     cms.InputTag("slimmedMETs","","PAT"),
                                     cms.InputTag("slimmedMETsPuppi","","PAT")

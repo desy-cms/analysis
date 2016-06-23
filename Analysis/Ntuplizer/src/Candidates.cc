@@ -271,14 +271,14 @@ void Candidates<T>::Kinematics()
         	 JME::JetParameters jerParamRes;
         	 jerParamRes.setJetPt(pt_[n]);
         	 jerParamRes.setJetEta(eta_[n]);
-        	 jerParamRes.setRho(std::sqrt(px_[n]*px_[n] + py_[n]*py_[n] + pz_[n]*pz_[n]));
+        	 jerParamRes.setRho(rho_);
 
         	 // Return JER
         	 jerResolution_[n] 	= res_.getResolution(jerParamRes);
 
         	 JME::JetParameters jerParamSF;
         	 jerParamSF.set(JME::Binning::JetEta, eta_[n]);
-        	 jerParamSF.set(JME::Binning::Rho, std::sqrt(px_[n]*px_[n] + py_[n]*py_[n] + pz_[n]*pz_[n]));
+        	 jerParamSF.set(JME::Binning::Rho, rho_);
 
         	 jerSF_[n]			= res_sf_.getScaleFactor(jerParamSF);
         	 jerSFUp_[n]		= res_sf_. getScaleFactor(jerParamSF,Variation::UP);
@@ -394,6 +394,9 @@ void Candidates<T>::Fill(const edm::Event& event, const edm::EventSetup& setup)
 	   		std::string label_sf = jerRecord_;
 	   		res_sf_ 	= JME::JetResolutionScaleFactor::get(setup,label_sf);
 	   	}
+   	   edm::Handle<double> rho;
+   	   event.getByToken(RhoToken_, rho);
+   	   rho_ = *rho;
    }
    
    Fill(event);
@@ -441,6 +444,7 @@ void Candidates<T>::Branches()
             tree_->Branch("jerSF",jerSF_,"jerSF[n]/F");
             tree_->Branch("jerSFUp",jerSFUp_,"jerSFUp[n]/F");
             tree_->Branch("jerSFDown",jerSFDown_,"jerSFDown[n]/F");
+            tree_->Branch("Rho",&rho_,"Rho/D");
          
       }
       if ( is_pfjet_ || is_patjet_ )
@@ -476,20 +480,22 @@ void Candidates<T>::Branches()
    
 }
 template <typename T>
-void Candidates<T>::Init( const std::vector<TitleAlias> & btagVars, const std::string & jec, const std::string & jer)
+void Candidates<T>::Init( const std::vector<TitleAlias> & btagVars, const std::string & jec, const std::string & jer, const edm::EDGetTokenT<double> &RhoToken)
 {
    jecRecord_ = jec;
    jerRecord_ = jer;
+   RhoToken_ = RhoToken;
    Init(btagVars);
 }
 
 template <typename T>
-void Candidates<T>::Init( const std::vector<TitleAlias> & btagVars, const std::string & jec, const std::string & jer, const std::string &res_file, const std::string & sf_file)
+void Candidates<T>::Init( const std::vector<TitleAlias> & btagVars, const std::string & jec, const std::string & jer, const std::string &res_file, const std::string & sf_file, const edm::EDGetTokenT<double> & RhoToken)
 {
    jecRecord_ = jec;
    jerRecord_ = jer;
    jerResFile_ = res_file;
    jerSfFile_  = sf_file;
+   RhoToken_ = RhoToken;
    Init(btagVars);
 }
 

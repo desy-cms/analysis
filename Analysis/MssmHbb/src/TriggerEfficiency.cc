@@ -17,8 +17,14 @@ TriggerEfficiency::TriggerEfficiency(const std::string & inputFilelist,const dou
 								selectionDoubleB(inputFilelist,dataLumi,lowM,test)
 {
 	nJets_ = 2;
-	pt1_ = 100;
-	pt2_ = 100;
+	if(lowM_){
+		pt1_ = 100;
+		pt2_ = 100;
+	}
+	else{
+		pt1_ = 160.;
+		pt2_ = 160.;
+	}
 	eta1_ = 2.2;
 	eta2_ = 2.2;
 	dR_ = 1.;
@@ -61,18 +67,22 @@ void TriggerEfficiency::fillHistograms(const std::shared_ptr<Collection<Jet> > &
 
 //	if(TEST) std::cout<<"I'm in TriggerEfficiency::fillHistograms"<<std::endl;
 
+//	std::cout<<"lol1"<<std::endl;
+
 	Jet jet1 = offlineJets->at(0);
 	Jet jet2 = offlineJets->at(1);
 
 	selectionDoubleB::fillHistograms(offlineJets,weight);
 
 	(histo_.getHisto())["jet_turnOn_pt1"]->Fill(jet1.pt(),weight);
-	(histo_.getHisto())["Genjet_turnOn_pt1"]->Fill((genJets_->at(0)).pt(),weight);
+	if(isMC() && genJets_->size() != 0) (histo_.getHisto())["Genjet_turnOn_pt1"]->Fill((genJets_->at(0)).pt(),weight);
 
+	const Candidate * j1l1 = jet1.matched("hltL1sL1SingleJet52");
+	const Candidate * j1l2 = jet1.matched("hltSingleCaloJet50");
+	const Candidate * j1l3 = jet1.matched("hltSinglePFJet80");
+
+	auto offlineMuons = this->collection<Muon>("Muons");
 	if(matchToPF100_PF80(jet1)){
-		const Candidate * j1l1 = jet1.matched("hltL1sL1SingleJet52");
-		const Candidate * j1l2 = jet1.matched("hltSingleCaloJet50");
-		const Candidate * j1l3 = jet1.matched("hltSinglePFJet80");
 
 		(histo_.getHisto())["onlobject_L1_pt1"]->Fill(j1l1->pt(),weight);
 		(histo_.getHisto())["onlobject_L2_pt1"]->Fill(j1l2->pt(),weight);
@@ -98,6 +108,23 @@ void TriggerEfficiency::fillHistograms(const std::shared_ptr<Collection<Jet> > &
 		(histo_.getHisto())["onlobject_turnOn_L2ovOff_pt1"]->Fill(j1l2->pt()/jet1.pt(),weight);
 		(histo_.getHisto())["onlobject_turnOn_L3ovOff_pt1"]->Fill(j1l3->pt()/jet1.pt(),weight);
 	}
+	//Level by level check
+	if(this->triggerResult("HLT_PFJet80_v") && j1l1 && j1l1->pt() >= 100) (histo_.getHisto())["KinTrigEff_Num_1D_L1_PF80_PF100_pt1"]->Fill(jet1.pt(),weight);
+	if(this->triggerResult("HLT_PFJet80_v") ) (histo_.getHisto())["KinTrigEff_Den_1D_L1_PF80_PF100_pt1"]->Fill(jet1.pt(),weight);
+
+	if(this->triggerResult("HLT_PFJet80_v") && j1l2 && j1l2->pt() >= 100) (histo_.getHisto())["KinTrigEff_Num_1D_L2_PF80_PF100_pt1"]->Fill(jet1.pt(),weight);
+	if(this->triggerResult("HLT_PFJet80_v") ) (histo_.getHisto())["KinTrigEff_Den_1D_L2_PF80_PF100_pt1"]->Fill(jet1.pt(),weight);
+
+	if(this->triggerResult("HLT_PFJet80_v") && j1l3 && j1l3->pt() >= 100) (histo_.getHisto())["KinTrigEff_Num_1D_L3_PF80_PF100_pt1"]->Fill(jet1.pt(),weight);
+	if(this->triggerResult("HLT_PFJet80_v") ) (histo_.getHisto())["KinTrigEff_Den_1D_L3_PF80_PF100_pt1"]->Fill(jet1.pt(),weight);
+
+	//Without muons
+	if(matchToPF100_PF80(jet1) && offlineMuons->size() == 0) (histo_.getHisto())["KinTrigEff_Num_1D_noMuons_PF80_PF100_pt1"]->Fill(jet1.pt(),weight);
+	if(matchToPF80(jet1) && offlineMuons->size() == 0 ) (histo_.getHisto())["KinTrigEff_Den_1D_noMuons_PF80_PF100_pt1"]->Fill(jet1.pt(),weight);
+
+	//with csvv2T
+	if(matchToPF100_PF80(jet1) && jet1.btag()>= 0.935 && jet2.btag()>=0.935) (histo_.getHisto())["KinTrigEff_Num_1D_csvv2T_PF80_PF100_pt1"]->Fill(jet1.pt(),weight);
+	if(matchToPF80(jet1) && jet1.btag()>= 0.935 && jet2.btag()>=0.935) (histo_.getHisto())["KinTrigEff_Den_1D_csvv2T_PF80_PF100_pt1"]->Fill(jet1.pt(),weight);
 
 	if(matchToPF100_PF80(jet1)) (histo_.getHisto())["KinTrigEff_pt1_distr_matched_PFJet80"]->Fill(jet1.pt(),weight);
 	if(matchToPF80(jet1)) (histo_.getHisto())["KinTrigEff_pt1_distr_not_matched_PFJet80"]->Fill(jet1.pt(),weight);
@@ -111,65 +138,63 @@ void TriggerEfficiency::fillHistograms(const std::shared_ptr<Collection<Jet> > &
 	if(offlineJets->size() >= 6){ if(offlineJets->at(5).pt() > 30) (histo_.getHisto())["jet_dR16"]->Fill(jet1.deltaR(offlineJets->at(5)),weight);}
 	if(offlineJets->size() >= 7){ if(offlineJets->at(6).pt() > 30) (histo_.getHisto())["jet_dR17"]->Fill(jet1.deltaR(offlineJets->at(6)),weight);}
 	if(offlineJets->size() >= 8){ if(offlineJets->at(7).pt() > 30) (histo_.getHisto())["jet_dR18"]->Fill(jet1.deltaR(offlineJets->at(7)),weight);}
-
 	if(lowM_){
 		if(matchToPF100_PF80(jet1) && std::abs(jet1.eta()) < 1.5 ) (histo_.getHisto())["KinTrigEff_Num_1D_PF80_PF100_pt1_central_eta"]->Fill(jet1.pt(),weight);
 		if(matchToPF80(jet1) && std::abs(jet1.eta()) < 1.5 )		(histo_.getHisto())["KinTrigEff_Den_1D_PF80_PF100_pt1_central_eta"]->Fill(jet1.pt(),weight);
 
-		if(matchToPF100_PF60(jet1)) (histo_.getHisto())["KinTrigEff_Num_1D_Pf60_Pf100_pt1"]->Fill(jet1.pt(),weight);
-		if(matchToPF60(jet1)) 		(histo_.getHisto())["KinTrigEff_Den_1D_Pf60_Pf100_pt1"]->Fill(jet1.pt(),weight);
+		if(matchToPF100_PF60(jet1)) (histo_.getHisto())["KinTrigEff_Num_1D_PF60_PF100_pt1"]->Fill(jet1.pt(),weight);
+		if(matchToPF60(jet1)) 		(histo_.getHisto())["KinTrigEff_Den_1D_PF60_PF100_pt1"]->Fill(jet1.pt(),weight);
 		
-		if(matchToPF100_PF60(jet2)) (histo_.getHisto())["KinTrigEff_Num_1D_Pf60_Pf100_pt2"]->Fill(jet2.pt(),weight);
-		if(matchToPF60(jet2)) 		(histo_.getHisto())["KinTrigEff_Den_1D_Pf60_Pf100_pt2"]->Fill(jet2.pt(),weight);
+		if(matchToPF100_PF60(jet2)) (histo_.getHisto())["KinTrigEff_Num_1D_PF60_PF100_pt2"]->Fill(jet2.pt(),weight);
+		if(matchToPF60(jet2)) 		(histo_.getHisto())["KinTrigEff_Den_1D_PF60_PF100_pt2"]->Fill(jet2.pt(),weight);
 		
-		if(matchToPF100_PF60(jet1)) (histo_.getHisto())["KinTrigEff_Num_1D_Pf60_Pf100_eta1"]->Fill(jet1.eta(),weight);
-		if(matchToPF60(jet1)) 		(histo_.getHisto())["KinTrigEff_Den_1D_Pf60_Pf100_eta1"]->Fill(jet1.eta(),weight);
+		if(matchToPF100_PF60(jet1)) (histo_.getHisto())["KinTrigEff_Num_1D_PF60_PF100_eta1"]->Fill(jet1.eta(),weight);
+		if(matchToPF60(jet1)) 		(histo_.getHisto())["KinTrigEff_Den_1D_PF60_PF100_eta1"]->Fill(jet1.eta(),weight);
 		
-		if(matchToPF100_PF60(jet2)) (histo_.getHisto())["KinTrigEff_Num_1D_Pf60_Pf100_eta2"]->Fill(jet2.eta(),weight);
-		if(matchToPF60(jet2)) 		(histo_.getHisto())["KinTrigEff_Den_1D_Pf60_Pf100_eta2"]->Fill(jet2.eta(),weight);
+		if(matchToPF100_PF60(jet2)) (histo_.getHisto())["KinTrigEff_Num_1D_PF60_PF100_eta2"]->Fill(jet2.eta(),weight);
+		if(matchToPF60(jet2)) 		(histo_.getHisto())["KinTrigEff_Den_1D_PF60_PF100_eta2"]->Fill(jet2.eta(),weight);
 
-		if(matchToPF100_PF80(jet1)) (histo_.getHisto())["KinTrigEff_Num_1D_Pf80_Pf100_pt1"]->Fill(jet1.pt(),weight);
-		if(matchToPF80(jet1)) 		(histo_.getHisto())["KinTrigEff_Den_1D_Pf80_Pf100_pt1"]->Fill(jet1.pt(),weight);
+		if(matchToPF100_PF80(jet1)) (histo_.getHisto())["KinTrigEff_Num_1D_PF80_PF100_pt1"]->Fill(jet1.pt(),weight);
+		if(matchToPF80(jet1)) 		(histo_.getHisto())["KinTrigEff_Den_1D_PF80_PF100_pt1"]->Fill(jet1.pt(),weight);
 
-		if(matchToPF100_PF80(jet2)) (histo_.getHisto())["KinTrigEff_Num_1D_Pf80_Pf100_pt2"]->Fill(jet2.pt(),weight);
-		if(matchToPF80(jet2)) 		(histo_.getHisto())["KinTrigEff_Den_1D_Pf80_Pf100_pt2"]->Fill(jet2.pt(),weight);
+		if(matchToPF100_PF80(jet2)) (histo_.getHisto())["KinTrigEff_Num_1D_PF80_PF100_pt2"]->Fill(jet2.pt(),weight);
+		if(matchToPF80(jet2)) 		(histo_.getHisto())["KinTrigEff_Den_1D_PF80_PF100_pt2"]->Fill(jet2.pt(),weight);
 
-		if(matchToPF100_PF80(jet1)) (histo_.getHisto())["KinTrigEff_Num_1D_Pf80_Pf100_eta1"]->Fill(jet1.eta(),weight);
-		if(matchToPF80(jet1)) 		(histo_.getHisto())["KinTrigEff_Den_1D_Pf80_Pf100_eta1"]->Fill(jet1.eta(),weight);
+		if(matchToPF100_PF80(jet1)) (histo_.getHisto())["KinTrigEff_Num_1D_PF80_PF100_eta1"]->Fill(jet1.eta(),weight);
+		if(matchToPF80(jet1)) 		(histo_.getHisto())["KinTrigEff_Den_1D_PF80_PF100_eta1"]->Fill(jet1.eta(),weight);
 
-		if(matchToPF100_PF80(jet2)) (histo_.getHisto())["KinTrigEff_Num_1D_Pf80_Pf100_eta2"]->Fill(jet2.eta(),weight);
-		if(matchToPF80(jet2)) 		(histo_.getHisto())["KinTrigEff_Den_1D_Pf80_Pf100_eta2"]->Fill(jet2.eta(),weight);
+		if(matchToPF100_PF80(jet2)) (histo_.getHisto())["KinTrigEff_Num_1D_PF80_PF100_eta2"]->Fill(jet2.eta(),weight);
+		if(matchToPF80(jet2)) 		(histo_.getHisto())["KinTrigEff_Den_1D_PF80_PF100_eta2"]->Fill(jet2.eta(),weight);
 		
-		if(matchToPF100dEta1p6_PF60(jet1,jet2)) 								(histo_.getHisto())["KinTrigEff_Num_1D_Pf60_Pf100_dEta"]->Fill(std::abs(jet1.eta()-jet2.eta()),weight);
-		if(matchToPF100L3_PF60(jet1) && matchToPF100L3_PF60(jet2)) 				(histo_.getHisto())["KinTrigEff_Den_1D_Pf60_Pf100_dEta"]->Fill(std::abs(jet1.eta()-jet2.eta()),weight);
+		if(matchToPF100dEta1p6_PF60(jet1,jet2)) 								(histo_.getHisto())["KinTrigEff_Num_1D_PF60_PF100_dEta"]->Fill(std::abs(jet1.eta()-jet2.eta()),weight);
+		if(matchToPF100L3_PF60(jet1) && matchToPF100L3_PF60(jet2)) 				(histo_.getHisto())["KinTrigEff_Den_1D_PF60_PF100_dEta"]->Fill(std::abs(jet1.eta()-jet2.eta()),weight);
 
-		if(matchToPF100dEta1p6_PF80(jet1,jet2)) 								(histo_.getHisto())["KinTrigEff_Num_1D_Pf80_Pf100_dEta"]->Fill(std::abs(jet1.eta()-jet2.eta()),weight);
-		if(matchToPF100L3_PF80(jet1) && matchToPF100L3_PF60(jet2)) 				(histo_.getHisto())["KinTrigEff_Den_1D_Pf80_Pf100_dEta"]->Fill(std::abs(jet1.eta()-jet2.eta()),weight);
+		if(matchToPF100dEta1p6_PF80(jet1,jet2)) 								(histo_.getHisto())["KinTrigEff_Num_1D_PF80_PF100_dEta"]->Fill(std::abs(jet1.eta()-jet2.eta()),weight);
+		if(matchToPF100L3_PF80(jet1) && matchToPF100L3_PF60(jet2)) 				(histo_.getHisto())["KinTrigEff_Den_1D_PF80_PF100_dEta"]->Fill(std::abs(jet1.eta()-jet2.eta()),weight);
 
-		if(matchToPF100_PF60(jet1) && matchToPF100_PF60(jet2))	(histo_.getHisto2D())["KinTrigEff_Num_2D_Pf60_Pf100_pt1vspt2"]->Fill(jet1.pt(),jet2.pt(),weight);	// pt1 vs pt2
-		if(matchToPF60(jet1) && matchToPF60(jet2))				(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf60_Pf100_pt1vspt2"]->Fill(jet1.pt(),jet2.pt(),weight);
+		if(matchToPF100_PF60(jet1) && matchToPF100_PF60(jet2))	(histo_.getHisto2D())["KinTrigEff_Num_2D_PF60_PF100_pt1vspt2"]->Fill(jet1.pt(),jet2.pt(),weight);	// pt1 vs pt2
+		if(matchToPF60(jet1) && matchToPF60(jet2))				(histo_.getHisto2D())["KinTrigEff_Den_2D_PF60_PF100_pt1vspt2"]->Fill(jet1.pt(),jet2.pt(),weight);
 
-		if(matchToPF100_PF60(jet1) && matchToPF100_PF60(jet2))	(histo_.getHisto2D())["KinTrigEff_Num_2D_Pf60_Pf100_pt2vspt1"]->Fill(jet2.pt(),jet1.pt(),weight);	// pt2 vs pt1
-		if(matchToPF60(jet1) && matchToPF60(jet2))				(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf60_Pf100_pt2vspt1"]->Fill(jet2.pt(),jet1.pt(),weight);
+		if(matchToPF100_PF60(jet1) && matchToPF100_PF60(jet2))	(histo_.getHisto2D())["KinTrigEff_Num_2D_PF60_PF100_pt2vspt1"]->Fill(jet2.pt(),jet1.pt(),weight);	// pt2 vs pt1
+		if(matchToPF60(jet1) && matchToPF60(jet2))				(histo_.getHisto2D())["KinTrigEff_Den_2D_PF60_PF100_pt2vspt1"]->Fill(jet2.pt(),jet1.pt(),weight);
 
-		if(matchToPF100_PF80(jet1) && matchToPF100_PF80(jet2))	(histo_.getHisto2D())["KinTrigEff_Num_2D_Pf80_Pf100_pt1vspt2"]->Fill(jet1.pt(),jet2.pt(),weight);	// pt1 vs pt2
-		if(matchToPF80(jet1) && matchToPF80(jet2))				(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf80_Pf100_pt1vspt2"]->Fill(jet1.pt(),jet2.pt(),weight);
+		if(matchToPF100_PF80(jet1) && matchToPF100_PF80(jet2))	(histo_.getHisto2D())["KinTrigEff_Num_2D_PF80_PF100_pt1vspt2"]->Fill(jet1.pt(),jet2.pt(),weight);	// pt1 vs pt2
+		if(matchToPF80(jet1) && matchToPF80(jet2))				(histo_.getHisto2D())["KinTrigEff_Den_2D_PF80_PF100_pt1vspt2"]->Fill(jet1.pt(),jet2.pt(),weight);
 
-		if(matchToPF100_PF80(jet1) && matchToPF100_PF80(jet2))	(histo_.getHisto2D())["KinTrigEff_Num_2D_Pf80_Pf100_pt2vspt1"]->Fill(jet2.pt(),jet1.pt(),weight);	// pt2 vs pt1
-		if(matchToPF80(jet1) && matchToPF80(jet2))				(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf80_Pf100_pt2vspt1"]->Fill(jet2.pt(),jet1.pt(),weight);
+		if(matchToPF100_PF80(jet1) && matchToPF100_PF80(jet2))	(histo_.getHisto2D())["KinTrigEff_Num_2D_PF80_PF100_pt2vspt1"]->Fill(jet2.pt(),jet1.pt(),weight);	// pt2 vs pt1
+		if(matchToPF80(jet1) && matchToPF80(jet2))				(histo_.getHisto2D())["KinTrigEff_Den_2D_PF80_PF100_pt2vspt1"]->Fill(jet2.pt(),jet1.pt(),weight);
 
-		if(matchToPF100_PF80(jet1)) (histo_.getHisto())["KinTrigEff_Num_1D_Pf80_Pf100_finebins_pt1"]->Fill(jet1.pt(),weight);
-		if(matchToPF80(jet1)) 		(histo_.getHisto())["KinTrigEff_Den_1D_Pf80_Pf100_finebins_pt1"]->Fill(jet1.pt(),weight);
+		if(matchToPF100_PF80(jet1)) (histo_.getHisto())["KinTrigEff_Num_1D_PF80_PF100_finebins_pt1"]->Fill(jet1.pt(),weight);
+		if(matchToPF80(jet1)) 		(histo_.getHisto())["KinTrigEff_Den_1D_PF80_PF100_finebins_pt1"]->Fill(jet1.pt(),weight);
 
 		//eta dependence
 		if(std::abs(jet1.eta()) < 1. && std::abs(jet2.eta()) < 1.){
-		if(matchToPF100_PF80(jet1) && matchToPF100_PF80(jet2))	(histo_.getHisto2D())["KinTrigEff_Num_2D_Pf80_Pf100_eta_l1_pt1vspt2"]->Fill(jet1.pt(),jet2.pt(),weight);	// pt1 vs pt2
-		if(matchToPF80(jet1) && matchToPF80(jet2))				(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf80_Pf100_eta_l1_pt1vspt2"]->Fill(jet1.pt(),jet2.pt(),weight);
+		if(matchToPF100_PF80(jet1) && matchToPF100_PF80(jet2))	(histo_.getHisto2D())["KinTrigEff_Num_2D_PF80_PF100_eta_l1_pt1vspt2"]->Fill(jet1.pt(),jet2.pt(),weight);	// pt1 vs pt2
+		if(matchToPF80(jet1) && matchToPF80(jet2))				(histo_.getHisto2D())["KinTrigEff_Den_2D_PF80_PF100_eta_l1_pt1vspt2"]->Fill(jet1.pt(),jet2.pt(),weight);
 
-		if(matchToPF100_PF80(jet1) && matchToPF100_PF80(jet2))	(histo_.getHisto2D())["KinTrigEff_Num_2D_Pf80_Pf100_eta_l1_pt2vspt1"]->Fill(jet2.pt(),jet1.pt(),weight);	// pt2 vs pt1
-		if(matchToPF80(jet1) && matchToPF80(jet2))				(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf80_Pf100_eta_l1_pt2vspt1"]->Fill(jet2.pt(),jet1.pt(),weight);
+		if(matchToPF100_PF80(jet1) && matchToPF100_PF80(jet2))	(histo_.getHisto2D())["KinTrigEff_Num_2D_PF80_PF100_eta_l1_pt2vspt1"]->Fill(jet2.pt(),jet1.pt(),weight);	// pt2 vs pt1
+		if(matchToPF80(jet1) && matchToPF80(jet2))				(histo_.getHisto2D())["KinTrigEff_Den_2D_PF80_PF100_eta_l1_pt2vspt1"]->Fill(jet2.pt(),jet1.pt(),weight);
 		}
-
 		//latest pt,eta dependence
 		if(matchToPF100_PF80(jet1))	(histo_.getHisto2D())["KinTrigEff_Num_2D_PF80_PF100_pt1eta1"]->Fill(jet1.pt(),std::abs(jet1.eta()),weight);
 		if(matchToPF80(jet1))		(histo_.getHisto2D())["KinTrigEff_Den_2D_PF80_PF100_pt1eta1"]->Fill(jet1.pt(),std::abs(jet1.eta()),weight);
@@ -190,41 +215,41 @@ void TriggerEfficiency::fillHistograms(const std::shared_ptr<Collection<Jet> > &
 	}
 	else{
 
-		if(matchToPF160_PF60(jet1)) (histo_.getHisto())["KinTrigEff_Num_1D_Pf60_Pf160_pt1"]->Fill(jet1.pt(),weight);
-		if(matchToPF60(jet1)) 		(histo_.getHisto())["KinTrigEff_Den_1D_Pf60_Pf160_pt1"]->Fill(jet1.pt(),weight);
+		if(matchToPF160_PF60(jet1)) (histo_.getHisto())["KinTrigEff_Num_1D_PF60_PF160_pt1"]->Fill(jet1.pt(),weight);
+		if(matchToPF60(jet1)) 		(histo_.getHisto())["KinTrigEff_Den_1D_PF60_PF160_pt1"]->Fill(jet1.pt(),weight);
 
-		if(matchToPF160_PF60(jet2)) (histo_.getHisto())["KinTrigEff_Num_1D_Pf60_Pf160_pt2"]->Fill(jet2.pt(),weight);
-		if(matchToPF60(jet2)) 		(histo_.getHisto())["KinTrigEff_Den_1D_Pf60_Pf160_pt2"]->Fill(jet2.pt(),weight);
+		if(matchToPF160_PF60(jet2)) (histo_.getHisto())["KinTrigEff_Num_1D_PF60_PF160_pt2"]->Fill(jet2.pt(),weight);
+		if(matchToPF60(jet2)) 		(histo_.getHisto())["KinTrigEff_Den_1D_PF60_PF160_pt2"]->Fill(jet2.pt(),weight);
 
-		if(matchToPF160_PF60(jet1)) (histo_.getHisto())["KinTrigEff_Num_1D_Pf60_Pf160_eta1"]->Fill(jet1.eta(),weight);
-		if(matchToPF60(jet1)) 		(histo_.getHisto())["KinTrigEff_Den_1D_Pf60_Pf160_eta1"]->Fill(jet1.eta(),weight);
+		if(matchToPF160_PF60(jet1)) (histo_.getHisto())["KinTrigEff_Num_1D_PF60_PF160_eta1"]->Fill(jet1.eta(),weight);
+		if(matchToPF60(jet1)) 		(histo_.getHisto())["KinTrigEff_Den_1D_PF60_PF160_eta1"]->Fill(jet1.eta(),weight);
 
-		if(matchToPF160_PF60(jet2)) (histo_.getHisto())["KinTrigEff_Num_1D_Pf60_Pf160_eta2"]->Fill(jet2.eta(),weight);
-		if(matchToPF60(jet2)) 		(histo_.getHisto())["KinTrigEff_Den_1D_Pf60_Pf160_eta2"]->Fill(jet2.eta(),weight);
+		if(matchToPF160_PF60(jet2)) (histo_.getHisto())["KinTrigEff_Num_1D_PF60_PF160_eta2"]->Fill(jet2.eta(),weight);
+		if(matchToPF60(jet2)) 		(histo_.getHisto())["KinTrigEff_Den_1D_PF60_PF160_eta2"]->Fill(jet2.eta(),weight);
 
-		if(matchToPF160_PF80(jet1)) (histo_.getHisto())["KinTrigEff_Num_1D_Pf80_Pf160_pt1"]->Fill(jet1.pt(),weight);
-		if(matchToPF80(jet1)) 		(histo_.getHisto())["KinTrigEff_Den_1D_Pf80_Pf160_pt1"]->Fill(jet1.pt(),weight);
+		if(matchToPF160_PF80(jet1)) (histo_.getHisto())["KinTrigEff_Num_1D_PF80_PF160_pt1"]->Fill(jet1.pt(),weight);
+		if(matchToPF80(jet1)) 		(histo_.getHisto())["KinTrigEff_Den_1D_PF80_PF160_pt1"]->Fill(jet1.pt(),weight);
 
-		if(matchToPF160_PF80(jet2)) (histo_.getHisto())["KinTrigEff_Num_1D_Pf80_Pf160_pt2"]->Fill(jet2.pt(),weight);
-		if(matchToPF80(jet2)) 		(histo_.getHisto())["KinTrigEff_Den_1D_Pf80_Pf160_pt2"]->Fill(jet2.pt(),weight);
+		if(matchToPF160_PF80(jet2)) (histo_.getHisto())["KinTrigEff_Num_1D_PF80_PF160_pt2"]->Fill(jet2.pt(),weight);
+		if(matchToPF80(jet2)) 		(histo_.getHisto())["KinTrigEff_Den_1D_PF80_PF160_pt2"]->Fill(jet2.pt(),weight);
 
-		if(matchToPF160_PF80(jet1)) (histo_.getHisto())["KinTrigEff_Num_1D_Pf80_Pf160_eta1"]->Fill(jet1.eta(),weight);
-		if(matchToPF80(jet1)) 		(histo_.getHisto())["KinTrigEff_Den_1D_Pf80_Pf160_eta1"]->Fill(jet1.eta(),weight);
+		if(matchToPF160_PF80(jet1)) (histo_.getHisto())["KinTrigEff_Num_1D_PF80_PF160_eta1"]->Fill(jet1.eta(),weight);
+		if(matchToPF80(jet1)) 		(histo_.getHisto())["KinTrigEff_Den_1D_PF80_PF160_eta1"]->Fill(jet1.eta(),weight);
 
-		if(matchToPF160_PF80(jet2)) (histo_.getHisto())["KinTrigEff_Num_1D_Pf80_Pf160_eta2"]->Fill(jet2.eta(),weight);
-		if(matchToPF80(jet2)) 		(histo_.getHisto())["KinTrigEff_Den_1D_Pf80_Pf160_eta2"]->Fill(jet2.eta(),weight);
+		if(matchToPF160_PF80(jet2)) (histo_.getHisto())["KinTrigEff_Num_1D_PF80_PF160_eta2"]->Fill(jet2.eta(),weight);
+		if(matchToPF80(jet2)) 		(histo_.getHisto())["KinTrigEff_Den_1D_PF80_PF160_eta2"]->Fill(jet2.eta(),weight);
 
-		if(matchToPF160_PF60(jet1) && matchToPF160_PF60(jet2))	(histo_.getHisto2D())["KinTrigEff_Num_2D_Pf60_Pf160_pt1vspt2"]->Fill(jet1.pt(),jet2.pt(),weight);
-		if(matchToPF60(jet1) && matchToPF60(jet2))				(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf60_Pf160_pt1vspt2"]->Fill(jet1.pt(),jet2.pt(),weight);
+		if(matchToPF160_PF60(jet1) && matchToPF160_PF60(jet2))	(histo_.getHisto2D())["KinTrigEff_Num_2D_PF60_PF160_pt1vspt2"]->Fill(jet1.pt(),jet2.pt(),weight);
+		if(matchToPF60(jet1) && matchToPF60(jet2))				(histo_.getHisto2D())["KinTrigEff_Den_2D_PF60_PF160_pt1vspt2"]->Fill(jet1.pt(),jet2.pt(),weight);
 
-		if(matchToPF160_PF60(jet1) && matchToPF160_PF60(jet2))	(histo_.getHisto2D())["KinTrigEff_Num_2D_Pf60_Pf160_pt2vspt1"]->Fill(jet2.pt(),jet1.pt(),weight);
-		if(matchToPF60(jet1) && matchToPF60(jet2))				(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf60_Pf160_pt2vspt1"]->Fill(jet2.pt(),jet1.pt(),weight);
+		if(matchToPF160_PF60(jet1) && matchToPF160_PF60(jet2))	(histo_.getHisto2D())["KinTrigEff_Num_2D_PF60_PF160_pt2vspt1"]->Fill(jet2.pt(),jet1.pt(),weight);
+		if(matchToPF60(jet1) && matchToPF60(jet2))				(histo_.getHisto2D())["KinTrigEff_Den_2D_PF60_PF160_pt2vspt1"]->Fill(jet2.pt(),jet1.pt(),weight);
 
-		if(matchToPF160_PF80(jet1) && matchToPF160_PF80(jet2))	(histo_.getHisto2D())["KinTrigEff_Num_2D_Pf80_Pf160_pt1vspt2"]->Fill(jet1.pt(),jet2.pt(),weight);
-		if(matchToPF80(jet1) && matchToPF80(jet2))				(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf80_Pf160_pt1vspt2"]->Fill(jet1.pt(),jet2.pt(),weight);
+		if(matchToPF160_PF80(jet1) && matchToPF160_PF80(jet2))	(histo_.getHisto2D())["KinTrigEff_Num_2D_PF80_PF160_pt1vspt2"]->Fill(jet1.pt(),jet2.pt(),weight);
+		if(matchToPF80(jet1) && matchToPF80(jet2))				(histo_.getHisto2D())["KinTrigEff_Den_2D_PF80_PF160_pt1vspt2"]->Fill(jet1.pt(),jet2.pt(),weight);
 
-		if(matchToPF160_PF80(jet1) && matchToPF160_PF80(jet2))	(histo_.getHisto2D())["KinTrigEff_Num_2D_Pf80_Pf160_pt2vspt1"]->Fill(jet2.pt(),jet1.pt(),weight);
-		if(matchToPF80(jet1) && matchToPF80(jet2))				(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf80_Pf160_pt2vspt1"]->Fill(jet2.pt(),jet1.pt(),weight);
+		if(matchToPF160_PF80(jet1) && matchToPF160_PF80(jet2))	(histo_.getHisto2D())["KinTrigEff_Num_2D_PF80_PF160_pt2vspt1"]->Fill(jet2.pt(),jet1.pt(),weight);
+		if(matchToPF80(jet1) && matchToPF80(jet2))				(histo_.getHisto2D())["KinTrigEff_Den_2D_PF80_PF160_pt2vspt1"]->Fill(jet2.pt(),jet1.pt(),weight);
 
 		//latest pt,eta dependence
 		if(matchToPF160_PF80(jet1))	(histo_.getHisto2D())["KinTrigEff_Num_2D_PF80_PF160_pt1eta1"]->Fill(jet1.pt(),std::abs(jet1.eta()),weight);
@@ -239,7 +264,6 @@ void TriggerEfficiency::fillHistograms(const std::shared_ptr<Collection<Jet> > &
 		if(matchToPF160_PF60(jet2))	(histo_.getHisto2D())["KinTrigEff_Num_2D_PF60_PF160_pt2eta2"]->Fill(jet2.pt(),std::abs(jet2.eta()),weight);
 		if(matchToPF60(jet2))		(histo_.getHisto2D())["KinTrigEff_Den_2D_PF60_PF160_pt2eta2"]->Fill(jet2.pt(),std::abs(jet2.eta()),weight);
 	}
-
 }
 
 void TriggerEfficiency::writeHistograms(){
@@ -248,29 +272,29 @@ void TriggerEfficiency::writeHistograms(){
 	if(lowM_){
 		(histo_.getHisto())["KinTrigEff_1D_PF80_PF100_pt1_central_eta"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_PF80_PF100_pt1_central_eta"],(histo_.getHisto())["KinTrigEff_Den_1D_PF80_PF100_pt1_central_eta"]);
 
-		(histo_.getHisto())["KinTrigEff_1D_Pf60_Pf100_pt1"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_Pf60_Pf100_pt1"],(histo_.getHisto())["KinTrigEff_Den_1D_Pf60_Pf100_pt1"]);
-		(histo_.getHisto())["KinTrigEff_1D_Pf60_Pf100_pt2"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_Pf60_Pf100_pt2"],(histo_.getHisto())["KinTrigEff_Den_1D_Pf60_Pf100_pt2"] );
-		(histo_.getHisto())["KinTrigEff_1D_Pf60_Pf100_eta1"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_Pf60_Pf100_eta1"],(histo_.getHisto())["KinTrigEff_Den_1D_Pf60_Pf100_eta1"] );
-		(histo_.getHisto())["KinTrigEff_1D_Pf60_Pf100_eta2"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_Pf60_Pf100_eta2"],(histo_.getHisto())["KinTrigEff_Den_1D_Pf60_Pf100_eta2"] );
+		(histo_.getHisto())["KinTrigEff_1D_PF60_PF100_pt1"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_PF60_PF100_pt1"],(histo_.getHisto())["KinTrigEff_Den_1D_PF60_PF100_pt1"]);
+		(histo_.getHisto())["KinTrigEff_1D_PF60_PF100_pt2"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_PF60_PF100_pt2"],(histo_.getHisto())["KinTrigEff_Den_1D_PF60_PF100_pt2"] );
+		(histo_.getHisto())["KinTrigEff_1D_PF60_PF100_eta1"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_PF60_PF100_eta1"],(histo_.getHisto())["KinTrigEff_Den_1D_PF60_PF100_eta1"] );
+		(histo_.getHisto())["KinTrigEff_1D_PF60_PF100_eta2"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_PF60_PF100_eta2"],(histo_.getHisto())["KinTrigEff_Den_1D_PF60_PF100_eta2"] );
 
-		(histo_.getHisto())["KinTrigEff_1D_Pf80_Pf100_pt1"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_Pf80_Pf100_pt1"],(histo_.getHisto())["KinTrigEff_Den_1D_Pf80_Pf100_pt1"] );
-		(histo_.getHisto())["KinTrigEff_1D_Pf80_Pf100_pt2"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_Pf80_Pf100_pt2"],(histo_.getHisto())["KinTrigEff_Den_1D_Pf80_Pf100_pt2"] );
-		(histo_.getHisto())["KinTrigEff_1D_Pf80_Pf100_eta1"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_Pf80_Pf100_eta1"],(histo_.getHisto())["KinTrigEff_Den_1D_Pf80_Pf100_eta1"] );
-		(histo_.getHisto())["KinTrigEff_1D_Pf80_Pf100_eta2"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_Pf80_Pf100_eta2"],(histo_.getHisto())["KinTrigEff_Den_1D_Pf80_Pf100_eta2"] );
+		(histo_.getHisto())["KinTrigEff_1D_PF80_PF100_pt1"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_PF80_PF100_pt1"],(histo_.getHisto())["KinTrigEff_Den_1D_PF80_PF100_pt1"] );
+		(histo_.getHisto())["KinTrigEff_1D_PF80_PF100_pt2"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_PF80_PF100_pt2"],(histo_.getHisto())["KinTrigEff_Den_1D_PF80_PF100_pt2"] );
+		(histo_.getHisto())["KinTrigEff_1D_PF80_PF100_eta1"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_PF80_PF100_eta1"],(histo_.getHisto())["KinTrigEff_Den_1D_PF80_PF100_eta1"] );
+		(histo_.getHisto())["KinTrigEff_1D_PF80_PF100_eta2"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_PF80_PF100_eta2"],(histo_.getHisto())["KinTrigEff_Den_1D_PF80_PF100_eta2"] );
 
-		(histo_.getHisto())["KinTrigEff_1D_Pf60_Pf100_dEta"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_Pf60_Pf100_dEta"],(histo_.getHisto())["KinTrigEff_Den_1D_Pf60_Pf100_dEta"] );
-		(histo_.getHisto())["KinTrigEff_1D_Pf80_Pf100_dEta"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_Pf80_Pf100_dEta"],(histo_.getHisto())["KinTrigEff_Den_1D_Pf80_Pf100_dEta"] );
+		(histo_.getHisto())["KinTrigEff_1D_PF60_PF100_dEta"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_PF60_PF100_dEta"],(histo_.getHisto())["KinTrigEff_Den_1D_PF60_PF100_dEta"] );
+		(histo_.getHisto())["KinTrigEff_1D_PF80_PF100_dEta"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_PF80_PF100_dEta"],(histo_.getHisto())["KinTrigEff_Den_1D_PF80_PF100_dEta"] );
 
-		(histo_.getHisto2D())["KinTrigEff_2D_Pf60_Pf100_pt1vspt2"] -> Divide((histo_.getHisto2D())["KinTrigEff_Num_2D_Pf60_Pf100_pt1vspt2"],(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf60_Pf100_pt1vspt2"] );
-		(histo_.getHisto2D())["KinTrigEff_2D_Pf80_Pf100_pt1vspt2"] -> Divide((histo_.getHisto2D())["KinTrigEff_Num_2D_Pf80_Pf100_pt1vspt2"],(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf80_Pf100_pt1vspt2"] );
+		(histo_.getHisto2D())["KinTrigEff_2D_PF60_PF100_pt1vspt2"] -> Divide((histo_.getHisto2D())["KinTrigEff_Num_2D_PF60_PF100_pt1vspt2"],(histo_.getHisto2D())["KinTrigEff_Den_2D_PF60_PF100_pt1vspt2"] );
+		(histo_.getHisto2D())["KinTrigEff_2D_PF80_PF100_pt1vspt2"] -> Divide((histo_.getHisto2D())["KinTrigEff_Num_2D_PF80_PF100_pt1vspt2"],(histo_.getHisto2D())["KinTrigEff_Den_2D_PF80_PF100_pt1vspt2"] );
 
-		(histo_.getHisto2D())["KinTrigEff_2D_Pf60_Pf100_pt2vspt1"] -> Divide((histo_.getHisto2D())["KinTrigEff_Num_2D_Pf60_Pf100_pt2vspt1"],(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf60_Pf100_pt2vspt1"] );
-		(histo_.getHisto2D())["KinTrigEff_2D_Pf80_Pf100_pt2vspt1"] -> Divide((histo_.getHisto2D())["KinTrigEff_Num_2D_Pf80_Pf100_pt2vspt1"],(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf80_Pf100_pt2vspt1"] );
+		(histo_.getHisto2D())["KinTrigEff_2D_PF60_PF100_pt2vspt1"] -> Divide((histo_.getHisto2D())["KinTrigEff_Num_2D_PF60_PF100_pt2vspt1"],(histo_.getHisto2D())["KinTrigEff_Den_2D_PF60_PF100_pt2vspt1"] );
+		(histo_.getHisto2D())["KinTrigEff_2D_PF80_PF100_pt2vspt1"] -> Divide((histo_.getHisto2D())["KinTrigEff_Num_2D_PF80_PF100_pt2vspt1"],(histo_.getHisto2D())["KinTrigEff_Den_2D_PF80_PF100_pt2vspt1"] );
 
-		(histo_.getHisto2D())["KinTrigEff_2D_Pf80_Pf100_eta_l1_pt1vspt2"] -> Divide((histo_.getHisto2D())["KinTrigEff_Num_2D_Pf80_Pf100_eta_l1_pt1vspt2"],(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf80_Pf100_eta_l1_pt1vspt2"] );
-		(histo_.getHisto2D())["KinTrigEff_2D_Pf80_Pf100_eta_l1_pt2vspt1"] -> Divide((histo_.getHisto2D())["KinTrigEff_Num_2D_Pf80_Pf100_eta_l1_pt2vspt1"],(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf80_Pf100_eta_l1_pt2vspt1"] );
+		(histo_.getHisto2D())["KinTrigEff_2D_PF80_PF100_eta_l1_pt1vspt2"] -> Divide((histo_.getHisto2D())["KinTrigEff_Num_2D_PF80_PF100_eta_l1_pt1vspt2"],(histo_.getHisto2D())["KinTrigEff_Den_2D_PF80_PF100_eta_l1_pt1vspt2"] );
+		(histo_.getHisto2D())["KinTrigEff_2D_PF80_PF100_eta_l1_pt2vspt1"] -> Divide((histo_.getHisto2D())["KinTrigEff_Num_2D_PF80_PF100_eta_l1_pt2vspt1"],(histo_.getHisto2D())["KinTrigEff_Den_2D_PF80_PF100_eta_l1_pt2vspt1"] );
 
-		(histo_.getHisto())["KinTrigEff_1D_Pf80_Pf100_finebins_pt1"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_Pf80_Pf100_finebins_pt1"],(histo_.getHisto())["KinTrigEff_Den_1D_Pf80_Pf100_finebins_pt1"] );
+		(histo_.getHisto())["KinTrigEff_1D_PF80_PF100_finebins_pt1"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_PF80_PF100_finebins_pt1"],(histo_.getHisto())["KinTrigEff_Den_1D_PF80_PF100_finebins_pt1"] );
 
 		(histo_.getHisto2D())["KinTrigEff_2D_PF80_PF100_pt1eta1"]->Divide((histo_.getHisto2D())["KinTrigEff_Num_2D_PF80_PF100_pt1eta1"],(histo_.getHisto2D())["KinTrigEff_Den_2D_PF80_PF100_pt1eta1"]);
 		(histo_.getHisto2D())["KinTrigEff_2D_PF80_PF100_pt2eta2"]->Divide((histo_.getHisto2D())["KinTrigEff_Num_2D_PF80_PF100_pt2eta2"],(histo_.getHisto2D())["KinTrigEff_Den_2D_PF80_PF100_pt2eta2"]);
@@ -279,21 +303,21 @@ void TriggerEfficiency::writeHistograms(){
 	}
 	else{
 
-		(histo_.getHisto())["KinTrigEff_1D_Pf60_Pf160_pt1"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_Pf60_Pf160_pt1"],(histo_.getHisto())["KinTrigEff_Den_1D_Pf60_Pf160_pt1"] );
-		(histo_.getHisto())["KinTrigEff_1D_Pf60_Pf160_pt2"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_Pf60_Pf160_pt2"],(histo_.getHisto())["KinTrigEff_Den_1D_Pf60_Pf160_pt2"] );
-		(histo_.getHisto())["KinTrigEff_1D_Pf60_Pf160_eta1"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_Pf60_Pf160_eta1"],(histo_.getHisto())["KinTrigEff_Den_1D_Pf60_Pf160_eta1"] );
-		(histo_.getHisto())["KinTrigEff_1D_Pf60_Pf160_eta2"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_Pf60_Pf160_eta2"],(histo_.getHisto())["KinTrigEff_Den_1D_Pf60_Pf160_eta2"] );
+		(histo_.getHisto())["KinTrigEff_1D_PF60_PF160_pt1"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_PF60_PF160_pt1"],(histo_.getHisto())["KinTrigEff_Den_1D_PF60_PF160_pt1"] );
+		(histo_.getHisto())["KinTrigEff_1D_PF60_PF160_pt2"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_PF60_PF160_pt2"],(histo_.getHisto())["KinTrigEff_Den_1D_PF60_PF160_pt2"] );
+		(histo_.getHisto())["KinTrigEff_1D_PF60_PF160_eta1"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_PF60_PF160_eta1"],(histo_.getHisto())["KinTrigEff_Den_1D_PF60_PF160_eta1"] );
+		(histo_.getHisto())["KinTrigEff_1D_PF60_PF160_eta2"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_PF60_PF160_eta2"],(histo_.getHisto())["KinTrigEff_Den_1D_PF60_PF160_eta2"] );
 
-		(histo_.getHisto())["KinTrigEff_1D_Pf80_Pf160_pt1"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_Pf80_Pf160_pt1"],(histo_.getHisto())["KinTrigEff_Den_1D_Pf80_Pf160_pt1"] );
-		(histo_.getHisto())["KinTrigEff_1D_Pf80_Pf160_pt2"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_Pf80_Pf160_pt2"],(histo_.getHisto())["KinTrigEff_Den_1D_Pf80_Pf160_pt2"] );
-		(histo_.getHisto())["KinTrigEff_1D_Pf80_Pf160_eta1"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_Pf80_Pf160_eta1"],(histo_.getHisto())["KinTrigEff_Den_1D_Pf80_Pf160_eta1"] );
-		(histo_.getHisto())["KinTrigEff_1D_Pf80_Pf160_eta2"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_Pf80_Pf160_eta2"],(histo_.getHisto())["KinTrigEff_Den_1D_Pf80_Pf160_eta2"] );
+		(histo_.getHisto())["KinTrigEff_1D_PF80_PF160_pt1"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_PF80_PF160_pt1"],(histo_.getHisto())["KinTrigEff_Den_1D_PF80_PF160_pt1"] );
+		(histo_.getHisto())["KinTrigEff_1D_PF80_PF160_pt2"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_PF80_PF160_pt2"],(histo_.getHisto())["KinTrigEff_Den_1D_PF80_PF160_pt2"] );
+		(histo_.getHisto())["KinTrigEff_1D_PF80_PF160_eta1"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_PF80_PF160_eta1"],(histo_.getHisto())["KinTrigEff_Den_1D_PF80_PF160_eta1"] );
+		(histo_.getHisto())["KinTrigEff_1D_PF80_PF160_eta2"]->Divide((histo_.getHisto())["KinTrigEff_Num_1D_PF80_PF160_eta2"],(histo_.getHisto())["KinTrigEff_Den_1D_PF80_PF160_eta2"] );
 
-		(histo_.getHisto2D())["KinTrigEff_2D_Pf60_Pf160_pt1vspt2"] -> Divide((histo_.getHisto2D())["KinTrigEff_Num_2D_Pf60_Pf160_pt1vspt2"],(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf60_Pf160_pt1vspt2"] );
-		(histo_.getHisto2D())["KinTrigEff_2D_Pf80_Pf160_pt1vspt2"] -> Divide((histo_.getHisto2D())["KinTrigEff_Num_2D_Pf80_Pf160_pt1vspt2"],(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf80_Pf160_pt1vspt2"] );
+		(histo_.getHisto2D())["KinTrigEff_2D_PF60_PF160_pt1vspt2"] -> Divide((histo_.getHisto2D())["KinTrigEff_Num_2D_PF60_PF160_pt1vspt2"],(histo_.getHisto2D())["KinTrigEff_Den_2D_PF60_PF160_pt1vspt2"] );
+		(histo_.getHisto2D())["KinTrigEff_2D_PF80_PF160_pt1vspt2"] -> Divide((histo_.getHisto2D())["KinTrigEff_Num_2D_PF80_PF160_pt1vspt2"],(histo_.getHisto2D())["KinTrigEff_Den_2D_PF80_PF160_pt1vspt2"] );
 
-		(histo_.getHisto2D())["KinTrigEff_2D_Pf60_Pf160_pt2vspt1"] -> Divide((histo_.getHisto2D())["KinTrigEff_Num_2D_Pf60_Pf160_pt2vspt1"],(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf60_Pf160_pt2vspt1"] );
-		(histo_.getHisto2D())["KinTrigEff_2D_Pf80_Pf160_pt2vspt1"] -> Divide((histo_.getHisto2D())["KinTrigEff_Num_2D_Pf80_Pf160_pt2vspt1"],(histo_.getHisto2D())["KinTrigEff_Den_2D_Pf80_Pf160_pt2vspt1"] );
+		(histo_.getHisto2D())["KinTrigEff_2D_PF60_PF160_pt2vspt1"] -> Divide((histo_.getHisto2D())["KinTrigEff_Num_2D_PF60_PF160_pt2vspt1"],(histo_.getHisto2D())["KinTrigEff_Den_2D_PF60_PF160_pt2vspt1"] );
+		(histo_.getHisto2D())["KinTrigEff_2D_PF80_PF160_pt2vspt1"] -> Divide((histo_.getHisto2D())["KinTrigEff_Num_2D_PF80_PF160_pt2vspt1"],(histo_.getHisto2D())["KinTrigEff_Den_2D_PF80_PF160_pt2vspt1"] );
 
 		(histo_.getHisto2D())["KinTrigEff_2D_PF80_PF160_pt1eta1"]->Divide((histo_.getHisto2D())["KinTrigEff_Num_2D_PF80_PF160_pt1eta1"],(histo_.getHisto2D())["KinTrigEff_Den_2D_PF80_PF160_pt1eta1"]);
 		(histo_.getHisto2D())["KinTrigEff_2D_PF80_PF160_pt2eta2"]->Divide((histo_.getHisto2D())["KinTrigEff_Num_2D_PF80_PF160_pt2eta2"],(histo_.getHisto2D())["KinTrigEff_Den_2D_PF80_PF160_pt2eta2"]);
@@ -342,7 +366,7 @@ const double TriggerEfficiency::assignWeight(){
 double weight = 1;
 	if(isMC()) {
 //		weight = weight_["dEta"] * weight_["Lumi"] * weight_["2DPt"] * weight_["BTag"] * weight_["PU_central"] * weight_["SFb_central"] * weight_["SFl_central"];
-		weight = weight_["Lumi"] * weight_["PU_central"];
+		weight = weight_["Lumi"] ;//* weight_["PU_central"];
 	}
 	//std::cout<<" weight = "<<weight<<" "<<weight_["dEta"]<<" "<<weight_["Lumi"]<<" "<<weight_["2DPt"]<<" "<<weight_["BTag"]<<" "<<weight_["PU_central"]<<" "<<weight_["SFb_central"]<<" "<<weight_["SFl_central"]<<std::endl;
 	return weight;

@@ -59,6 +59,12 @@ const bool selectionDoubleB::leadingJetSelection(const std::shared_ptr<tools::Co
 		if(std::abs(jet1.eta() - jet2.eta()) > dEta_) return false;
 	}
 
+	//Trigger Selection
+	if(!this->triggerResult(triggerLogicName_)) return false;
+
+	//Online selection:
+	if(!this->OnlineSelection(jet1,jet2)) return false;
+
 	//deltaR requirements
 	if (jet1.deltaR(jet2) <= dR_) return false;
 
@@ -75,6 +81,9 @@ void selectionDoubleB::fillHistograms(const std::shared_ptr<Collection<Jet> > &o
 
 	(histo_.getHisto())["jet_pt1"]->Fill(jet1.pt(),weight);
 	(histo_.getHisto())["jet_pt2"]->Fill(jet2.pt(),weight);
+
+	(histo_.getHisto())["jerResolution1"]->Fill(jet1.JerResolution(),weight);
+	(histo_.getHisto())["jerResolution2"]->Fill(jet2.JerResolution(),weight);
 
 	(histo_.getHisto())["jet12_assym"]->Fill((jet1.pt()-jet2.pt())/(jet1.pt()+jet2.pt()),weight);
 
@@ -124,7 +133,7 @@ void selectionDoubleB::fillHistograms(const std::shared_ptr<Collection<Jet> > &o
 const double selectionDoubleB::assignWeight(){
 	double weight = 1;
 	if(isMC()) {
-		weight = weight_["dEta"] * weight_["Lumi"] * weight_["2DPt"] * weight_["BTag"] * weight_["PU_central"];
+		weight = weight_["Lumi"] * weight_["PtEff_central"] * weight_["PU_central"] * weight_["SFb_central"] * weight_["SFl_central"];
 	}
 	return weight;
 }

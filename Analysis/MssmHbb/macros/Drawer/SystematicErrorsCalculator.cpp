@@ -16,9 +16,9 @@ public:
 	SystematicErrorsCalculator();
 	virtual ~SystematicErrorsCalculator();
 
-	void CalculateSingleSystError(TH1F *upper, TH1F *lower); // For asymmetric errors
-	void CalculateSingleSystError(TH1F *errorHisto);				// For symmetric errors
-	void AddUncorelatedSystErrors(TH1F* central);
+	void CalculateSingleSystError(TH1 *upper, TH1 *lower); // For asymmetric errors
+	void CalculateSingleSystError(TH1 *errorHisto);				// For symmetric errors
+	void AddUncorelatedSystErrors(TH1* central);
 
 protected:
 
@@ -38,7 +38,7 @@ SystematicErrorsCalculator::~SystematicErrorsCalculator() {
 	// TODO Auto-generated destructor stub
 }
 
-void SystematicErrorsCalculator::CalculateSingleSystError(TH1F* upper, TH1F *lower){
+void SystematicErrorsCalculator::CalculateSingleSystError(TH1* upper, TH1 *lower){
 
 	std::vector <double> errors;
 	double error = 0;
@@ -55,7 +55,7 @@ void SystematicErrorsCalculator::CalculateSingleSystError(TH1F* upper, TH1F *low
 
 }
 
-void SystematicErrorsCalculator::CalculateSingleSystError(TH1F* errorHisto){
+void SystematicErrorsCalculator::CalculateSingleSystError(TH1* errorHisto){
 
 	std::vector <double> errors;
 	double error = 0;
@@ -67,7 +67,7 @@ void SystematicErrorsCalculator::CalculateSingleSystError(TH1F* errorHisto){
 
 }
 
-void SystematicErrorsCalculator::AddUncorelatedSystErrors(TH1F *central){
+void SystematicErrorsCalculator::AddUncorelatedSystErrors(TH1 *central){
 
 	double statError = 0, systError = 0, totError = 0;
 	for(int bin = 1; bin <= central->GetNbinsX(); ++bin){

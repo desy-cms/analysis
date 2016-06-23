@@ -235,7 +235,8 @@ class Ntuplizer : public edm::EDAnalyzer {
       edm::EDGetTokenT<GenRunInfoProduct> genRunInfoToken_;
            
       edm::EDGetTokenT<std::vector<PileupSummaryInfo> > pileupInfoToken_;      
-      edm::EDGetTokenT<GenEventInfoProduct> genEventInfoToken_;      
+      edm::EDGetTokenT<GenEventInfoProduct> genEventInfoToken_;
+      edm::EDGetTokenT<double> Rho_;
       
       InputTags eventCounters_;
       InputTags mHatEventCounters_;
@@ -343,6 +344,9 @@ Ntuplizer::Ntuplizer(const edm::ParameterSet& config) //:   // initialization of
       if ( inputTag == "GenEventInfo" )   { genEventInfoToken_   = consumes<GenEventInfoProduct>(collection);               genEventInfo_    = collection;}
  
    }
+
+   //Rho for JER
+   Rho_ = consumes<double>(config_.getParameter<edm::InputTag>("Rho"));
 
    
 }
@@ -639,11 +643,11 @@ Ntuplizer::beginJob()
             if ( jecRecords_.size() > 0 && jerRecords_.size() > 0 )
             {
             	if(m_resolutions_files.size() != 0 && m_resolutions_files[patJetCounter] != "" && m_scale_factors_files[patJetCounter] != ""){
-            		patjets_collections_.back() -> Init(btagVars_,jecRecords_[patJetCounter],jerRecords_[patJetCounter],m_resolutions_files[patJetCounter],m_scale_factors_files[patJetCounter] );
+            		patjets_collections_.back() -> Init(btagVars_,jecRecords_[patJetCounter],jerRecords_[patJetCounter],m_resolutions_files[patJetCounter],m_scale_factors_files[patJetCounter],Rho_);
             	}
             	
             	else {
-            		patjets_collections_.back() -> Init(btagVars_,jecRecords_[patJetCounter],jerRecords_[patJetCounter]);
+            		patjets_collections_.back() -> Init(btagVars_,jecRecords_[patJetCounter],jerRecords_[patJetCounter],Rho_);
             	}
                if ( jecRecords_[patJetCounter] != "" ) 	std::cout << name << " => "  << jecRecords_[patJetCounter] << std::endl;
                if ( jerRecords_[patJetCounter] != "") 	std::cout<<"JER: "<<jerRecords_[patJetCounter]<<std::endl;

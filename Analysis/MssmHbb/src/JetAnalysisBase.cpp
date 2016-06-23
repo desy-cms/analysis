@@ -4,7 +4,7 @@
  *  Created on: 17 апр. 2016 г.
  *      Author: rostyslav
  */
-
+#include <stdlib.h>
 #include "Analysis/MssmHbb/interface/JetAnalysisBase.h"
 
 using namespace analysis;
@@ -40,16 +40,17 @@ JetAnalysisBase::JetAnalysisBase(const std::string & inputFilelist, const double
 		this->listCrossSections();
 		this->listGeneratorFilter();
 		this->listEventFilter();
-
-		JESshift_ = 0;
 	}
+	JESshift_ = 0;
+	JERshift_ = 0;
+	//Muon tree
+	this->addTree<Muon> ("Muons","MssmHbb/Events/slimmedMuons");
 
 	//Trigger trees
 	this->triggerResults("MssmHbb/Events/TriggerResults");
 
 	// Tree for Jets
-	this->addTree<Jet> ("Jets","MssmHbb/Events/slimmedJetsPuppiReapplyJEC");
-
+	this->addTree<Jet> ("Jets","MssmHbb/Events/slimmedJetsReapplyJEC");
 	// Tree for Vertices
 	this->addTree<Vertex> ("Vertices","MssmHbb/Events/offlineSlimmedPrimaryVertices");
 
@@ -71,18 +72,19 @@ void JetAnalysisBase::setupAnalysis(const std::string & json){
 
 void JetAnalysisBase::applySelection(){
 
-//	if(TEST) std::cout<<"I'm in applySelection"<<std::endl;
+	if(TEST) std::cout<<"I'm in applySelection"<<std::endl;
 
 	bool goodLeadingJets = false;
 	double totWeight = 0;
 	TLorentzVector diJetObject;
 	double Ht;
-	Jet LeadJet[5];
-	ScaleFactor sf[5];
 	//Event loop:
 	auto nevents = 0;
-	if(TEST) nevents = 0.4*this->size();
+//	if(TEST) nevents = 0.4*this->size();
+	if(TEST) nevents = 100;
 	else nevents = this->size();
+
+	std::cout<<"Events to process: "<<nevents<<std::endl;
 
 	for(auto i = 0; i < nevents; ++ i){
 		this->event(i);
@@ -97,17 +99,12 @@ void JetAnalysisBase::applySelection(){
 		//Define MC specific collections:
 		if(isMC()){
 			genJets_ = (std::shared_ptr<Collection<Jet> >) this->collection<Jet>("GenJets");
+			//Apply JER smearing if this is MC:
+			offlineJets->matchTo(*genJets_,3,0.2);
+			offlineJets->smearTo(*genJets_,JERshift_);
 		}
-//			auto genPart = this->collection<GenParticle>("GenParticles");
-
-//			//mHat cut for signal MC
-//			if(signalMC_){
-//		    	if(this->mHat() < 0.7 * returnMassPoint()) std::cout<<"WTF "<<this->mHat()<<std::endl;
-//			}
-//		}
 
 		if(offlineJets->size() < nJets_ ) continue;
-
 		//Match offline Jets to online Objects
 
 		this->match<Jet,TriggerObject>("Jets",this->getTriggerObjectNames());
@@ -116,8 +113,9 @@ void JetAnalysisBase::applySelection(){
 	    auto offlinePrimaryVertices = this->collection<Vertex>("Vertices");
 
 	    goodLeadingJets = false;
+		Jet LeadJet[5];
+		ScaleFactor sf[5];
 	    Ht = 0.;
-
 	    //Jet Selection
 	    for( int iJet = 0; iJet < offlineJets -> size(); ++iJet){
 	    	Jet jet = offlineJets->at(iJet);
@@ -152,52 +150,65 @@ void JetAnalysisBase::applySelection(){
 	    if(!goodLeadingJets) continue;
 	    //Should return true for trigger efficiency study
 	    if(!this->leadingJetSelection(shiftedJets)) continue;
+	    this->Ht(Ht);
 	    //Weights:
 	    if(isMC()){
+	    	//.........................Calculate weights...............
+        	// general weights which is independent of selection type OR already includes
+        	// selection depends criterias inside.
+//          weight_["FactorPt"] 		= pWeight_->FactorizationPtWeight(LeadJet[0].pt(), LeadJet[1].pt());
 
-        	  //.........................Calculate weights...............
-        	  // general weights which is independent of selection type OR already includes
-        	  // selection depends criterias inside.
-        	  weight_["FactorPt"] 		= pWeight_->FactorizationPtWeight(LeadJet[0].pt(), LeadJet[1].pt());
-        	  weight_["dEta"]     		= pWeight_->dEtaWeight(abs(LeadJet[0].eta() - LeadJet[1].eta()));
-        	  weight_["2DPt"]     		= pWeight_->TwoDPtWeight(hCorrections2D_["hPtTriggerEff"],LeadJet[0].pt(),LeadJet[1].pt());
-        	  //TODO: Data luminosity!!!
-        	  if(!signalMC_) {
-        		  weight_["Lumi"] 			=pWeight_->LumiWeight(dataLumi_,this->luminosity());
-        	  }
-        	  else weight_["Lumi"] 			=pWeight_->LumiWeight(dataLumi_,this->numberFilteredGenEvents()/xsection_[returnMassPoint()]);
-        	  weight_["Ht"]       		= pWeight_->HtWeight(hCorrections1D_["hHtWeight"],Ht);
+	    	double f1 		= pWeight_->triggerCorrectionFunction(LeadJet[0].pt(), LeadJet[0].eta());
+	    	double eff1		= pWeight_->PtTriggerEfficiency(LeadJet[0].pt(), LeadJet[0].eta());
+	    	double f2		= pWeight_->triggerCorrectionFunction(LeadJet[1].pt(), LeadJet[1].eta());
+	    	double eff2		= pWeight_->PtTriggerEfficiency(LeadJet[1].pt(), LeadJet[1].eta());
 
-        	  //2SIGMA variation!!!!!!
-        	  weight_["PU_central"] 	= pWeight_->PileUpWeight(hCorrections1D_["hPileUpData_central"],hCorrections1D_["hPileUpMC"],this->nTruePileup());
-        	  weight_["PU_down"]    	= pWeight_->PileUpWeight(hCorrections1D_["hPileUpData_down"],hCorrections1D_["hPileUpMC"],this->nTruePileup());
-        	  weight_["PU_up"]      	= pWeight_->PileUpWeight(hCorrections1D_["hPileUpData_up"],hCorrections1D_["hPileUpMC"],this->nTruePileup());
+	    	double df1	 	= f1 * 0.1 * (1. - eff1);
+	    	double df2	 	= f2 * 0.1 * (1. - eff2);
 
-        	  weight_["PtEff_central"]	= weight_["2DPt"];
-        	  weight_["PtEff_up"]		= weight_["2DPt"] + 2.*std::abs(weight_["2DPt"] - weight_["FactorPt"]);
-        	  weight_["PtEff_down"]		= weight_["2DPt"] - 2.*std::abs(weight_["2DPt"] - weight_["FactorPt"]);
+	    	double F 		= f1*f2;
+ 	    	double dF		= F * std::sqrt( pow(df1/f1,2) + pow(df2/f2,2) );
 
-        	  weight_["SFl_central"] = 1;
-        	  weight_["SFl_up"] = 1;
-        	  weight_["SFl_down"] = 1;
+	    	//For systematics
+	    	weight_["PtTriggerEfficiency"]= pWeight_->PtTriggerEfficiency(LeadJet[0].pt(), LeadJet[0].eta()) * pWeight_->PtTriggerEfficiency(LeadJet[1].pt(), LeadJet[1].eta());
+	    	weight_["dEta"]     		= pWeight_->dEtaWeight(std::abs(LeadJet[0].eta() - LeadJet[1].eta()));
+	    	//TODO: Data luminosity!!!
+	    	if(!signalMC_) {
+	    		weight_["Lumi"] 			=pWeight_->LumiWeight(dataLumi_,this->luminosity());
+	    	}
+	    	else weight_["Lumi"] 			=pWeight_->LumiWeight(dataLumi_,this->numberFilteredGenEvents()/xsection_[returnMassPoint()]);
+	    	weight_["Ht"]       		= pWeight_->HtWeight(hCorrections1D_["hHtWeight"],Ht);
 
-        	  weight_["SFb_central"] = 1;
-        	  weight_["SFb_up"] = 1;
-        	  weight_["SFb_down"] = 1;
+	    	//2SIGMA variation!!!!!!
+	    	weight_["PU_central"] 	= pWeight_->PileUpWeight(hCorrections1D_["hPileUpData_central"],hCorrections1D_["hPileUpMC"],this->nTruePileup());
+	    	weight_["PU_down"]    	= pWeight_->PileUpWeight(hCorrections1D_["hPileUpData_down"],hCorrections1D_["hPileUpMC"],this->nTruePileup());
+	    	weight_["PU_up"]      	= pWeight_->PileUpWeight(hCorrections1D_["hPileUpData_up"],hCorrections1D_["hPileUpMC"],this->nTruePileup());
 
-        	  //..........................SF weight...............
-        	  for(int i = 0; i<nJets_;++i){
-        		  if(sf[i].flavour != 0){ //only for b/c
-        			  weight_["SFb_central"] 	*= sf[i].central;
-        			  weight_["SFb_up"]			*= (2.*(sf[i].up - sf[i].central) + sf[i].central);
-        			  weight_["SFb_down"]		*= (2.*(sf[i].down - sf[i].central) + sf[i].central);
-        		  }
-        		  else {
-        			  weight_["SFl_central"] 	*= sf[i].central;
-        			  weight_["SFl_up"]			*= (2.*(sf[i].up - sf[i].central) + sf[i].central);
-        			  weight_["SFl_down"]		*= (2.*(sf[i].down - sf[i].central) + sf[i].central);
-        		  }
-        	  }
+	    	weight_["PtEff_central"]	= F;
+	    	weight_["PtEff_up"]       	= F + 2.*dF;
+	    	weight_["PtEff_down"]		= F - 2.*dF;
+
+	    	weight_["SFl_central"] = 1;
+	    	weight_["SFl_up"] = 1;
+	    	weight_["SFl_down"] = 1;
+
+	    	weight_["SFb_central"] = 1;
+	    	weight_["SFb_up"] = 1;
+	    	weight_["SFb_down"] = 1;
+
+	    	//..........................SF weight...............
+	    	for(int i = 0; i<nJets_;++i){
+	    		if(sf[i].flavour != 0){ //only for b/c
+	    			weight_["SFb_central"] 	*= sf[i].central;
+	    			weight_["SFb_up"]			*= (2.*(sf[i].up - sf[i].central) + sf[i].central);
+	    			weight_["SFb_down"]		*= (2.*(sf[i].down - sf[i].central) + sf[i].central);
+	    		}
+	    		else {
+	    			weight_["SFl_central"] 	*= sf[i].central;
+	    			weight_["SFl_up"]			*= (2.*(sf[i].up - sf[i].central) + sf[i].central);
+	    			weight_["SFl_down"]		*= (2.*(sf[i].down - sf[i].central) + sf[i].central);
+	    		}
+	    	}
 
         	  //Selection depending weights
         	  if(lowM_){
@@ -210,15 +221,12 @@ void JetAnalysisBase::applySelection(){
         	  }
 
 	    }
-
 	    totWeight = this->assignWeight();
 	    this->fillHistograms(shiftedJets,totWeight);
 		(histo_.getHisto())["NumberOfSelectedEvents"] -> Fill(shiftedJets->size(),totWeight);
 
-
 	}
 		double nGenMHat = 0;
-
 	(histo_.getHisto())["TotalNumberOfGenEvents"] -> Fill(this->numberGenEvents());
 	(histo_.getHisto())["NumberOfFilteredEvents"] -> Fill(this->size());
 	if(signalMC_) {
@@ -408,10 +416,10 @@ void JetAnalysisBase::makeHistograms(const int & size){
 
 void JetAnalysisBase::SetupStandardOutputFile(const std::string & outputFileName){
 
-	if(outputFileName == ""){
 		//get the full file name and path from the Tree
 		std::string fullName = this->tree<Jet>("Jets")->PhysicsObjectTree<Jet>::PhysicsObjectTreeBase::TreeBase::tree()->GetFile()->GetName();
 		std::string outputName = baseOutputName_;
+		if(outputFileName != "") outputName+="_"+outputFileName;
 		if(lowM_) outputName += "_lowM_";
 		else {outputName += "_highM_";}
 
@@ -436,10 +444,9 @@ void JetAnalysisBase::SetupStandardOutputFile(const std::string & outputFileName
 
 		outputName += fullName;// + ".root";
 		this->createOutputFile(outputName);
-	}
-	else{
-		this->createOutputFile(outputFileName);
-	}
+//	else{
+//		this->createOutputFile(outputFileName);
+//	}
 
 }
 
@@ -454,6 +461,7 @@ void JetAnalysisBase::createOutputFile(const std::string &name){
 	}
 	else {
 		finale_name = cmsswBase + "/src/Analysis/MssmHbb/output/" + finale_name;
+//		finale_name = "/nfs/dust/cms/user/" + std::string(getenv("USERNAME")) + "/output/" + finale_name;
 		outputFile_ = std::make_unique<TFile>(finale_name.c_str(),"RECREATE");
 	}
 	std::cout<<"File: "<<finale_name<<" was created"<<std::endl;
@@ -553,20 +561,20 @@ int JetAnalysisBase::returnMassPoint() const {
 }
 
 void JetAnalysisBase::setupXSections(){
-    xsection_[100] = 5.23;	//5.22917222713
-    xsection_[120] = 41.79;	//41.7887314999
-    xsection_[160] = 75.32;	//75.3185132566
-    xsection_[200] = 35.42;	//35.4180244078
-    xsection_[250] = 15.55;	//15.5527782822
-    xsection_[300] = 7.64;	//7.63976194847
-    xsection_[350] = 4.1; 	//4.09571617045
-    xsection_[400] = 2.34;	//2.34044663823
-    xsection_[500] = 0.88;	//0.877385402091
-    xsection_[600] = 0.377;	//0.376766971183
-    xsection_[700] = 0.18;	//0.17940535717
-    xsection_[900] = 0.051;	//0.0507664661841
-    xsection_[1100] = 0.018;//0.0180548176636
-    xsection_[1300] = 0.008;//0.00802737010696
+    xsection_[100] = 1.;//5.23;	//5.22917222713
+    xsection_[120] = 1.;//41.79;	//41.7887314999
+    xsection_[160] = 1.;//75.32;	//75.3185132566
+    xsection_[200] = 1.;//35.42;	//35.4180244078
+    xsection_[250] = 1.;//15.55;	//15.5527782822
+    xsection_[300] = 1.;//7.64;	//7.63976194847
+    xsection_[350] = 1.;//4.1; 	//4.09571617045
+    xsection_[400] = 1.;//2.34;	//2.34044663823
+    xsection_[500] = 1.;//0.88;	//0.877385402091
+    xsection_[600] = 1.;//0.377;	//0.376766971183
+    xsection_[700] = 1.;//0.18;	//0.17940535717
+    xsection_[900] = 1.;//0.051;	//0.0507664661841
+    xsection_[1100] = 1.;//0.018;//0.0180548176636
+    xsection_[1300] = 1.;//0.008;//0.00802737010696
 }
 
 const double JetAnalysisBase::mHat(){

@@ -16,6 +16,10 @@
 #include "TH1.h"
 #include "TH2.h"
 #include "stdlib.h"
+#include "TClass.h"
+#include "TKey.h"
+#include "TApplication.h"
+#include "TROOT.h"
 
 #include "Analysis/MssmHbb/interface/json.h"
 #include "Analysis/MssmHbb/interface/BTagCalibrationStandalone.h"
@@ -23,6 +27,11 @@
 #include "Analysis/MssmHbb/interface/MssmHbbSignal.h"
 #include "Analysis/MssmHbb/interface/selectionDoubleB.h"
 #include "Analysis/MssmHbb/interface/TriggerEfficiency.h"
+#include "Analysis/MssmHbb/interface/X750Search.h"
+#include "Analysis/MssmHbb/interface/BgStudy.h"
+#include "Analysis/MssmHbb/interface/DataMcComparison.h"
+
+#include "Analysis/MssmHbb/macros/Drawer/FitMassDistribution.C"
 
 namespace fs = boost::filesystem;
 
@@ -31,14 +40,19 @@ using namespace analysis::mssmhbb;
 using namespace analysis::tools;
 using namespace boost::program_options;
 
-const bool findStrings(const std::string & input, const std::string & needful);
-void addBackgroundTemplate(const std::string & signal_template, const std::string & bg_template, const std::string & bgHisto = "QCD");
+const auto cmsswBase = static_cast<std::string>(gSystem->Getenv("CMSSW_BASE"));
+
+void addBackgroundTemplate(const std::string & signal_template, const std::string & bg_template, const std::string & bgHisto = "QCD_Mbb");
+void addAnalyticalFits(const TFile & input_file, const int & mass_point);
+void addAnalyticalFits();
+
+
 // =============================================================================================
 int main(int argc, char * argv[])
 {
 
         string config_file;
-    	const auto cmsswBase = static_cast<std::string>(gSystem->Getenv("CMSSW_BASE"));
+
 
     	//Declare a group of general options
     	options_description generalOptions("General options");
@@ -72,22 +86,21 @@ int main(int argc, char * argv[])
 				   "  \t0 - High Mass.")
 				  ("selection,s",value<std::string>()->required(),
 				  "Specify selection type that you want to run: \n"
-				  "  \tMssmHbb - main analysis script, apply 3b signal selection; \n"
-				  "  \t2bJet   - apply 2b selection; \n"
-				  "  \treverse - apply 3b background selection (reversse btag for third jet); \n"
-				  "  \tTrigger - calculate kinematic trigger efficienies.")
-		  	  	  ("analysis,a",value<std::string>()->required(),
-		  	  	  "Specify Finale result: \n"
-		  	  	  "  \trebuild - re-run everything; \n"
-		  	  	  "  \tDataMC  - Data/MC comparison plots; \n"
-		  	  	  "  \t")
+				  "  MssmHbb 	- main analysis script, apply 3b signal selection; \n"
+				  "  2bJet   	- apply 2b selection; \n"
+				  "  reverse 	- apply 3b background selection (reverse btag for third jet); \n"
+				  "  Trigger 	- calculate kinematic trigger efficiencies; \n"
+				  "  X750	    - Trigger Efficiency for X750 Search; \n"
+				  "  bgstudy 	- Bg Study asked by Chayanit; \n"
+				  "  datavsmc	- 2b selection for Data vs MC comparison; \n"
+				  "  fitter     - Fit Signal Templates with Analytical Curves.")
 				  ;
 
         // Hidden options, will be allowed both on command line and
         // in config file, but will not be shown to the user.
         options_description hidden("Hidden options");
         hidden.add_options()
-            ("test", value<int>()->default_value(1),"if test specify 1. Default 0.")
+            ("test", value<int>()->default_value(0),"if test specify 1. Default 0.")
             ;
 
         options_description all_options;
@@ -140,7 +153,6 @@ int main(int argc, char * argv[])
 
 //	  analysis_ = new Analysis(input_map_["input_files"].as<std::string>());
 	  std::string  selection_ =  output_vm["selection"].as<std::string>();
-	  std::string  analysis_  =  output_vm["analysis"].as<std::string>();
 	  std::string  inputList_ =  output_vm["input_files"].as<std::string>();
 	  std::string  output_    =  output_vm["output_file"].as<std::string>();
 	  std::string json_file_ =  output_vm["json_file"].as<std::string>();
@@ -149,6 +161,10 @@ int main(int argc, char * argv[])
 	  auto lumi_				= output_vm["lumi"].as<double>();
 
 	  //Check whether input file contain only .root files or .txt
+	  if(boost::iequals(selection_,"fitter")){
+		  addAnalyticalFits();
+		  return 0;
+	  }
 	  std::string line;
 	  std::ifstream infile(inputList_);
 	  if(infile){
@@ -158,18 +174,6 @@ int main(int argc, char * argv[])
 				  if(fs::exists(p)){
 					  if(fs::extension(p) == ".root"){
 						  std::cout<<"THIS is ROOT"<<std::endl;
-
-	//					  if(boost::iequals(selection_,"mssmhbb")){
-	//						  MssmHbbSignal analysis(inputList_,lumi_,lowM_,test_);//,analysis_);
-	//						  analysis.runAnalysis(json_file_,output_,100);
-	//
-	//					  }
-	//					  else if (boost::iequals(selection_,"trigger")){
-	//						  ;
-	//					  }
-	//					  else if (boost::iequals(selection_,"2bjet")){
-	//						  selectionDoubleB analysis(inputList_,lumi_,lowM_);
-	//					  }
 						  break;
 					  }
 					  else if (fs::extension(p) == ".txt"){
@@ -177,6 +181,15 @@ int main(int argc, char * argv[])
 						  if(boost::iequals(selection_,"mssmhbb")){
 						  MssmHbbSignal analysis(line,lumi_,lowM_,test_);//,analysis_);
 						  analysis.runAnalysis(json_file_,output_,100);
+						  std::string output_name = analysis.getOutputFile().GetName();
+
+						  if(analysis.isSignalMC()){
+							  if(analysis.getLowM()){
+								  addBackgroundTemplate(output_name, "input_corrections/QCD_Templates_v0.root");
+							  }
+							  addAnalyticalFits(analysis.getOutputFile(), analysis.returnMassPoint());
+						  }
+
 
 						  }
 						  else if (boost::iequals(selection_,"trigger")){
@@ -184,7 +197,20 @@ int main(int argc, char * argv[])
 							  analysis.runAnalysis(json_file_,output_,100);
 						  }
 						  else if (boost::iequals(selection_,"2bjet")){
-							  selectionDoubleB analysis(inputList_,lumi_,lowM_);
+							  selectionDoubleB analysis(line,lumi_,lowM_,test_);
+							  analysis.runAnalysis(json_file_,output_,100);
+						  }
+						  else if (boost::iequals(selection_,"X750")){
+							  X750Search analysis(line,lumi_,lowM_,test_);
+							  analysis.runAnalysis(json_file_,output_,100);
+						  }
+						  else if (boost::iequals(selection_,"bgstudy")){
+							  BgStudy analysis(line,lumi_,lowM_,test_);
+							  analysis.runAnalysis(json_file_,output_,100);
+						  }
+						  else if (boost::iequals(selection_,"datavsmc")){
+							  DataMcComparison analysis(line,lumi_,lowM_,test_);
+							  analysis.runAnalysis(json_file_,output_,100);
 						  }
 
 					  }
@@ -225,12 +251,12 @@ void addBackgroundTemplate(const std::string & signal_template, const std::strin
 
 	TFile fsignal(signal_template.c_str(),"UPDATE");	// Opening file for writing;
 	if(fsignal.IsZombie()){
-		std::cerr<<"Error opening file: "<<signal_template<<std::endl;
+		std::cerr<<"Error opening file: "<<signal_template<<" for merging"<<std::endl;
 		exit(0);
 	}
 	TFile fbg(bg_template.c_str(),"READ");
 	if(fbg.IsZombie()){
-		std::cerr<<"Error opening file: "<<bg_template<<std::endl;
+		std::cerr<<"Error opening file: "<<bg_template<<" for merging"<<std::endl;
 		exit(1);
 	}
 	//Check whether
@@ -238,8 +264,131 @@ void addBackgroundTemplate(const std::string & signal_template, const std::strin
 		std::cerr<<"No histo: "<<bgHisto.c_str()<<" in file: "<<bg_template<<std::endl;
 		exit(2);
 	}
-	TH1D * hBg = (TH1D*) fbg.Get(bgHisto.c_str());
-	fsignal.cd(); //Needed to write bg histo to signal file and not to Bg file
-	hBg->Write("QCD");
 
+	//Read all objects from Bg templates file
+	TIter next(fbg.GetListOfKeys());
+	TKey *key;
+	std::string objName;
+	while ((key = (TKey*)next())) {
+		TClass *cl = gROOT->GetClass(key->GetClassName());
+		if (!cl->InheritsFrom("TH1")) continue;
+		TH1 *h = (TH1*)key->ReadObj();
+		objName = h->GetName();
+		if( objName.find(bgHisto) == std::string::npos) continue;
+		std::cout<<h->GetName()<<std::endl;
+		fsignal.cd();
+		h->Write(h->GetName());
+		if(objName == bgHisto){
+			h->Write("data_obs");
+		}
+	}
+
+}
+
+void addAnalyticalFits(const TFile & input_file, const int & mass_point){
+	TFile *input = (TFile*) input_file.Clone();
+	std::string template_name = "bbH_Mbb";
+	std::string input_name = input_file.GetName();
+	bool lowM = false;
+	int iopt = 0;
+	int rebin = 1;
+	std::vector<std::string> sys = {"CMS_PtEff_13TeV","CMS_JES_13TeV"};
+	std::vector<std::string> dir = {"Up","Down"};
+
+	// Deffine which fit to use (different for Low and for High):
+	if(input_name.find("lowM") != std::string::npos) {
+		lowM = true;
+		input_name = "lowM";
+	}
+	else {
+		lowM = false;
+		input_name  = "highM";
+	}
+
+	if(lowM) iopt = 1;
+	else iopt = 2;
+
+	if(!lowM && mass_point < 300) rebin = 2;
+	if(lowM){
+		if(mass_point > 400 && mass_point < 900) rebin = 4;
+		if(mass_point > 800) rebin = 2;
+	}
+
+	TFile *output = new TFile( (cmsswBase + "/src/Analysis/MssmHbb/output/SignalPDFs_" + input_name + "_" + std::to_string(mass_point) + ".root").c_str() ,"RECREAT");
+	TH1D *histCentral = (TH1D*) input->Get( template_name.c_str());
+	TF1 * fitCentral = (TF1*) FitMass(histCentral,template_name,iopt,rebin);
+	output->cd("");
+	fitCentral->Write(template_name.c_str());
+
+	//Systematics:
+	for(const auto & s: sys){
+		for(const auto & v: dir){
+			template_name += "_" + s + v;
+			TH1D * histSys = (TH1D*) input->Get( template_name.c_str());
+			TF1 * funcSys = (TF1*) FitMass(histSys,template_name,iopt,rebin);
+			funcSys->Write(template_name.c_str());
+		}
+	}
+	output->Close();
+}
+
+void addAnalyticalFits(){
+
+	std::vector<int> vmH = {100,120,160,200,250,300,350,400,
+		    				500,600,700,900,1100,1300};
+	std::string template_name = "bbH_Mbb";
+	std::string input_name;
+	int iopt = 0;
+	int rebin = 1;
+	std::vector<std::string> sys = {"CMS_PtEff_13TeV","CMS_JES_13TeV"};
+	std::vector<std::string> dir = {"Up","Down"};
+	std::vector<std::string> low = {"lowM","highM"};
+
+	int counter = 0;
+	for(const auto & lowM : low){
+		for(const auto & mH : vmH){
+			++counter;
+//			TCanvas * canv = new TCanvas("canv","",700,700);
+			template_name = "bbH_Mbb";
+			TFile * input_file 	= new TFile( (cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_" + lowM + "_SUSYGluGluToBBHToBB_M-" + std::to_string(mH) + "_TuneCUETP8M1_13TeV-pythia8.root").c_str(),"READ");
+			std::cout<<"INPUT: "<<input_file->GetName()<<std::endl;
+			TFile * output 		= new TFile( (cmsswBase + "/src/Analysis/MssmHbb/output/SignalPDFs_"    + lowM + "_" + std::to_string(mH) + ".root").c_str() ,"RECREATE");
+//			addBackgroundTemplate( output->GetName(),"input_corrections/QCD_Templates_v0.root");
+
+			if(lowM == "lowM") iopt = 1;
+			else iopt = 2;
+
+			if(lowM == "highM" && mH < 300) rebin = 2;
+			if(lowM == "lowM"){
+				if(mH > 400 && mH < 900) rebin = 4;
+				if(mH > 800) rebin = 2;
+			}
+			TH1D *histCentral = (TH1D*) input_file->Get( template_name.c_str());
+			template_name = template_name + "_" + lowM +"_" + std::to_string(mH);
+			TF1 * fitCentral = (TF1*) FitMass(histCentral,template_name,iopt,rebin);
+			output->cd("");
+			fitCentral->Write(template_name.c_str());
+//			canv->cd();
+//			fitCentral->Draw();
+//			canv->Print( (cmsswBase + "/src/Analysis/MssmHbb/macros/pictures/SignalPDFs/" + template_name + "_" + std::to_string(mH) + ".pdf").c_str() );
+
+			//Systematics:
+			for(const auto & s: sys){
+				for(const auto & v: dir){
+					template_name = "bbH_Mbb";
+					template_name += "_" + s + v;
+					TH1D * histSys = (TH1D*) input_file->Get( template_name.c_str());
+					template_name = template_name + "_" + lowM +"_" + std::to_string(mH);
+					TF1 * funcSys = (TF1*) FitMass(histSys,template_name,iopt,rebin);
+//					canv->cd();
+//					funcSys->Draw();
+//					canv->Print( (cmsswBase + "/src/Analysis/MssmHbb/macros/pictures/SignalPDFs/" + template_name + "_" + std::to_string(mH) + ".pdf").c_str() );
+//					output->cd("");
+					funcSys->Write(template_name.c_str());
+				}
+			}
+			output->Close();
+			addBackgroundTemplate( output->GetName(),"input_corrections/QCD_Templates_v0.root");
+		}
+	}
 }

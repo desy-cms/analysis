@@ -93,6 +93,7 @@ namespace analysis {
            // made below virtual as this may be different for MET, or vertex
            /// function to match this candidate to another object from a list of pointers with a name
            virtual bool matchTo(const std::vector<Candidate> * cands, const std::string & name, const float & deltaR = 0.5);
+           virtual bool matchTo(const std::vector<Candidate> * cands, const std::string & name, const float & delta_pT, const float & deltaR);
            /// returns the pointer to the matched candidate object
            const Candidate * matched(const std::string & name);
            /// returns the pointer to the matched candidate object

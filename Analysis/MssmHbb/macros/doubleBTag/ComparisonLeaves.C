@@ -128,7 +128,7 @@ void ComparisonLeaves()
 
    TH1F *null = 0;
 
-   TH1F *ratioPV = ratio->DrawRatio(NPV_Data,NPV_MC,NPV_MCSyst,leg_pv,canvaPV);
+   TH1F *ratioPV = (TH1F*) ratio->DrawRatio(NPV_Data,NPV_MC,canvaPV,leg_pv,NPV_MCSyst);
    ratio->GetTopPad()->SetLogy();
    ratioPV->GetXaxis()->SetRangeUser(0.,50.);
    canvaPV->SaveAs("pictures/NPrimaryVertices1.pdf");
@@ -211,7 +211,7 @@ void ComparisonLeaves()
    leg_pt1->AddEntry(fHtMC,mcName.c_str(),"p");
 
 
-   TH1F *ratioHt = ratio->DrawRatio(fHtData,fHtMC,fHtMCSyst,leg_pt1,canva001);
+   TH1F *ratioHt = (TH1F*) ratio->DrawRatio(fHtData,fHtMC,canva001,leg_pt1,fHtMCSyst);
    ratio->GetTopPad()->SetLogy();
    ratioHt->GetXaxis()->SetRangeUser(0.,2600.);
 //   ratio->DrawPhaseSpaceDescription(300.,0.008,1200.,0.3);
@@ -284,12 +284,12 @@ void ComparisonLeaves()
 
 //   TH1F *ratioPt = (TH1F*) fNjetsData->Clone("ratioPt");
 
-   TH1F *ratioN = ratio->DrawRatio(fNjetsData,fNjetsMC,fNjetsMCSyst,leg_pt1,canva000);
+   TH1F *ratioN = (TH1F*) ratio->DrawRatio(fNjetsData,fNjetsMC,canva000,leg_pt1,fNjetsMCSyst);
    ratio->GetTopPad()->SetLogy();
    ratioN->GetXaxis()->SetRangeUser(0.,14.);
    canva000->SaveAs("pictures/Multiplicity.pdf");
 //   ratio->DrawPhaseSpaceDescription(1.5,120.,6.,3000.);
-
+/*
    //..............................Pt1 ....................
    TCanvas *canva00 = new TCanvas("canva00","Pt1",1000,800);
 

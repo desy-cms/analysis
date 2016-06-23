@@ -17,15 +17,27 @@ void templates()
    TExec *er_0 = new TExec("er_0","gStyle->SetErrorX(0)");
    TExec *er_1 = new TExec("er_1","gStyle->SetErrorX(0.5)");
 
-   inF[300] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/Selection_lowM_SUSYGluGluToBBHToBB_M-300_TuneCUETP8M1_13TeV-pythia8.root");
-   inF[350] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/Selection_lowM_SUSYGluGluToBBHToBB_M-350_TuneCUETP8M1_13TeV-pythia8.root");
-   inF[400] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/Selection_lowM_SUSYGluGluToBBHToBB_M-400_TuneCUETP8M1_13TeV-pythia8.root");
-   inF[500]		= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/Selection_lowM_SUSYGluGluToBBHToBB_M-500_TuneCUETP8M1_13TeV-pythia8.root");
-   inF[600]		= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/Selection_lowM_SUSYGluGluToBBHToBB_M-600_TuneCUETP8M1_13TeV-pythia8.root");
-   inF[700] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/Selection_lowM_SUSYGluGluToBBHToBB_M-700_TuneCUETP8M1_13TeV-pythia8.root");
-   inF[900] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/Selection_lowM_SUSYGluGluToBBHToBB_M-900_TuneCUETP8M1_13TeV-pythia8.root");
-   inF[1100] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/Selection_lowM_SUSYGluGluToBBHToBB_M-1100_TuneCUETP8M1_13TeV-pythia8.root");
-   inF[1300] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/Selection_lowM_SUSYGluGluToBBHToBB_M-1300_TuneCUETP8M1_13TeV-pythia8.root");
+   inF[300] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_new_jer_lowM_SUSYGluGluToBBHToBB_M-300_TuneCUETP8M1_13TeV-pythia8.root");
+//   inF[350] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_new_jer_lowM_SUSYGluGluToBBHToBB_M-350_TuneCUETP8M1_13TeV-pythia8.root");
+//   inF[400] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_new_jer_lowM_SUSYGluGluToBBHToBB_M-400_TuneCUETP8M1_13TeV-pythia8.root");
+//   inF[500]		= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_new_jer_lowM_SUSYGluGluToBBHToBB_M-500_TuneCUETP8M1_13TeV-pythia8.root");
+//   inF[600]		= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_new_jer_lowM_SUSYGluGluToBBHToBB_M-600_TuneCUETP8M1_13TeV-pythia8.root");
+//   inF[700] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_new_jer_lowM_SUSYGluGluToBBHToBB_M-700_TuneCUETP8M1_13TeV-pythia8.root");
+//   inF[900] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_new_jer_lowM_SUSYGluGluToBBHToBB_M-900_TuneCUETP8M1_13TeV-pythia8.root");
+//   inF[1100] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_new_jer_lowM_SUSYGluGluToBBHToBB_M-1100_TuneCUETP8M1_13TeV-pythia8.root");
+//   inF[1300] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_new_jer_lowM_SUSYGluGluToBBHToBB_M-1300_TuneCUETP8M1_13TeV-pythia8.root");
+
+   std::map<int,TFile* > highMF;
+   std::vector<TH1D*> histoHighM;
+   highMF[300] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_1pb_xsection_highM_SUSYGluGluToBBHToBB_M-300_TuneCUETP8M1_13TeV-pythia8.root");
+   highMF[350] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_1pb_xsection_highM_SUSYGluGluToBBHToBB_M-350_TuneCUETP8M1_13TeV-pythia8.root");
+   highMF[400] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_1pb_xsection_highM_SUSYGluGluToBBHToBB_M-400_TuneCUETP8M1_13TeV-pythia8.root");
+   highMF[500]	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_1pb_xsection_highM_SUSYGluGluToBBHToBB_M-500_TuneCUETP8M1_13TeV-pythia8.root");
+   highMF[600]	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_1pb_xsection_highM_SUSYGluGluToBBHToBB_M-600_TuneCUETP8M1_13TeV-pythia8.root");
+   highMF[700] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_1pb_xsection_highM_SUSYGluGluToBBHToBB_M-700_TuneCUETP8M1_13TeV-pythia8.root");
+   highMF[900] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_1pb_xsection_highM_SUSYGluGluToBBHToBB_M-900_TuneCUETP8M1_13TeV-pythia8.root");
+   highMF[1100] = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_1pb_xsection_highM_SUSYGluGluToBBHToBB_M-1100_TuneCUETP8M1_13TeV-pythia8.root");
+   highMF[1300] = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_1pb_xsection_highM_SUSYGluGluToBBHToBB_M-1300_TuneCUETP8M1_13TeV-pythia8.root");
 
 
    TLegend *leg = new TLegend(0.3,0.3,0.9,0.85);
@@ -36,13 +48,15 @@ void templates()
    int i = 0, j =0, k=0;
    for(const auto & f : inF){
 	   ++i;
-	   histo.push_back((TH1D*) f.second->Get("Mbb"));
+	   histo.push_back((TH1D*) f.second->Get("bbH_Mbb"));
 	   histo.push_back((TH1D*) f.second->Get("bbH_Mbb_CMS_SFb_13TeVDown"));
 	   histo.push_back((TH1D*) f.second->Get("bbH_Mbb_CMS_SFb_13TeVUp"));
 	   histo.push_back((TH1D*) f.second->Get("bbH_Mbb_CMS_SFl_13TeVDown"));
 	   histo.push_back((TH1D*) f.second->Get("bbH_Mbb_CMS_SFl_13TeVUp"));
 	   histo.push_back((TH1D*) f.second->Get("bbH_Mbb_CMS_JES_13TeVDown"));
 	   histo.push_back((TH1D*) f.second->Get("bbH_Mbb_CMS_JES_13TeVUp"));
+	   histo.push_back((TH1D*) f.second->Get("bbH_Mbb_CMS_JER_13TeVDown"));
+	   histo.push_back((TH1D*) f.second->Get("bbH_Mbb_CMS_JER_13TeVUp"));
 	   histo.push_back((TH1D*) f.second->Get("bbH_Mbb_CMS_PU_13TeVDown"));
 	   histo.push_back((TH1D*) f.second->Get("bbH_Mbb_CMS_PU_13TeVUp"));
 	   histo.push_back((TH1D*) f.second->Get("bbH_Mbb_CMS_PtEff_13TeVDown"));
@@ -67,11 +81,50 @@ void templates()
 	   j=0;
 
 	   if(i==1) leg->Draw();
-	   c1[i]->SaveAs(("pictures/AllinOne_"+std::to_string(f.first)+"_GeV_mass_point.pdf").c_str());
+	   c1[i]->SaveAs(("pictures/AllinOne_lowM_"+std::to_string(f.first)+"_GeV_mass_point.pdf").c_str());
 	   histo.clear();
 
    }
+   /*********************High M********************/
+   /*
+   i = 0, j =0, k=0;
+   TCanvas * c2[15];
+   for(const auto & f : highMF){
+	   ++i;
+	   histoHighM.push_back((TH1D*) f.second->Get("bbH_Mbb"));
+	   histoHighM.push_back((TH1D*) f.second->Get("bbH_Mbb_CMS_SFb_13TeVDown"));
+	   histoHighM.push_back((TH1D*) f.second->Get("bbH_Mbb_CMS_SFb_13TeVUp"));
+	   histoHighM.push_back((TH1D*) f.second->Get("bbH_Mbb_CMS_SFl_13TeVDown"));
+	   histoHighM.push_back((TH1D*) f.second->Get("bbH_Mbb_CMS_SFl_13TeVUp"));
+	   histoHighM.push_back((TH1D*) f.second->Get("bbH_Mbb_CMS_JES_13TeVDown"));
+	   histoHighM.push_back((TH1D*) f.second->Get("bbH_Mbb_CMS_JES_13TeVUp"));
+	   histoHighM.push_back((TH1D*) f.second->Get("bbH_Mbb_CMS_PU_13TeVDown"));
+	   histoHighM.push_back((TH1D*) f.second->Get("bbH_Mbb_CMS_PU_13TeVUp"));
+	   histoHighM.push_back((TH1D*) f.second->Get("bbH_Mbb_CMS_PtEff_13TeVDown"));
+	   histoHighM.push_back((TH1D*) f.second->Get("bbH_Mbb_CMS_PtEff_13TeVUp"));
+	   c2[i] = new TCanvas();
+	   for(const auto & h : histoHighM){
+		   ++j;
+		   h->SetTitle((std::to_string(f.first) + "-M mass point").c_str());
+		   h->SetMarkerStyle(20);
+		   h->SetMarkerColor(j);
+		   h->SetLineColor(j);
+		   h->SetLineWidth(2);
+		   if(j==1){
+			   h->Draw("hist");
+		   }
+		   else {
+			   h->Draw("same");
+		   }
+	   }
+	   j=0;
+	   if(i==1) leg->Draw();
+	   c1[i]->SaveAs(("pictures/AllinOne_highM_"+std::to_string(f.first)+"_GeV_mass_point.pdf").c_str());
+	   histoHighM.clear();
+
+   }
 /**/
+
    //One by one
    TCanvas *singleC[15][15];
    TPad *cPad[15][15];
@@ -83,10 +136,11 @@ void templates()
    i = 0, j =0, k=0;
    for(const auto & f : inF){
 	   ++i;
-	   TH1D * first = (TH1D*) f.second->Get("Mbb");
+	   TH1D * first = (TH1D*) f.second->Get("bbH_Mbb");
 	   first->SetLineWidth(2);
 	   singleH["SFb"] = std::make_pair((TH1D*) f.second->Get("bbH_Mbb_CMS_SFb_13TeVDown"),(TH1D*) f.second->Get("bbH_Mbb_CMS_SFb_13TeVUp"));
 	   singleH["SFudsg"] = std::make_pair((TH1D*) f.second->Get("bbH_Mbb_CMS_SFl_13TeVDown"),(TH1D*) f.second->Get("bbH_Mbb_CMS_SFl_13TeVUp"));
+	   singleH["JER"] = std::make_pair((TH1D*) f.second->Get("bbH_Mbb_CMS_JER_13TeVDown"),(TH1D*) f.second->Get("bbH_Mbb_CMS_JER_13TeVUp"));
 	   singleH["JES"] = std::make_pair((TH1D*) f.second->Get("bbH_Mbb_CMS_JES_13TeVDown"),(TH1D*) f.second->Get("bbH_Mbb_CMS_JES_13TeVUp"));
 	   singleH["PU"] = std::make_pair((TH1D*) f.second->Get("bbH_Mbb_CMS_PU_13TeVDown"),(TH1D*) f.second->Get("bbH_Mbb_CMS_PU_13TeVUp"));
 	   singleH["pT trig Eff"] = std::make_pair((TH1D*) f.second->Get("bbH_Mbb_CMS_PtEff_13TeVDown"),(TH1D*) f.second->Get("bbH_Mbb_CMS_PtEff_13TeVUp"));
@@ -164,9 +218,9 @@ void templates()
 	   }
 	   j=0;
 
-/**/
-   }
 
+   }
+/**/
    
 }
 

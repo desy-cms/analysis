@@ -19,6 +19,7 @@
 #include <vector>
 #include <string>
 #include <type_traits>
+#include <stdlib.h>
 #include <boost/algorithm/string/join.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
@@ -90,6 +91,10 @@ namespace analysis{
 
         //Return std::vector that contains names of all trigger objects
         std::vector<std::string> getTriggerObjectNames();
+        const TFile & getOutputFile();
+        const bool & getLowM();
+        const bool & isSignalMC();
+        int returnMassPoint() const;
 
 	protected:
 
@@ -104,6 +109,7 @@ namespace analysis{
         bool signalMC_ = false;
         pTFile outputFile_{};
         double JESshift_{};
+        double JERshift_{};
         std::string baseOutputName_{};
 
         //generated jetcollection:
@@ -121,7 +127,9 @@ namespace analysis{
 //        const virtual bool leadingJetSelection(const int & iJet, const tools::Jet & Jet);
         const virtual bool leadingJetSelection(const std::shared_ptr<tools::Collection<tools::Jet> > & offlineJets);
         const virtual bool OnlineSelection(const analysis::tools::Jet &fLeadOfflineJet,const analysis::tools::Jet &sLeadOfflineJet);
-        int returnMassPoint() const;
+
+        void Ht(const double & Ht);
+        const double & Ht();
 
 		//Selection constants
         double pt1_ = 100;
@@ -132,21 +140,24 @@ namespace analysis{
         double btag1_= 0.935;
         double btag2_= 0.935;
         double btag3_= 0.46;
-        double dEta_ = 1.6;
+        double dEta_ = 1.55;
         double dR_ = 1.;
         int btagOP1_ = 2; //OPerating points for BTag. 0 - Loose, 1 - Mid, 2 - Tight
         int btagOP2_ = 2;
         int btagOP3_ = 0;
 
-	private:
-
         std::unique_ptr<Weights> pWeight_;
-
-        std::map<std::string,pTFile> fCorrections_;
         std::map<std::string,TH1D *>  hCorrections1D_;
         std::map<std::string,TH2D *>  hCorrections2D_;
+        //Signal xsections
+        std::map<int,double> xsection_;
+	private:
+
+        std::map<std::string,pTFile> fCorrections_;
         std::map<std::string,pSFReader > SFb_;
         std::unique_ptr<BTagCalibration> BTagCalibrationLib_;
+
+        double Ht__{};
 
         //Scale Factors calculation
         const ScaleFactor calculateBTagSF(const tools::Jet & jet,const int & op);
@@ -155,12 +166,16 @@ namespace analysis{
         //Setup xsections
         void setupXSections();
 
-        //Signal xsections
-        std::map<int,double> xsection_;
+
 
 	};
 
 	inline std::vector<std::string> JetAnalysisBase::getTriggerObjectNames() {return triggerObjectName_;}
+	inline const TFile & JetAnalysisBase::getOutputFile(){ return *outputFile_;}
+	inline const bool & JetAnalysisBase::getLowM(){ return lowM_;}
+	inline const bool & JetAnalysisBase::isSignalMC(){ return signalMC_;}
+	inline const double & JetAnalysisBase::Ht(){ return Ht__;}
+	inline void JetAnalysisBase::Ht(const double & Ht){ Ht__ = Ht;}
 
 	}
 }
