@@ -94,14 +94,14 @@ namespace analysis {
             // ----------member data ---------------------------
             
 //            edm::Service<TFileService> * fs_;
-            TFileDirectory mainDir_;
-            TFileDirectory mHatDir_;
+            TFileDirectory mainDir_{};
+            TFileDirectory mHatDir_{};
             
             std::vector<pDefinitions> vdefinitions_;
             
-            bool isGenFilter_;
-            bool isEvtFilter_;
-            bool isMHatEvtFilter_;
+            bool isGenFilter_{};
+            bool isEvtFilter_{};
+            bool isMHatEvtFilter_{};
             pGenFilter  genfilter_;
             pEvtFilter  evtfilter_;
             pEvtFilter  mHatEvtFilter_;
@@ -111,16 +111,16 @@ namespace analysis {
             
             // Cross sections tree
             TTree * treeXS_;
-            double myXSec_;
-            double XSec_;
-            double internalXSec_;
-            double externalXSecLO_;
-            double externalXSecNLO_;
-            unsigned int runXS_;
+            double myXSec_{};
+            double XSec_{};
+            double internalXSec_{};
+            double externalXSecLO_{};
+            double externalXSecNLO_{};
+            unsigned int runXS_{};
             
             // Dataset tree
             TTree * treeDS_;
-            bool is_mc_;
+            bool is_mc_{};
 
             
             
