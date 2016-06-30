@@ -199,6 +199,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       std::vector< std::string > triggerObjectLabels_;
       std::vector< TitleAlias >  btagVars_;
       std::vector< std::string > jecRecords_;
+      std::vector< std::string > jerRecords_;
       
       std::map<std::string, edm::EDGetTokenT<l1extra::L1JetParticleCollection> > l1JetTokens_;
       std::map<std::string, edm::EDGetTokenT<l1extra::L1MuonParticleCollection> > l1MuonTokens_;
@@ -225,6 +226,8 @@ class Ntuplizer : public edm::EDAnalyzer {
       
       edm::InputTag pileupInfo_;
       edm::InputTag genEventInfo_;
+      
+      edm::InputTag fixedGridRhoAll_;
      
       edm::EDGetTokenT<GenFilterInfo> genFilterInfoToken_;      
       edm::EDGetTokenT<edm::MergeableCounter> totalEventsToken_;      
@@ -234,6 +237,9 @@ class Ntuplizer : public edm::EDAnalyzer {
            
       edm::EDGetTokenT<std::vector<PileupSummaryInfo> > pileupInfoToken_;      
       edm::EDGetTokenT<GenEventInfoProduct> genEventInfoToken_;      
+      
+      edm::EDGetTokenT<double> fixedGridRhoAllToken_;
+
       
       InputTags eventCounters_;
       InputTags mHatEventCounters_;
@@ -285,7 +291,6 @@ class Ntuplizer : public edm::EDAnalyzer {
 //
 Ntuplizer::Ntuplizer(const edm::ParameterSet& config) //:   // initialization of ntuple classes
 {
-//   std::cout << "oioi  " << MYX << " _ " << MYY << " " << OIOI << std::endl;
    
    //now do what ever initialization is needed
    is_mc_         = config.getParameter<bool> ("MonteCarlo");
@@ -331,14 +336,15 @@ Ntuplizer::Ntuplizer(const edm::ParameterSet& config) //:   // initialization of
       edm::InputTag collection = config_.getParameter<edm::InputTag>(inputTag);
       
       // Lumi products
-      if ( inputTag == "GenFilterInfo" )  { genFilterInfoToken_  = consumes<GenFilterInfo,edm::InLumi>(collection);         genFilterInfo_   = collection;}
-      if ( inputTag == "TotalEvents" )    { totalEventsToken_    = consumes<edm::MergeableCounter,edm::InLumi>(collection); totalEvents_     = collection;}
-      if ( inputTag == "FilteredEvents" ) { filteredEventsToken_ = consumes<edm::MergeableCounter,edm::InLumi>(collection); filteredEvents_  = collection;}
+      if ( inputTag == "GenFilterInfo" )  { genFilterInfoToken_    = consumes<GenFilterInfo,edm::InLumi>(collection);         genFilterInfo_   = collection;}
+      if ( inputTag == "TotalEvents" )    { totalEventsToken_      = consumes<edm::MergeableCounter,edm::InLumi>(collection); totalEvents_     = collection;}
+      if ( inputTag == "FilteredEvents" ) { filteredEventsToken_   = consumes<edm::MergeableCounter,edm::InLumi>(collection); filteredEvents_  = collection;}
       if ( inputTag == "FilteredMHatEvents" ) { filteredMHatEventsToken_ = consumes<edm::MergeableCounter,edm::InLumi>(collection); filteredMHatEvents_  = collection;}
-      if ( inputTag == "GenRunInfo" )     { genRunInfoToken_     = consumes<GenRunInfoProduct,edm::InRun>(collection);      genRunInfo_      = collection;}
+      if ( inputTag == "GenRunInfo" )     { genRunInfoToken_       = consumes<GenRunInfoProduct,edm::InRun>(collection);      genRunInfo_      = collection;}
 
-      if ( inputTag == "PileupInfo" )     { pileupInfoToken_     = consumes<std::vector<PileupSummaryInfo> >(collection);   pileupInfo_      = collection;}
-      if ( inputTag == "GenEventInfo" )   { genEventInfoToken_   = consumes<GenEventInfoProduct>(collection);               genEventInfo_    = collection;}
+      if ( inputTag == "PileupInfo" )     { pileupInfoToken_       = consumes<std::vector<PileupSummaryInfo> >(collection);   pileupInfo_      = collection;}
+      if ( inputTag == "GenEventInfo" )   { genEventInfoToken_     = consumes<GenEventInfoProduct>(collection);               genEventInfo_    = collection;}
+      if ( inputTag == "FixedGridRhoAll" ){ fixedGridRhoAllToken_  = consumes<double>(collection);                            fixedGridRhoAll_ = collection;}
  
    }
 
@@ -518,6 +524,12 @@ Ntuplizer::beginJob()
    {
       jecRecords_ = config_.getParameter< std::vector<std::string> >("JECRecords");
    }
+   // JER Record (from CondDB)
+   jerRecords_.clear();
+   if ( do_patjets_ && config_.exists("JERRecords") )
+   {
+      jerRecords_ = config_.getParameter< std::vector<std::string> >("JERRecords");
+   }
    //
    size_t nPatJets = 0;
    if ( do_patjets_ )
@@ -526,6 +538,11 @@ Ntuplizer::beginJob()
    if ( nPatJets > jecRecords_.size() && jecRecords_.size() != 0 )
    {
       std::cout << "*** ERROR ***  Ntuplizer: Number of JEC Records less than the number of PatJet collections." << std::endl;;
+      exit(-1);
+   }
+   if ( nPatJets > jerRecords_.size() && jerRecords_.size() != 0 )
+   {
+      std::cout << "*** ERROR ***  Ntuplizer: Number of JER Records less than the number of PatJet collections." << std::endl;;
       exit(-1);
    }
    
@@ -607,7 +624,7 @@ Ntuplizer::beginJob()
             patjets_collections_.push_back( pPatJetCandidates( new PatJetCandidates(collection, tree_[name], is_mc_ ) ));
             if ( jecRecords_.size() > 0 )
             {
-               patjets_collections_.back() -> Init(btagVars_,jecRecords_[patJetCounter]);
+               patjets_collections_.back() -> Init(btagVars_,jecRecords_[patJetCounter],jerRecords_[patJetCounter],fixedGridRhoAll_);
                if ( jecRecords_[patJetCounter] != "" )
                   std::cout << name << " => "  << jecRecords_[patJetCounter] << std::endl;
             }
