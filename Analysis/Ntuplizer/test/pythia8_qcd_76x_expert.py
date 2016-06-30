@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import os
 
 process = cms.Process("MssmHbb")
 
@@ -82,6 +83,53 @@ process.slimmedJetsAK8PFCHSSoftDropPackedReapplyJEC = patJetsUpdated.clone(
   jetCorrFactorsSource = cms.VInputTag(cms.InputTag("slimmedJetsAK8PFCorrFactorsReapplyJEC"))
   )
 
+## ============= Jet Energy Resolution =============
+
+process.load('Configuration.StandardSequences.Services_cff')
+process.load("JetMETCorrections.Modules.JetResolutionESProducer_cfi")
+from CondCore.DBCommon.CondDBSetup_cfi import *
+
+process.jer_AK4PFchs = cms.ESSource("PoolDBESSource",CondDBSetup,toGet = cms.VPSet(
+            # Resolution
+            cms.PSet(
+                record = cms.string('JetResolutionRcd'),
+                tag    = cms.string('JR_Fall15_25nsV2_MC_PtResolution_AK4PFchs'),
+                label  = cms.untracked.string('AK4PFchs_pt')
+                ),
+
+            # Scale factors
+            cms.PSet(
+                record = cms.string('JetResolutionScaleFactorRcd'),
+                tag    = cms.string('JR_Fall15_25nsV2_MC_SF_AK4PFchs'),
+                label  = cms.untracked.string('AK4PFchs')
+                ),
+            ),
+        connect = cms.string('sqlite_fip:Analysis/Ntuplizer/data/jer_files/Fall15_25nsV2_MC.db')
+        )
+
+process.es_prefer_jer_AK4PFchs = cms.ESPrefer('PoolDBESSource', 'jer_AK4PFchs')
+
+process.jer_AK8PFchs = cms.ESSource("PoolDBESSource",CondDBSetup,toGet = cms.VPSet(
+            # Resolution
+            cms.PSet(
+                record = cms.string('JetResolutionRcd'),
+                tag    = cms.string('JR_Fall15_25nsV2_MC_PtResolution_AK8PFchs'),
+                label  = cms.untracked.string('AK8PFchs_pt')
+                ),
+
+            # Scale factors
+            cms.PSet(
+                record = cms.string('JetResolutionScaleFactorRcd'),
+                tag    = cms.string('JR_Fall15_25nsV2_MC_SF_AK8PFchs'),
+                label  = cms.untracked.string('AK8PFchs')
+                ),
+            ),
+        connect = cms.string('sqlite_fip:Analysis/Ntuplizer/data/jer_files/Fall15_25nsV2_MC.db')
+        )
+
+process.es_prefer_jer_AK8PFchs = cms.ESPrefer('PoolDBESSource', 'jer_AK8PFchs')
+
+## =================================================
 
 ## ============ EVENT FILTER COUNTER ===============
 ## Filter counter (maybe more useful for MC)
@@ -96,20 +144,20 @@ process.primaryVertexFilter = cms.EDFilter("VertexSelector",
 )
 ## ===========    JET N FILTER  ==============
 process.jetCounterFilter = cms.EDFilter("CandViewCountFilter",
-    src = cms.InputTag("slimmedJetsPuppiReapplyJEC"), # new slimmed Jets
+    src = cms.InputTag("slimmedJetsReapplyJEC"), # new slimmed Jets
     minNumber = cms.uint32(2),
     )
 
 ## ============ KINEMATIC JET FILTER ===============
 process.jetKinematicFilter = cms.EDFilter("kinematicJetFilter",
-    src = cms.InputTag("slimmedJetsPuppiReapplyJEC"),
+    src = cms.InputTag("slimmedJetsReapplyJEC"),
     pt = cms.vdouble(85.,85.),
     eta = cms.vdouble(2.5,2.5),
 )
 
 ## ============ BTAG JET FILTER ===============
 process.jetBTagFilter = cms.EDFilter("btagJetFilter",
-    src = cms.InputTag("slimmedJetsPuppiReapplyJEC"),
+    src = cms.InputTag("slimmedJetsReapplyJEC"),
     algo = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
     btag = cms.vdouble(0.5,0.5),
 )
@@ -129,22 +177,32 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
     ###################
     TotalEvents     = cms.InputTag("TotalEvents"),
     FilteredEvents  = cms.InputTag("FilteredEvents"),
+    Rho				= cms.InputTag("fixedGridRhoFastjetAll"),
+    JERResFiles		= cms.vstring(
+#    								os.environ["CMSSW_BASE"] + "/src/Analysis/Ntuplizer/test/jer_files/Fall15_25nsV2_DATA_PtResolution_AK4PFchs.txt",
+#    								os.environ["CMSSW_BASE"] + "/src/Analysis/Ntuplizer/test/jer_files/Fall15_25nsV2_DATA_PtResolution_AK4PFPuppi.txt",
+#    								os.environ["CMSSW_BASE"] + "/src/Analysis/Ntuplizer/test/jer_files/Fall15_25nsV2_DATA_PtResolution_AK8PFchs.txt",
+    								),
+    JERSfFiles		= cms.vstring(
+#    								os.environ["CMSSW_BASE"] + "/src/Analysis/Ntuplizer/test/jer_files/Fall15_25nsV2_DATA_SF_AK4PFchs.txt",
+#    								os.environ["CMSSW_BASE"] + "/src/Analysis/Ntuplizer/test/jer_files/Fall15_25nsV2_DATA_SF_AK4PFPuppi.txt",
+#    								os.environ["CMSSW_BASE"] + "/src/Analysis/Ntuplizer/test/jer_files/Fall15_25nsV2_DATA_SF_AK8PFchs.txt"
+    								),
     PatJets         = cms.VInputTag(   # Be careful with the correction uncertainties!!!
-#                                    cms.InputTag("slimmedJets","","PAT"),
-#                                    cms.InputTag("slimmedJetsPuppi","","PAT"),
-#                                    cms.InputTag("slimmedJetsAK8PFCHSSoftDropPacked","SubJets","PAT"),
                                     cms.InputTag("slimmedJetsReapplyJEC"),
-                                    cms.InputTag("slimmedJetsPuppiReapplyJEC"),
+#                                    cms.InputTag("slimmedJetsPuppiReapplyJEC"),
                                     cms.InputTag("slimmedJetsAK8PFCHSSoftDropPackedReapplyJEC")
-                                    ),
-    JECRecords      = cms.vstring  (
-#                                    "",
-#                                    "",
-#                                    "",
+                                    ), 
+    JERRecords		= cms.vstring  (
                                     "AK4PFchs",
-                                    "AK4PFPuppi",
+#                                    "AK4PFPuppi",
                                     "AK8PFchs",
-                                    ),
+    								),
+    JECRecords      = cms.vstring  (
+                                    "AK4PFchs",
+#                                    "AK4PFPuppi",
+                                    "AK8PFchs",
+                                    ),                                  
     PatMETs         = cms.VInputTag(
                                     cms.InputTag("slimmedMETs","","PAT"),
                                     cms.InputTag("slimmedMETsPuppi","","PAT")
@@ -244,7 +302,7 @@ process.p = cms.Path(
                       process.slimmedJetsCorrFactorsReapplyJEC       * process. slimmedJetsReapplyJEC *
                       process.slimmedJetsPuppiCorrFactorsReapplyJEC  * process. slimmedJetsPuppiReapplyJEC *
                       process.slimmedJetsAK8PFCorrFactorsReapplyJEC  * process. slimmedJetsAK8PFCHSSoftDropPackedReapplyJEC *
-                      process.jetCounterFilter * process.jetKinematicFilter *
+#                      process.jetCounterFilter * process.jetKinematicFilter *
 #                      process.jetBTagFilter *	#switch off for Trigger Study Ntuples!!!!!
                       process.FilteredEvents *
                       process.MssmHbb
@@ -255,12 +313,8 @@ readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring()
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 readFiles.extend( [
-		'/store/mc/RunIIFall15MiniAODv2/QCD_Pt_600to800_TuneCUETP8M1_13TeV_pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/10000/029802B3-83B8-E511-A002-0025905C22AE.root',
-       	'/store/mc/RunIIFall15MiniAODv2/QCD_Pt_600to800_TuneCUETP8M1_13TeV_pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/10000/08573287-83B8-E511-BA14-0025905C4270.root',
-       	'/store/mc/RunIIFall15MiniAODv2/QCD_Pt_600to800_TuneCUETP8M1_13TeV_pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/10000/0A79FEA4-7FB8-E511-B77C-0025905AC806.root',
-       	'/store/mc/RunIIFall15MiniAODv2/QCD_Pt_600to800_TuneCUETP8M1_13TeV_pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/10000/14E6823C-83B8-E511-89D5-0025905C426E.root',
-       	'/store/mc/RunIIFall15MiniAODv2/QCD_Pt_600to800_TuneCUETP8M1_13TeV_pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/10000/1640C8BA-81B8-E511-8FB6-0025905C426E.root',
-       	'/store/mc/RunIIFall15MiniAODv2/QCD_Pt_600to800_TuneCUETP8M1_13TeV_pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/10000/16D51DFC-82B8-E511-8B67-0025905C4270.root',
+       '/store/mc/RunIIFall15MiniAODv2/QCD_bEnriched_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/70000/405C2560-1117-E611-852D-0025905C53B2.root',
+       '/store/mc/RunIIFall15MiniAODv2/QCD_bEnriched_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/70000/74AD812E-1117-E611-8DAF-0025905C2CD2.root',
 ] );
 
 

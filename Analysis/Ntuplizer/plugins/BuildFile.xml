@@ -12,4 +12,5 @@
 <use name="root"/>
 <use name="rootmath"/>
 <use name="boost" />
+<use name="JetMETCorrections/Modules"/>
 <flags EDM_PLUGIN="1"/>

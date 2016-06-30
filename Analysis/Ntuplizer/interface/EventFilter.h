@@ -65,13 +65,13 @@ namespace analysis {
       
          private:
             // ----------member data ---------------------------
-            unsigned int    nTotal_;
-            unsigned int    nFiltr_;
-            double          efficiency_;
-            unsigned int    nTried_;
-            double          wTotal_;
-            double          wFiltr_;
-            double          wEfficiency_;
+            unsigned int    nTotal_{};
+            unsigned int    nFiltr_{};
+            double          efficiency_{};
+            unsigned int    nTried_{};
+            double          wTotal_{};
+            double          wFiltr_{};
+            double          wEfficiency_{};
             
             std::vector<edm::InputTag> collections_;
             
