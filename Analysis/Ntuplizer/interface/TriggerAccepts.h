@@ -28,6 +28,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
@@ -55,6 +56,7 @@ namespace analysis {
             void Fill(const edm::Event & event, const edm::EventSetup & setup);
             void Branches();
             void LumiBlock(edm::LuminosityBlock const & , edm::EventSetup const& );
+            void Run(edm::Run const & , edm::EventSetup const& );
       
          private:
             // ----------member data ---------------------------

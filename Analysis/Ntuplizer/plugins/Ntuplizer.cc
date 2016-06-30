@@ -161,7 +161,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() override;
 
-      //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+      virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
       virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
       virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
       virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
@@ -748,12 +748,18 @@ Ntuplizer::endJob()
 }
 
 // ------------ method called when starting to processes a run  ------------
-/*
-void 
-Ntuplizer::beginRun(edm::Run const&, edm::EventSetup const&)
+void Ntuplizer::beginRun(edm::Run const& run, edm::EventSetup const& setup)
 {
+   // Initialize HLTConfig every lumi block
+   if ( do_triggeraccepts_ )
+   {
+      for ( size_t i = 0; i < triggeraccepts_collections_.size() ; ++i )
+      {
+         triggeraccepts_collections_[i]  -> Run(run,setup);
+      }
+   }
 }
-*/
+
 
 // ------------ method called when ending the processing of a run  ------------
 
@@ -770,14 +776,14 @@ Ntuplizer::endRun(edm::Run const& run, edm::EventSetup const& setup)
 
 void  Ntuplizer::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup)
 {
-   // Initialize HLTConfig every lumi block
-   if ( do_triggeraccepts_ )
-   {
-      for ( size_t i = 0; i < triggeraccepts_collections_.size() ; ++i )
-      {
-         triggeraccepts_collections_[i]  -> LumiBlock(lumi,setup);
-      }
-   }
+//    // Initialize HLTConfig every lumi block
+//    if ( do_triggeraccepts_ )
+//    {
+//       for ( size_t i = 0; i < triggeraccepts_collections_.size() ; ++i )
+//       {
+//          triggeraccepts_collections_[i]  -> LumiBlock(lumi,setup);
+//       }
+//    }
 }
 
 
