@@ -19,7 +19,7 @@ process.GlobalTag.ReconnectEachRun = cms.untracked.bool( False )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
-output_file = 'test_mc.root'
+output_file = '/tmp/test_mc.root'
 ## TFileService
 process.TFileService = cms.Service("TFileService",
 	fileName = cms.string(output_file)
@@ -127,7 +127,7 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
 process.p = cms.Path(
                       process.TotalEvents *
 #                      process.triggerSelection *   # use this carefully!!!
-#                      process.primaryVertexFilter *
+                      process.primaryVertexFilter *
                       process.FilteredEvents *
                       process.MssmHbb
                     )
