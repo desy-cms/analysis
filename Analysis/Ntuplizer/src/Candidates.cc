@@ -122,6 +122,10 @@ Candidates<T>::Candidates(const edm::InputTag& tag, TTree* tree, const bool & mc
    
    // init
    btag_vars_.clear();
+   
+   // JEC info default
+   jecRecord_ = "";
+   jecFile_   = "";
     
 }
 
@@ -377,10 +381,17 @@ void Candidates<T>::Fill(const edm::Event& event, const edm::EventSetup& setup)
 {
    if ( jecRecord_ != "" )
    {
-      edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
-      setup.get<JetCorrectionsRecord>().get(jecRecord_,JetCorParColl); 
-      JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
-      jecUnc_ = std::unique_ptr<JetCorrectionUncertainty>(new JetCorrectionUncertainty(JetCorPar));
+      if ( jecFile_ != "" )
+      {
+         jecUnc_ = std::unique_ptr<JetCorrectionUncertainty>(new JetCorrectionUncertainty(jecFile_));
+      }
+      else
+      {
+         edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
+         setup.get<JetCorrectionsRecord>().get(jecRecord_,JetCorParColl); 
+         JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
+         jecUnc_ = std::unique_ptr<JetCorrectionUncertainty>(new JetCorrectionUncertainty(JetCorPar));
+      }
    }
 
    if (jerRecord_ != "" )
@@ -505,30 +516,63 @@ void Candidates<T>::Init( const std::vector<TitleAlias> & btagVars )
    
 }
 
+// template <typename T>
+// void Candidates<T>::Init( const std::vector<TitleAlias> & btagVars, const std::string & jec )
+// {
+//    jecRecord_ = jec;
+//    Init(btagVars);
+// }
+// 
+// template <typename T>
+// void Candidates<T>::Init( const std::vector<TitleAlias> & btagVars, const std::string & jec, const std::string & jer, const edm::InputTag & rho )
+// {
+//    jerRecord_ = jer;
+//    rho_collection_ = rho;
+//    Init(btagVars,jec);
+// }
+// 
+// 
+// template <typename T>
+// void Candidates<T>::Init( const std::vector<TitleAlias> & btagVars, const std::string & jec, const std::string & jer, const std::string &res_file, const std::string & sf_file, const edm::InputTag & rho )
+// {
+//    jerFile_    = res_file;
+//    jersfFile_  = sf_file;
+//    Init(btagVars,jec,jer,rho);
+// }
+
 template <typename T>
-void Candidates<T>::Init( const std::vector<TitleAlias> & btagVars, const std::string & jec )
+void Candidates<T>::AddJecInfo( const std::string & jec )
 {
+   // Will use confDB
    jecRecord_ = jec;
-   Init(btagVars);
 }
 
 template <typename T>
-void Candidates<T>::Init( const std::vector<TitleAlias> & btagVars, const std::string & jec, const std::string & jer, const edm::InputTag & rho )
+void Candidates<T>::AddJecInfo( const std::string & jec , const std::string & jec_file )
 {
+   // Will use txt file
+   jecRecord_ = jec;
+   jecFile_   = jec_file;
+}
+
+template <typename T>
+void Candidates<T>::AddJerInfo( const std::string & jer, const edm::InputTag & rho )
+{
+   // Will use confDB
    jerRecord_ = jer;
    rho_collection_ = rho;
-   Init(btagVars,jec);
 }
-
 
 template <typename T>
-void Candidates<T>::Init( const std::vector<TitleAlias> & btagVars, const std::string & jec, const std::string & jer, const std::string &res_file, const std::string & sf_file, const edm::InputTag & rho )
+void Candidates<T>::AddJerInfo(const std::string & jer, const std::string & res_file, const std::string & sf_file, const edm::InputTag & rho)
 {
-   jerFile_    = res_file;
-   jersfFile_  = sf_file;
-   Init(btagVars,jec,jer,rho);
+   // Will use txt file
+   jerRecord_ = jer;
+   jerFile_   = res_file;
+   jersfFile_ = sf_file;
+   rho_collection_ = rho;
+   
 }
-
 
 // Need to declare all possible template classes here
 template class Candidates<l1extra::L1JetParticle>;
