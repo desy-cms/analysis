@@ -518,16 +518,22 @@ Ntuplizer::beginJob()
 //      btagVars_[btagAlgosAlias_[it]] = {btagAlgos_[it],(unsigned int)it};
    }
    
+   // JEC Record (from TXT files)
+   std::vector<std::string > jec_files;
    // JEC Record (from CondDB)
    jecRecords_.clear();
    if ( do_patjets_ && config_.exists("JECRecords") )
    {
       jecRecords_ = config_.getParameter< std::vector<std::string> >("JECRecords");
+      if(config_.exists("JECUncertaintyFiles"))
+      {
+         jec_files = config_.getParameter< std::vector<std::string > >("JECUncertaintyFiles");
+      }
    }
-   // JER Record (from CondDB)
-   // JEC Record (from CondDB)
+   // JER Record (from TXT files)
    std::vector<std::string > jer_files;
    std::vector<std::string > jersf_files;
+   // JER Record (from CondDB)
    jerRecords_.clear();
    if ( do_patjets_ && config_.exists("JERRecords") )
    {
@@ -638,25 +644,45 @@ Ntuplizer::beginJob()
          // Pat Jets
          if ( inputTags == "PatJets" )
          {
-            if ( patJetCounter == 0 && jecRecords_.size() > 0  ) std::cout << "*** Jet Energy Corrections Records - PatJets ***" << std::endl;
-            if ( patJetCounter == 0 && jerRecords_.size() > 0  ) std::cout << "*** Jet Energy Resolutions Records - PatJets ***" << std::endl;
             patjets_collections_.push_back( pPatJetCandidates( new PatJetCandidates(collection, tree_[name], is_mc_ ) ));
-            if ( jecRecords_.size() > 0 && jerRecords_.size() > 0 )
+            patjets_collections_.back() -> Init(btagVars_);
+            
+            if ( patJetCounter == 0 && jecRecords_.size() > 0  )  std::cout << "*** Jet Energy Corrections Records - PatJets ***" << std::endl;
+            if ( jecRecords_.size() > 0  )
             {
-               if (jer_files.size() != 0 && jer_files[patJetCounter] != "" && jersf_files[patJetCounter] != "")
-               {
-            		patjets_collections_.back() -> Init(btagVars_,jecRecords_[patJetCounter],jerRecords_[patJetCounter],jer_files[patJetCounter],jersf_files[patJetCounter],fixedGridRhoAll_);
-            	}
-            	else
-               {
-                  patjets_collections_.back() -> Init(btagVars_,jecRecords_[patJetCounter],jerRecords_[patJetCounter],fixedGridRhoAll_);
-               }
-               if ( jecRecords_[patJetCounter] != "" )  std::cout << name << " => "  << jecRecords_[patJetCounter] << std::endl;
+               if ( jec_files.size() > 0 && jec_files[patJetCounter] != "" )
+                  patjets_collections_.back() -> AddJecInfo(jecRecords_[patJetCounter],jec_files[patJetCounter]);  // use txt file
+               else
+                  patjets_collections_.back() -> AddJecInfo(jecRecords_[patJetCounter]);                           // use confdb
+
             }
-            else
+            
+            if ( patJetCounter == 0 && jerRecords_.size() > 0  ) std::cout << "*** Jet Energy Resolutions Records - PatJets ***" << std::endl;
+            if ( jerRecords_.size() > 0 && is_mc_  )
             {
-               patjets_collections_.back() -> Init(btagVars_);
+               if ( jer_files.size() > 0 && jer_files[patJetCounter] != "" )
+                  patjets_collections_.back() -> AddJerInfo(jerRecords_[patJetCounter],jer_files[patJetCounter], jersf_files[patJetCounter],fixedGridRhoAll_);  // use txt file
+               else
+                  patjets_collections_.back() -> AddJerInfo(jerRecords_[patJetCounter],fixedGridRhoAll_);  // use txt file
+
             }
+            
+//             if ( jecRecords_.size() > 0 && jerRecords_.size() > 0 )
+//             {
+//                if (jer_files.size() != 0 && jer_files[patJetCounter] != "" && jersf_files[patJetCounter] != "")
+//                {
+//             		patjets_collections_.back() -> Init(btagVars_,jecRecords_[patJetCounter],jerRecords_[patJetCounter],jer_files[patJetCounter],jersf_files[patJetCounter],fixedGridRhoAll_);
+//             	}
+//             	else
+//                {
+//                   patjets_collections_.back() -> Init(btagVars_,jecRecords_[patJetCounter],jerRecords_[patJetCounter],fixedGridRhoAll_);
+//                }
+//                if ( jecRecords_[patJetCounter] != "" )  std::cout << name << " => "  << jecRecords_[patJetCounter] << std::endl;
+//             }
+//             else
+//             {
+//                patjets_collections_.back() -> Init(btagVars_);
+//             }
             ++patJetCounter;
          }
          // Pat METs
