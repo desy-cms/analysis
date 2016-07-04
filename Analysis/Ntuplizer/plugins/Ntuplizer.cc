@@ -525,10 +525,22 @@ Ntuplizer::beginJob()
       jecRecords_ = config_.getParameter< std::vector<std::string> >("JECRecords");
    }
    // JER Record (from CondDB)
+   // JEC Record (from CondDB)
+   std::vector<std::string > jer_files;
+   std::vector<std::string > jersf_files;
    jerRecords_.clear();
    if ( do_patjets_ && config_.exists("JERRecords") )
    {
       jerRecords_ = config_.getParameter< std::vector<std::string> >("JERRecords");
+      if(config_.exists("JERResFiles"))
+      {
+      	jer_files = config_.getParameter< std::vector<std::string > >("JERResFiles");
+      }
+      if(config_.exists("JERSfFiles"))
+      {
+      	jersf_files = config_.getParameter< std::vector<std::string > >("JERSfFiles");
+      }
+      
    }
    //
    size_t nPatJets = 0;
@@ -545,6 +557,12 @@ Ntuplizer::beginJob()
       std::cout << "*** ERROR ***  Ntuplizer: Number of JER Records less than the number of PatJet collections." << std::endl;;
       exit(-1);
    }
+   if ( jerRecords_.size() != 0 && jer_files.size() != 0 && jersf_files.size()!=0 &&(jerRecords_.size() != jer_files.size() || jerRecords_.size() != jersf_files.size()) )
+   {
+   		std::cerr << "*** ERROR *** Ntuplizer: Number of JER Records are not the same as number of provided input files. " <<std::endl;
+   		exit(-1);
+   }
+   
    
    // Event info tree
    eventinfo_ = pEventInfo (new EventInfo(eventsDir));
@@ -621,12 +639,19 @@ Ntuplizer::beginJob()
          if ( inputTags == "PatJets" )
          {
             if ( patJetCounter == 0 && jecRecords_.size() > 0  ) std::cout << "*** Jet Energy Corrections Records - PatJets ***" << std::endl;
+            if ( patJetCounter == 0 && jerRecords_.size() > 0  ) std::cout << "*** Jet Energy Resolutions Records - PatJets ***" << std::endl;
             patjets_collections_.push_back( pPatJetCandidates( new PatJetCandidates(collection, tree_[name], is_mc_ ) ));
-            if ( jecRecords_.size() > 0 )
+            if ( jecRecords_.size() > 0 && jerRecords_.size() > 0 )
             {
-               patjets_collections_.back() -> Init(btagVars_,jecRecords_[patJetCounter],jerRecords_[patJetCounter],fixedGridRhoAll_);
-               if ( jecRecords_[patJetCounter] != "" )
-                  std::cout << name << " => "  << jecRecords_[patJetCounter] << std::endl;
+               if (jer_files.size() != 0 && jer_files[patJetCounter] != "" && jersf_files[patJetCounter] != "")
+               {
+            		patjets_collections_.back() -> Init(btagVars_,jecRecords_[patJetCounter],jerRecords_[patJetCounter],jer_files[patJetCounter],jersf_files[patJetCounter],fixedGridRhoAll_);
+            	}
+            	else
+               {
+                  patjets_collections_.back() -> Init(btagVars_,jecRecords_[patJetCounter],jerRecords_[patJetCounter],fixedGridRhoAll_);
+               }
+               if ( jecRecords_[patJetCounter] != "" )  std::cout << name << " => "  << jecRecords_[patJetCounter] << std::endl;
             }
             else
             {

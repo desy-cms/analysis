@@ -385,10 +385,18 @@ void Candidates<T>::Fill(const edm::Event& event, const edm::EventSetup& setup)
 
    if (jerRecord_ != "" )
    {
-      std::string label_pt = jerRecord_ + "_pt";
-      res_    = JME::JetResolution::get(setup,label_pt);
-      std::string label_sf = jerRecord_;
-      res_sf_    = JME::JetResolutionScaleFactor::get(setup,label_sf);
+      if(jerFile_ != "" && jersfFile_ != "")
+      {
+         res_    = JME::JetResolution(jerFile_);
+         res_sf_ = JME::JetResolutionScaleFactor(jersfFile_);
+      }
+      else
+      {
+         std::string label_pt = jerRecord_ + "_pt";
+         res_    = JME::JetResolution::get(setup,label_pt);
+         std::string label_sf = jerRecord_;
+         res_sf_    = JME::JetResolutionScaleFactor::get(setup,label_sf);
+      }
 
       edm::Handle<double> rhoHandler;
       event.getByLabel(rho_collection_, rhoHandler);
@@ -509,12 +517,18 @@ void Candidates<T>::Init( const std::vector<TitleAlias> & btagVars, const std::s
 {
    jerRecord_ = jer;
    rho_collection_ = rho;
-   
-   std::cout << jec << std::endl;
-   std::cout << jer << std::endl;
-   
    Init(btagVars,jec);
 }
+
+
+template <typename T>
+void Candidates<T>::Init( const std::vector<TitleAlias> & btagVars, const std::string & jec, const std::string & jer, const std::string &res_file, const std::string & sf_file, const edm::InputTag & rho )
+{
+   jerFile_    = res_file;
+   jersfFile_  = sf_file;
+   Init(btagVars,jec,jer,rho);
+}
+
 
 // Need to declare all possible template classes here
 template class Candidates<l1extra::L1JetParticle>;
