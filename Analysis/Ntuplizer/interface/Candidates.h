@@ -63,6 +63,7 @@ namespace analysis {
             void Init(const std::vector<TitleAlias> &	);
             void Init(const std::vector<TitleAlias> & , const std::string &	);
             void Init(const std::vector<TitleAlias> & , const std::string & , const std::string & , const edm::InputTag & );
+            void Init(const std::vector<TitleAlias> & , const std::string & , const std::string & , const std::string & , const std::string &, const edm::InputTag & );
             void Branches();
             void Fill(const edm::Event&);
             void Fill(const edm::Event&, const edm::EventSetup&);
@@ -82,6 +83,9 @@ namespace analysis {
             std::string jecRecord_;
             std::unique_ptr<JetCorrectionUncertainty> jecUnc_;
             std::string jerRecord_;
+            std::string jerFile_;
+            std::string jersfFile_;
+
             
             // particles kinematics for the ntuple
             int   n_;

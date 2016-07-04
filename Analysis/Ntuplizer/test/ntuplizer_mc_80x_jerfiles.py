@@ -22,7 +22,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 output_file = '/tmp/test_mc.root'
 ## TFileService
 process.TFileService = cms.Service("TFileService",
-	fileName = cms.string(output_file)
+   fileName = cms.string(output_file)
 )
 
 ## ============ TRIGGER FILTER =============== 
@@ -78,10 +78,15 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
     JERRecords      = cms.vstring  (
                                     "AK4PFchs",
                                     ),
+    JERResFiles     = cms.vstring  (
+                                    "Spring16_25nsV6_MC_PtResolution_AK4PF.txt",
+                                    ),
+    JERSfFiles      = cms.vstring  (
+                                    "Spring16_25nsV6_MC_SF_AK4PF.txt",
+                                    ),
     FixedGridRhoAll = cms.InputTag("fixedGridRhoAll"),
     PatMETs         = cms.VInputTag(
                                     cms.InputTag("slimmedMETs","","PAT"),
-                                    cms.InputTag("slimmedMETsPuppi","","PAT")
                                     ), 
     PatMuons        = cms.VInputTag(
                                     cms.InputTag("slimmedMuons","","PAT")
@@ -100,27 +105,27 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
 #     ## I recommend using the version number explicitly to be able to compare 
 #     ## however for production one has to be careful that all versions are included.
 #     ## Thinking of a better solution...
-#     								        'HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v',
-#     								        'HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v',
-#     								        'HLT_DoubleJetsC112_DoubleBTagCSV0p85_DoublePFJetsC172_v',
-#     								        'HLT_DoubleJetsC112_DoubleBTagCSV0p9_DoublePFJetsC112MaxDeta1p6_v',
+#                                     'HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v',
+#                                     'HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v',
+#                                     'HLT_DoubleJetsC112_DoubleBTagCSV0p85_DoublePFJetsC172_v',
+#                                     'HLT_DoubleJetsC112_DoubleBTagCSV0p9_DoublePFJetsC112MaxDeta1p6_v',
 #                                    ),
 #     TriggerObjectStandAlone  = cms.VInputTag(
 #                                              cms.InputTag("selectedPatTrigger","","PAT"),
 #                                              ),
 #     TriggerObjectLabels    = cms.vstring  (
-#     											"hltL1sL1DoubleJetC100",
-#     											"hltDoubleJetsC100",
-#     											"hltDoublePFJetsC100",
-#     											"hltDoublePFJetsC100MaxDeta1p6",
-#     											"hltDoublePFJetsC160",
-#     											"hltDoubleBTagCSV0p85",
-#     											"hltDoubleBTagCSV0p9",
-#     											"hltL1sL1DoubleJetC112",
-#     											"hltDoubleJetsC112",
-#     											"hltDoublePFJetsC112",
-#     											"hltDoublePFJetsC112MaxDeta1p6",
-#     											"hltDoublePFJetsC172",
+#                                      "hltL1sL1DoubleJetC100",
+#                                      "hltDoubleJetsC100",
+#                                      "hltDoublePFJetsC100",
+#                                      "hltDoublePFJetsC100MaxDeta1p6",
+#                                      "hltDoublePFJetsC160",
+#                                      "hltDoubleBTagCSV0p85",
+#                                      "hltDoubleBTagCSV0p9",
+#                                      "hltL1sL1DoubleJetC112",
+#                                      "hltDoubleJetsC112",
+#                                      "hltDoublePFJetsC112",
+#                                      "hltDoublePFJetsC112MaxDeta1p6",
+#                                      "hltDoublePFJetsC172",
 #                                    ),
 )
 
