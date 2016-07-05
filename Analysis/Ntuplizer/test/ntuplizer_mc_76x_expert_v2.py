@@ -19,7 +19,7 @@ process.GlobalTag.ReconnectEachRun = cms.untracked.bool( False )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
-output_file = '/tmp/test_mc.root'
+output_file = 'ntuple_mc_76x_expert_v2.root'
 ## TFileService
 process.TFileService = cms.Service("TFileService",
 	fileName = cms.string(output_file)
