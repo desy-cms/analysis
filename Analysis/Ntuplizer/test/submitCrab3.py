@@ -47,6 +47,8 @@ if __name__ == '__main__':
       dataset_tier = dataset.split('/')[3]
       config.Data.inputDataset    = dataset
       config.Data.outputDatasetTag = dataset_cond
+      config.Data.unitsPerJob  = 10
+      config.Data.totalUnits   = -1
       config.General.requestName  = dataset_name
       config.Data.outLFNDirBase   = BASEOUTDIR + '/' + dataset_tier + '/' + CAMPAIGN + '/'
       config.JobType.psetName    = PSET
