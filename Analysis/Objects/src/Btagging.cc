@@ -73,24 +73,32 @@ void Btagging::efficiencies(const int & nevts)
    if ( nevts > 0 )
       nentries = nevts;
 
-   // number of jets and btags: setting proper values   
-   if ( njetsmin_ < 1 )         njetsmin_ = 1;
-   if ( njetsmax_ > 0 && njetsmin_ > njetsmax_ ) njetsmax_ = njetsmin_;
-   if ( njetsmax_ > 0 && nbtags_ > njetsmax_ )   nbtags_ = njetsmax_;
-   if ( nbtags_ > njetsmin_ || nbtags_ < 1 )     nbtags_ = njetsmin_;
-   if ( njetsmin_ < 2 ) // no sense to apply deltaR between jets
-      drmin_ = -1.;
+   std::cout << "*** Btagging::efficiencies() " << std::endl;
+   std::cout << "    - Total number of events  = " << nentries << " events" << std::endl; 
    
+   
+   // number of jets and btags: setting proper values   
+   // in case user set "wrong" inputs, reset parameters
+   if ( njetsmin_  < 1 )                            njetsmin_ =  1;      // at least one jet must be selected 
+   if ( nbtags_   == 0 )                            nbtags_   = -1;      // just avoiding dealing with zero
+   if ( njetsmax_ == 0 )                            njetsmax_ = -1;      // just avoiding dealing with zero
+   
+   // avoiding particular situations
+   if ( njetsmin_  < 2 )                            drmin_    = -1.;     // at least two jets are needed for the deltaR cut
+   if ( nbtags_    < 0 && njetsmin_ != njetsmax_ )  drmin_    = -1.;     // no deltaR cut when not exclusive btagging
+   if ( njetsmax_  > 0 && njetsmin_ > njetsmax_ )   njetsmax_ = -1;      // max cannot be less than min, so make no max selection
+   if ( njetsmax_  > 0 && nbtags_   > njetsmax_ )   nbtags_ = njetsmax_; // cannot btag more jets than max, nbtags = max
+//   if ( nbtags_ > njetsmin_ || nbtags_ < 1 )      nbtags_ = njetsmin_;
+   
+   
+   std::cout << "    - nJetsMin  = " << njetsmin_ << std::endl;
+   std::cout << "    - nJetsMax  = " << njetsmax_ << std::endl;
+   std::cout << "    - nbtags    = " << nbtags_   << std::endl;
+   std::cout << "    - deltaRMin = " << drmin_    << std::endl;
+
    
    // histograms
    histograms();
-   if ( nbtags_ > 1 )
-      histogramsPerJet();
-   histogramsSettings();
-   
-   //
-   std::cout << "*** Btagging::efficiencies() " << std::endl;
-   std::cout << "    - Total number of events  = " << nentries << " events" << std::endl; 
    
    float lumiScale = 1.;
    if ( lumiTarget_ > 0 )
@@ -110,8 +118,8 @@ void Btagging::efficiencies(const int & nevts)
    for ( int i = 0 ; i < nentries ; ++i )
    {
 
-      if ( i > 0 && i % 100000 == 0 )
-      std::cout << i << " events processed..." << std::endl;
+      if ( (i+1) % 100000 == 0 )
+      std::cout << i+1 << " events processed..." << std::endl;
       
       this->event(i);
       
@@ -137,20 +145,36 @@ void Btagging::efficiencies(const int & nevts)
             std::cout << "                             will switch to default definition." << std::endl; 
          }
       }
-      
+
       // Select jets
-      std::vector<Jet> selJets;
+      std::vector<Jet> selJetsId;
       for ( int j = 0 ; j < jets->size() ; ++j )
       {
          Jet jet = jets->at(j);
-         if ( !jet.idLoose() || jet.pt() < ptmin_ || fabs(jet.eta()) > etamax_ ) continue;
-         selJets.push_back(jet);
-//         if ( njetsmax_ > 0 && int(selJets.size()) == njetsmax_ ) break;  // BUG: FIXED BELOW
+         if ( !jet.idLoose() ) continue;
+         selJetsId.push_back(jet);
+      }
+      // Leading jets must fulfil the pt and eta requirements?, once a jet does not fulfill the requirements ignore the other jets
+      // This is what we do when selecting signal events MSSM Hbb!
+      // Larger fraction of jets from the hard-process?
+      std::vector<Jet> selJets;
+      for ( int j = 0 ; j < int(selJetsId.size()) ; ++j )
+      {
+         Jet jet = selJetsId.at(j);
+         if ( jet.pt() > ptmin_ && fabs(jet.eta()) < etamax_ )
+            selJets.push_back(jet);
+         else
+            break;
       }
       
+      // At least the minimum number of jets
       if ( int(selJets.size()) < njetsmin_ ) continue;
-      // Exclusive selection
+      
+      // At most the maximum number of jets
       if ( njetsmax_ > 0 && int(selJets.size()) > njetsmax_ ) continue;
+      
+      // For an exclusive selection make njtesmin = njetsmax
+      
       
       if ( drmin_ > 0 ) // select only events in which the minimmum number of selected jets have deltaR above certain value
       {
@@ -167,10 +191,17 @@ void Btagging::efficiencies(const int & nevts)
          if ( ! ok ) continue;
       }
       
+      // deal with negative nbtags, i.e. all selected jets undergo btagging (inclusive btagging)
+      int nbtags = nbtags_;
+      if ( nbtags < 0 ) nbtags = int(selJets.size());
+      
+//      std::cout << nbtags << " leading jets will be analysed from " << int(selJets.size()) << " jets..." << std::endl;
+      
       // btagging on selected jets, but only for nbtags
-      for ( int j = 0 ; j < nbtags_ ; ++j )
+      for ( int j = 0 ; j < nbtags ; ++j )
       {
          Jet jet = selJets.at(j);
+//         std::cout << "     jet: " << j << " pt = " << jet.pt() << "  , |eta| = " << fabs(jet.eta()) << std::endl; 
          
          std::string flavour = flavour_(jet);
          
@@ -246,11 +277,16 @@ void Btagging::efficiencies(const int & nevts)
    
    if ( doperjet_ ) // this more or less repeats what was done above in case of exclusive number of jets
    {
-      for ( int i = 0; i < njetsmax_ ; ++i )
+      // deal with negative nbtags
+      int nbtags = nbtags_;
+      if ( nbtags < 0 ) nbtags = njetsmin_;
+      
+      for ( int i = 0; i < nbtags ; ++i )
       {
          // B JETS
          h2d_eff_[Form("h_bjet%i_eff_pt_eta",i+1)] = (TH2F*) h2d_eff_[Form("h_bjet%i_pt_eta_wp",i+1)] -> Clone(Form("h_bjet%i_eff_pt_eta",i+1));
          h2d_eff_[Form("h_bjet%i_eff_pt_eta",i+1)] -> Divide(h2d_eff_[Form("h_bjet%i_pt_eta",i+1)]);
+
          // C JETS
          h2d_eff_[Form("h_cjet%i_eff_pt_eta",i+1)] = (TH2F*) h2d_eff_[Form("h_cjet%i_pt_eta_wp",i+1)] -> Clone(Form("h_cjet%i_eff_pt_eta",i+1));
          h2d_eff_[Form("h_cjet%i_eff_pt_eta",i+1)] -> Divide(h2d_eff_[Form("h_cjet%i_pt_eta",i+1)]);
@@ -270,6 +306,7 @@ void Btagging::efficiencies(const int & nevts)
          }      
       }
    }
+
    // Output
    TFile out(Form("BtagEfficiencies_%s_%1.3f.root",balgo_.c_str(),wp_),"recreate",Form("%s:%s:%1.3f",flavdef_.c_str(),balgo_.c_str(),wp_));
    for ( auto & histo : h2d_eff_ )
@@ -340,18 +377,30 @@ void Btagging::histograms()
       h2d_eff_["h_ccjet_pt_eta_wp"] = new TH2F("h_ccjet_pt_eta_wp","",nptbins_,ptbins_,netabins_,etabins_);
       
    }
+   
+   // histograms per jet
+   histogramsPerJet();
+   
+   // histograms settings
+   histogramsSettings();
       
 }
 
 void Btagging::histogramsPerJet()
 {
 
-//   if ( njetsmin_ != njetsmax_ || njetsmin_ < 2 )  return;  // for simplicity only for exclusive number of jets 
-   if ( nbtags_ < 2 )  return;  // only makes sense with more than one jets
+   if ( (nbtags_ > 1 && nbtags_ == njetsmin_) || (nbtags_ < 0 && njetsmin_ == njetsmax_) )
+      doperjet_ = true;
+
+   if ( ! doperjet_ ) return;
    
-   doperjet_ = true;
+   // deal with negative nbtags
+   int nbtags = nbtags_;
+   if ( nbtags < 0 ) nbtags = njetsmin_;
+      
+   std::cout << "    - Btagging::histogramsPerJet() - for " << nbtags << " leading jets" << std::endl;
    
-   for ( int i = 0; i < nbtags_ ; ++i )
+   for ( int i = 0; i < nbtags ; ++i )
    {
       // B JETS
       h2d_eff_[Form("h_bjet%i_pt_eta",i+1)]    = new TH2F(Form("h_bjet%i_pt_eta",i+1)   ,"",nptbins_,ptbins_,netabins_,etabins_);
