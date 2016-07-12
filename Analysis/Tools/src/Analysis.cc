@@ -415,6 +415,8 @@ void Analysis::addBtagEfficiencies(const std::string & filename)
       std::string objName   = ((TKey*) mylist -> At(i)) -> GetName();
       if ( className == "TH2F" )
          h2_btageff_[objName] = (TH2F*) fileBtagEff_->Get(objName.c_str());
+      if ( className == "TH2D" )
+         h2_btageff_[objName] = (TH2D*) fileBtagEff_->Get(objName.c_str());
    }
    
 }
