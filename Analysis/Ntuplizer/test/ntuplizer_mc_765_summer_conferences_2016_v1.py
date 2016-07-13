@@ -8,7 +8,10 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(1000)
 ##  Using MINIAOD. GlobalTag just in case jet re-clustering, L1 trigger filter  etc is needed to be done
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag as customiseGlobalTag
-process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = '76X_mcRun2_asymptotic_RunIIFall15DR76_v1')
+process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = '76X_mcRun2_asymptotic_v12')
+#OldGT
+#process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = '76X_mcRun2_asymptotic_RunIIFall15DR76_v1')
+######################################################################
 process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_CONDITIONS'
 process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
 for pset in process.GlobalTag.toGet.value():
@@ -19,31 +22,16 @@ process.GlobalTag.ReconnectEachRun = cms.untracked.bool( False )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
-output_file = 'test_mc.root'
+output_file = 'ntuple.root'
 ## TFileService
 process.TFileService = cms.Service("TFileService",
 	fileName = cms.string(output_file)
 )
 
-# ## ============ TRIGGER FILTER ===============                   BE CAREFUL!!!
-# ## Enable below at cms.Path if needed 
-# process.triggerSelection = cms.EDFilter( "TriggerResultsFilter",
-#     triggerConditions = cms.vstring(
-#                           "HLT_ZeroBias_v*",
-#     ),
-#     hltResults = cms.InputTag( "TriggerResults", "", "HLT" ),
-#     l1tResults = cms.InputTag( "" ),
-#     l1tIgnoreMask = cms.bool( False ),
-#     l1techIgnorePrescales = cms.bool( False ),
-#     daqPartitions = cms.uint32( 1 ),
-#     throw = cms.bool( True )
-# )
-# 
-
 ## ============ RE-APPLY JET ENERGY CORRECTIONS ===============   BE CAREFUL!!!
 ## Enable below at cms.Path if needed 
-from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetCorrFactorsUpdated
-process.slimmedJetsCorrFactorsReapplyJEC = patJetCorrFactorsUpdated.clone(
+from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import updatedPatJetCorrFactors
+process.slimmedJetsCorrFactorsReapplyJEC = updatedPatJetCorrFactors.clone(
   src = cms.InputTag("slimmedJets","","PAT"),
   levels = ['L1FastJet', 
             'L2Relative', 
@@ -51,35 +39,23 @@ process.slimmedJetsCorrFactorsReapplyJEC = patJetCorrFactorsUpdated.clone(
   payload = 'AK4PFchs' ) # Make sure to choose the appropriate levels and payload here!
 
 
-process.slimmedJetsPuppiCorrFactorsReapplyJEC = patJetCorrFactorsUpdated.clone(
+process.slimmedJetsPuppiCorrFactorsReapplyJEC = updatedPatJetCorrFactors.clone(
   src = cms.InputTag("slimmedJetsPuppi","","PAT"),
   levels = ['L1FastJet', 
             'L2Relative', 
             'L3Absolute'],
   payload = 'AK4PFPuppi' ) # Make sure to choose the appropriate levels and payload here!
   
-process.slimmedJetsAK8PFCorrFactorsReapplyJEC = patJetCorrFactorsUpdated.clone(
-  src = cms.InputTag("slimmedJetsAK8PFCHSSoftDropPacked","SubJets","PAT"),
-  levels = ['L1FastJet', 
-            'L2Relative', 
-            'L3Absolute'],
-  payload = 'AK8PFchs' ) # Make sure to choose the appropriate levels and payload here!
- 
 
-from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetsUpdated
-process.slimmedJetsReapplyJEC = patJetsUpdated.clone(
+from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import updatedPatJets
+process.slimmedJetsReapplyJEC = updatedPatJets.clone(
   jetSource = cms.InputTag("slimmedJets","","PAT"),
   jetCorrFactorsSource = cms.VInputTag(cms.InputTag("slimmedJetsCorrFactorsReapplyJEC"))
   )
 
-process.slimmedJetsPuppiReapplyJEC = patJetsUpdated.clone(
+process.slimmedJetsPuppiReapplyJEC = updatedPatJets.clone(
   jetSource = cms.InputTag("slimmedJetsPuppi","","PAT"),
   jetCorrFactorsSource = cms.VInputTag(cms.InputTag("slimmedJetsPuppiCorrFactorsReapplyJEC"))
-  )
-
-process.slimmedJetsAK8PFCHSSoftDropPackedReapplyJEC = patJetsUpdated.clone(
-  jetSource = cms.InputTag("slimmedJetsAK8PFCHSSoftDropPacked","SubJets","PAT"),
-  jetCorrFactorsSource = cms.VInputTag(cms.InputTag("slimmedJetsAK8PFCorrFactorsReapplyJEC"))
   )
 
 
@@ -98,7 +74,7 @@ process.primaryVertexFilter = cms.EDFilter("VertexSelector",
 ## ============  THE NTUPLIZER!!!  ===============
 process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
     MonteCarlo      = cms.bool(True),
-    CrossSection    = cms.double(1),  # in pb
+    CrossSection    = cms.double(1.),  # in pb
     UseFullName     = cms.bool(False),
     ## Monte Carlo only
     GenFilterInfo   = cms.InputTag("genFilterEfficiencyProducer"),
@@ -110,22 +86,32 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
     ###################
     TotalEvents     = cms.InputTag("TotalEvents"),
     FilteredEvents  = cms.InputTag("FilteredEvents"),
-    PatJets         = cms.VInputTag(   # Be careful with the correction uncertainties!!!
-#                                    cms.InputTag("slimmedJets","","PAT"),
-#                                    cms.InputTag("slimmedJetsPuppi","","PAT"),
-#                                    cms.InputTag("slimmedJetsAK8PFCHSSoftDropPacked","SubJets","PAT"),
+    PatJets         = cms.VInputTag(  
                                     cms.InputTag("slimmedJetsReapplyJEC"),
                                     cms.InputTag("slimmedJetsPuppiReapplyJEC"),
-                                    cms.InputTag("slimmedJetsAK8PFCHSSoftDropPackedReapplyJEC")
                                     ), 
-    JECRecords      = cms.vstring  (
-#                                    "",
-#                                    "",
-#                                    "",
+    JECRecords      = cms.vstring  (                       # for the JEC uncertainties
                                     "AK4PFchs",
                                     "AK4PFPuppi",
-                                    "AK8PFchs",
                                     ),
+    # commented to use globaltag, uncomment if using text files                                    
+#    JECUncertaintyFiles = cms.vstring  (
+#                                    "",
+#                                    "",
+#                                    ),
+    JERRecords      = cms.vstring  (                       # for the JER
+                                    "AK4PFchs",
+                                    "AK4PFPuppi",
+                                    ),
+    JERResFiles     = cms.vstring  (
+                                    "Fall15_25nsV2_MC_PtResolution_AK4PFchs.txt",
+                                    "Fall15_25nsV2_MC_PtResolution_AK4PFPuppi.txt",
+                                    ),
+    JERSfFiles      = cms.vstring  (
+                                    "Fall15_25nsV2_MC_SF_AK4PFchs.txt",
+                                    "Fall15_25nsV2_MC_SF_AK4PFPuppi.txt",
+                                    ),
+    FixedGridRhoAll = cms.InputTag("fixedGridRhoAll"),
     PatMETs         = cms.VInputTag(
                                     cms.InputTag("slimmedMETs","","PAT"),
                                     cms.InputTag("slimmedMETsPuppi","","PAT")
@@ -138,56 +124,65 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
                                     ), 
     BTagAlgorithms = cms.vstring   (
                                     "pfCombinedInclusiveSecondaryVertexV2BJetTags",
-#                                     "combinedSecondaryVertexBJetTags",
-#                                     "pfJetBProbabilityBJetTags",
-#                                     "pfJetProbabilityBJetTags",
-#                                     "pfTrackCountingHighPurBJetTags",
-#                                     "pfTrackCountingHighEffBJetTags",
-#                                     "pfSimpleSecondaryVertexHighEffBJetTags",
-#                                     "pfSimpleSecondaryVertexHighPurBJetTags",
-#                                     "pfCombinedSecondaryVertexV2BJetTags",
-#                                     "pfCombinedSecondaryVertexSoftLeptonBJetTags",
-#                                     "pfCombinedMVABJetTags",
+                                    "pfJetProbabilityBJetTags",
+                                    "pfCombinedMVAV2BJetTags",
                                    ),
     BTagAlgorithmsAlias = cms.vstring   (
                                          "btag_csvivf",
-#                                          "btag_csv",
-#                                          "btag_jetbprob",
-#                                          "btag_jetprob",
-#                                          "btag_tchp",
-#                                          "btag_tche",
-#                                          "btag_svhe",
-#                                          "btag_svhp",
-#                                          "btag_csvv2",
-#                                          "btag_csvlep",
-#                                          "btag_csvmva",
+                                         "btag_jetprob",
+                                         "btag_csvmva",
                                         ),
     TriggerResults  = cms.VInputTag(cms.InputTag("TriggerResults","","HLT")),
     TriggerPaths    = cms.vstring  (
     ## I recommend using the version number explicitly to be able to compare 
     ## however for production one has to be careful that all versions are included.
     ## Thinking of a better solution...
-    								        'HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v',
-    								        'HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v',
-    								        'HLT_DoubleJetsC112_DoubleBTagCSV0p85_DoublePFJetsC172_v',
-    								        'HLT_DoubleJetsC112_DoubleBTagCSV0p9_DoublePFJetsC112MaxDeta1p6_v',
+                                  'HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v',
+                                  'HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v',
+                                  'HLT_DoubleJetsC112_DoubleBTagCSV0p85_DoublePFJetsC172_v',
+                                  'HLT_DoubleJetsC112_DoubleBTagCSV0p9_DoublePFJetsC112MaxDeta1p6_v',
+                                  'HLT_PFJet40_v',
+                                  'HLT_PFJet60_v',
+                                  'HLT_PFJet80_v',
+                                  'HLT_PFJet140_v',
+                                  'HLT_PFJet200_v',
                                    ),
     TriggerObjectStandAlone  = cms.VInputTag(
                                              cms.InputTag("selectedPatTrigger","","PAT"),
                                              ),
     TriggerObjectLabels    = cms.vstring  (
-    											"hltL1sL1DoubleJetC100",
-    											"hltDoubleJetsC100",
-    											"hltDoublePFJetsC100",
-    											"hltDoublePFJetsC100MaxDeta1p6",
-    											"hltDoublePFJetsC160",
-    											"hltDoubleBTagCSV0p85",
-    											"hltDoubleBTagCSV0p9",
-    											"hltL1sL1DoubleJetC112",
-    											"hltDoubleJetsC112",
-    											"hltDoublePFJetsC112",
-    											"hltDoublePFJetsC112MaxDeta1p6",
-    											"hltDoublePFJetsC172",
+                                       'hltL1sL1DoubleJetC100',
+                                       'hltDoubleJetsC100',
+                                       'hltDoublePFJetsC100',
+                                       'hltDoublePFJetsC100MaxDeta1p6',
+                                       'hltDoublePFJetsC160',
+                                       'hltDoubleBTagCSV0p85',
+                                       'hltDoubleBTagCSV0p9',
+                                       'hltL1sL1DoubleJetC112',
+                                       'hltDoubleJetsC112',
+                                       'hltDoublePFJetsC112',
+                                       'hltDoublePFJetsC112MaxDeta1p6',
+                                       'hltDoublePFJetsC172',
+                                       'hltL1sL1ZeroBias',
+                                       'hltPFJetsCorrectedMatchedToCaloJets10',
+                                       'hltSingleCaloJet10',
+                                       'hltSinglePFJet40',
+                                       'hltL1sL1SingleJet36',
+                                       'hltSingleCaloJet40',
+                                       'hltPFJetsCorrectedMatchedToCaloJets40',
+                                       'hltSinglePFJet60',
+                                       'hltL1sL1SingleJet52',
+                                       'hltPFJetsCorrectedMatchedToCaloJets50',
+                                       'hltSingleCaloJet50',
+                                       'hltSinglePFJet80',
+                                       'hltL1sL1SingleJet92',
+                                       'hltPFJetsCorrectedMatchedToCaloJets110',
+                                       'hltSingleCaloJet110',
+                                       'hltSinglePFJet140',
+                                       'hltL1sL1SingleJet128',
+                                       'hltPFJetsCorrectedMatchedToCaloJets170',
+                                       'hltSingleCaloJet170',
+                                       'hltSinglePFJet200',
                                    ),
 #    L1ExtraJets     = cms.VInputTag(
 #                                    cms.InputTag("l1extraParticles","Central","RECO"),
@@ -205,7 +200,6 @@ process.p = cms.Path(
                       process.FilteredEvents *
                       process.slimmedJetsCorrFactorsReapplyJEC       * process. slimmedJetsReapplyJEC *
                       process.slimmedJetsPuppiCorrFactorsReapplyJEC  * process. slimmedJetsPuppiReapplyJEC *
-                      process.slimmedJetsAK8PFCorrFactorsReapplyJEC  * process. slimmedJetsAK8PFCHSSoftDropPackedReapplyJEC *
                       process.MssmHbb
                     )
 
@@ -214,8 +208,7 @@ readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 readFiles.extend( [
-#       '/store/mc/RunIIFall15MiniAODv2/SUSYGluGluToBBHToBB_M-120_TuneCUETP8M1_13TeV-pythia8/MINIAODSIM/PU25nsData2015v1Raw_76X_mcRun2_asymptotic_v12-v1/10000/1299073E-17C5-E511-86A4-20CF300E9EC1.root',
-       '/store/mc/RunIIFall15MiniAODv2/SUSYGluGluToBBHToBB_M-300_TuneCUETP8M1_13TeV-pythia8/MINIAODSIM/PU25nsData2015v1Raw_76X_mcRun2_asymptotic_v12-v1/00000/0A91D2C2-12C6-E511-B7E7-90B11C050AD4.root',
+       '/store/mc/RunIIFall15MiniAODv2/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/00000/002253C9-DFB8-E511-8B0A-001A648F1C42.root',
 ] );
 
 
