@@ -8,9 +8,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(1000)
 ##  Using MINIAOD. GlobalTag just in case jet re-clustering, L1 trigger filter  etc is needed to be done
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag as customiseGlobalTag
-process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = '76X_mcRun2_asymptotic_v12')
-#OldGT
-#process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = '76X_mcRun2_asymptotic_RunIIFall15DR76_v1')
+process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = '76X_mcRun2_asymptotic_RunIIFall15DR76_v1')
 ######################################################################
 process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_CONDITIONS'
 process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
