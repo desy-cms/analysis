@@ -13,6 +13,7 @@
 #include <string>
 
 #include "Analysis/MssmHbb/interface/JetAnalysisBase.h"
+#include "Analysis/MssmHbb/interface/CutFlow.h"
 //#include "Analysis/MssmHbb/interface/MssmHbbSignal.h"
 
 

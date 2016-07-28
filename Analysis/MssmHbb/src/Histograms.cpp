@@ -17,16 +17,17 @@ Histograms::~Histograms() {
 	// TODO Auto-generated destructor stub
 }
 
-void Histograms::Make(const int &size) {
+void Histograms::Make(const int &size, const bool & lowM) {
 	size_ = size;
 	TH1::SetDefaultSumw2();
 
 	//Declare All Basic Histograms
-	histo_["TotalNumberOfGenEvents"] 		= new TH1D("TotalNumberOfGenEvents","Total number of generated events",1,0,5.e+08);
-	histo_["NumberOfGenEvents_afterMHat"] 	= new TH1D("NumberOfGenEvents_afterMHat","Total number of generated events after mHat cut",1,0,5.e+08);
-	histo_["NumberOfFilteredEvents"]		= new TH1D("NumberOfFilteredEvents","Number of filtered events",1,0,5.e+08);
-	histo_["NumberOfSelectedEvents"]		= new TH1D("NumberOfSelectedEvents","Number of selected events",1,0,20);
-	histo_["xsection"]						= new TH1D("xsection","Cross section in pb",1,0,5.e+08);
+	histo_["TotalNumberOfGenEvents"] 				= new TH1D("TotalNumberOfGenEvents","Total number of generated events",1,0,5.e+08);
+	histo_["NumberOfGenEvents_afterMHat"] 			= new TH1D("NumberOfGenEvents_afterMHat","Total number of generated events after mHat cut",1,0,5.e+08);
+	histo_["NumberOfGenEvents_afterMHat_rewPU"] 	= new TH1D("NumberOfGenEvents_afterMHat_rewPU","Total number of generated events after mHat cut and PU reweighting",1,0,5.e+08);
+
+	histo_["lumi_weight"]							= new TH1D("lumi_weight","Lumi weight = (Data Luminosity / MC luminositry) ",1,0,5.e+08);
+	histo_["xsection"]								= new TH1D("xsection","Cross section in pb",1,0,5.e+08);
 
 	histo_["NumberOfJets"]					= new TH1D("NumberOfJets","Total Number Of jets; Jet multiplicity",14,0,14);
 
@@ -152,29 +153,100 @@ void Histograms::Make(const int &size) {
 
 	//Signal templates
 	//SFb
-	histo_["template_Mbb"]			=  new TH1D("template_Mbb","M_{12} of the di_jet object; di-Jet M_{12}, [GeV]",size,0.,1500);
-	histo_["template_SFb_down"]			= new TH1D("template_SFb_down","",size,0.,1500);
-	histo_["template_SFb_up"]			= new TH1D("template_SFb_up","",size,0.,1500);
+    /*
+	int temp_bins;
+	double temp_bin_lowM[] = {240.,260.,280.,300.,320.,340.,360.,380.,400.,420.,440.,460.,480.,500.,520.,540.,560.,580.,600.,620.,640.,660.,680.,700.,720.,740.,760.,780.,800.,850.,900.,950.,1000.,1050.,1100.,1150.,1200.,1250.,1300.,1350.,1400.,1450.,1500.,1550.,1600.,1650.,1700.};
+	double temp_bin_highM[] = {350.,375.,400.,425.,450.,475.,500.,525.,550.,575.,600.,625.,650.,675.,700.,725.,750.,775.,800.,850.,900.,950.,1000.,1050.,1100.,1150.,1200.,1250.,1300.,1350.,1400.,1450.,1500.,1550.,1600.,1650.,1700.,1750.,1800.,1850.,1900.,1950.,2000.,2050.,2100.,2150.,2200.,2250.,2300.,2350.,2400.,2450.,2500.,2550.,2600.,2650.,2700.,2750.,2800.,2850.,2900.,2950.,3000.};
+	
+	if (lowM) temp_bins = sizeof(temp_bin_lowM)/sizeof(double) - 1;
+	else temp_bins = sizeof(temp_bin_highM)/sizeof(double) - 1;	
+	double temp_bin[100];
+	if(lowM) {
+		std::copy(std::begin(temp_bin_lowM),std::end(temp_bin_lowM),std::begin(temp_bin));
+	}
+	else{
+		 std::copy(std::begin(temp_bin_highM),std::end(temp_bin_highM),std::begin(temp_bin));
+	}
+	histo_["template_Mbb"]			=  new TH1D("template_Mbb","M_{12} of the di_jet object; di-Jet M_{12}, [GeV]",temp_bins,temp_bin);
+	histo_["template_SFb_down"]			= new TH1D("template_SFb_down","",temp_bins,temp_bin);
+	histo_["template_SFb_up"]			= new TH1D("template_SFb_up","",temp_bins,temp_bin);
 
 	//SFl
-	histo_["template_SFl_down"]			= new TH1D("template_SFl_down","",size,0.,1500);
-	histo_["template_SFl_up"]			= new TH1D("template_SFl_up","",size,0.,1500);
+	histo_["template_SFl_down"]			= new TH1D("template_SFl_down","",temp_bins,temp_bin);
+	histo_["template_SFl_up"]			= new TH1D("template_SFl_up","",temp_bins,temp_bin);
 
 	//JES
-	histo_["template_JES_down"]			= new TH1D("template_JES_down","",size,0.,1500);
-	histo_["template_JES_up"]			= new TH1D("template_JES_up","",size,0.,1500);
+	histo_["template_JES_down"]			= new TH1D("template_JES_down","",temp_bins,temp_bin);
+	histo_["template_JES_up"]			= new TH1D("template_JES_up","",temp_bins,temp_bin);
 
 	//JER
-	histo_["template_JER_down"]			= new TH1D("template_JER_down","",size,0.,1500);
-	histo_["template_JER_up"]			= new TH1D("template_JER_up","",size,0.,1500);
+	histo_["template_JER_down"]			= new TH1D("template_JER_down","",temp_bins,temp_bin);
+	histo_["template_JER_up"]			= new TH1D("template_JER_up","",temp_bins,temp_bin);
 
 	//Pileup
-	histo_["template_PU_down"]			= new TH1D("template_PU_down","",size,0.,1500);
-	histo_["template_PU_up"]				= new TH1D("template_PU_up","",size,0.,1500);
+	histo_["template_PU_down"]			= new TH1D("template_PU_down","",temp_bins,temp_bin);
+	histo_["template_PU_up"]				= new TH1D("template_PU_up","",temp_bins,temp_bin);
 
 	//Kinematic trigger efificiency
-	histo_["template_PtEff_down"]		= new TH1D("template_PtEff_down","",size,0.,1500);
-	histo_["template_PtEff_up"]			= new TH1D("template_PtEff_up","",size,0.,1500);
+	histo_["template_PtEff_down"]		= new TH1D("template_PtEff_down","",temp_bins,temp_bin);
+	histo_["template_PtEff_up"]			= new TH1D("template_PtEff_up","",temp_bins,temp_bin);
+	*/
+    int temp_bins;
+    double xMin, xMax;
+    if(lowM){
+    	temp_bins = 73;
+    	xMin = 240;
+    	xMax = 1700;
+    }
+    else {
+    	temp_bins = 106;
+    	xMin = 350;
+    	xMax = 3000;
+    }
+	histo_["template_Mbb"]			=  new TH1D("template_Mbb","M_{12} of the di_jet object; di-Jet M_{12}, [GeV]",temp_bins,xMin,xMax);
+	histo_["template_SFb_down"]			= new TH1D("template_SFb_down","",temp_bins,xMin,xMax);
+	histo_["template_SFb_up"]			= new TH1D("template_SFb_up","",temp_bins,xMin,xMax);
+
+	//SFl
+	histo_["template_SFl_down"]			= new TH1D("template_SFl_down","",temp_bins,xMin,xMax);
+	histo_["template_SFl_up"]			= new TH1D("template_SFl_up","",temp_bins,xMin,xMax);
+
+	//JES
+	histo_["template_JES_down"]			= new TH1D("template_JES_down","",temp_bins,xMin,xMax);
+	histo_["template_JES_up"]			= new TH1D("template_JES_up","",temp_bins,xMin,xMax);
+
+	//JER
+	histo_["template_JER_down"]			= new TH1D("template_JER_down","",temp_bins,xMin,xMax);
+	histo_["template_JER_up"]			= new TH1D("template_JER_up","",temp_bins,xMin,xMax);
+
+	//Pileup
+	histo_["template_PU_down"]			= new TH1D("template_PU_down","",temp_bins,xMin,xMax);
+	histo_["template_PU_up"]				= new TH1D("template_PU_up","",temp_bins,xMin,xMax);
+
+	//Kinematic trigger efificiency
+	histo_["template_PtEff_down"]		= new TH1D("template_PtEff_down","",temp_bins,xMin,xMax);
+	histo_["template_PtEff_up"]			= new TH1D("template_PtEff_up","",temp_bins,xMin,xMax);
+
+	/* Dublication of the current templtes
+	 * just for the visualisation
+	 */
+
+	int vis_bins;
+	vis_bins = temp_bins*(1 + xMin/(xMax-xMin));
+
+	histo_["template_Mbb_VIS"]				= new TH1D("template_Mbb_VIS","M_{12} of the di_jet object; di-Jet M_{12}, [GeV]",vis_bins,0.,xMax);
+	histo_["template_SFb_VIS_down"]			= new TH1D("template_SFb_VIS_down","",vis_bins,0,xMax);
+	histo_["template_SFb_VIS_up"]			= new TH1D("template_SFb_VIS_up","",vis_bins,0,xMax);
+	histo_["template_SFl_VIS_down"]			= new TH1D("template_SFl_VIS_down","",vis_bins,0,xMax);
+	histo_["template_SFl_VIS_up"]			= new TH1D("template_SFl_VIS_up","",vis_bins,0,xMax);
+	histo_["template_JES_VIS_down"]			= new TH1D("template_JES_VIS_down","",vis_bins,0,xMax);
+	histo_["template_JES_VIS_up"]			= new TH1D("template_JES_VIS_up","",vis_bins,0,xMax);
+	histo_["template_JER_VIS_down"]			= new TH1D("template_JER_VIS_down","",vis_bins,0,xMax);
+	histo_["template_JER_VIS_up"]			= new TH1D("template_JER_VIS_up","",vis_bins,0,xMax);
+	histo_["template_PU_VIS_down"]			= new TH1D("template_PU_VIS_down","",vis_bins,0,xMax);
+	histo_["template_PU_VIS_up"]			= new TH1D("template_PU_VIS_up","",vis_bins,0,xMax);
+	histo_["template_PtEff_VIS_down"]		= new TH1D("template_PtEff_VIS_down","",vis_bins,0,xMax);
+	histo_["template_PtEff_VIS_up"]			= new TH1D("template_PtEff_VIS_up","",vis_bins,0,xMax);
 
 //	syst_["Pileup"]
 
@@ -377,6 +449,19 @@ void Histograms::Make(const int &size) {
 	histo_["data_Mbb_30"]		= new TH1D("data_Mbb_30","Mbb ",70,0,2100);
 	histo_["data_Mbb_50"]		= new TH1D("data_Mbb_50","Mbb ",40,0,2000);
 
+	//TRUE Bs
+	for(int i = 0 ; i < 10; ++i){
+		std::string name = "bJet" + std::to_string(i) + "_pt";
+		histo_[name] = new TH1D(name.c_str(),name.c_str(),100,0,2000);
+		name = "bJet" + std::to_string(i) + "_eta";
+		histo_[name] = new TH1D(name.c_str(),name.c_str(),30,-5,5);
+		name = "bJet" + std::to_string(i) + "_btag";
+		histo_[name] = new TH1D(name.c_str(),name.c_str(),100,0,1);
+		name = "bJet" + std::to_string(i) + "_order";
+		histo_[name] = new TH1D(name.c_str(),name.c_str(),15,0,15);
+	}
+	histo_["nTrue_b"]			= new TH1D("nTrue_b","nTrue_b",15,0,15);
+
 	//Data vs MC comparison
 	DeclareDataMCHistograms(size);
 }
@@ -385,6 +470,7 @@ void Histograms::DeclareDataMCHistograms(const int &size){
 	TH1::SetDefaultSumw2();
 
 	double PtBins[]={100,110,120,130,140,150,160,170,180,190,200,225,250,275,300,325,350,375,400,450,500,575,650,750,1000};
+	double Pt3Bins[]={40,60,80,100,110,120,130,140,150,160,170,180,190,200,225,250,275,300,325,350,375,400,450,500,575,650,750,1000};
 	double PtAssymBins[] = {0.,0.02,0.04,0.06,0.08,0.1,0.12,0.14,0.16,0.18,0.2,0.24,0.28,0.32,0.36,0.4,0.45,0.5,0.6};
 	double M12Bins[] = {200,220,240,260,280,300,320,340,360,380,400,420,440,460,480,500,520,540,560,580,600,620,640,660,700,750,800,850,940,1100};
 	double NJetsBins[] = {2,3,4,5,6,7,8,9,14};
@@ -393,6 +479,7 @@ void Histograms::DeclareDataMCHistograms(const int &size){
 	//Central
 	histo_["jet_b_pt1"]			=  new TH1D( ("jet_b_pt1"),"p_{T} of the first Leading Jet; Leading Jet p_{T}, [GeV]",sizeof(PtBins)/sizeof(double)-1,PtBins);
 	histo_["jet_b_pt2"]			=  new TH1D( ("jet_b_pt2"),"p_{T} of the second Leading Jet; sub-Leading Jet p_{T}, [GeV]",sizeof(PtBins)/sizeof(double)-1,PtBins);
+	histo_["jet_b_pt3"]			=  new TH1D( ("jet_b_pt3"),"p_{T} of the third Leading Jet; third-Leading Jet p_{T}, [GeV]",sizeof(Pt3Bins)/sizeof(double)-1,Pt3Bins);
 
 	histo_["jet_b_Ht"]			= new TH1D("jet_b_Ht","H_{T} of the jets; H_{T}, [GeV]",sizeof(HtBins)/sizeof(double)-1,HtBins);
 
@@ -400,20 +487,26 @@ void Histograms::DeclareDataMCHistograms(const int &size){
 
 	histo_["jet_b_eta1"]			=  new TH1D( ("jet_b_eta1"),"#eta of the first Leading Jet; Leading Jet #eta ",30,-2.2,2.2);
 	histo_["jet_b_eta2"]			=  new TH1D( ("jet_b_eta2"),"#eta of the second Leading Jet; sub-Leading Jet #eta ",30,-2.2,2.2);
+	histo_["jet_b_eta3"]			=  new TH1D( ("jet_b_eta3"),"#eta of the third Leading Jet; third-Leading Jet #eta ",30,-2.2,2.2);
 
 	histo_["jet_b_phi1"]			=  new TH1D( ("jet_b_phi1"),"#phi of the first Leading Jet; Leading Jet #phi ",(int)size/2,-1.* TMath::Pi(),TMath::Pi());
 	histo_["jet_b_phi2"]			=  new TH1D( ("jet_b_phi2"),"#phi of the second Leading Jet; sub-Leading Jet #phi ",(int)size/2,-1.* TMath::Pi(),TMath::Pi());
+	histo_["jet_b_phi3"]			=  new TH1D( ("jet_b_phi3"),"#phi of the third Leading Jet; third-Leading Jet #phi ",(int)size/2,-1.* TMath::Pi(),TMath::Pi());
 
 	histo_["jet_b_btag_csv1"]		=  new TH1D( ("jet_b_btag_csv1"),"btag_{csv} discr. first Leading Jet; Leading Jet btag_{csv} discr.",30,0.935,1.);
-	histo_["jet_b_btag_csv2"]		=  new TH1D( ("jet_b_btag_csv2"),"btag_{csv} discr. second Leading Jet; Leading Jet btag_{csv} discr.",30,0.935,1.);
+	histo_["jet_b_btag_csv2"]		=  new TH1D( ("jet_b_btag_csv2"),"btag_{csv} discr. second Leading Jet; sub-Leading Jet btag_{csv} discr.",30,0.935,1.);
+	histo_["jet_b_btag_csv3"]		=  new TH1D( ("jet_b_btag_csv3"),"btag_{csv} discr. third Leading Jet; third-Leading Jet btag_{csv} discr.",60,0.,1.);
 
 	histo_["jet_b_btag_cmva1"]	=  new TH1D( ("jet_b_btag_cmva1"),"btag_{cmva} discr. first Leading Jet; Leading Jet btag_{cmva} discr.",30,0.5,1.);
-	histo_["jet_b_btag_cmva2"]	=  new TH1D( ("jet_b_btag_cmva2"),"btag_{cmva} discr. second Leading Jet; Leading Jet btag_{cmva} discr.",30,0.5,1.);
+	histo_["jet_b_btag_cmva2"]	=  new TH1D( ("jet_b_btag_cmva2"),"btag_{cmva} discr. second Leading Jet; sub-Leading Jet btag_{cmva} discr.",30,0.5,1.);
+	histo_["jet_b_btag_cmva3"]	=  new TH1D( ("jet_b_btag_cmva3"),"btag_{cmva} discr. third Leading Jet; third-Leading Jet btag_{cmva} discr.",60,0.,1.);
 
 	histo_["jet_b_deta12"]		=  new TH1D( ("jet_b_deta12"),"#Delta #eta between Leading and sub-Leading jets;#Delta #eta_{12}",20,-1.6,1.6);
 	histo_["jet_b_dphi12"]		=  new TH1D("jet_b_dphi12","#Delta #phi between Leading and sub-Leading jets;#Delta #phi_{12}",20,-1.* TMath::Pi(),TMath::Pi());
 
 	histo_["jet_b_dR12"]			=  new TH1D( ("jet_b_dR12"),"#Delta R between Leading and sub-Leading jets;#Delta R_{12}",30,1,3.6);
+	histo_["jet_b_dR13"]			=  new TH1D( ("jet_b_dR13"),"#Delta R between Leading and third-Leading jets;#Delta R_{13}",30,1,3.6);
+	histo_["jet_b_dR23"]			=  new TH1D( ("jet_b_dR23"),"#Delta R between sub-Leading and third-Leading jets;#Delta R_{23}",30,1,3.6);
 
 	histo_["diJet_b_pt"]			=  new TH1D( ("diJet_b_pt"),"p_{T} of the di-Jet object;di-Jet p_{T}, [GeV]",30,0.,600.);
 	histo_["diJet_b_eta"]			=  new TH1D( ("diJet_b_eta"),"#eta of the di-Jet object; di-Jet #eta",(int)size/4,-2.5,2.5);
@@ -432,6 +525,7 @@ void Histograms::DeclareDataMCHistograms(const int &size){
 		for(const std::string s : Syst){
 			histo_["jet_b_pt1" + s + v]			=  new TH1D( ("jet_b_pt1" + s + v).c_str(),"p_{T} of the first Leading Jet; Leading Jet p_{T}, [GeV]",sizeof(PtBins)/sizeof(double)-1,PtBins);
 			histo_["jet_b_pt2" + s + v]			=  new TH1D( ("jet_b_pt2" + s + v).c_str(),"p_{T} of the second Leading Jet; sub-Leading Jet p_{T}, [GeV]",sizeof(PtBins)/sizeof(double)-1,PtBins);
+			histo_["jet_b_pt3" + s + v]			=  new TH1D( ("jet_b_pt3" + s + v).c_str(),"p_{T} of the third Leading Jet; third-Leading Jet p_{T}, [GeV]",sizeof(Pt3Bins)/sizeof(double)-1,Pt3Bins);
 
 			histo_["jet_b_Ht" + s + v]			= new TH1D( ("jet_b_Ht" + s + v).c_str(),"H_{T} of the jets; H_{T}, [GeV]",sizeof(HtBins)/sizeof(double)-1,HtBins);
 
@@ -439,20 +533,26 @@ void Histograms::DeclareDataMCHistograms(const int &size){
 
 			histo_["jet_b_eta1" + s + v]			=  new TH1D( ("jet_b_eta1" + s + v).c_str(),"#eta of the first Leading Jet; Leading Jet #eta ",30,-2.2,2.2);
 			histo_["jet_b_eta2" + s + v]			=  new TH1D( ("jet_b_eta2" + s + v).c_str(),"#eta of the second Leading Jet; sub-Leading Jet #eta ",30,-2.2,2.2);
+			histo_["jet_b_eta3" + s + v]			=  new TH1D( ("jet_b_eta3" + s + v).c_str(),"#eta of the third Leading Jet; third-Leading Jet #eta ",30,-2.2,2.2);
 
 			histo_["jet_b_phi1" + s + v]			=  new TH1D( ("jet_b_phi1" + s + v).c_str(),"#phi of the first Leading Jet; Leading Jet #phi ",(int)size/2,-1.* TMath::Pi(),TMath::Pi());
 			histo_["jet_b_phi2" + s + v]			=  new TH1D( ("jet_b_phi2" + s + v).c_str(),"#phi of the second Leading Jet; sub-Leading Jet #phi ",(int)size/2,-1.* TMath::Pi(),TMath::Pi());
+			histo_["jet_b_phi3" + s + v]			=  new TH1D( ("jet_b_phi3" + s + v).c_str(),"#phi of the third Leading Jet; third-Leading Jet #phi ",(int)size/2,-1.* TMath::Pi(),TMath::Pi());
 
 			histo_["jet_b_btag_csv1" + s + v]		=  new TH1D( ("jet_b_btag_csv1" + s + v).c_str(),"btag_{csv} discr. first Leading Jet; Leading Jet btag_{csv} discr.",30,0.935,1.);
 			histo_["jet_b_btag_csv2" + s + v]		=  new TH1D( ("jet_b_btag_csv2" + s + v).c_str(),"btag_{csv} discr. second Leading Jet; Leading Jet btag_{csv} discr.",30,0.935,1.);
+			histo_["jet_b_btag_csv3" + s + v]		=  new TH1D( ("jet_b_btag_csv3" + s + v).c_str(),"btag_{csv} discr. third Leading Jet; Leading Jet btag_{csv} discr.",60,0.,1.);
 
 			histo_["jet_b_btag_cmva1" + s + v]	=  new TH1D( ("jet_b_btag_cmva1" + s + v).c_str(),"btag_{cmva} discr. first Leading Jet; Leading Jet btag_{cmva} discr.",30,0.5,1.);
 			histo_["jet_b_btag_cmva2" + s + v]	=  new TH1D( ("jet_b_btag_cmva2" + s + v).c_str(),"btag_{cmva} discr. second Leading Jet; Leading Jet btag_{cmva} discr.",30,0.5,1.);
+			histo_["jet_b_btag_cmva3" + s + v]	=  new TH1D( ("jet_b_btag_cmva3" + s + v).c_str(),"btag_{cmva} discr. third Leading Jet; Leading Jet btag_{cmva} discr.",60,0.,1.);
 
 			histo_["jet_b_deta12" + s + v]		=  new TH1D( ("jet_b_deta12" + s + v).c_str(),"#Delta #eta between Leading and sub-Leading jets;#Delta #eta_{12}",20,-1.6,1.6);
 			histo_["jet_b_dphi12" + s + v]		=  new TH1D( ("jet_b_dphi12" + s + v).c_str(),"#Delta #phi between Leading and sub-Leading jets;#Delta #phi_{12}",20,-1.* TMath::Pi(),TMath::Pi());
 
 			histo_["jet_b_dR12" + s + v]		=  new TH1D( ("jet_b_dR12" + s + v).c_str(),"#Delta R between Leading and sub-Leading jets;#Delta R_{12}",30,1,3.6);
+			histo_["jet_b_dR13" + s + v]		=  new TH1D( ("jet_b_dR13" + s + v).c_str(),"#Delta R between Leading and sub-sub-Leading jets;#Delta R_{13}",30,1,3.6);
+			histo_["jet_b_dR23" + s + v]		=  new TH1D( ("jet_b_dR23" + s + v).c_str(),"#Delta R between second-Leading and third-Leading jets;#Delta R_{23}",30,1,3.6);
 
 			histo_["diJet_b_pt" + s + v]		=  new TH1D( ("diJet_b_pt" + s + v).c_str(),"p_{T} of the di-Jet object;di-Jet p_{T}, [GeV]",30,0.,600.);
 			histo_["diJet_b_eta" + s + v]		=  new TH1D( ("diJet_b_eta" + s + v).c_str(),"#eta of the di-Jet object; di-Jet #eta",(int)size/4,-2.5,2.5);

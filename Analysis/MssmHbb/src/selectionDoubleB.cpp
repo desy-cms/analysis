@@ -43,30 +43,40 @@ const bool selectionDoubleB::leadingJetSelection(const std::shared_ptr<tools::Co
 	Jet jet2 = offlineJets->at(1);
 
 	//Pt requirements
-	if (jet1.pt() < pt1_) return false;
-	if (jet2.pt() < pt2_) return false;
+//	if (jet1.pt() < pt1_) return false;
+//	if (jet2.pt() < pt2_) return false;
+	if(!cuts_.check("pt1",jet1.pt() >= pt1_)) return false;
+	if(!cuts_.check("pt2",jet2.pt() >= pt2_)) return false;
 
 	//Eta requirements
-	if (std::abs(jet1.eta()) > eta1_) return false;
-	if (std::abs(jet2.eta()) > eta2_) return false;
+//	if (std::abs(jet1.eta()) > eta1_) return false;
+//	if (std::abs(jet2.eta()) > eta2_) return false;
+	if(!cuts_.check("eta1",std::abs(jet1.eta()) <= eta1_)) return false;
+	if(!cuts_.check("eta2",std::abs(jet2.eta()) <= eta2_)) return false;
 
 	//BTag requirements
-	if (jet1.btag() < btag1_) return false;
-	if (jet2.btag() < btag2_) return false;
+//	if (jet1.btag() < btag1_) return false;
+//	if (jet2.btag() < btag2_) return false;
+	if(!cuts_.check("btag1",jet1.btag() >= btag1_)) return false;
+	if(!cuts_.check("btag2",jet2.btag() >= btag2_)) return false;
 
 	//dEta in case of LowM selection
 	if(lowM_){
-		if(std::abs(jet1.eta() - jet2.eta()) > dEta_) return false;
+//		if(std::abs(jet1.eta() - jet2.eta()) > dEta_) return false;
+		if(!cuts_.check("deta12",std::abs(jet1.eta() - jet2.eta()) <= dEta_)) return false;
 	}
 
 	//Trigger Selection
-	if(!this->triggerResult(triggerLogicName_)) return false;
+//	if(!this->triggerResult(triggerLogicName_)) return false;
+	if(!cuts_.check("TriggerBit",this->triggerResult(triggerLogicName_))) return false;
 
 	//Online selection:
-	if(!this->OnlineSelection(jet1,jet2)) return false;
+//	if(!this->OnlineSelection(jet1,jet2)) return false;
+	if(!cuts_.check("TriggerMatching",this->OnlineSelection(jet1,jet2))) return false;
 
 	//deltaR requirements
-	if (jet1.deltaR(jet2) <= dR_) return false;
+//	if (jet1.deltaR(jet2) <= dR_) return false;
+	if(!cuts_.check("dR12",jet1.deltaR(jet2) > dR_)) return false;
 
 	return true;
 }

@@ -15,7 +15,7 @@
 #include <iostream>
 #include <set>
 //
-#include "TRandom1.h"
+#include "TRandom2.h"
 // user include files
 #include "Analysis/Tools/interface/Candidate.h"
 #include "Analysis/Tools/interface/Jet.h"

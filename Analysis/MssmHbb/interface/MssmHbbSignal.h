@@ -15,6 +15,7 @@
 
 #include "Analysis/MssmHbb/interface/JetAnalysisBase.h"
 #include "Analysis/MssmHbb/interface/selectionDoubleB.h"
+#include "Analysis/MssmHbb/interface/utilLib.h"
 
 namespace analysis{
 	namespace mssmhbb{
@@ -25,6 +26,12 @@ namespace analysis{
 								const bool & lowM = true,
 								const bool & test = true);
 				virtual ~MssmHbbSignal();
+
+				//Method to add background template
+				void addBackgroundTemplate(const std::string & bg_template, const std::string & bgHisto);
+				//method to add Statistical uncertainties templates
+				void addStatErrorsTemplates(const double & relative_threshold = 0.05);
+				void addStatErrorsTemplates(const int & nbins = 10);
 
 				//Overwrite Leading jet selection from JetAnalysisBase class
 				const bool leadingJetSelection(const std::shared_ptr<tools::Collection<tools::Jet> > & offlineJets);

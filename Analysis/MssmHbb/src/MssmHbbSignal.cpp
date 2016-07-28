@@ -23,6 +23,7 @@ MssmHbbSignal::MssmHbbSignal(const std::string & inputFilelist,const double & da
 	}
 	else {
         btag3_ = 0.46;
+        btagOP3_ = 0;
 	}
 	baseOutputName_ = "MssmHbbSignal";
 }
@@ -45,12 +46,6 @@ const bool MssmHbbSignal::leadingJetSelection(const std::shared_ptr<tools::Colle
 	Jet jet2 = offlineJets->at(1);
 	Jet jet3 = offlineJets->at(2);
 
-	//Trigger Selection
-	if(!this->triggerResult(triggerLogicName_)) return false;
-
-	//Online selection:
-	if(!this->OnlineSelection(jet1,jet2)) return false;
-
 	//Pt requirements
 	if (jet3.pt() < pt3_) return false;
 
@@ -70,7 +65,6 @@ const bool MssmHbbSignal::leadingJetSelection(const std::shared_ptr<tools::Colle
 void MssmHbbSignal::fillHistograms(const std::shared_ptr<Collection<Jet> > &offlineJets, const double & weight){
 
 //	if(TEST) std::cout<<"I'm in MssmHbbSignal::fillHistograms"<<std::endl;
-
 	Jet jet1 = offlineJets->at(0);
 	Jet jet2 = offlineJets->at(1);
 	Jet jet3 = offlineJets->at(2);
@@ -105,20 +99,38 @@ void MssmHbbSignal::fillHistograms(const std::shared_ptr<Collection<Jet> > &offl
 
 			(histo_.getHisto())["template_PtEff_up"]->Fill(obj12.M(),weight/weight_["PtEff_central"] * weight_["PtEff_up"]);
 			(histo_.getHisto())["template_PtEff_down"]->Fill(obj12.M(),weight/weight_["PtEff_central"] * weight_["PtEff_down"]);
+
+			//visualisation
+			(histo_.getHisto())["template_Mbb_VIS"]->Fill(obj12.M(),weight);
+			(histo_.getHisto())["template_SFb_VIS_up"]->Fill(obj12.M(),weight/weight_["SFb_central"] * weight_["SFb_up"]);
+			(histo_.getHisto())["template_SFb_VIS_down"]->Fill(obj12.M(),weight/weight_["SFb_central"] * weight_["SFb_down"]);
+
+			(histo_.getHisto())["template_SFl_VIS_up"]->Fill(obj12.M(),weight/weight_["SFl_central"] * weight_["SFl_up"]);
+			(histo_.getHisto())["template_SFl_VIS_down"]->Fill(obj12.M(),weight/weight_["SFl_central"] * weight_["SFl_down"]);
+
+			(histo_.getHisto())["template_PU_VIS_up"]->Fill(obj12.M(),weight/weight_["PU_central"] * weight_["PU_up"]);
+			(histo_.getHisto())["template_PU_VIS_down"]->Fill(obj12.M(),weight/weight_["PU_central"] * weight_["PU_down"]);
+
+			(histo_.getHisto())["template_PtEff_VIS_up"]->Fill(obj12.M(),weight/weight_["PtEff_central"] * weight_["PtEff_up"]);
+			(histo_.getHisto())["template_PtEff_VIS_down"]->Fill(obj12.M(),weight/weight_["PtEff_central"] * weight_["PtEff_down"]);
 		}
 	}
 	else if (JESshift_ < 0 && JERshift_ == 0){
 		(histo_.getHisto())["template_JES_down"]->Fill(obj12.M(),weight);
+		(histo_.getHisto())["template_JES_VIS_down"]->Fill(obj12.M(),weight);
 	}
 	else if (JESshift_ > 0 && JERshift_ == 0){
 		(histo_.getHisto())["template_JES_up"]->Fill(obj12.M(),weight);
+		(histo_.getHisto())["template_JES_VIS_up"]->Fill(obj12.M(),weight);
 	}
 	else if (JERshift_ > 0 && JESshift_ == 0){
 		(histo_.getHisto())["template_JER_up"]->Fill(obj12.M(),weight);
+		(histo_.getHisto())["template_JER_VIS_up"]->Fill(obj12.M(),weight);
 //		std::cout<<"JERshift: "<<JERshift_<<" Match: "<<jet1.matched(genJets_->name())<<" sf: "<<jet1.JerSfUp()<<" pt: "<<jet1.pt()<<std::endl;
 	}
 	else if (JERshift_ < 0 && JESshift_ == 0){
 		(histo_.getHisto())["template_JER_down"]->Fill(obj12.M(),weight);
+		(histo_.getHisto())["template_JER_VIS_down"]->Fill(obj12.M(),weight);
 //		std::cout<<"JERshift: "<<JERshift_<<" Match: "<<jet1.matched(genJets_->name())<<" sf: "<<jet1.JerSfDown()<<" pt: "<<jet1.pt()<<std::endl;
 	}
 //	if(TEST) std::cout<<"I'm out of MssmHbbSignal::fillHistograms"<<std::endl;
@@ -128,11 +140,15 @@ void MssmHbbSignal::writeHistograms(){
 	std::string full_name;
 
 	outputFile_->mkdir("distributions","general distributions of Jets and di-Jet objects");
+	outputFile_->mkdir("templates","templates with a full range");
 	for(const auto & h: (histo_.getHisto())){
 		if(h.second->GetEntries() == 0) continue; 			//skip empty histograms
+		h.second->Scale(weight_["Lumi"]);
 		if(h.first.find("template") != std::string::npos){
 			full_name = constructTemplateName(h.first);
+			if(h.first.find("VIS") != std::string::npos) outputFile_->cd("templates");
 			h.second->Write(full_name.c_str());
+			outputFile_->cd("");
 		}
 		else {
 			outputFile_->cd("distributions");
@@ -140,13 +156,13 @@ void MssmHbbSignal::writeHistograms(){
 			outputFile_->cd("");
 		}
 	}
-	outputFile_->Close();
+//	outputFile_->Close();
 }
 
 const double MssmHbbSignal::assignWeight(){
 double weight = 1;
 	if(isMC()) {
-		weight = weight_["Lumi"] * weight_["PtEff_central"] * weight_["PU_central"] * weight_["SFb_central"] * weight_["SFl_central"];
+		weight = weight_["PtEff_central"] * weight_["PU_central"] * weight_["SFb_central"] * weight_["SFl_central"];// * weight_["Signal_Shape"];
 	}
 	//std::cout<<" weight = "<<weight<<" "<<weight_["dEta"]<<" "<<weight_["Lumi"]<<" "<<weight_["2DPt"]<<" "<<weight_["BTag"]<<" "<<weight_["PU_central"]<<" "<<weight_["SFb_central"]<<" "<<weight_["SFl_central"]<<std::endl;
 	return weight;
@@ -189,10 +205,11 @@ std::shared_ptr<tools::Collection<tools::Jet> > MssmHbbSignal::modifyJetCollecti
 
 void MssmHbbSignal::runAnalysis(const std::string &json, const std::string &output, const int &size){
 
+	this->SetupStandardOutputFile(output);
 	this->setupAnalysis(json);
 	std::cout<<"Total number of events: "<<this->size()<<std::endl;
 	this->makeHistograms(size);
-	this->SetupStandardOutputFile(output);
+
 	if(signalMC_){
 		for(int i = 0; i < 3 ; ++i){
 			JERshift_ = 0;
@@ -229,5 +246,60 @@ void MssmHbbSignal::runAnalysis(const std::string &json, const std::string &outp
 
 }
 
+void MssmHbbSignal::addStatErrorsTemplates(const double & relative_threshold){
 
+	if(relative_threshold < 0 || relative_threshold > 1){
+		std::cerr<<"Exception in MssmHbbSignal::addStatErrorsTemplates - threshold should be >= 0 && <= 1"<<std::endl;
+	}
+
+}
+
+void MssmHbbSignal::addStatErrorsTemplates(const int & nbins){
+
+	if((histo_.getHisto())["template_Mbb"] == nullptr) {
+		std::cerr<<"No template_Mbb histogram. Should create it first"<<std::endl;
+		exit(-1);
+	}
+
+	int nTot = (histo_.getHisto())["template_Mbb"]->GetNbinsX();
+
+	if(nbins < 0 || nbins > nTot){
+		std::cerr<<"Exception in MssmHbbSignal::addStatErrorsTemplates - number of bins should be >= 0 && <= nMax"<<std::endl;
+		exit(-1);
+	}
+	//vector that contains bin errors
+	std::vector<std::pair<int, double> > bin_errors;
+	for (int i=1;i<=nTot;++i){
+		std::pair<int,double> pr = std::make_pair(i,(histo_.getHisto())["template_Mbb"]->GetBinError(i));
+		bin_errors.push_back(pr);
+	}
+	//sort vector with default i<j to find highest
+	std::sort(bin_errors.begin(),bin_errors.end(),great_second<int,double>());
+
+	for(int i=0;i<nbins;++i){
+
+		outputFile_->cd("");
+		//name of the future histogram
+		std::string name = "template_Bin"+std::to_string(i+1)+"_up";
+		//Create a new histogram that will contain highest stat. error
+		TH1D *h_up = (TH1D*) (histo_.getHisto())["template_Mbb"] -> Clone(name.c_str());
+		h_up->SetMarkerStyle(20);
+		std::pair<int,double> pbin(bin_errors[i]);
+		h_up->SetBinContent(pbin.first,h_up->GetBinContent(pbin.first)+pbin.second);
+		h_up->SetBinError(pbin.first,0.);
+		name = constructTemplateName(name);
+		h_up->Write(name.c_str());
+
+
+		name = "template_Bin"+std::to_string(i+1)+"_down";
+		TH1D *h_down = (TH1D*) (histo_.getHisto())["template_Mbb"] -> Clone(name.c_str());
+		h_down->SetBinContent(pbin.first,h_down->GetBinContent(pbin.first)-pbin.second);
+		h_down->SetBinError(pbin.first,0.);
+		h_down->SetMarkerStyle(20);
+		name = constructTemplateName(name);
+		h_down->Write(name.c_str());
+
+	}
+
+}
 

@@ -11,7 +11,23 @@ using namespace analysis;
 using namespace analysis::tools;
 using namespace analysis::mssmhbb;
 
-const bool findStrings(const std::string & input, const std::string & needful);
+double signal_shape(const double & M12_gen){
+	double result = 1;
+	double par[6];
+	par[0] = 7.08179e-01; par[1] = 7.74883e+00; par[2] = 1.10010e+03;
+	par[3] = 4.48655e-02; par[4] = 8.82140e+02; par[5] = 2.12431e+02;
+	double M  = M12_gen;
+	double M2 = M*M;
+	double G = par[1];
+	double G2 = G*G;
+	double E = par[2];
+	double E2= E*E;
+	double rel_BW = par[0] * 2 / TMath::Pi() * G2*E2 / ( (M2-E2)*(M2-E2)+ M2*M2*(G2/E2) );
+	double gaus = par[3] * TMath::Gaus(M,par[4],par[5]);
+	if(M >= 1000 && M <= 1200) result = rel_BW / gaus;
+	else result = 0;
+	return result;
+}
 
 JetAnalysisBase::JetAnalysisBase(const std::string & inputFilelist, const double & dataLumi, const bool & lowM, const bool & test) :
 								 Analysis(inputFilelist,"MssmHbb/Events/EventInfo"),
@@ -27,19 +43,31 @@ JetAnalysisBase::JetAnalysisBase(const std::string & inputFilelist, const double
 		if(signalMC_) this->setupXSections();
 
 		//Add specific to MC trees
-//		this->addTree<GenParticle>("GenParticles","MssmHbb/Events/prunedGenParticles");
+		this->addTree<GenParticle>("GenParticles","MssmHbb/Events/prunedGenParticles");
 		if(isMC()) this->addTree<Jet>("GenJets","MssmHbb/Events/slimmedGenJets");
 
 		// Add MC information:
 		this->crossSections("MssmHbb/Metadata/CrossSections");
 		this->generatorFilter("MssmHbb/Metadata/GeneratorFilter");
-		if(signalMC_) this->eventFilter("MssmHbb/Metadata/EventFilter","MssmHbb/mHatFilter/EventFilter");
+		if(signalMC_) this->eventFilter("MssmHbb/Metadata/EventFilter");//,"MssmHbb/mHatFilter/EventFilter");
 		else this->eventFilter("MssmHbb/Metadata/EventFilter");
 
 		// Show MC information
 		this->listCrossSections();
 		this->listGeneratorFilter();
 		this->listEventFilter();
+
+		if(isMC()){
+			std::cout<<"***********************************"<<std::endl;
+			if(signalMC_) std::cout<<"This is signal SUSY MC"<<std::endl;
+			else std::cout<<" This is BG MC"<<std::endl;
+			std::cout<<"***********************************"<<std::endl;
+		}
+		else {
+			std::cout<<"***********************************"<<std::endl;
+			std::cout<<"This is Real Data"<<std::endl;
+			std::cout<<"***********************************"<<std::endl;
+		}
 	}
 	JESshift_ = 0;
 	JERshift_ = 0;
@@ -56,41 +84,91 @@ JetAnalysisBase::JetAnalysisBase(const std::string & inputFilelist, const double
 
 	triggerObjectName_ = {"hltL1sL1DoubleJetC100","hltDoubleJetsC100","hltDoubleBTagCSV0p85","hltDoublePFJetsC160"};
 	baseOutputName_ = "JetAnalysisBase";
+
+	std::string selection_type;
+	if(lowM){
+		triggerLogicName_ = "HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v";
+		triggerObjectName_ = {"hltL1sL1DoubleJetC100","hltDoubleJetsC100","hltDoublePFJetsC100","hltDoubleBTagCSV0p9","hltDoublePFJetsC100MaxDeta1p6"};
+        pt1_ = 100.; pt2_ = 100.;
+        btag1_ = 0.935; btag2_ = 0.935;
+        btagOP1_ = 2; btagOP2_ = 2;
+        btag3_ = 0.8;
+        btagOP3_ = 1;	//Mid OP
+        selection_type = "Low Mass";
+	}
+	else {
+        btag3_ = 0.46;
+        btagOP3_ = 0; // Loose OP
+		triggerLogicName_ = "HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v";
+		triggerObjectName_ = {"hltL1sL1DoubleJetC100","hltDoubleJetsC100","hltDoubleBTagCSV0p85","hltDoublePFJetsC160"};
+        pt1_ = 160.; pt2_ = 160.;
+        btag1_ = 0.8; btag2_ = 0.8;
+        btagOP1_ = 1; btagOP2_ = 1;
+        selection_type = "High Mass";
+	}
+//	cuts_ = CutFlow(baseOutputName_,selection_type);
+	mHat_ = 0.7;
 }
 
 JetAnalysisBase::~JetAnalysisBase() {
-//	if(TEST) std::cout<<"I'm at ~JetAnalysisBase"<<std::endl;
+	if(TEST) std::cout<<"I'm at JetAnalysisBase::~JetAnalysisBase"<<std::endl;
 	// TODO Auto-generated destructor stub
 }
 
 void JetAnalysisBase::setupAnalysis(const std::string & json){
+	if(TEST) std::cout<<"I'm in setupAnalysis"<<std::endl;
 	if(!isMC()) this->processJsonFile(json);
 	this->loadCorrections();
 	this->addTriggerObjects(triggerObjectName_);
-//	if(TEST) std::cout<<"I'm in setupAnalysis"<<std::endl;
 }
 
 void JetAnalysisBase::applySelection(){
 
 	if(TEST) std::cout<<"I'm in applySelection"<<std::endl;
 
+	//different counters declaration
+	int TotalNumberOfGenEvents = 0;						// Total number of generated events
+	int NumberOfGenEvents_afterMHat = 0;				// Total number of generated events after Mhat cut
+	double NumberOfGenEvents_afterMHat_rewPU = 0;		// Total number of generated events after Mhat cut and PU reweighting
+	int NumberOfEventsAfterSelection = 0;				// Total number of the events that pass selection
+	double NumberOfEventsAfterSelection_weighted = 0;	// Weighted number of the events that pass selection
+
 	bool goodLeadingJets = false;
 	double totWeight = 0;
 	TLorentzVector diJetObject;
-	double Ht;
+	double Ht = 0;
 	//Event loop:
-	auto nevents = 0;
-//	if(TEST) nevents = 0.4*this->size();
-	if(TEST) nevents = 100;
-	else nevents = this->size();
 
-	std::cout<<"Events to process: "<<nevents<<std::endl;
 
-	for(auto i = 0; i < nevents; ++ i){
+
+	int n_true_b = 0;
+
+	std::string selection_type;
+	if(lowM_)selection_type = "Low Mass";
+	else selection_type = "High Mass";
+	cuts_ = CutFlow(baseOutputName_,selection_type);
+
+
+	if(TEST) TotalNumberOfGenEvents = 100;
+	else TotalNumberOfGenEvents = this->size();
+	std::cout<<"Events to process: "<<TotalNumberOfGenEvents<<std::endl;
+
+	for(auto i = 0; i < TotalNumberOfGenEvents; ++ i){
 		this->event(i);
 
+		cuts_.check("Total");
+
+		if(isSignalMC() && !cuts_.check("mHat",(mHat() >= 0.7 * returnMassPoint()))) continue;
+		++NumberOfGenEvents_afterMHat;
+
+		//PU reweighting for MC
+		if(isMC()) {
+			weight_["PU_central"] 	= pWeight_->PileUpWeight(hCorrections1D_["hPileUpData_central"],hCorrections1D_["hPileUpMC"],this->nTruePileup());
+			NumberOfGenEvents_afterMHat_rewPU += weight_["PU_central"];
+		}
+
 		//Select only good JSon runs for Data
-		if(!isMC() && !this->selectJson() ) continue;
+		if(!isMC()) if(!cuts_.check("json",this->selectJson() )) continue;
 
 	    //Define Jet Collection
 		auto offlineJets = this->collection<Jet>("Jets");
@@ -100,11 +178,12 @@ void JetAnalysisBase::applySelection(){
 		if(isMC()){
 			genJets_ = (std::shared_ptr<Collection<Jet> >) this->collection<Jet>("GenJets");
 			//Apply JER smearing if this is MC:
-			offlineJets->matchTo(*genJets_,3,0.2);
-			offlineJets->smearTo(*genJets_,JERshift_);
+		    offlineJets->matchTo(*genJets_,3,0.2);
+		    offlineJets->smearTo(*genJets_,JERshift_);
 		}
 
-		if(offlineJets->size() < nJets_ ) continue;
+//		if(offlineJets->size() < nJets_ ) continue;
+		if(!cuts_.check("nJets",offlineJets->size() >= nJets_)) continue;
 		//Match offline Jets to online Objects
 
 		this->match<Jet,TriggerObject>("Jets",this->getTriggerObjectNames());
@@ -114,12 +193,19 @@ void JetAnalysisBase::applySelection(){
 
 	    goodLeadingJets = false;
 		Jet LeadJet[5];
+		std::vector<std::pair<int,Jet> > TrueBJets;
 		ScaleFactor sf[5];
 	    Ht = 0.;
 	    //Jet Selection
 	    for( int iJet = 0; iJet < offlineJets -> size(); ++iJet){
 	    	Jet jet = offlineJets->at(iJet);
 	    	shiftedJets = this->modifyJetCollection(jet,shiftedJets);
+	    	jet = shiftedJets->at(iJet);
+
+	    	if(isMC() && jet.flavour() == 5) {
+	    		TrueBJets.push_back( std::pair<int,Jet> (iJet,jet) );
+	    		++n_true_b;
+	    	}
 
 	    	//ht calculation
 	    	if(jet.idLoose()) Ht +=jet.pt();
@@ -147,10 +233,33 @@ void JetAnalysisBase::applySelection(){
 	    		if(iJet == nJets_ - 1) goodLeadingJets = true;
 	    	}
 	    }
-	    if(!goodLeadingJets) continue;
+
+	    // STUDY OF THE FLAVOUR COMPOSITION
+	    int j = 0;
+	    if(isMC()){
+	    	for(const auto & jpair : TrueBJets){
+	    		std::string name = "bJet" + std::to_string(j) + "_pt";
+	    		(histo_.getHisto())[name]->Fill(jpair.second.pt());
+	    		name = "bJet" + std::to_string(j) + "_eta";
+	    		(histo_.getHisto())[name]->Fill(jpair.second.eta());
+	    		name = "bJet" + std::to_string(j) + "_btag";
+	    		(histo_.getHisto())[name]->Fill(jpair.second.btag());
+	    		name = "bJet" + std::to_string(j) + "_order";
+	    		(histo_.getHisto())[name]->Fill(jpair.first);
+	    		++j;
+	    	}
+	    }
+
+
+	    (histo_.getHisto())["nTrue_b"]->Fill(n_true_b);
+	    n_true_b = 0;
+	    if(!cuts_.check("LoosID",goodLeadingJets)) continue;
+//	    if(!goodLeadingJets) continue;
 	    //Should return true for trigger efficiency study
-	    if(!this->leadingJetSelection(shiftedJets)) continue;
+//	    if(!this->leadingJetSelection(shiftedJets)) continue;
+	    if(!cuts_.check("LeadingJetSelection",leadingJetSelection(shiftedJets))) continue;
 	    this->Ht(Ht);
+
 	    //Weights:
 	    if(isMC()){
 	    	//.........................Calculate weights...............
@@ -173,16 +282,26 @@ void JetAnalysisBase::applySelection(){
 	    	weight_["PtTriggerEfficiency"]= pWeight_->PtTriggerEfficiency(LeadJet[0].pt(), LeadJet[0].eta()) * pWeight_->PtTriggerEfficiency(LeadJet[1].pt(), LeadJet[1].eta());
 	    	weight_["dEta"]     		= pWeight_->dEtaWeight(std::abs(LeadJet[0].eta() - LeadJet[1].eta()));
 	    	//TODO: Data luminosity!!!
-	    	if(!signalMC_) {
-	    		weight_["Lumi"] 			=pWeight_->LumiWeight(dataLumi_,this->luminosity());
+//	    	if(!signalMC_) {
+//	    		weight_["Lumi"] 			=pWeight_->LumiWeight(dataLumi_,this->luminosity());
+//	    	}
+//	    	else weight_["Lumi"] 			=pWeight_->LumiWeight(dataLumi_,this->numberGenEvents()/xsection_[returnMassPoint()]);
+
+//	    	else weight_["Lumi"] 			=pWeight_->LumiWeight(dataLumi_,weight_["TOT_GEN_EVENTS"]/xsection_[returnMassPoint()]);
+//	    	else weight_["Lumi"] 			=pWeight_->LumiWeight(dataLumi_,this->numberFilteredGenEvents()/xsection_[returnMassPoint()]);
+
+	    	std::string file_name = outputFile_->GetName();
+	    	if(file_name.find("madgraphMLM") != std::string::npos && ( file_name.find("bEnriched") != std::string::npos || file_name.find("TuneCUETP8M1") != std::string::npos )){
+	    		weight_["Ht"]  = pWeight_->HtWeight(hCorrections1D_["hHtWeight"],Ht);
 	    	}
-	    	else weight_["Lumi"] 			=pWeight_->LumiWeight(dataLumi_,this->numberFilteredGenEvents()/xsection_[returnMassPoint()]);
-	    	weight_["Ht"]       		= pWeight_->HtWeight(hCorrections1D_["hHtWeight"],Ht);
+	    	else weight_["Ht"] = 1;
 
 	    	//2SIGMA variation!!!!!!
-	    	weight_["PU_central"] 	= pWeight_->PileUpWeight(hCorrections1D_["hPileUpData_central"],hCorrections1D_["hPileUpMC"],this->nTruePileup());
 	    	weight_["PU_down"]    	= pWeight_->PileUpWeight(hCorrections1D_["hPileUpData_down"],hCorrections1D_["hPileUpMC"],this->nTruePileup());
 	    	weight_["PU_up"]      	= pWeight_->PileUpWeight(hCorrections1D_["hPileUpData_up"],hCorrections1D_["hPileUpMC"],this->nTruePileup());
+
+//	    	std::cout<<"wt: "<<weight_["PU_central"]<<" "<<weight_["PU_down"]<<" "<<weight_["PU_up"]<<std::endl;
+//	    	std::cout<<"wt: "<<weight_["PU_central"]<<" "<<weight_["PU_down"]/weight_["PU_central"]<<" "<<weight_["PU_up"]/weight_["PU_central"]<<"\n"<<std::endl;
 
 	    	weight_["PtEff_central"]	= F;
 	    	weight_["PtEff_up"]       	= F + 2.*dF;
@@ -221,20 +340,51 @@ void JetAnalysisBase::applySelection(){
         	  }
 
 	    }
+
+	    ++NumberOfEventsAfterSelection;
+
 	    totWeight = this->assignWeight();
 	    this->fillHistograms(shiftedJets,totWeight);
-		(histo_.getHisto())["NumberOfSelectedEvents"] -> Fill(shiftedJets->size(),totWeight);
+		NumberOfEventsAfterSelection_weighted += totWeight;
 
 	}
-		double nGenMHat = 0;
-	(histo_.getHisto())["TotalNumberOfGenEvents"] -> Fill(this->numberGenEvents());
-	(histo_.getHisto())["NumberOfFilteredEvents"] -> Fill(this->size());
-	if(signalMC_) {
-		(histo_.getHisto())["xsection"] -> Fill(xsection_[returnMassPoint()]);
-		nGenMHat = this->numberFilteredGenEvents() * weight_["Lumi"];
-		(histo_.getHisto())["NumberOfGenEvents_afterMHat"] -> Fill(nGenMHat);
+
+	double xsection = 0;
+	if(isMC()){
+		if(!signalMC_) {
+			xsection = this->crossSection();
+		}
+		else {
+			xsection = xsection_[returnMassPoint()];
+		}
+		weight_["Lumi"] 			=pWeight_->LumiWeight(dataLumi_,NumberOfGenEvents_afterMHat_rewPU / xsection);
 	}
-	else (histo_.getHisto())["xsection"] -> Fill(this->crossSection());
+
+
+	(histo_.getHisto())["xsection"]->Fill(xsection);
+	(histo_.getHisto())["lumi_weight"]->Fill(weight_["Lumi"]);
+	(histo_.getHisto())["TotalNumberOfGenEvents"]->Fill(TotalNumberOfGenEvents) ;
+	(histo_.getHisto())["NumberOfGenEvents_afterMHat"]->Fill(NumberOfGenEvents_afterMHat);
+	(histo_.getHisto())["NumberOfGenEvents_afterMHat_rewPU"]->Fill(NumberOfGenEvents_afterMHat_rewPU);
+
+	cuts_.Print();
+
+	if(isMC()){
+		std::cout<<"***********************************"<<std::endl;
+		std::cout<<"# generated events: "<<TotalNumberOfGenEvents<<std::endl;
+		if(isSignalMC()) std::cout<<"# generated events after MHat cut: "<<NumberOfGenEvents_afterMHat<<std::endl;
+		std::cout<<"# generated events after MHat cut and PU rew : "<<NumberOfGenEvents_afterMHat_rewPU<<std::endl;
+		std::cout<<"# selected events: "<<NumberOfEventsAfterSelection<<std::endl;
+		std::cout<<"# selected weighted evetns: "<<NumberOfEventsAfterSelection_weighted<<std::endl;
+		std::cout<<"Cross section: "<<xsection<<" Effective Lumi: "<<NumberOfGenEvents_afterMHat_rewPU / xsection<<std::endl;
+		std::cout<<"***********************************"<<std::endl;
+	}
+	else{
+		std::cout<<"***********************************"<<std::endl;
+		std::cout<<"Total number of Events: "<<TotalNumberOfGenEvents<<std::endl;
+		std::cout<<"Number of selected Events: "<<NumberOfEventsAfterSelection<<std::endl;
+		std::cout<<"***********************************"<<std::endl;
+	}
 
 //	this->writeHistograms();
 //	outputFile_->Close();
@@ -269,8 +419,24 @@ void JetAnalysisBase::loadCorrections(){
 		hCorrections2D_["hPtTriggerEff"] = (TH2D*) fCorrections_["fPtTriggerEff"] ->Get("TwoDEff_Num") ; // 2D
 
 		// Add Ht reweighting:
-		fCorrections_["fHtWeight"] = std::make_unique<TFile>("input_corrections/HtRatio.root","read");
-		hCorrections1D_["hHtWeight"] =  (TH1D*) fCorrections_["fHtWeight"] -> Get("hRatio") ;
+		std::string file_name = outputFile_->GetName();
+//		if(file_name.find("BGenFilter") != std::string::npos ){
+//			fCorrections_["fHtWeight"] = std::make_unique<TFile>("input_corrections/DataMC_HT_Correction_lowM_BGenFilter.root","read");
+//			hCorrections1D_["hHtWeight"] =  (TH1D*) fCorrections_["fHtWeight"] -> Get("h_clone") ;
+//		}
+		std::string file_ht_name;
+		if(file_name.find("bEnriched") != std::string::npos || file_name.find("BGenFilter") != std::string::npos){
+//			fCorrections_["fHtWeight"] = std::make_unique<TFile>("input_corrections/bbx_HT_Correction_lowM_QCD_b_Ht.root","read");
+			if(nJets_ == 2) file_ht_name = "input_corrections/QCD_HT_2b_Correction_lowM_QCD.root";
+			else file_ht_name = "input_corrections/bbx_HT_Correction_lowM_QCD.root";
+			fCorrections_["fHtWeight"] = std::make_unique<TFile>(file_ht_name.c_str(),"read");
+			hCorrections1D_["hHtWeight"] =  (TH1D*) fCorrections_["fHtWeight"] -> Get("h_clone") ;
+			std::cout<<"HT corrections for bEnriched + BGenFilter samples were loaded"<<std::endl;
+		}
+		else if (file_name.find("TuneCUETP8M1") != std::string::npos) {
+			fCorrections_["fHtWeight"] = std::make_unique<TFile>("input_corrections/DataMC_HT_Correction_lowM_TuneCUETP8M1.root","read");
+			hCorrections1D_["hHtWeight"] =  (TH1D*) fCorrections_["fHtWeight"] -> Get("h_clone") ;
+		}
 
 	}
 	else {
@@ -284,8 +450,15 @@ void JetAnalysisBase::loadCorrections(){
 		hCorrections2D_["hPtTriggerEff"]  = (TH2D*) fCorrections_["fPtTriggerEff"] ->Get("TwoDEff_Num"); // 2D
 
 		// Add Ht reweighting:
-		fCorrections_["fHtWeight"] = std::make_unique<TFile>("input_corrections/HtRatio.root","read");
-		hCorrections1D_["hHtWeight"] =  (TH1D*) fCorrections_["fHtWeight"] -> Get("hRatio") ;
+		std::string file_name = outputFile_->GetName();
+		if(file_name.find("BGenFilter") != std::string::npos ){
+			fCorrections_["fHtWeight"] = std::make_unique<TFile>("input_corrections/DataMC_HT_Correction_highM_BGenFilter.root","read");
+			hCorrections1D_["hHtWeight"] =  (TH1D*) fCorrections_["fHtWeight"] -> Get("h_clone") ;
+		}
+		else if (file_name.find("TuneCUETP8M1") != std::string::npos) {
+			fCorrections_["fHtWeight"] = std::make_unique<TFile>("input_corrections/DataMC_HT_Correction_highM_TuneCUETP8M1.root","read");
+			hCorrections1D_["hHtWeight"] =  (TH1D*) fCorrections_["fHtWeight"] -> Get("h_clone") ;
+		}
 
 	}
 	fCorrections_["fPileUpData_central"] = std::make_unique<TFile>("input_corrections/PileUp_2015Dec_central.root","read");
@@ -411,7 +584,7 @@ const JetAnalysisBase::ScaleFactor JetAnalysisBase::calculateBTagSF(const tools:
 }
 
 void JetAnalysisBase::makeHistograms(const int & size){
-	histo_.Make(size);
+	histo_.Make(size,lowM_);
 }
 
 void JetAnalysisBase::SetupStandardOutputFile(const std::string & outputFileName){
@@ -433,7 +606,7 @@ void JetAnalysisBase::SetupStandardOutputFile(const std::string & outputFileName
 		fullName = fullName.substr(0,found);
 		found = fullName.find_last_of("/");
 
-		if(is_mc_){
+		if(is_mc_ && findStrings(fullName,"asymptotic")){
 			fullName = fullName.substr(0,found);
 			found = fullName.find_last_of("/");
 			fullName = fullName.substr(found+1);
@@ -515,15 +688,6 @@ void JetAnalysisBase::runAnalysis(const std::string &json, const std::string &ou
 	this->makeHistograms(size);
 	this->applySelection();
 	this->writeHistograms();
-}
-
-const bool findStrings(const std::string & input, const std::string & needful){
-	std::string input1 = input;
-	std::string input2 = needful;
-	std::transform(input1.begin(),input1.end(),input1.begin(),tolower);
-	std::transform(input2.begin(),input2.end(),input2.begin(),tolower);
-	if(input1.find(input2) != std::string::npos) return true;
-	else return false;
 }
 
 const double JetAnalysisBase::assignWeight(){

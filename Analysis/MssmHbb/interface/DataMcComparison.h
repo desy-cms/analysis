@@ -17,6 +17,8 @@
 #include "Analysis/MssmHbb/interface/JetAnalysisBase.h"
 #include "Analysis/MssmHbb/interface/selectionDoubleB.h"
 #include "Analysis/Tools/interface/Jet.h"
+#include "Analysis/MssmHbb/interface/utilLib.h"
+#include "Analysis/MssmHbb/interface/CutFlow.h"
 
 
 namespace analysis{
@@ -28,9 +30,11 @@ namespace analysis{
 			DataMcComparison(const std::string & inputFilelist,
 							const double & dataLumi,
 							const bool & lowM = true,
+							const int & njets = 2,
 							const bool & test = true);
 			virtual ~DataMcComparison();
 
+			const virtual bool leadingJetSelection(const std::shared_ptr<tools::Collection<tools::Jet> > & offlineJets);
 			//Overwrite Leading jet selection from JetAnalysisBase class
 			virtual void fillHistograms(const std::shared_ptr<tools::Collection<tools::Jet> > &offlineJets, const double & weight);
 			//Overwrite assignWeight method:
@@ -49,6 +53,7 @@ namespace analysis{
 
 			tools::Jet jet1_{};
 			tools::Jet jet2_{};
+			tools::Jet jet3_{};
 			TLorentzVector diJetObject_{};
 
 		private:

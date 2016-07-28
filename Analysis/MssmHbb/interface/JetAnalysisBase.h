@@ -34,6 +34,9 @@
 #include "Analysis/MssmHbb/interface/Weights.h"
 #include "Analysis/MssmHbb/interface/Histograms.h"
 #include "Analysis/MssmHbb/interface/BTagCalibrationStandalone.h"
+#include "Analysis/MssmHbb/interface/utilLib.h"
+
+#include "Analysis/MssmHbb/interface/CutFlow.h"
 
 
 //TODO: Add template arguments to unique_ptr depending on the TH type
@@ -91,7 +94,7 @@ namespace analysis{
 
         //Return std::vector that contains names of all trigger objects
         std::vector<std::string> getTriggerObjectNames();
-        const TFile & getOutputFile();
+        TFile * getOutputFile();
         const bool & getLowM();
         const bool & isSignalMC();
         int returnMassPoint() const;
@@ -111,6 +114,7 @@ namespace analysis{
         double JESshift_{};
         double JERshift_{};
         std::string baseOutputName_{};
+        CutFlow cuts_;
 
         //generated jetcollection:
         std::shared_ptr<tools::Collection<tools::Jet > > genJets_;
@@ -137,6 +141,7 @@ namespace analysis{
         double pt3_ =  40;
         double eta1_ = 2.2;
         double eta2_ = 2.2;
+        double eta3_ = 2.2;
         double btag1_= 0.935;
         double btag2_= 0.935;
         double btag3_= 0.46;
@@ -145,6 +150,7 @@ namespace analysis{
         int btagOP1_ = 2; //OPerating points for BTag. 0 - Loose, 1 - Mid, 2 - Tight
         int btagOP2_ = 2;
         int btagOP3_ = 0;
+        double mHat_ = 0;
 
         std::unique_ptr<Weights> pWeight_;
         std::map<std::string,TH1D *>  hCorrections1D_;
@@ -171,7 +177,7 @@ namespace analysis{
 	};
 
 	inline std::vector<std::string> JetAnalysisBase::getTriggerObjectNames() {return triggerObjectName_;}
-	inline const TFile & JetAnalysisBase::getOutputFile(){ return *outputFile_;}
+	inline TFile * JetAnalysisBase::getOutputFile(){ return outputFile_.get();}
 	inline const bool & JetAnalysisBase::getLowM(){ return lowM_;}
 	inline const bool & JetAnalysisBase::isSignalMC(){ return signalMC_;}
 	inline const double & JetAnalysisBase::Ht(){ return Ht__;}

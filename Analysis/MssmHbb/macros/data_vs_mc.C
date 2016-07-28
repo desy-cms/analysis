@@ -9,12 +9,26 @@ void renormalise(TH1*);
 void cosmetics(TH1* h);
 void blind(TH1* h);
 
+const bool findStrings(const std::string & input, const std::string & needful)
+{
+	std::string input1 = input;
+	std::string input2 = needful;
+	std::transform(input1.begin(),input1.end(),input1.begin(),::tolower);
+	std::transform(input2.begin(),input2.end(),input2.begin(),::tolower);
+	if(input1.find(input2) != std::string::npos) return true;
+	else return false;
+}
+
 int data_vs_mc(){
 	gROOT->Reset();
 
-	std::string lowM = "highM";
-	TFile *data_low_m = new TFile( ("../output/DataMC_" + lowM + "_Run2015.root").c_str() );
-	TFile *mc_low_m 	 = new TFile( ("../output/DataMC_" + lowM + "_QCD.root").c_str() );
+	std::string selection = "DataMC_3b";
+	std::string lowM = "lowM";
+	std::string MCsample = "QCD";
+	TFile *data_low_m = new TFile( ("../output/" + selection + "_" + lowM + "_Run2015.root").c_str() );
+	TFile *mc_low_m 	 = new TFile( ("../output/" + selection + "_" + "NoHTrew_"  + lowM + "_" + MCsample + ".root").c_str() );
+	
+	TFile * Ht_correction = new TFile( (selection + "_HT_Correction_" + lowM + "_" + MCsample + ".root").c_str(),"RECREATE" );
 
 	//Style
 	HbbStyle style;
@@ -36,7 +50,7 @@ int data_vs_mc(){
 						"diJet_b_pt","diJet_b_eta","diJet_b_phi","diJet_b_m"};
 						//,"jet_b_dphi12"};
 	//Systematic list:
-	vector<string> Syst = {"PtEff","PU","SFb","SFl","JES","JER"};
+	vector<string> Syst = {"JEC","JES","PU","SFb","SFl","PtEff"};
 
 	//histo list:
 	map<string,TH1D*> h_data_low_m;
@@ -55,13 +69,19 @@ int data_vs_mc(){
 		can_low_m[v] 	= new TCanvas((v+"_lowM").c_str(),(v+"_lowM").c_str(),1000,800);
 		h_data_low_m[v]	= (TH1D*) data_low_m->Get(name.c_str());
 		h_mc_low_m[v]	= (TH1D*) mc_low_m->Get(name.c_str());
+		std::cout<<"Scale = "<<h_data_low_m[v]->Integral()/h_mc_low_m[v]->Integral()<<std::endl;
+//		h_mc_low_m[v] ->Scale(h_data_low_m[v]->Integral()/h_mc_low_m[v]->Integral());
+		if(MCsample == "BGenFilter")  h_mc_low_m[v] ->Scale(1./0.3);
 		h_syst_low_m[v]	= (TH1D*) h_mc_low_m[v]->Clone();
 		h_data_low_m[v] -> SetMinimum(0.);
 		h_data_low_m[v] ->SetTitle("");
-		if(v.find("pt") != string::npos) h_data_low_m[v]->GetXaxis()->SetRangeUser(0.,h_data_low_m[v]->GetXaxis()->GetXmax());
+		if(findStrings(v,"pt")) h_data_low_m[v]->GetXaxis()->SetRangeUser(0.,h_data_low_m[v]->GetXaxis()->GetXmax());
 
 		for(const string & s : Syst){
-			systCalc.CalculateSingleSystError( (TH1D*) mc_low_m->Get((name + "_"+s+"_up").c_str()), (TH1D*) mc_low_m->Get((name +"_"+s+"_down").c_str()));
+			TH1D *up 	= (TH1D*) mc_low_m->Get((name + "_" + s + "_up").c_str());
+			TH1D *down 	= (TH1D*) mc_low_m->Get((name + "_" + s + "_down").c_str());
+			if(!up || !down) continue;
+			systCalc.CalculateSingleSystError(up, down);
 		}
 		systCalc.AddUncorelatedSystErrors(h_syst_low_m[v]);
 
@@ -72,19 +92,25 @@ int data_vs_mc(){
 		renormalise(h_mc_low_m[v]);
 		renormalise(h_syst_low_m[v]);
 
-		if(v.find("diJet") != std::string::npos && v.find("m") != std::string::npos) blind(h_data_low_m[v]);
+		if( findStrings(v,"diJet") && findStrings(v,"m")) blind(h_data_low_m[v]);
 
 		h_ratio_low_m[v] = (TH1D*) ratio.DrawRatio(h_data_low_m[v],h_mc_low_m[v],can_low_m[v],leg[v],h_syst_low_m[v]);
 		h_ratio_low_m[v] -> SetAxisRange(0.2,1.8,"Y");
 		ratio.GetTopPad();		style.drawStandardTitle();
-		if(v.find("pt") != string::npos || v.find("dphi") != std::string::npos || v.find("Ht") != string::npos) {
+		if(findStrings(v,"pt") || findStrings(v,"dphi") || findStrings(v,"Ht")) {
 			h_data_low_m[v]->SetMinimum(0.01);
 			gPad->SetLogy();
 		}
-		can_low_m[v]->Print(("pictures/DataVsMC/" + v + "_" + lowM + ".pdf").c_str());
+		if (findStrings(v,"Ht") && (MCsample == "BGenFilter" || MCsample == "TuneCUETP8M1" || MCsample.find("QCD") != std::string::npos)){
+			TH1D *h_temp = (TH1D*) h_ratio_low_m[v] -> Clone("h_clone");
+//			h_temp->GetYaxis()->SetRangeUser(0,5);
+			std::cout<<"WTF"<<std::endl;
+			h_temp -> Write();
+		}
+		can_low_m[v]->Print(("pictures/DataVsMC/" + v + "_" + lowM + "_" + MCsample + ".pdf").c_str());
 		/**/
 	}
-
+	Ht_correction->Close();
 	return 0;
 }
 

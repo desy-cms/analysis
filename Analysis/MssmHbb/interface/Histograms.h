@@ -25,7 +25,7 @@
 		Histograms();
 		virtual ~Histograms();
 
-		void Make(const int &size = 100);
+		void Make(const int &size = 100, const bool & lowM = true);
 
 //        struct Systematics{
 //			Systematics() : central(0), up(0), down (0) {};

@@ -204,7 +204,9 @@ void Analysis::crossSections(const std::string & path)
 
 double Analysis::crossSection()
 {
-   return this -> crossSection("crossSection");
+//	if( xsections_["myCrossSection"] != -1  && xsections_["myCrossSection"] != 1) return xsections_["myCrossSection"];
+//	else return this -> crossSection("crossSection");
+	return this -> crossSection("crossSection");
 }
 double Analysis::crossSection(const std::string & xs)
 {
@@ -214,7 +216,10 @@ double Analysis::crossSection(const std::string & xs)
 
 double Analysis::luminosity()
 {
+//	if( xsections_["myCrossSection"] != -1 && xsections_["myCrossSection"] != 1 ) return (evtfilter_.total / this -> crossSection("myCrossSection") );
+//	else return (evtfilter_.total / this -> crossSection() );
 	return (evtfilter_.total / this -> crossSection() );
+
 }
 
 double Analysis::luminosity(const std::string & xs)

@@ -1,5 +1,9 @@
 #include "Analysis/MssmHbb/macros/Drawer/HttStylesNew.cc"
 #include "Analysis/MssmHbb/macros/Drawer/CMS_lumi.C"
+#include "Analysis/MssmHbb/src/PlotTanBetaLimit.C"
+//#include "Analysis/MssmHbb/macros/signal/mssm_xs_tools.h"
+//#include "Analysis/MssmHbb/macros/signal/mssm_xs_tools.C"
+
 #include "TString.h"
 #include "TFile.h"
 #include "TLatex.h"
@@ -26,15 +30,17 @@ namespace fs = boost::filesystem;
 using namespace std;
 using namespace boost::program_options;
 
-void PlotLimit(const char * fileList = "Hbb.limits",
-	       float yMin = 0.1,
+void PlotSigmaBRLimit(const char * fileList = "Hbb.limits",
+	       std::string output = "",
+		   bool blindData = true,
+	       float yMin = 0.5,
 	       float yMax = 1000,
 	       float xMax = -150,
-	       TString Lumi = "2.3 fb^{-1}",
+	       TString Lumi = "2.62 fb^{-1}",
 	       TString xtitle = "m_{#Phi} [GeV]",
 	       TString ytitle = "95% C.L. limit on #sigma#times BR [pb]",
-	       bool logY = true,
-	       bool blindData = true);
+	       bool logY = true
+	       );
 
 int main(int argc, char * argv[]){
 
@@ -50,14 +56,17 @@ int main(int argc, char * argv[]){
     // Declare a group of options that will be allowed only on command line
 	options_description cmdLineOptions("CMD Optional arguments");
 	cmdLineOptions.add_options()
-	    ("input_file,i", value<std::string>()->default_value(cmsswBase+"/src/Analysis/MssmHbb/datacards/Hbb.limits"),"Input file with outputs of the Combination tool")
-		("yMin", value<double>()->default_value(5e-02),"YMin")
-		("yMax", value<double>()->default_value(1000),"YMax")
-		("xMax", value<double>()->default_value(-150),"XMax")
-		("Lumi", value<std::string>()->default_value("2.3 fb^{-1}"),"String with Lumi, i.e.: 2.3 fb^{-1}")
-		("xtitle", value<std::string>()->default_value("m_{#Phi} [GeV]"),"X axis Title")
-		("ytitle", value<std::string>()->default_value("95% C.L. limit on #sigma#times BR [pb]"),"Y axis Title")
-		("logY", value<bool>()->default_value(true),"Log Y axis? True/False")
+		("mode,M", value<std::string>()->default_value("all"),"Mode. Can be: tanBeta/sigmaBR/all depending on what kind of limits you would like to compute")
+		("output_file,o", value<std::string>()->default_value(""),"Output file name. Will be conbined with default 'Hbb.limits'")
+	    ("input_file,i", value<std::string>()->default_value(cmsswBase + "/src/Analysis/MssmHbb/datacards/Hbb.limits"),"Input file with outputs of the Combination tool - Hbb.limits")
+		("benchmark,b",value<std::string>()->default_value(cmsswBase + "/src/Analysis/MssmHbb/macros/signal/mhmodp_mu200_13TeV.root"),"Input root file with benchmark scenario")
+//		("yMin", value<double>()->default_value(5e-01),"YMin")
+//		("yMax", value<double>()->default_value(1000),"YMax")
+//		("xMax", value<double>()->default_value(-150),"XMax")
+//		("Lumi", value<std::string>()->default_value("2.62 fb^{-1}"),"String with Lumi, i.e.: 2.62 fb^{-1}")
+//		("xtitle", value<std::string>()->default_value("m_{#Phi} [GeV]"),"X axis Title")
+//		("ytitle", value<std::string>()->default_value("95% C.L. limit on #sigma#times BR [pb]"),"Y axis Title")
+//		("logY", value<bool>()->default_value(true),"Log Y axis? True/False")
 		("blindData", value<bool>()->default_value(true),"Blinded Data? True/False")
 	    ;
     // Hidden options, will be allowed both on command line and
@@ -85,22 +94,42 @@ int main(int argc, char * argv[]){
 	 }
     store(parse_command_line(argc, argv,all_options), output_vm);
 
-  std::string  inputList_ 	=  output_vm["input_file"].as<std::string>();
-  auto yMin_				=	output_vm["yMin"].as<double>();
-  auto yMax_				=	output_vm["yMax"].as<double>();
-  auto xMax_				=	output_vm["xMax"].as<double>();
-  TString Lumi_ 				=  output_vm["Lumi"].as<std::string>();
-  TString xtitle_ 				=  output_vm["xtitle"].as<std::string>();
-  TString ytitle_ 				=  output_vm["ytitle"].as<std::string>();
-  auto logY_ 				=  output_vm["logY"].as<bool>();
+    std::string  mode_			=  output_vm["mode"].as<std::string>();
+    std::string  inputList_ 	=  output_vm["input_file"].as<std::string>();
+    std::string  benchmark_		=  output_vm["benchmark"].as<std::string>();
+    std::string  outFileName_   =  output_vm["output_file"].as<std::string>();
+//  auto yMin_				=	output_vm["yMin"].as<double>();
+//  auto yMax_				=	output_vm["yMax"].as<double>();
+//  auto xMax_				=	output_vm["xMax"].as<double>();
+//  TString Lumi_ 				=  output_vm["Lumi"].as<std::string>();
+//  TString xtitle_ 				=  output_vm["xtitle"].as<std::string>();
+//  TString ytitle_ 				=  output_vm["ytitle"].as<std::string>();
+//  auto logY_ 				=  output_vm["logY"].as<bool>();
   auto blindData_ 			=  output_vm["blindData"].as<bool>();
 
   //Check whether input file contain only .root files or .txt
   cout<<inputList_<<endl;
   std::string line;
   std::ifstream infile(inputList_);
+  std::ifstream benchFile(benchmark_);
   if(infile){
-	  PlotLimit(inputList_.c_str(),yMin_,yMax_,xMax_,Lumi_,xtitle_,ytitle_,logY_,blindData_);
+	  //Check which mode to use:
+	  if( (mode_ == "all" || mode_ == "tanBeta") && !benchFile){
+		  std::cerr<<"Error no file: "<<benchmark_<<" with benchmark scenarious"<<std::endl;
+		  exit(-1);
+	  }
+	  if(mode_ == "all"){
+		  PlotSigmaBRLimit(inputList_.c_str(),outFileName_,blindData_);
+
+		  PlotTanBetaLimit(inputList_,outFileName_,benchmark_,blindData_);
+	  }
+	  else if( mode_ == "tanBeta"){
+		  PlotTanBetaLimit(inputList_,outFileName_,benchmark_,blindData_);
+	  }
+	  else if (mode_ == "sigmaBR"){
+		  PlotSigmaBRLimit(inputList_.c_str(),outFileName_,blindData_);
+	  }
+
   }
   else {
 	  std::cerr<<"Error wrong Input file name."<<std::endl;
@@ -109,8 +138,7 @@ int main(int argc, char * argv[]){
 	return 0;
 }
 
-void PlotLimit(const char * fileList, float yMin, float yMax, float xMax, TString Lumi, TString xtitle, TString ytitle, bool logY, bool blindData) {
-
+void PlotSigmaBRLimit(const char * fileList, std::string output, bool blindData, float yMin, float yMax, float xMax, TString Lumi, TString xtitle, TString ytitle, bool logY) {
 
   // char * filelist - List of files (output RooT files
   //                   produced by 'combine -M Asymptotic')
@@ -120,9 +148,16 @@ void PlotLimit(const char * fileList, float yMin, float yMax, float xMax, TStrin
   //                 1 : mh-mod +
   //                 2 : mh-mod -
 
+
   SetStyle();
   gStyle->SetOptFit(0000);
   gStyle->SetErrorX(0.5);
+
+  //output .txt file with limits
+  std::string suffix(fileList);
+  if(output!="") suffix += "_" + output;
+  std::fstream fs;
+  fs.open( (suffix + ".txt").c_str(),std::fstream::out );
 
   const int nPoints = 100;
 
@@ -205,6 +240,7 @@ void PlotLimit(const char * fileList, float yMin, float yMax, float xMax, TStrin
   std::cout << std::endl;
   std::cout << "m(H)     -2s     -1s  median     +1s     +2s     obs" << std::endl; 
   //           " 100  136.83  197.90  308.62  507.92  840.93  308.62"
+  fs<< "m(H)     -2s     -1s  median     +1s     +2s     obs \n";
  
 
   for (int i=0; i<counter; ++i) {
@@ -220,6 +256,8 @@ void PlotLimit(const char * fileList, float yMin, float yMax, float xMax, TStrin
     sprintf(strOut,"%4i  %6.2f  %6.2f  %6.2f  %6.2f  %6.2f  %6.2f",
 	    int(mA[i]),minus2[i],minus1[i],median[i],plus1[i],plus2[i],obs[i]);
     std::cout << strOut << std::endl;
+    fs<<strOut;
+    fs<<"\n";
 
   }
   std::cout << std::endl;
@@ -319,10 +357,10 @@ void PlotLimit(const char * fileList, float yMin, float yMax, float xMax, TStrin
   pad->RedrawAxis();
 
   leg->Draw();
-  canv->SetLogy();
+  if(logY) canv->SetLogy();
   canv->Update();
-  TString suffix(fileList);
-  canv->Print(suffix+".pdf","Portrait pdf");
-  canv->Print(suffix+".png");
-
+  canv->Print( (suffix+".pdf").c_str() ,"Portrait pdf");
+  canv->Print( (suffix+".png").c_str()) ;
+  fs.close();
 }
+

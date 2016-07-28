@@ -1,3 +1,6 @@
+#ifndef ANALYSIS_MSSMHBB_MACROS_HTTSTYLESNEW_CC_
+#define ANALYSIS_MSSMHBB_MACROS_HTTSTYLESNEW_CC_
+
 #include <TH1.h>
 #include <TPad.h>
 #include <TStyle.h>
@@ -239,3 +242,5 @@ void plotchannel(TString channel) {
    tex->Draw();
 
 }
+
+#endif

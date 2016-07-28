@@ -7,17 +7,18 @@
 
 echo "combine -M Asymptotic -m MASS hbb_mbb*_mssm-13TeV.txt"
 
-cd ../datacards/
+cd ../datacards/v20160727/combination
 
 limit_file=Hbb.limits
 [[ -f "$limit_file" ]] && rm "$limit_file"
 
-declare -a points=(100 120 160 200 250 300 350 400 500 600 700 900 1100 1300)
+#declare -a points=(100 120 160 200 250 300 350 400 500 600 700 900 1100 1300)
+declare -a points=(200 250 300 350 400 500 600 700 900 1100 1300)
 
 for i in "${points[@]}"; do
 	name=hbb_mbb${i}_mssm-13TeV.txt
 	echo "Process $i GeV Mass Point with: $name"
-	combine -M Asymptotic -n Hbb -m ${i} ${name}
+	combine -M Asymptotic --rMin=-20 --rMax=20 -v5 -n Hbb -m ${i} ${name} #&> logs/${i}_bestfit.log
 	root_name=`readlink -f "higgsCombineHbb.Asymptotic.mH${i}.root"`
 	echo "$root_name" >> "$limit_file"	
 done
@@ -28,8 +29,10 @@ hadd -f combineMerge.root higgsCombineHbb.Asymptotic.mH*.root
 
 echo "Merge Done: combineMerge.root were created"
 
-echo
-
-cd ..
+echo "run PlotLimit script"
+echo "mhmod+ scenario"
+PlotLimit -i Hbb.limits
+echo "hMSSM benchmark"
+#PlotLimit -M tanBeta -b ${CMSSW_BASE}/src/Analysis/MssmHbb/macros/signal/hMSSM_13TeV.root -i Hbb.limits
 
 echo "Done"
