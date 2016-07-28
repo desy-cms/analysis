@@ -53,6 +53,18 @@ void CutFlow::Print(){
 	}
 }
 
+template<typename T> T CutFlow::check(const std::string & name, const bool & cut){
+	return check(name,cut);
+}
+
+template<> void CutFlow::check(const std::string & name, const bool & cut){
+	if(cuts_[name] == nullptr) {
+		cuts_[name] = std::make_shared<Cut>(name);
+		++size_;
+	}
+	if(cut) cuts_[name]->increment();
+}
+
 const bool & CutFlow::check(const std::string & name, const bool & cut){
 	if(cuts_[name] == nullptr) {
 		cuts_[name] = std::make_shared<Cut>(name);

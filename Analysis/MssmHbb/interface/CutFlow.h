@@ -44,6 +44,7 @@ public:
 	}
 
 	void Add(const Cut & cut);												//Add cut to the map
+	template<typename T> T check(const std::string & name, const bool & cut);	//Check condition
 	const bool & check(const std::string & name, const bool & cut);			//Check condition
 	void check(const std::string & name);									//Check condition
 	void Print();															//Print information
