@@ -30,6 +30,7 @@
 #include "Analysis/MssmHbb/interface/X750Search.h"
 #include "Analysis/MssmHbb/interface/BgStudy.h"
 #include "Analysis/MssmHbb/interface/DataMcComparison.h"
+#include "Analysis/MssmHbb/interface/bbx.h"
 
 #include "Analysis/MssmHbb/macros/Drawer/FitMassDistribution.C"
 
@@ -94,6 +95,9 @@ int main(int argc, char * argv[])
 				  "  bgstudy 	- Bg Study asked by Chayanit; \n"
 				  "  datavsmc	- 2b selection for Data vs MC comparison; \n"
 				  "  fitter     - Fit Signal Templates with Analytical Curves.")
+				  ("nJets,n", value<int>()->required(),
+				  "  2 - double-jet selection; \n"
+				  "  3 - triple-jet selection."	  )
 				  ;
 
         // Hidden options, will be allowed both on command line and
@@ -159,6 +163,7 @@ int main(int argc, char * argv[])
 	  auto lowM_        =  output_vm["trigger"].as<int>();
 	  auto test_		 =  output_vm["test"].as<int>();
 	  auto lumi_				= output_vm["lumi"].as<double>();
+	  int nJets_		= output_vm["nJets"].as<int>();
 
 	  //Check whether input file contain only .root files or .txt
 	  if(boost::iequals(selection_,"fitter")){
@@ -171,53 +176,65 @@ int main(int argc, char * argv[])
 		  while(std::getline(infile, line)){
 			  fs::path p(line);
 			  try{
+				  std::string txt_file;
 				  if(fs::exists(p)){
 					  if(fs::extension(p) == ".root"){
-						  std::cout<<"THIS is ROOT"<<std::endl;
-						  break;
+						  std::cout<<"THIS are ROOT files in .txt"<<std::endl;
+						  txt_file = inputList_;
 					  }
 					  else if (fs::extension(p) == ".txt"){
-
-						  if(boost::iequals(selection_,"mssmhbb")){
-						  MssmHbbSignal analysis(line,lumi_,lowM_,test_);//,analysis_);
-						  analysis.runAnalysis(json_file_,output_,100);
-						  std::string output_name = analysis.getOutputFile().GetName();
-
-						  if(analysis.isSignalMC()){
-							  if(analysis.getLowM()){
-								  addBackgroundTemplate(output_name, "input_corrections/QCD_Templates_v0.root");
-							  }
-							  addAnalyticalFits(analysis.getOutputFile(), analysis.returnMassPoint());
-						  }
-
-
-						  }
-						  else if (boost::iequals(selection_,"trigger")){
-							  TriggerEfficiency analysis(line,lumi_,lowM_,test_);
-							  analysis.runAnalysis(json_file_,output_,100);
-						  }
-						  else if (boost::iequals(selection_,"2bjet")){
-							  selectionDoubleB analysis(line,lumi_,lowM_,test_);
-							  analysis.runAnalysis(json_file_,output_,100);
-						  }
-						  else if (boost::iequals(selection_,"X750")){
-							  X750Search analysis(line,lumi_,lowM_,test_);
-							  analysis.runAnalysis(json_file_,output_,100);
-						  }
-						  else if (boost::iequals(selection_,"bgstudy")){
-							  BgStudy analysis(line,lumi_,lowM_,test_);
-							  analysis.runAnalysis(json_file_,output_,100);
-						  }
-						  else if (boost::iequals(selection_,"datavsmc")){
-							  DataMcComparison analysis(line,lumi_,lowM_,test_);
-							  analysis.runAnalysis(json_file_,output_,100);
-						  }
-
+						  std::cout<<"this is txt file that conatin .gtxt files inside"<<std::endl;
+						  txt_file = line;
 					  }
 					  else {
 						  std::cerr<<"Wrong files extension"<<std::endl;
 						  exit(4);
 					  }
+
+					  if(boost::iequals(selection_,"mssmhbb")){
+						  MssmHbbSignal analysis(txt_file,lumi_,lowM_,test_);//,analysis_);
+						  analysis.runAnalysis(json_file_,output_,100);
+						  if(analysis.isSignalMC()){
+							  analysis.addStatErrorsTemplates(10);
+							  analysis.getOutputFile()->Close();
+							  std::string output_name = analysis.getOutputFile()->GetName();
+							  if(analysis.getLowM()){
+								  addBackgroundTemplate(output_name, "input_corrections/QCD_Templates_Novo.root");
+							  }
+							  else {
+							  	addBackgroundTemplate(output_name, "input_corrections/QCD_Templates_Novo_highM.root");
+							  }
+//							  addAnalyticalFits(analysis.getOutputFile(), analysis.returnMassPoint());
+						  }
+
+
+					  }
+					  else if (boost::iequals(selection_,"trigger")){
+						  TriggerEfficiency analysis(txt_file,lumi_,lowM_,test_);
+						  analysis.runAnalysis(json_file_,output_,100);
+					  }
+					  else if (boost::iequals(selection_,"2bjet")){
+						  selectionDoubleB analysis(txt_file,lumi_,lowM_,test_);
+						  analysis.runAnalysis(json_file_,output_,100);
+					  }
+					  else if (boost::iequals(selection_,"X750")){
+						  X750Search analysis(txt_file,lumi_,lowM_,test_);
+						  analysis.runAnalysis(json_file_,output_,100);
+					  }
+					  else if (boost::iequals(selection_,"bgstudy")){
+						  BgStudy analysis(txt_file,lumi_,lowM_,test_);
+						  analysis.runAnalysis(json_file_,output_,100);
+					  }
+					  else if (boost::iequals(selection_,"datavsmc")){
+						  DataMcComparison analysis(txt_file,lumi_,lowM_,nJets_,test_);
+						  analysis.runAnalysis(json_file_,output_,100);
+					  }
+					  else if (boost::iequals(selection_,"bbx")){
+						  bbx analysis(txt_file,lumi_,lowM_,test_);
+						  analysis.runAnalysis(json_file_,output_,100);
+					  }
+
+
 
 				  }
 				  else{
@@ -278,7 +295,7 @@ void addBackgroundTemplate(const std::string & signal_template, const std::strin
 		std::cout<<h->GetName()<<std::endl;
 		fsignal.cd();
 		h->Write(h->GetName());
-		if(objName == bgHisto){
+		if( objName == bgHisto){
 			h->Write("data_obs");
 		}
 	}
