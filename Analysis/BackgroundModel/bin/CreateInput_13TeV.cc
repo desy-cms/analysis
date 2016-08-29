@@ -9,9 +9,9 @@ int main(int /* argc */, char* /* argv */[]) {
   const auto cmsswBase = static_cast<std::string>(gSystem->Getenv("CMSSW_BASE"));
 
   const std::string inputFileName =
-    "/nfs/dust/cms/user/ghellwig/BackgroundModel_13TeV_data/DoubleBTagSelection.root";
+    "/nfs/dust/cms/user/chayanit/TripleBTagReverseSelection_76X_lowMTrigger_Run2015C_25ns-16Dec2015-v1_18_08_2016.root";
   const std::string outputFileName =
-    cmsswBase+"/src/Analysis/BackgroundModel/data/DoubleBTagSelection_13TeV.root";
+    cmsswBase+"/src/Analysis/BackgroundModel/data/TripleBTagReverseSelection_13TeV.root";
 
   TFile input(inputFileName.c_str(), "read");
   std::unique_ptr<TTree> inputTree(static_cast<TTree*>(input.Get("MssmHbb")));

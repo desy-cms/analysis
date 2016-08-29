@@ -3,6 +3,9 @@
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string/join.hpp>
 #include "TSystem.h"
+#include "TMatrixD.h"
+#include "TMatrixDSym.h"
+#include "TMatrixDSymEigen.h"
 #include "RooFitResult.h"
 #include "Analysis/BackgroundModel/interface/HistContainer.h"
 #include "Analysis/BackgroundModel/interface/TreeContainer.h"
@@ -148,13 +151,31 @@ int backgroundOnlyFit(ab::FitContainer& fitter, po::variables_map& vm) {
   }
 
   int returnValue = 0;
-  std::unique_ptr<RooFitResult> bkgOnlyFit = fitter.backgroundOnlyFit();
+  std::unique_ptr<RooFitResult> bkgOnlyFit = fitter.backgroundOnlyFit(vm["background_model"].as<std::string>());
   if (bkgOnlyFit) {
     std::cout << "\nCorrelation matrix of background-only fit:" << std::endl;
     if (&(bkgOnlyFit->correlationMatrix()) != nullptr) {
       bkgOnlyFit->correlationMatrix().Print("v");
+
+      TMatrixDSymEigen CM = bkgOnlyFit->correlationMatrix();
+      TMatrixD CM_eigen = CM.GetEigenVectors();
+      std::cout << "Eigenvectors of Correlation Matrix" << std::endl;
+      CM_eigen.Print("v");
+
     } else {
       std::cout << ">>> no correlation matrix available" << std::endl;
+      returnValue = 1;
+    }
+    if (&(bkgOnlyFit->covarianceMatrix()) != nullptr) {
+      std::cout << "Covariance Matrix" << std::endl;
+      bkgOnlyFit->covarianceMatrix().Print("v");
+
+      TMatrixDSymEigen VM = bkgOnlyFit->covarianceMatrix();
+      TMatrixD VM_eigen = VM.GetEigenVectors();
+      std::cout << "Eigenvectors of Covariance Matrix" << std::endl;
+      VM_eigen.Print("v");
+    } else {
+      std::cout << ">>> no covariance matrix available" << std::endl;
       returnValue = 1;
     }
   } else {
