@@ -59,12 +59,9 @@ namespace analysis {
            bool OnlineSelection(const analysis::tools::Jet &fLeadOfflineJet,const analysis::tools::Jet &sLeadOfflineJet);
 
            //Add trigger Object Trees
-           void addTriggerObjects(const std::vector<std::string> & triggerObjectName = {"hltL1sL1DoubleJetC100",
-                      																	"hltDoubleJetsC100",
-                      																	"hltDoublePFJetsC100",
-                      																	"hltDoubleBTagCSV0p9",
-                      																	"hltDoublePFJetsC100MaxDeta1p6"},
-        		   	   	   	   	  const std::string & path = "MssmHbb/Events/selectedPatTrigger/");
+           void addTriggerObjects(const std::vector<std::string> & triggerObjectName = {"hltL1sL1DoubleJetC100","hltDoubleJetsC100","hltDoublePFJetsC100",
+											"hltDoubleBTagCSV0p9","hltDoublePFJetsC100MaxDeta1p6"},
+        		   	   	   	   	  				const std::string & path = "MssmHbb/Events/selectedPatTrigger/");
 
            //define selection type for MC
            void setLowMSelection(const bool & type);
@@ -88,6 +85,9 @@ namespace analysis {
            const char * getTriggerLogicName();
            int getTriggerResult();
            const bool & getLowMSelection();
+           bool isSignalMc() const;
+           double getMHat()     const;
+           bool mHatCut(const double & value) const;
 
            //Default cuts
            const double & Pt1Cut();
@@ -97,7 +97,13 @@ namespace analysis {
            const double & BTag1Cut();
            const double & BTag2Cut();
            const double & BTag3Cut();
-         
+           bool signalMC_;
+           int Mpoint__;
+
+           void setSignalMc(bool signalMc);
+           //void setRun2016(bool Run2016);
+           int returnMassPoint() const;
+                               
             // ----------member data ---------------------------
          protected:
            std::vector<std::string> triggerObjectName_;
@@ -142,12 +148,20 @@ namespace analysis {
       }
 
       inline void MssmHbb::setLowMSelection(const bool & type){lowMSelection_ = type; this->SetupConstants();}
+      inline void MssmHbb::setSignalMc(bool signalMc) {signalMC_ = signalMc;    }
 
       //Gets
       inline std::vector<std::string> MssmHbb::getTriggerObjectNames() {return triggerObjectName_;}
       inline const char * MssmHbb::getTriggerLogicName(){ return triggerLogicName_.c_str();	}
       inline std::string MssmHbb::getOutPutFileName(){ return outPutName_; }
       inline int MssmHbb::getTriggerResult(){ return this->triggerResult(triggerLogicName_.c_str());}
+      inline bool MssmHbb::isSignalMc() const { return signalMC_;}
+      inline double MssmHbb::getMHat() const {return mHat_;}
+      inline bool MssmHbb::mHatCut(const double & value) const {
+          if (!isSignalMc()) return false;
+          if (mHat_ < value * returnMassPoint()) return false;
+          else return true;
+      }
 
       //Cuts
       inline const double & MssmHbb::Pt1Cut(){ return pt1_cut__;}
