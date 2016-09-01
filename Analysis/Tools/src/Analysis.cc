@@ -173,8 +173,16 @@ void Analysis::triggerResults(const std::string & path)
    for ( int i = 0 ; i < triggerBranches->GetEntries() ; ++i )
    {
       std::string branch = triggerBranches->At(i)->GetName();
-      triggerResults_[branch] = 0;
-      t_triggerResults_ -> SetBranchAddress(branch.c_str(), &triggerResults_[branch]);
+      if ( TString(branch).BeginsWith("ps") )
+      {
+         triggerResultsPS_[branch] = 1;
+         t_triggerResults_ -> SetBranchAddress(branch.c_str(), &triggerResultsPS_[branch]);
+      }
+      else
+      {
+         triggerResults_[branch] = 0;
+         t_triggerResults_ -> SetBranchAddress(branch.c_str(), &triggerResults_[branch]);
+      }
    }
 }
 
