@@ -150,6 +150,7 @@ namespace analysis {
 
             std::map<std::string, double> xsections_;
             std::map<std::string, bool> triggerResults_;
+            std::map<std::string, int> triggerResultsPS_;
             std::map<int,std::vector<std::string> > goodLumi_;
             FilterResults genfilter_;
             FilterResults evtfilter_;
