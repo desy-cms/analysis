@@ -24,13 +24,14 @@ int main(int argc, char * argv[])
    	TH1::SetDefaultSumw2();  // proper treatment of errors when scaling histograms
 
    	// Input files list
-	std::string inputList = "/afs/desy.de/user/c/chayanit/private/MSSMHBB_AnaRosty/CMSSW_7_6_3/src/Analysis/MssmHbb/bin/BTagCSVData_Run2015CandD_25ns-16Dec2015.txt";
-
+//	std::string inputList = "/afs/desy.de/user/c/chayanit/private/MSSMHBB_AnaRosty/CMSSW_7_6_3/src/Analysis/MssmHbb/bin/BTagCSVData_Run2015CandD_25ns-16Dec2015.txt";
+	std::string inputList = "../bin/BTagCSVData_Run2015CandD_25ns-16Dec2015.txt";
+   
 	// Initialisation of MssmHbb class
 	MssmHbb analysis(inputList);
 	// Process selected JSON file
 	//if(!analysis.isMC()) analysis.processJsonFile("Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_v2.txt");
-	if(!analysis.isMC()) analysis.processJsonFile("Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_Silver_v2.txt");
+	if(!analysis.isMC()) analysis.processJsonFile("../bin/Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_Silver_v2.txt");
 
 	// Add std::vector<std::string> of the Trigger Objects that you would like to apply.
 	// Also Trigger Results name will be stored, according to the trigger objects names
@@ -52,28 +53,28 @@ int main(int argc, char * argv[])
 
 	if(analysis.getLowMSelection()){
 	  //Online BTag Trigger Efficiency produced by Ye Chen
-	  fBTagEff = new TFile("input_corrections/RelOnlineBTagCSV0p9Eff_PtEta.root","read");
+	  fBTagEff = new TFile("../bin/input_corrections/RelOnlineBTagCSV0p9Eff_PtEta.root","read");
 	  btagEff0p9 = (TH1F*) fBTagEff ->Get("heh4"); // eta <0.9
 	  btagEff0p9_1p4 = (TH1F*) fBTagEff ->Get("heh3"); // 1.4 > eta >0.9
 	  btagEff1p4_2p5 = (TH1F*) fBTagEff ->Get("heh2"); // 2.5 > eta > 1.4
 
 	  //Online Pt trigger efficiency:
-	  fPtEff = new TFile("input_corrections/TwoDPtLowMassEfficiency.root","read");
+	  fPtEff = new TFile("../bin/input_corrections/TwoDPtLowMassEfficiency.root","read");
 	  hPtEff = (TH2F*) fPtEff ->Get("TwoDEff_Num"); // 2D
 
 	  // Add Ht reweighting:
-	  fHtWeight = new TFile("input_corrections/HtRatio.root","read");
+	  fHtWeight = new TFile("../bin/input_corrections/HtRatio.root","read");
 	  HtRatio = (TH1F*) fHtWeight->Get("hRatio");
 	}
 	else {
 
 	  // For high mass trigger only 2D efficiency were provided
-	  fBTagEff = new TFile("input_corrections/TwoDBTagCSV0p85_2D_PtEta.root");
+	  fBTagEff = new TFile("../bin/input_corrections/TwoDBTagCSV0p85_2D_PtEta.root");
 	  btag2DEff0p85 = (TH2F*) fBTagEff->Get("h2ehn");
-	  fPtEff = new TFile("input_corrections/TwoDPtHighMassEfficiency.root","read");
+	  fPtEff = new TFile("../bin/input_corrections/TwoDPtHighMassEfficiency.root","read");
 	  hPtEff = (TH2F*) fPtEff ->Get("TwoDEff_Num");
 
-	  fHtWeight = new TFile("input_corrections/HtRatio.root","read"); // Useless for the timebinning.
+	  fHtWeight = new TFile("../bin/input_corrections/HtRatio.root","read"); // Useless for the timebinning.
 	  HtRatio = (TH1F*) fHtWeight->Get("hRatio");
 
 	}
@@ -81,17 +82,17 @@ int main(int argc, char * argv[])
 	// Add PileUp reweighting
 	std::map<std::string, TFile*> fPileUpData;
 	std::map<std::string, TH1F* > hPileUpData;
-	fPileUpData["central"] = new TFile("input_corrections/PileUp_2015Dec_central.root","read");
+	fPileUpData["central"] = new TFile("../bin/input_corrections/PileUp_2015Dec_central.root","read");
 	hPileUpData["central"] = (TH1F*) fPileUpData["central"]->Get("pileup");
-	fPileUpData["down"] = new TFile("input_corrections/PileUp_2015Dec_up.root","read");
+	fPileUpData["down"] = new TFile("../bin/input_corrections/PileUp_2015Dec_up.root","read");
 	hPileUpData["down"] = (TH1F*) fPileUpData["down"]->Get("pileup");
-	fPileUpData["up"] = new TFile("input_corrections/PileUp_2015Dec_down.root","read");
+	fPileUpData["up"] = new TFile("../bin/input_corrections/PileUp_2015Dec_down.root","read");
 	hPileUpData["up"] = (TH1F*) fPileUpData["up"]->Get("pileup");
-	TFile *fPileUpMC = new TFile("input_corrections/MC_Fall15_PU25_V1.root","read");
+	TFile *fPileUpMC = new TFile("../bin/input_corrections/MC_Fall15_PU25_V1.root","read");
 	TH1F *hPileUpMC = (TH1F*) fPileUpMC->Get("pileup");
 
 	//Add BTagCalibration calculators needed for Offline BTag SF:
-	BTagCalibration calib("csvv2", "input_corrections/SFbLib.csv");
+	BTagCalibration calib("csvv2", "../bin/input_corrections/SFbLib.csv");
 	BTagCalibrationReader reader(&calib,               // calibration instance
 				     BTagEntry::OP_TIGHT,  // operating point
 				     "mujets",               // measurement type
@@ -106,7 +107,8 @@ int main(int argc, char * argv[])
 
 	//Setup output file name
 	//name can me specified explicitly with method: createOutputFile(fileName);
-	std::string fileName = "/nfs/dust/cms/user/chayanit/TripleBTagReverseSelection_76X";
+//	std::string fileName = "/nfs/dust/cms/user/chayanit/TripleBTagReverseSelection_76X";
+	std::string fileName = "./TripleBTagReverseSelection_76X";
 	analysis.SetupStandardOutputFile(fileName);
 
 	//Setup Branches
