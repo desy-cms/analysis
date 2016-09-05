@@ -15,7 +15,9 @@
 #include <iostream>
 #include <set>
 //
+#include "TRandom2.h"
 // user include files
+#include "Analysis/Tools/interface/Candidate.h"
 #include "Analysis/Tools/interface/Jet.h"
 #include "Analysis/Tools/interface/MET.h"
 #include "Analysis/Tools/interface/Muon.h"
@@ -24,7 +26,6 @@
 
 #include "Analysis/Tools/interface/Collection.h"
 
-
 // member functions specialization - needed to be declared in the same namespace as the class
 namespace analysis {
    namespace tools {
@@ -32,10 +33,13 @@ namespace analysis {
       template <> std::vector<Candidate> * Collection<Vertex>::vectorCandidates() const;
       template <> void Collection<Vertex>::matchTo( const std::vector<Candidate>* vectorcandidates, const std::string & name, const float & deltaR );
       template <> void Collection<Vertex>::matchTo( const Collection<Candidate> & collection, const float & deltaR );
+      template <> void Collection<Vertex>::matchTo( const Collection<Candidate> & collection, const float & deltaR, const float & delta_pt);
       template <> void Collection<Vertex>::matchTo( const Collection<TriggerObject> & collection, const float & deltaR );
       template <> void Collection<Vertex>::matchTo( const std::shared_ptr<Collection<TriggerObject> > collection, const float & deltaR );
+      template <> void Collection<Jet>::matchTo( const Collection<Jet> & collection, const float & deltaR, const float & delta_pt);
       template <> void Collection<Jet>::associatePartons( const std::shared_ptr<Collection<GenParticle> > & particles, const float & deltaR, const float & ptMin, const bool & pythia8  );
       template <> void Collection<Jet>::btagAlgo( const std::string & algo );
+      template <> void Collection<Jet>::smearTo(const Collection<Jet> & collection, const double & n_sigma );
    }
 }
 //
@@ -45,12 +49,16 @@ namespace analysis {
 using namespace analysis;
 using namespace analysis::tools;
 
+bool pTordering(Candidate j1, Candidate j2) {return (j1.pt()>j2.pt());}
+
 //
 // constructors and destructor
 //
 template <class Object>
 Collection<Object>::Collection()
 {
+	size_ = 0;
+	candidates_.clear();
 }
 template <class Object>
 Collection<Object>::Collection(const Objects & objects, const std::string & name)
@@ -187,6 +195,20 @@ void Collection<Object>::matchTo( const Collection<Candidate> & collection, cons
 }
 
 template <class Object>
+void Collection<Object>::matchTo( const Collection<Candidate> & collection, const float & delta_pT, const float & deltaR){
+	for (auto & obj : objects_){
+		obj.matchTo(collection.vectorCandidates(),collection.name(),delta_pT,deltaR);
+	}
+}
+
+template <>
+void Collection<Jet>::matchTo( const Collection<Jet> & collection, const float & delta_pT, const float & deltaR){
+	for (auto & obj : objects_){
+		obj.matchTo(collection.vectorCandidates(),collection.name(),delta_pT*obj.JerResolution()*obj.pt(),deltaR);
+	}
+}
+
+template <class Object>
 void Collection<Object>::matchTo( const Collection<TriggerObject> & collection, const float & deltaR )
 {
    for ( auto & obj : objects_ )
@@ -197,6 +219,55 @@ template <class Object>
 void Collection<Object>::matchTo( const std::shared_ptr<Collection<TriggerObject> > collection, const float & deltaR )
 {
    this->matchTo(*collection, deltaR);
+}
+
+template <>
+void Collection<Jet>::smearTo( const Collection<Jet> & collection, const double & n_sigma  ){
+
+	//Check for variation - n_sigma:
+	// +1 : 1 Sigma Up variation -1 : 1 Sigma Down variation
+	// +2 : 2 Sigma Up variation -2	: 2 Sigma Down variation
+	//TODO!
+	//Very temprorary solution. Should be changed to jerSf(n_sigma)
+	// and return already a variation, but could be a conflict with
+	// setter...!!!
+
+	TLorentzVector out;
+	double smear_pt = 0;
+	double smear_e  = 0;
+	double sf = 0;
+	for(auto & jet : objects_){
+		if(n_sigma >= 0){
+			sf = n_sigma * (jet.JerSfUp() - jet.JerSf()) +  jet.JerSf();
+		}
+		else if (n_sigma < 0){
+			sf = std::abs(n_sigma) * (jet.JerSfDown() - jet.JerSf()) +  jet.JerSf();
+		}
+//		std::cout<<"\nBefore smearing: "<<jet.px()<<" "<<jet.py()<<" "<<jet.pt()<<std::endl;
+		if(jet.matched(collection.name())){
+			smear_pt = jet.matched(collection.name())->pt() + sf * (jet.pt() - jet.matched(collection.name())->pt());
+			smear_pt = std::max(0.,smear_pt);
+			smear_e = jet.matched(collection.name())->e() + sf * (jet.e() - jet.matched(collection.name())->e());
+			smear_e = std::max(0.,smear_e);
+		}
+		else {
+			if(sf > 1) {
+				smear_pt = gRandom->Gaus(jet.pt(),std::sqrt(sf*sf-1)*jet.JerResolution()*jet.pt());
+				smear_e = gRandom->Gaus(jet.e(),std::sqrt(sf*sf-1)*jet.JerResolution()*jet.pt());
+			}
+			else {
+				smear_pt = jet.pt();
+				smear_e  = jet.e();
+			}
+		}
+
+		out.SetPtEtaPhiE(smear_pt,jet.eta(),jet.phi(),smear_e);
+		jet.p4(out);
+//		std::cout<<"After smearing: "<<jet.px()<<" "<<jet.py()<<" "<<jet.pt()<<std::endl;
+
+	}
+	//Re-ordering
+	std::sort(objects_.begin(),objects_.end(),pTordering);
 }
 
 template <class Object>

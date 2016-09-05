@@ -25,6 +25,7 @@
 // 
 // user include files
 #include "Analysis/Tools/interface/Candidate.h"
+#include "Analysis/Tools/interface/Jet.h"
 #include "Analysis/Tools/interface/TriggerObject.h"
 #include "Analysis/Tools/interface/GenParticle.h"
 
@@ -46,13 +47,19 @@ namespace analysis {
            ~Collection();
            
            int size();
+           void setSize(const int & size);
            Object & at(const int & index);
            void add(const Object & object);
            
            void matchTo( const std::vector<Candidate>* vectorcandidates, const std::string & name , const float & deltaR = 0.5 );
+           void matchTo( const Collection<Candidate> & collection, const float & delta_pT, const float & deltaR);
+           void matchTo( const Collection<Jet> & collection, const float & delta_pT, const float & deltaR);
            void matchTo( const Collection<Candidate> & collection, const float & deltaR = 0.5 );
            void matchTo( const Collection<TriggerObject> & collection, const float & deltaR = 0.5 );
            void matchTo( const std::shared_ptr<Collection<TriggerObject> > collection, const float & deltaR = 0.5 );
+
+           void smearTo( const Collection<Jet> & collection, const double & n_sigma = 0 );
+
            std::vector< std::shared_ptr<Object> > vector();
            std::vector<Candidate>* vectorCandidates() const;
            
@@ -80,7 +87,8 @@ namespace analysis {
       template <class Object> inline std::string Collection<Object>::name() const          { return name_; }
 
       // Sets
-      template <class Object> inline void   Collection<Object>::add(const Object & object) { objects_.push_back(object); }
+      template <class Object> inline void   Collection<Object>::add(const Object & object) { objects_.push_back(object); ++size_;  }
+      template <class Object> inline void   Collection<Object>::setSize(const int & size) { size_ = size; }
 
    }
 }

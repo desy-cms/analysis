@@ -21,6 +21,8 @@
 
 // system include files
 #include <memory>
+//
+
 // 
 // user include files
 #include "Analysis/Tools/interface/Candidate.h"
@@ -38,6 +40,9 @@ namespace analysis {
             Jet();
             /// constructor from 4-momentum information
             Jet(const float & pt, const float & eta, const float & phi, const float & e);
+            /// constructor from TLorentzVector
+            Jet(const TLorentzVector & p4);
+
             /// destructor
            ~Jet();
            
@@ -62,6 +67,14 @@ namespace analysis {
             std::string extendedFlavour()       const;
             /// returns the vector of pointers to the generated partons
             std::vector< std::shared_ptr<GenParticle> > partons() const;
+            /// returns jet energy resolution
+        	float JerResolution() const;
+        	/// returns jet energy resolution SF
+        	float JerSf() const;
+        	/// returns jet energy resolution SF Down variation
+        	float JerSfDown() const;
+        	/// returns jet energy resolution SF Up variation
+        	float JerSfUp() const;
             
             // Sets
             /// sets the btag value
@@ -80,7 +93,14 @@ namespace analysis {
             void  idTight(const bool &);
             /// sets the jet energy correction uncertainty
             void  jecUncert(const float &);
-            
+            /// sets jet energy resolution
+            void JerResolution(const float & jerResolution);
+            /// sets jet energy resolution SF
+            void JerSf(const float & jerSf);
+            /// sets jet energy resolution SF Up variation
+            void JerSfUp(const float & jerSfUp);
+            /// sets jet energy resolution SF Down variation
+            void JerSfDown(const float & jerSfDown);
             /// add parton that gave rise to jet
             void addParton(const std::shared_ptr<GenParticle> &);
             /// remove parton from jet parton list
@@ -97,7 +117,6 @@ namespace analysis {
             
             /// associate partons to the jet
             void associatePartons(const std::vector< std::shared_ptr<GenParticle> > &, const float & dRmax = 0.5, const float & ptMin = 1., const bool & pythi8 = true );
-            
 //            using Candidate::set; // in case needed to overload the function set
             
          protected:
@@ -123,6 +142,14 @@ namespace analysis {
             bool  idtight_;
             /// jet energy correction uncertainty
             float jecUnc_;
+            /// jet energy resolution SF
+            float jerSF_;
+            /// jet energy resolution SF Up variation
+            float jerSFUp_;
+            /// jet energy resolution SF Down variation
+            float jerSFDown_;
+            /// jet energy resolution
+            float jerResolution_;
          private:
             // ----------member data ---------------------------
             
