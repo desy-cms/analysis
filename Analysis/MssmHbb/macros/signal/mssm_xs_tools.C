@@ -13,7 +13,7 @@ mssm_xs_tools::mssm_xs_tools(const char* filename, bool kINT, unsigned verbosity
               << " Stefan Liebler  / Theory (stefan.liebler@desy.de),       " << std::endl
               << " Michael Spira   / Theory (michael.spira@psi.ch),         " << std::endl
               << " Pietro Slavich  / Theory (slavich@lpthe.jussieu.fr).     " << std::endl;
-              
+
     }
   if(!filename){
     std::cout << "Chose input file using the method mssm_xs_tools::setup()" << std::endl;

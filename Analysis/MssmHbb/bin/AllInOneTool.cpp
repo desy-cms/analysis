@@ -31,6 +31,7 @@
 #include "Analysis/MssmHbb/interface/BgStudy.h"
 #include "Analysis/MssmHbb/interface/DataMcComparison.h"
 #include "Analysis/MssmHbb/interface/bbx.h"
+#include "Analysis/MssmHbb/interface/CutOptimisation.h"
 
 #include "Analysis/MssmHbb/macros/Drawer/FitMassDistribution.C"
 
@@ -43,7 +44,7 @@ using namespace boost::program_options;
 
 const auto cmsswBase = static_cast<std::string>(gSystem->Getenv("CMSSW_BASE"));
 
-void addBackgroundTemplate(const std::string & signal_template, const std::string & bg_template, const std::string & bgHisto = "QCD_Mbb");
+void addBackgroundTemplate(const std::string & signal_template, const std::string & bg_template, const int & nevents_to_scale = -1, const std::string & bgHisto = "QCD_Mbb");
 void addAnalyticalFits(const TFile & input_file, const int & mass_point);
 void addAnalyticalFits();
 
@@ -94,6 +95,7 @@ int main(int argc, char * argv[])
 				  "  X750	    - Trigger Efficiency for X750 Search; \n"
 				  "  bgstudy 	- Bg Study asked by Chayanit; \n"
 				  "  datavsmc	- 2b selection for Data vs MC comparison; \n"
+				  "  cut_opt    - cut optimisation in double/triple-b selection; \n"
 				  "  fitter     - Fit Signal Templates with Analytical Curves.")
 				  ("nJets,n", value<int>()->required(),
 				  "  2 - double-jet selection; \n"
@@ -199,10 +201,11 @@ int main(int argc, char * argv[])
 							  analysis.getOutputFile()->Close();
 							  std::string output_name = analysis.getOutputFile()->GetName();
 							  if(analysis.getLowM()){
-								  addBackgroundTemplate(output_name, "input_corrections/QCD_Templates_Novo.root");
+//								  addBackgroundTemplate(output_name, "input_corrections/QCD_Templates_Novo.root",21093);
+								  addBackgroundTemplate(output_name, "input_corrections/QCD_Templates_3M_lowM.root",19251);
 							  }
 							  else {
-							  	addBackgroundTemplate(output_name, "input_corrections/QCD_Templates_Novo_highM.root");
+							  	addBackgroundTemplate(output_name, "input_corrections/QCD_Templates_Novo_3M_highM.root");
 							  }
 //							  addAnalyticalFits(analysis.getOutputFile(), analysis.returnMassPoint());
 						  }
@@ -233,8 +236,10 @@ int main(int argc, char * argv[])
 						  bbx analysis(txt_file,lumi_,lowM_,test_);
 						  analysis.runAnalysis(json_file_,output_,100);
 					  }
-
-
+					  else if (boost::iequals(selection_,"cut_opt")){
+						  CutOptimisation analysis(txt_file,lumi_,lowM_,nJets_,test_);
+						  analysis.runAnalysis(json_file_,output_,100);
+					  }
 
 				  }
 				  else{
@@ -264,7 +269,7 @@ int main(int argc, char * argv[])
 	return 0;
 }
 
-void addBackgroundTemplate(const std::string & signal_template, const std::string & bg_template, const std::string & bgHisto){
+void addBackgroundTemplate(const std::string & signal_template, const std::string & bg_template, const int & nevents_to_scale, const std::string & bgHisto){
 
 	TFile fsignal(signal_template.c_str(),"UPDATE");	// Opening file for writing;
 	if(fsignal.IsZombie()){
@@ -291,6 +296,10 @@ void addBackgroundTemplate(const std::string & signal_template, const std::strin
 		if (!cl->InheritsFrom("TH1")) continue;
 		TH1 *h = (TH1*)key->ReadObj();
 		objName = h->GetName();
+		if(nevents_to_scale != -1){
+			std::cout<<"Scale Bg histograms to: "<<nevents_to_scale/h->Integral()<<std::endl;
+			h->Scale(nevents_to_scale/h->Integral());
+		}
 		if( objName.find(bgHisto) == std::string::npos) continue;
 		std::cout<<h->GetName()<<std::endl;
 		fsignal.cd();

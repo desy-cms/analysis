@@ -18,12 +18,22 @@ MssmHbbSignal::MssmHbbSignal(const std::string & inputFilelist,const double & da
 {
 	nJets_ = 3;
 	if(lowM){
+        btag1_ = 0.8;
+        btagOP1_ = 1;
+        btag2_ = 0.8;
+        btagOP2_ = 1;
         btag3_ = 0.8;
         btagOP3_ = 1;
 	}
 	else {
-        btag3_ = 0.46;
-        btagOP3_ = 0;
+//        btag3_ = 0.46;
+//        btagOP3_ = 0;
+        btag1_ = 0.8;
+        btagOP1_ = 1;
+        btag2_ = 0.8;
+        btagOP2_ = 1;
+        btag3_ = 0.8;
+        btagOP3_ = 1;
 	}
 	baseOutputName_ = "MssmHbbSignal";
 }
@@ -46,18 +56,26 @@ const bool MssmHbbSignal::leadingJetSelection(const std::shared_ptr<tools::Colle
 	Jet jet2 = offlineJets->at(1);
 	Jet jet3 = offlineJets->at(2);
 
-	//Pt requirements
-	if (jet3.pt() < pt3_) return false;
+
 
 	//Eta requirements
-	if (std::abs(jet3.eta()) > eta3_) return false;
 
-	//BTag requirements
-	if (jet3.btag() < btag3_) return false;
 
 	//deltaR requirements
-	if (jet2.deltaR(jet3) <= dR_) return false;
-	if (jet1.deltaR(jet3) <= dR_) return false;
+
+
+	//Pt requirements
+	if(!cuts_.check("pt3",jet3.pt() >= pt3_)) return false;
+
+	//Eta requirements
+	if(!cuts_.check("eta3",std::abs(jet3.eta()) <= eta3_)) return false;
+
+	//BTag requirements
+	if(!cuts_.check("btag3",jet3.btag() >= btag3_)) return false;
+
+	//deltaR requirements
+	if(!cuts_.check("dR23",jet2.deltaR(jet3) > dR_)) return false;
+	if(!cuts_.check("dR13",jet1.deltaR(jet3) > dR_)) return false;
 
 	return true;
 }
@@ -143,7 +161,7 @@ void MssmHbbSignal::writeHistograms(){
 	outputFile_->mkdir("templates","templates with a full range");
 	for(const auto & h: (histo_.getHisto())){
 		if(h.second->GetEntries() == 0) continue; 			//skip empty histograms
-		h.second->Scale(weight_["Lumi"]);
+		if(isMC()) h.second->Scale(weight_["Lumi"]);
 		if(h.first.find("template") != std::string::npos){
 			full_name = constructTemplateName(h.first);
 			if(h.first.find("VIS") != std::string::npos) outputFile_->cd("templates");

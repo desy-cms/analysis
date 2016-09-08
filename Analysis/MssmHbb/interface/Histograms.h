@@ -12,6 +12,7 @@
 #include <memory> 		// for std::shared_ptr
 #include <string>
 #include <map>
+#include <array>
 #include "TMath.h"
 
 #include "TH1.h"

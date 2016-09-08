@@ -35,7 +35,7 @@ selectionDoubleB::~selectionDoubleB() {
 }
 
 const bool selectionDoubleB::leadingJetSelection(const std::shared_ptr<tools::Collection<tools::Jet> > & offlineJets){
-//	if(TEST) std::cout<<"I'm in doubleB::leadingJetSelection"<<std::endl;
+	if(TEST) std::cout<<"I'm in selectionDoubleB::leadingJetSelection"<<std::endl;
 	//Selection of good Leading Jets:
 	//Only jets that pass Loose identification will be considered
 
@@ -43,46 +43,40 @@ const bool selectionDoubleB::leadingJetSelection(const std::shared_ptr<tools::Co
 	Jet jet2 = offlineJets->at(1);
 
 	//Pt requirements
-//	if (jet1.pt() < pt1_) return false;
-//	if (jet2.pt() < pt2_) return false;
 	if(!cuts_.check("pt1",jet1.pt() >= pt1_)) return false;
 	if(!cuts_.check("pt2",jet2.pt() >= pt2_)) return false;
 
 	//Eta requirements
-//	if (std::abs(jet1.eta()) > eta1_) return false;
-//	if (std::abs(jet2.eta()) > eta2_) return false;
 	if(!cuts_.check("eta1",std::abs(jet1.eta()) <= eta1_)) return false;
 	if(!cuts_.check("eta2",std::abs(jet2.eta()) <= eta2_)) return false;
 
-	//BTag requirements
-//	if (jet1.btag() < btag1_) return false;
-//	if (jet2.btag() < btag2_) return false;
-	if(!cuts_.check("btag1",jet1.btag() >= btag1_)) return false;
-	if(!cuts_.check("btag2",jet2.btag() >= btag2_)) return false;
-
 	//dEta in case of LowM selection
 	if(lowM_){
-//		if(std::abs(jet1.eta() - jet2.eta()) > dEta_) return false;
 		if(!cuts_.check("deta12",std::abs(jet1.eta() - jet2.eta()) <= dEta_)) return false;
 	}
 
+	//deltaR requirements
+	if(!cuts_.check("dR12",jet1.deltaR(jet2) > dR_)) return false;
+
+	//BTag requirements
+	if(!cuts_.check("btag1",jet1.btag() >= btag1_)) return false;
+	if(!cuts_.check("btag2",jet2.btag() >= btag2_)) return false;
+
+
+
 	//Trigger Selection
-//	if(!this->triggerResult(triggerLogicName_)) return false;
 	if(!cuts_.check("TriggerBit",this->triggerResult(triggerLogicName_))) return false;
 
 	//Online selection:
-//	if(!this->OnlineSelection(jet1,jet2)) return false;
 	if(!cuts_.check("TriggerMatching",this->OnlineSelection(jet1,jet2))) return false;
 
-	//deltaR requirements
-//	if (jet1.deltaR(jet2) <= dR_) return false;
-	if(!cuts_.check("dR12",jet1.deltaR(jet2) > dR_)) return false;
+
 
 	return true;
 }
 
 void selectionDoubleB::fillHistograms(const std::shared_ptr<Collection<Jet> > &offlineJets, const double & weight){
-//	if(TEST) std::cout<<"I'm in doubleB::fillHistograms"<<std::endl;
+	if(TEST) std::cout<<"I'm in selectionDoubleB::fillHistograms"<<std::endl;
 
 	Jet jet1 = offlineJets->at(0);
 	Jet jet2 = offlineJets->at(1);
@@ -136,7 +130,7 @@ void selectionDoubleB::fillHistograms(const std::shared_ptr<Collection<Jet> > &o
 	(histo_.getHisto())["diJet_pt"]->Fill(obj12.Pt(),weight);
 	(histo_.getHisto())["diJet_eta"]->Fill(obj12.Eta(),weight);
 	(histo_.getHisto())["diJet_phi"]->Fill(obj12.Phi(),weight);
-	if(isMC()) (histo_.getHisto())["diJet_m"]->Fill(obj12.M(),weight);
+	(histo_.getHisto())["diJet_m"]->Fill(obj12.M(),weight);
 
 }
 

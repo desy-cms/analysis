@@ -60,11 +60,5 @@ const bool bbx::leadingJetSelection(const std::shared_ptr<tools::Collection<tool
 //	if(jet1.deltaR(jet3) <= dR_) return false;
 	if(!cuts_.check("dR13",jet1.deltaR(jet3) > dR_)) return false;
 
-	if(TEST){
-		std::cout<<"Jet1: pt = "<<jet1.pt()<<" eta = "<<jet1.eta()<<std::endl;
-		std::cout<<"Jet2: pt = "<<jet2.pt()<<" eta = "<<jet2.eta()<<std::endl;
-		std::cout<<"Jet3: pt = "<<jet3.pt()<<" eta = "<<jet3.eta()<<std::endl;
-	}
-
 	return true;
 }

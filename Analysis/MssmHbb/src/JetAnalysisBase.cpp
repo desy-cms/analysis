@@ -55,7 +55,7 @@ JetAnalysisBase::JetAnalysisBase(const std::string & inputFilelist, const double
 		// Show MC information
 		this->listCrossSections();
 		this->listGeneratorFilter();
-		this->listEventFilter();
+//		this->listEventFilter();
 
 		if(isMC()){
 			std::cout<<"***********************************"<<std::endl;
@@ -110,6 +110,84 @@ JetAnalysisBase::JetAnalysisBase(const std::string & inputFilelist, const double
 	mHat_ = 0.7;
 }
 
+JetAnalysisBase::JetAnalysisBase(const std::string & inputFilelist, const bool & lowM) :
+								 Analysis(inputFilelist,"MssmHbb/Events/EventInfo"),
+								 dataLumi_(1),
+								 lowM_(lowM),
+								 triggerLogicName_(""),
+								 nJets_(1),
+								 TEST(false){
+	if(this->isMC()){
+		//Define MC type
+		if(findStrings(inputFilelist,"susy")) signalMC_ = true;
+		else signalMC_ = false;
+		if(signalMC_) this->setupXSections();
+
+		//Add specific to MC trees
+		this->addTree<GenParticle>("GenParticles","MssmHbb/Events/prunedGenParticles");
+		if(isMC()) this->addTree<Jet>("GenJets","MssmHbb/Events/slimmedGenJets");
+
+		// Add MC information:
+		this->crossSections("MssmHbb/Metadata/CrossSections");
+		this->generatorFilter("MssmHbb/Metadata/GeneratorFilter");
+		if(signalMC_) this->eventFilter("MssmHbb/Metadata/EventFilter");//,"MssmHbb/mHatFilter/EventFilter");
+		else this->eventFilter("MssmHbb/Metadata/EventFilter");
+
+		// Show MC information
+		this->listCrossSections();
+		this->listGeneratorFilter();
+		this->listEventFilter();
+
+		if(isMC()){
+			std::cout<<"***********************************"<<std::endl;
+			if(signalMC_) std::cout<<"This is signal SUSY MC"<<std::endl;
+			else std::cout<<" This is BG MC"<<std::endl;
+			std::cout<<"***********************************"<<std::endl;
+		}
+		else {
+			std::cout<<"***********************************"<<std::endl;
+			std::cout<<"This is Real Data"<<std::endl;
+			std::cout<<"***********************************"<<std::endl;
+		}
+	}
+	JESshift_ = 0;
+	JERshift_ = 0;
+	//Muon tree
+	this->addTree<Muon> ("Muons","MssmHbb/Events/slimmedMuons");
+
+	//Trigger trees
+	this->triggerResults("MssmHbb/Events/TriggerResults");
+
+	// Tree for Jets
+	this->addTree<Jet> ("Jets","MssmHbb/Events/slimmedJetsReapplyJEC");
+	// Tree for Vertices
+	this->addTree<Vertex> ("Vertices","MssmHbb/Events/offlineSlimmedPrimaryVertices");
+
+	triggerLogicName_ = "";
+	triggerObjectName_ = {};
+	pt1_ = -100; pt2_ = -100;
+	btag1_ = -100; btag2_ = -100;
+	btagOP1_ = -100; btagOP2_ = -100;
+	btag3_ = -100;
+	btagOP3_ = -100;	//Mid OP
+
+	baseOutputName_ = "JetAnalysisBase";
+
+	std::string selection_type;
+	if(lowM_){
+		triggerLogicName_ = "HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v";
+		triggerObjectName_ = {"hltL1sL1DoubleJetC100","hltDoubleJetsC100","hltDoublePFJetsC100","hltDoubleBTagCSV0p9","hltDoublePFJetsC100MaxDeta1p6"};
+        selection_type = "Low Mass";
+	}
+	else {
+		triggerLogicName_ = "HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v";
+		triggerObjectName_ = {"hltL1sL1DoubleJetC100","hltDoubleJetsC100","hltDoubleBTagCSV0p85","hltDoublePFJetsC160"};
+        selection_type = "High Mass";
+	}
+
+	mHat_ = 0.7;
+}
+
 JetAnalysisBase::~JetAnalysisBase() {
 	if(TEST) std::cout<<"I'm at JetAnalysisBase::~JetAnalysisBase"<<std::endl;
 	// TODO Auto-generated destructor stub
@@ -149,7 +227,7 @@ void JetAnalysisBase::applySelection(){
 	cuts_ = CutFlow(baseOutputName_,selection_type);
 
 
-	if(TEST) TotalNumberOfGenEvents = 100;
+	if(TEST) TotalNumberOfGenEvents = 10000;
 	else TotalNumberOfGenEvents = this->size();
 	std::cout<<"Events to process: "<<TotalNumberOfGenEvents<<std::endl;
 
@@ -398,6 +476,7 @@ void JetAnalysisBase::addTriggerObjects(const std::vector<std::string> &triggerO
 		exit(1);
 	}
 
+	triggerObjectName_ = triggerObjectName;
 	//Add trees with different Trigger Objects and specify Trigger Logic name
 	for(const auto & triggerObject : triggerObjectName)
 	{

@@ -61,15 +61,17 @@ const bool DataMcComparison::leadingJetSelection(const std::shared_ptr<tools::Co
 //		if (std::abs(jet3.eta()) > eta3_) return false;
 		if(!cuts_.check("eta3",std::abs(jet3.eta()) <= eta3_)) return false;
 
-		//BTag requirements
-//		if (jet3.btag() < btag3_) return false;
-		if(!cuts_.check("btag3",jet3.btag() >= btag3_)) return false;
-
 		//deltaR requirements
 //		if (jet2.deltaR(jet3) <= dR_) return false;
 		if(!cuts_.check("dR23",jet2.deltaR(jet3) > dR_)) return false;
 //		if (jet1.deltaR(jet3) <= dR_) return false;
 		if(!cuts_.check("dR13",jet1.deltaR(jet3) > dR_)) return false;
+
+		//BTag requirements
+//		if (jet3.btag() < btag3_) return false;
+		if(!cuts_.check("btag3",jet3.btag() >= btag3_)) return false;
+
+
 	}
 
 	return true;
@@ -157,7 +159,7 @@ void DataMcComparison::fillHistograms(const std::shared_ptr<Collection<Jet> > &o
 		histoToFill(syst,variation,weight);
 	}
 	else {
-		std::cerr<<"ERROR in DataMcComparison::fillHistograms. WTFFFFF"<<std::endl;
+		std::cerr<<"ERROR in DataMcComparison::fillHistograms"<<std::endl;
 		exit(-1);
 	}
 
@@ -263,6 +265,11 @@ void DataMcComparison::histoToFill(const std::string & syst, const std::string &
 		(histo_.getHisto())["jet_b_btag_cmva3"+syst+variation]->Fill(jet3_.btag("btag_csvmva"),weight);
 		(histo_.getHisto())["jet_b_dR23"+syst+variation]->Fill(jet2_.deltaR(jet3_),weight);
 		(histo_.getHisto())["jet_b_dR13"+syst+variation]->Fill(jet1_.deltaR(jet3_),weight);
+		(histo_.getHisto())["jet_b_deta13"+syst+variation]->Fill(jet1_.eta()-jet3_.eta(),weight);
+		(histo_.getHisto())["jet_b_deta23"+syst+variation]->Fill(jet2_.eta()-jet3_.eta(),weight);
+		(histo_.getHisto())["jet_b_dphi13"+syst+variation]->Fill(jet1_.phi() - jet3_.phi(),weight);
+		(histo_.getHisto())["jet_b_dphi23"+syst+variation]->Fill(jet2_.phi() - jet3_.phi(),weight);
+
 	}
 
 }

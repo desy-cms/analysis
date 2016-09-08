@@ -196,6 +196,10 @@ void PlotSigmaBRLimit(const char * fileList, std::string output, bool blindData,
     //    std::cout << fileName << std::endl;
 
     TFile * file = new TFile(fileName);
+    if(gSystem->AccessPathName(fileName)){
+    	std::cout<<"No file: "<<fileName<<std::endl;
+    	exit(-1);
+    }
 
     TTree * tree = (TTree*)file->Get("limit");
 

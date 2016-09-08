@@ -50,6 +50,7 @@ namespace analysis{
 
 		//Default constructor
 		JetAnalysisBase(const std::string & inputFilelist, const double & dataLumi, const bool & lowM = true, const bool & test = true);
+		JetAnalysisBase(const std::string & inputFilelist, const bool & lowM = true);
 		virtual ~JetAnalysisBase();
 
         //Add trigger Object Trees
@@ -73,6 +74,8 @@ namespace analysis{
         //Create standart output file name
         void SetupStandardOutputFile(const std::string & outputFileName = "");
         void createOutputFile(const std::string &name );
+
+        const virtual bool OnlineSelection(const analysis::tools::Jet &fLeadOfflineJet,const analysis::tools::Jet &sLeadOfflineJet);
 
         //write histograms and close the output file.
         virtual void writeHistograms();
@@ -130,7 +133,6 @@ namespace analysis{
 																			  );
 //        const virtual bool leadingJetSelection(const int & iJet, const tools::Jet & Jet);
         const virtual bool leadingJetSelection(const std::shared_ptr<tools::Collection<tools::Jet> > & offlineJets);
-        const virtual bool OnlineSelection(const analysis::tools::Jet &fLeadOfflineJet,const analysis::tools::Jet &sLeadOfflineJet);
 
         void Ht(const double & Ht);
         const double & Ht();
