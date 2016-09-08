@@ -254,7 +254,7 @@ int main(int argc, char * argv[])
 	  //TODO: Factoring pattern should be applied: http://stackoverflow.com/questions/34519878/decide-what-constructor-call-based-on-user-input/34520081
 
 
-/**/
+*/
 
 	return 0;
 }
