@@ -1,19 +1,22 @@
 #include <string>
 #include <memory>
+#include <iostream>
 #include "TSystem.h"
 #include "TFile.h"
 #include "TTree.h"
+#include "TString.h"
 
 
-int main(int /* argc */, char* /* argv */[]) {
+int main(int argc, char* argv[]) {
   const auto cmsswBase = static_cast<std::string>(gSystem->Getenv("CMSSW_BASE"));
 
-  const std::string inputFileName =
-    "/nfs/dust/cms/user/chayanit/TripleBTagReverseSelection_76X_lowMTrigger_Run2015C_25ns-16Dec2015-v1_18_08_2016.root";
-  const std::string outputFileName =
-    cmsswBase+"/src/Analysis/BackgroundModel/data/TripleBTagReverseSelection_13TeV.root";
+  // name of input is first argument
+  int arg1 = argc-1;
+  TString inputFileName = TString(cmsswBase)+"/src/Analysis/MssmHbb/test/"+TString(argv[arg1]);
+  
+  const std::string outputFileName =    cmsswBase+"/src/Analysis/BackgroundModel/data/TripleBTagReverseSelection_13TeV.root";
 
-  TFile input(inputFileName.c_str(), "read");
+  TFile input(inputFileName, "read");
   std::unique_ptr<TTree> inputTree(static_cast<TTree*>(input.Get("MssmHbb")));
 
   TFile output(outputFileName.c_str(), "recreate");
@@ -24,6 +27,8 @@ int main(int /* argc */, char* /* argv */[]) {
   double weight = 1.0;  // make this maybe later a product of some other weights
 
   inputTree->SetBranchAddress("ObjM12", &mbb);
+  
+  
   outputTree.Branch("mbb", &mbb, "mbb/D");
   outputTree.Branch("weight", &weight, "weight/D");
 
