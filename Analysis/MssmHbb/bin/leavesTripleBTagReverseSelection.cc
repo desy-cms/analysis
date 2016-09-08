@@ -108,8 +108,9 @@ int main(int argc, char * argv[])
 	//Setup output file name
 	//name can me specified explicitly with method: createOutputFile(fileName);
 //	std::string fileName = "/nfs/dust/cms/user/chayanit/TripleBTagReverseSelection_76X";
-	std::string fileName = "./TripleBTagReverseSelection_76X";
-	analysis.SetupStandardOutputFile(fileName);
+//	std::string fileName = "./TripleBTagReverseSelection_76X";
+//	analysis.SetupStandardOutputFile(fileName);
+   analysis.createOutputFile("./TripleBTagReverseSelection_76X_cmsdas16.root");
 
 	//Setup Branches
 	analysis.setBranches();
