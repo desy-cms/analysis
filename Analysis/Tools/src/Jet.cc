@@ -63,6 +63,10 @@ std::vector<int> Jet::flavours()                   const { return flavours_;    
 std::vector< std::shared_ptr<GenParticle> >\
       Jet::partons()                               const { return partons_;        }
 std::string Jet::extendedFlavour()                 const { return extendedFlavour_;        }
+float Jet::JerResolution()							const { return jerResolution_;}
+float Jet::JerSf() 									const {	return jerSF_; }
+float Jet::JerSfDown() 								const { return jerSFDown_; }
+float Jet::JerSfUp() 								const { return jerSFUp_; }
 
 // Sets                                                             
 void Jet::btag     (const float & btag)                               { btag_    = btag; } 
@@ -75,7 +79,11 @@ void Jet::jecUncert(const float & ju)                                 { jecUnc_ 
 void Jet::addParton(const std::shared_ptr<GenParticle> & parton)      { partons_.push_back(parton);
                                                                         flavours_.push_back(parton->pdgId());  }
 void Jet::btagAlgo (const std::string & algo )                        { btagAlgo_ = algo; }                                                                        
-                                                                        
+void Jet::JerResolution(const float & jerResolution) 					{ jerResolution_ = jerResolution; }
+void Jet::JerSf(const float & jerSf) 									{ jerSF_ = jerSf; }
+void Jet::JerSfDown(const float & jerSfDown) 							{ jerSFDown_ = jerSfDown; }
+void Jet::JerSfUp(const float & jerSfUp) 								{ jerSFUp_ = jerSfUp; }
+
 int Jet::removeParton(const int & i)
 {
    if ( partons_.size() == 1 )
@@ -173,6 +181,5 @@ void Jet::id      (const float & nHadFrac,
       idloose_ = (nEmFrac<0.90 && nM>10 && fabs(p4_.Eta())>3.0);
       idtight_ = (nEmFrac<0.90 && nM>10 && fabs(p4_.Eta())>3.0);
    }   
+
 }
-      
-      
