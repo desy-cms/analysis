@@ -31,6 +31,8 @@ using namespace analysis::mssmhbb;
 // constructors and destructor
 //
 
+const bool findStrings(const std::string & input, const std::string & needful);
+
 MssmHbb::MssmHbb(const std::string & inputFilelist, const std::string & evtinfo) : Analysis(inputFilelist,evtinfo), BasicTree(this->isMC())
 {
 	if(this->isMC()){
@@ -52,8 +54,9 @@ MssmHbb::MssmHbb(const std::string & inputFilelist, const std::string & evtinfo)
 	// Tree for Vertices
 	this->addTree<Vertex> ("Vertices","MssmHbb/Events/offlineSlimmedPrimaryVertices");
 
+        if(findStrings(inputFilelist,"susy")) signalMC_ = true;
+        else signalMC_ = false;
 
-	Ntot_ = this->size();
 
 }
 
@@ -110,22 +113,19 @@ void MssmHbb::SetupConstants(){
 		pt2_cut__ = 100;
 		pt3_cut__ = 40;
 
-		deta_cut__ = 1.6;
-		btag1_cut__ = 0.935; //CSVv2T
-		btag2_cut__ = 0.935; //CSVv2T
-		btag3_cut__ = 0.8; 	 //CSVv2M
-		//btag1_cut__ = 0.941;
-		//btag2_cut__ = 0.941;
-//		btag3_cut__ = 0.605;
+		deta_cut__ = 1.55;
+		btag1_cut__ = 0.80; //CSVv2T
+		btag2_cut__ = 0.80; //CSVv2T
+		btag3_cut__ = 0.46; 	 //CSVv2M
 	}
 	else{
 		pt1_cut__ = 160;
 		pt2_cut__ = 160;
-		pt3_cut__ = 30;
+		pt3_cut__ = 40;
 
 		deta_cut__ = 100;
-		btag1_cut__ = 0.8;
-		btag2_cut__ = 0.8;
+		btag1_cut__ = 0.80;
+		btag2_cut__ = 0.80;
 		btag3_cut__ = 0.46;
 	}
 }
@@ -160,10 +160,9 @@ void MssmHbb::setBranches(){
 		OutTree_->Branch("bq",&bq_,"bq/I");
 		OutTree_->Branch("qc",&qc_,"qc/I");
 
-		if(this->isSignalMc()){
-			OutTree_->Branch("mHat",&mHat_,"mHat/D");
-		}
-
+                if(this->isSignalMc()){
+                        OutTree_->Branch("mHat",&mHat_,"mHat/D");
+                }
 	}
 
 	//Set basic branches
@@ -196,15 +195,13 @@ void MssmHbb::cleanVariables(){
 		bc_ = 0;
 		qc_ = 0;
 
-		mHat_ = -100;
-	      //mHat correction   to signal MC:
-		if(isSignalMc()) {
-			double p_prot = 13000. /2.;
-	    	double p1 = this->pdf().x.first * p_prot;
-	    	double p2 = this->pdf().x.second * p_prot;
-	    	mHat_ = std::sqrt((p1+p2)*(p1+p2) - (p1-p2)*(p1-p2));
-	      }
-
+                mHat_ = -100;
+                if(isSignalMc()) {
+                double p_prot = 13000. /2.;
+                double p1 = this->pdf().x.first * p_prot;
+                double p2 = this->pdf().x.second * p_prot;
+                mHat_ = std::sqrt((p1+p2)*(p1+p2) - (p1-p2)*(p1-p2));
+                }
 	}
 }
 
@@ -347,20 +344,28 @@ double MssmHbb::twoDPtWeight(TH2F *histo, const double &pt1, const double &pt2){
 // ------------ method called for each event  ------------
 
 int MssmHbb::returnMassPoint() const {
-	int Mpoint = 0;
-	if(!isSignalMc()){
-		return 0;
-	}
-	std::string MassPos = "_M-";
-	auto p1 = inputFilelist_.find(MassPos) + 3;
-	if(p1 == std::string::npos) {
-		std::cerr<<"FileNames were cahnged!!!!"<<std::endl;
-		exit(1);
-	}
-	auto p2 = inputFilelist_.find("_",p1);
-	std::string MpointString = inputFilelist_.substr(p1,size_t(p2-p1));
-	Mpoint = std::stoi(MpointString);
-	return Mpoint;
+        int Mpoint = 0;
+        if(!isSignalMc()){
+                return 0;
+        }
+        std::string MassPos = "_M-";
+        auto p1 = inputFilelist_.find(MassPos) + 3;
+        if(p1 == std::string::npos) {
+                std::cerr<<"FileNames were changed!!!!"<<std::endl;
+                exit(1);
+        }
+        auto p2 = inputFilelist_.find("_",p1);
+        std::string MpointString = inputFilelist_.substr(p1,size_t(p2-p1));
+        Mpoint = std::stoi(MpointString);
+        return Mpoint;
 }
 
+const bool findStrings(const std::string & input, const std::string & needful){
+        std::string input1 = input;
+        std::string input2 = needful;
+        std::transform(input1.begin(),input1.end(),input1.begin(),tolower);
+        std::transform(input2.begin(),input2.end(),input2.begin(),tolower);
+        if(input1.find(input2) != std::string::npos) return true;
+        else return false;
+}
 

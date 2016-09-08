@@ -5,7 +5,7 @@
 
 using namespace analysis::backgroundmodel;
 
-
+/*
 HistContainer::HistContainer(const std::string& input) : histFileName_(input) {
   data_ = getHistogram_("data");
   data_->GetSumw2()->Set(0);
@@ -23,7 +23,11 @@ HistContainer::HistContainer(const std::string& input) : histFileName_(input) {
     }
   }
 }
-
+*/
+HistContainer::HistContainer(const std::string& input) : histFileName_(input) {
+  data_ = getHistogram_("data");
+  data_->GetSumw2()->Set(0);
+}
 
 HistContainer::~HistContainer() = default;
 
@@ -54,8 +58,8 @@ std::vector<std::unique_ptr<TH1> > HistContainer::backgrounds() const {
 
 void HistContainer::show() const {
   std::cout << "Data events:            " << data_->Integral() << std::endl;
-  std::cout << "Expected signal events: " << bbH_->Integral() << std::endl;
-  std::cout << "Background events:      " << summedBackground_->Integral() << std::endl;
+  //std::cout << "Expected signal events: " << bbH_->Integral() << std::endl;
+  //std::cout << "Background events:      " << summedBackground_->Integral() << std::endl;
 }
 
 

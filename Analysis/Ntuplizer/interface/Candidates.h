@@ -59,10 +59,15 @@ namespace analysis {
 //            void Init(const std::vector<std::string> &btagAlgos = std::vector<std::string>(), const std::vector<std::string> & btagAlgosAlias = std::vector<std::string>()	);
 //            void Init(const std::map<std::string, TitleIndex> & btagVars = std::map<std::string,TitleIndex>()	);
 //            void Init(const std::vector<TitleAlias> & btagVars = std::vector<TitleAlias>()	);
-            void Init(const std::vector<TitleAlias> & , const std::string & , const std::string &, const edm::EDGetTokenT<double> & rho);
-            void Init(const std::vector<TitleAlias> & , const std::string & , const std::string & , const std::string & , const std::string &, const edm::EDGetTokenT<double> & rho);
-            void Init(const std::vector<TitleAlias> &	);
             void Init();
+            void Init(const std::vector<TitleAlias> &	);
+//             void Init(const std::vector<TitleAlias> & , const std::string &	);
+//             void Init(const std::vector<TitleAlias> & , const std::string & , const std::string & , const edm::InputTag & );
+//             void Init(const std::vector<TitleAlias> & , const std::string & , const std::string & , const std::string & , const std::string &, const edm::InputTag & );
+            void AddJecInfo(const std::string & );
+            void AddJecInfo(const std::string &, const std::string & );
+            void AddJerInfo(const std::string &, const edm::InputTag & );
+            void AddJerInfo(const std::string &, const std::string &, const std::string &, const edm::InputTag &  );
             void Branches();
             void Fill(const edm::Event&);
             void Fill(const edm::Event&, const edm::EventSetup&);
@@ -78,14 +83,12 @@ namespace analysis {
             std::vector<T> candidates_;
             std::string configParameter_;
             edm::InputTag input_collection_;
-            
-            std::string jecRecord_{};
-            std::string jerRecord_{};
-            std::string jerResFile_;
-            std::string jerSfFile_;
+            std::string jecRecord_;
+            std::string jecFile_;
             std::unique_ptr<JetCorrectionUncertainty> jecUnc_;
-           	JME::JetResolution res_;
-           	JME::JetResolutionScaleFactor res_sf_;
+            std::string jerRecord_;
+            std::string jerFile_;
+            std::string jersfFile_;
             
             // particles kinematics for the ntuple
             int   n_;
@@ -107,12 +110,17 @@ namespace analysis {
             
             float jetid_[15][maxCandidates];
             
+            // Jet energy resolution and scale correction
             float jecUncert_[maxCandidates];
+            edm::InputTag rho_collection_;
+            double rho_;
             float jerResolution_[maxCandidates];
             float jerSF_[maxCandidates];
             float jerSFUp_[maxCandidates];
-            float jerSFDown_[maxCandidates];
-            
+            float jerSFDown_[maxCandidates];            
+           	JME::JetResolution res_;
+           	JME::JetResolutionScaleFactor res_sf_;
+                        
             int pdg_[maxCandidates];
             int status_[maxCandidates];
             bool lastcopy_[maxCandidates];

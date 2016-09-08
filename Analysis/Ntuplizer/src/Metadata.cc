@@ -51,6 +51,7 @@ Metadata::Metadata(edm::Service<TFileService> & fs, const bool & is_mc, const st
    
    isGenFilter_ = false;
    isEvtFilter_ = false;
+   isMHatEvtFilter_ = false;
    
    if ( is_mc_ )
    {

@@ -162,7 +162,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() override;
 
-      //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+      virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
       virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
       virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
       virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
@@ -227,6 +227,8 @@ class Ntuplizer : public edm::EDAnalyzer {
       
       edm::InputTag pileupInfo_;
       edm::InputTag genEventInfo_;
+      
+      edm::InputTag fixedGridRhoAll_;
      
       edm::EDGetTokenT<GenFilterInfo> genFilterInfoToken_;      
       edm::EDGetTokenT<edm::MergeableCounter> totalEventsToken_;      
@@ -237,6 +239,9 @@ class Ntuplizer : public edm::EDAnalyzer {
       edm::EDGetTokenT<std::vector<PileupSummaryInfo> > pileupInfoToken_;      
       edm::EDGetTokenT<GenEventInfoProduct> genEventInfoToken_;
       edm::EDGetTokenT<double> Rho_;
+      
+      edm::EDGetTokenT<double> fixedGridRhoAllToken_;
+
       
       InputTags eventCounters_;
       InputTags mHatEventCounters_;
@@ -288,7 +293,6 @@ class Ntuplizer : public edm::EDAnalyzer {
 //
 Ntuplizer::Ntuplizer(const edm::ParameterSet& config) //:   // initialization of ntuple classes
 {
-//   std::cout << "oioi  " << MYX << " _ " << MYY << " " << OIOI << std::endl;
    
    //now do what ever initialization is needed
    is_mc_         = config.getParameter<bool> ("MonteCarlo");
@@ -334,14 +338,15 @@ Ntuplizer::Ntuplizer(const edm::ParameterSet& config) //:   // initialization of
       edm::InputTag collection = config_.getParameter<edm::InputTag>(inputTag);
       
       // Lumi products
-      if ( inputTag == "GenFilterInfo" )  { genFilterInfoToken_  = consumes<GenFilterInfo,edm::InLumi>(collection);         genFilterInfo_   = collection;}
-      if ( inputTag == "TotalEvents" )    { totalEventsToken_    = consumes<edm::MergeableCounter,edm::InLumi>(collection); totalEvents_     = collection;}
-      if ( inputTag == "FilteredEvents" ) { filteredEventsToken_ = consumes<edm::MergeableCounter,edm::InLumi>(collection); filteredEvents_  = collection;}
+      if ( inputTag == "GenFilterInfo" )  { genFilterInfoToken_    = consumes<GenFilterInfo,edm::InLumi>(collection);         genFilterInfo_   = collection;}
+      if ( inputTag == "TotalEvents" )    { totalEventsToken_      = consumes<edm::MergeableCounter,edm::InLumi>(collection); totalEvents_     = collection;}
+      if ( inputTag == "FilteredEvents" ) { filteredEventsToken_   = consumes<edm::MergeableCounter,edm::InLumi>(collection); filteredEvents_  = collection;}
       if ( inputTag == "FilteredMHatEvents" ) { filteredMHatEventsToken_ = consumes<edm::MergeableCounter,edm::InLumi>(collection); filteredMHatEvents_  = collection;}
-      if ( inputTag == "GenRunInfo" )     { genRunInfoToken_     = consumes<GenRunInfoProduct,edm::InRun>(collection);      genRunInfo_      = collection;}
+      if ( inputTag == "GenRunInfo" )     { genRunInfoToken_       = consumes<GenRunInfoProduct,edm::InRun>(collection);      genRunInfo_      = collection;}
 
-      if ( inputTag == "PileupInfo" )     { pileupInfoToken_     = consumes<std::vector<PileupSummaryInfo> >(collection);   pileupInfo_      = collection;}
-      if ( inputTag == "GenEventInfo" )   { genEventInfoToken_   = consumes<GenEventInfoProduct>(collection);               genEventInfo_    = collection;}
+      if ( inputTag == "PileupInfo" )     { pileupInfoToken_       = consumes<std::vector<PileupSummaryInfo> >(collection);   pileupInfo_      = collection;}
+      if ( inputTag == "GenEventInfo" )   { genEventInfoToken_     = consumes<GenEventInfoProduct>(collection);               genEventInfo_    = collection;}
+      if ( inputTag == "FixedGridRhoAll" ){ fixedGridRhoAllToken_  = consumes<double>(collection);                            fixedGridRhoAll_ = collection;}
  
    }
 
@@ -518,6 +523,8 @@ Ntuplizer::beginJob()
 //      btagVars_[btagAlgosAlias_[it]] = {btagAlgos_[it],(unsigned int)it};
    }
    
+   // JEC Record (from TXT files)
+   std::vector<std::string > jec_files;
    // JEC Record (from CondDB)
    std::vector<std::string > m_resolutions_files;
    std::vector<std::string > m_scale_factors_files;
@@ -525,19 +532,28 @@ Ntuplizer::beginJob()
    if ( do_patjets_ && config_.exists("JECRecords") )
    {
       jecRecords_ = config_.getParameter< std::vector<std::string> >("JECRecords");
-      if(config_.exists("JERResFiles")){
-      	m_resolutions_files = config_.getParameter< std::vector<std::string > >("JERResFiles");
+      if(config_.exists("JECUncertaintyFiles"))
+      {
+         jec_files = config_.getParameter< std::vector<std::string > >("JECUncertaintyFiles");
       }
-      if(config_.exists("JERSfFiles")){
-      	m_scale_factors_files = config_.getParameter< std::vector<std::string > >("JERSfFiles");
-      }
-
    }
-
-   //JER Records (from .txt file or GT)
+   // JER Record (from TXT files)
+   std::vector<std::string > jer_files;
+   std::vector<std::string > jersf_files;
+   // JER Record (from CondDB)
    jerRecords_.clear();
-   if( do_patjets_ && config_.exists("JERRecords")){
-	   jerRecords_ = config_.getParameter< std::vector< std::string> >("JERRecords");
+   if ( do_patjets_ && config_.exists("JERRecords") )
+   {
+      jerRecords_ = config_.getParameter< std::vector<std::string> >("JERRecords");
+      if(config_.exists("JERResFiles"))
+      {
+      	jer_files = config_.getParameter< std::vector<std::string > >("JERResFiles");
+      }
+      if(config_.exists("JERSfFiles"))
+      {
+      	jersf_files = config_.getParameter< std::vector<std::string > >("JERSfFiles");
+      }
+      
    }
 
    //
@@ -556,6 +572,17 @@ Ntuplizer::beginJob()
       std::cout << "*** ERROR ***  Ntuplizer: Number of JER Records less than the number of PatJet collections." << std::endl;
       exit(-1);
    }
+   if ( nPatJets > jerRecords_.size() && jerRecords_.size() != 0 )
+   {
+      std::cout << "*** ERROR ***  Ntuplizer: Number of JER Records less than the number of PatJet collections." << std::endl;;
+      exit(-1);
+   }
+   if ( jerRecords_.size() != 0 && jer_files.size() != 0 && jersf_files.size()!=0 &&(jerRecords_.size() != jer_files.size() || jerRecords_.size() != jersf_files.size()) )
+   {
+   		std::cerr << "*** ERROR *** Ntuplizer: Number of JER Records are not the same as number of provided input files. " <<std::endl;
+   		exit(-1);
+   }
+   
    
    if ( jerRecords_.size() != 0 && m_resolutions_files.size() != 0 && m_scale_factors_files.size()!=0 &&(jerRecords_.size() != m_resolutions_files.size() || jerRecords_.size() != m_scale_factors_files.size()) )
    {
@@ -637,25 +664,45 @@ Ntuplizer::beginJob()
          // Pat Jets
          if ( inputTags == "PatJets" )
          {
-            if ( patJetCounter == 0 && jecRecords_.size() > 0  ) std::cout << "*** Jet Energy Corrections Records - PatJets ***" << std::endl;
-            if ( patJetCounter == 0 && jerRecords_.size() > 0  ) std::cout << "*** Jet Energy Resolutions Records - PatJets ***" << std::endl;
             patjets_collections_.push_back( pPatJetCandidates( new PatJetCandidates(collection, tree_[name], is_mc_ ) ));
-            if ( jecRecords_.size() > 0 && jerRecords_.size() > 0 )
+            patjets_collections_.back() -> Init(btagVars_);
+            
+            if ( patJetCounter == 0 && jecRecords_.size() > 0  )  std::cout << "*** Jet Energy Corrections Records - PatJets ***" << std::endl;
+            if ( jecRecords_.size() > 0  )
             {
-            	if(m_resolutions_files.size() != 0 && m_resolutions_files[patJetCounter] != "" && m_scale_factors_files[patJetCounter] != ""){
-            		patjets_collections_.back() -> Init(btagVars_,jecRecords_[patJetCounter],jerRecords_[patJetCounter],m_resolutions_files[patJetCounter],m_scale_factors_files[patJetCounter],Rho_);
-            	}
-            	
-            	else {
-            		patjets_collections_.back() -> Init(btagVars_,jecRecords_[patJetCounter],jerRecords_[patJetCounter],Rho_);
-            	}
-               if ( jecRecords_[patJetCounter] != "" ) 	std::cout << name << " => "  << jecRecords_[patJetCounter] << std::endl;
-               if ( jerRecords_[patJetCounter] != "") 	std::cout<<"JER: "<<jerRecords_[patJetCounter]<<std::endl;
+               if ( jec_files.size() > 0 && jec_files[patJetCounter] != "" )
+                  patjets_collections_.back() -> AddJecInfo(jecRecords_[patJetCounter],jec_files[patJetCounter]);  // use txt file
+               else
+                  patjets_collections_.back() -> AddJecInfo(jecRecords_[patJetCounter]);                           // use confdb
+
             }
-            else
+            
+            if ( patJetCounter == 0 && jerRecords_.size() > 0  ) std::cout << "*** Jet Energy Resolutions Records - PatJets ***" << std::endl;
+            if ( jerRecords_.size() > 0 && is_mc_  )
             {
-               patjets_collections_.back() -> Init(btagVars_);
+               if ( jer_files.size() > 0 && jer_files[patJetCounter] != "" )
+                  patjets_collections_.back() -> AddJerInfo(jerRecords_[patJetCounter],jer_files[patJetCounter], jersf_files[patJetCounter],fixedGridRhoAll_);  // use txt file
+               else
+                  patjets_collections_.back() -> AddJerInfo(jerRecords_[patJetCounter],fixedGridRhoAll_);  // use txt file
+
             }
+            
+//             if ( jecRecords_.size() > 0 && jerRecords_.size() > 0 )
+//             {
+//                if (jer_files.size() != 0 && jer_files[patJetCounter] != "" && jersf_files[patJetCounter] != "")
+//                {
+//             		patjets_collections_.back() -> Init(btagVars_,jecRecords_[patJetCounter],jerRecords_[patJetCounter],jer_files[patJetCounter],jersf_files[patJetCounter],fixedGridRhoAll_);
+//             	}
+//             	else
+//                {
+//                   patjets_collections_.back() -> Init(btagVars_,jecRecords_[patJetCounter],jerRecords_[patJetCounter],fixedGridRhoAll_);
+//                }
+//                if ( jecRecords_[patJetCounter] != "" )  std::cout << name << " => "  << jecRecords_[patJetCounter] << std::endl;
+//             }
+//             else
+//             {
+//                patjets_collections_.back() -> Init(btagVars_);
+//             }
             ++patJetCounter;
          }
          // Pat METs
@@ -788,12 +835,18 @@ Ntuplizer::endJob()
 }
 
 // ------------ method called when starting to processes a run  ------------
-/*
-void 
-Ntuplizer::beginRun(edm::Run const&, edm::EventSetup const&)
+void Ntuplizer::beginRun(edm::Run const& run, edm::EventSetup const& setup)
 {
+   // Initialize HLTConfig every lumi block
+   if ( do_triggeraccepts_ )
+   {
+      for ( size_t i = 0; i < triggeraccepts_collections_.size() ; ++i )
+      {
+         triggeraccepts_collections_[i]  -> Run(run,setup);
+      }
+   }
 }
-*/
+
 
 // ------------ method called when ending the processing of a run  ------------
 
@@ -810,14 +863,14 @@ Ntuplizer::endRun(edm::Run const& run, edm::EventSetup const& setup)
 
 void  Ntuplizer::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup)
 {
-   // Initialize HLTConfig every lumi block
-   if ( do_triggeraccepts_ )
-   {
-      for ( size_t i = 0; i < triggeraccepts_collections_.size() ; ++i )
-      {
-         triggeraccepts_collections_[i]  -> LumiBlock(lumi,setup);
-      }
-   }
+//    // Initialize HLTConfig every lumi block
+//    if ( do_triggeraccepts_ )
+//    {
+//       for ( size_t i = 0; i < triggeraccepts_collections_.size() ; ++i )
+//       {
+//          triggeraccepts_collections_[i]  -> LumiBlock(lumi,setup);
+//       }
+//    }
 }
 
 

@@ -3,12 +3,12 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("MssmHbb")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(1000)
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(1)
 
 ##  Using MINIAOD. GlobalTag just in case jet re-clustering, L1 trigger filter  etc is needed to be done
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag as customiseGlobalTag
-process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = '76X_mcRun2_asymptotic_v12')
+process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = '80X_dataRun2_Prompt_v9')
 process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_CONDITIONS'
 process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
 for pset in process.GlobalTag.toGet.value():
@@ -19,10 +19,10 @@ process.GlobalTag.ReconnectEachRun = cms.untracked.bool( False )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
-output_file = '/nfs/dust/cms/user/walsh/tmp/test_mc_hbbM300_2.root'
+output_file = '/tmp/test_mc.root'
 ## TFileService
 process.TFileService = cms.Service("TFileService",
-	fileName = cms.string(output_file)
+   fileName = cms.string(output_file)
 )
 
 ## ============ TRIGGER FILTER =============== 
@@ -71,17 +71,25 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
     FilteredEvents  = cms.InputTag("FilteredEvents"),
     PatJets         = cms.VInputTag( 
                                     cms.InputTag("slimmedJets","","PAT"),
-                                    cms.InputTag("slimmedJetsPuppi","","PAT"),
-                                    cms.InputTag("slimmedJetsAK8PFCHSSoftDropPacked","SubJets","PAT"),
                                     ), 
     JECRecords      = cms.vstring  (
                                     "AK4PFchs",
-                                    "AK4PFPuppi",
-                                    "AK8PFchs",
                                     ),
+    JECUncertaintyFiles = cms.vstring  (
+                                    "Spring16_25nsV3_MC_Uncertainty_AK4PFchs.txt",
+                                    ),
+    JERRecords      = cms.vstring  (
+                                    "AK4PFchs",
+                                    ),
+    JERResFiles     = cms.vstring  (
+                                    "Spring16_25nsV6_MC_PtResolution_AK4PF.txt",
+                                    ),
+    JERSfFiles      = cms.vstring  (
+                                    "Spring16_25nsV6_MC_SF_AK4PF.txt",
+                                    ),
+    FixedGridRhoAll = cms.InputTag("fixedGridRhoAll"),
     PatMETs         = cms.VInputTag(
                                     cms.InputTag("slimmedMETs","","PAT"),
-                                    cms.InputTag("slimmedMETsPuppi","","PAT")
                                     ), 
     PatMuons        = cms.VInputTag(
                                     cms.InputTag("slimmedMuons","","PAT")
@@ -95,33 +103,33 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
     BTagAlgorithmsAlias = cms.vstring   (
                                          "btag_csvivf",
                                         ),
-    TriggerResults  = cms.VInputTag(cms.InputTag("TriggerResults","","HLT")),
-    TriggerPaths    = cms.vstring  (
-    ## I recommend using the version number explicitly to be able to compare 
-    ## however for production one has to be careful that all versions are included.
-    ## Thinking of a better solution...
-    								        'HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v',
-    								        'HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v',
-    								        'HLT_DoubleJetsC112_DoubleBTagCSV0p85_DoublePFJetsC172_v',
-    								        'HLT_DoubleJetsC112_DoubleBTagCSV0p9_DoublePFJetsC112MaxDeta1p6_v',
-                                   ),
-    TriggerObjectStandAlone  = cms.VInputTag(
-                                             cms.InputTag("selectedPatTrigger","","PAT"),
-                                             ),
-    TriggerObjectLabels    = cms.vstring  (
-    											"hltL1sL1DoubleJetC100",
-    											"hltDoubleJetsC100",
-    											"hltDoublePFJetsC100",
-    											"hltDoublePFJetsC100MaxDeta1p6",
-    											"hltDoublePFJetsC160",
-    											"hltDoubleBTagCSV0p85",
-    											"hltDoubleBTagCSV0p9",
-    											"hltL1sL1DoubleJetC112",
-    											"hltDoubleJetsC112",
-    											"hltDoublePFJetsC112",
-    											"hltDoublePFJetsC112MaxDeta1p6",
-    											"hltDoublePFJetsC172",
-                                   ),
+#     TriggerResults  = cms.VInputTag(cms.InputTag("TriggerResults","","HLT")),
+#     TriggerPaths    = cms.vstring  (
+#     ## I recommend using the version number explicitly to be able to compare 
+#     ## however for production one has to be careful that all versions are included.
+#     ## Thinking of a better solution...
+#                                     'HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v',
+#                                     'HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v',
+#                                     'HLT_DoubleJetsC112_DoubleBTagCSV0p85_DoublePFJetsC172_v',
+#                                     'HLT_DoubleJetsC112_DoubleBTagCSV0p9_DoublePFJetsC112MaxDeta1p6_v',
+#                                    ),
+#     TriggerObjectStandAlone  = cms.VInputTag(
+#                                              cms.InputTag("selectedPatTrigger","","PAT"),
+#                                              ),
+#     TriggerObjectLabels    = cms.vstring  (
+#                                      "hltL1sL1DoubleJetC100",
+#                                      "hltDoubleJetsC100",
+#                                      "hltDoublePFJetsC100",
+#                                      "hltDoublePFJetsC100MaxDeta1p6",
+#                                      "hltDoublePFJetsC160",
+#                                      "hltDoubleBTagCSV0p85",
+#                                      "hltDoubleBTagCSV0p9",
+#                                      "hltL1sL1DoubleJetC112",
+#                                      "hltDoubleJetsC112",
+#                                      "hltDoublePFJetsC112",
+#                                      "hltDoublePFJetsC112MaxDeta1p6",
+#                                      "hltDoublePFJetsC172",
+#                                    ),
 )
 
 process.p = cms.Path(
@@ -137,8 +145,7 @@ readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 readFiles.extend( [
-#       '/store/mc/RunIIFall15MiniAODv2/SUSYGluGluToBBHToBB_M-300_TuneCUETP8M1_13TeV-pythia8/MINIAODSIM/PU25nsData2015v1Raw_76X_mcRun2_asymptotic_v12-v1/00000/0A91D2C2-12C6-E511-B7E7-90B11C050AD4.root',
-       '/store/mc/RunIIFall15MiniAODv2/SUSYGluGluToBBHToBB_M-300_TuneCUETP8M1_13TeV-pythia8/MINIAODSIM/PU25nsData2015v1Raw_76X_mcRun2_asymptotic_v12-v1/00000/0C785886-08C6-E511-9748-90B11C2CB7A9.root',
+       '/store/mc/RunIISpring16MiniAODv2/SUSYGluGluToBBHToBB_M-300_TuneCUETP8M1_13TeV-pythia8/MINIAODSIM/PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v1/80000/80A00D8A-D638-E611-AD68-02163E01764A.root',
 ] );
 
 

@@ -34,6 +34,8 @@
 #include "TChain.h"
 #include "TFile.h"
 #include "TFileCollection.h"
+#include "TH2.h"
+
 #include "Analysis/Tools/interface/Utils.h"
 
 #include "Analysis/Tools/interface/PhysicsObjectTree.h"
@@ -124,6 +126,16 @@ namespace analysis {
             // good Json files
             void processJsonFile(const std::string & fileName = "goodJson.txt");
             bool selectJson();
+            
+            // btag efficiencies
+            void addBtagEfficiencies(const std::string & );
+            float btagEfficiency(const analysis::tools::Jet &, const int & rank = 0);
+            void  btagEfficienciesAlgo(const std::string & );
+            void  btagEfficienciesFlavour(const std::string & );
+            
+            
+            float scaleLuminosity(const float & lumi);  // in pb-1
+
 
             // ----------member data ---------------------------
          protected:
@@ -131,10 +143,17 @@ namespace analysis {
             TFileCollection * fileCollection_;
             TCollection * fileList_;
             std::string inputFilelist_;
+            
+            // btagging efficiencies
+            TFile * fileBtagEff_;
+            std::map<std::string,TH2F *> h2_btageff_;
+            std::string btageff_flavour_;
+            std::string btageff_algo_;
 
 
             std::map<std::string, double> xsections_;
             std::map<std::string, bool> triggerResults_;
+            std::map<std::string, int> triggerResultsPS_;
             std::map<int,std::vector<std::string> > goodLumi_;
             FilterResults genfilter_;
             FilterResults evtfilter_;
@@ -174,6 +193,9 @@ namespace analysis {
             
             // Collections
             std::map<std::string, boost::any > c_any_;
+            
+            // Luminosity
+            float mylumi_;
             
          private:
 
@@ -304,6 +326,10 @@ namespace analysis {
       inline double Analysis::genScale()    	{ return genScale_;  }
       inline PDF    Analysis::pdf()         	{ return pdf_;       }
       
+      inline void Analysis::btagEfficienciesAlgo(const std::string & algo )      { btageff_algo_    = algo; }
+      inline void Analysis::btagEfficienciesFlavour(const std::string & flavour) { btageff_flavour_ = flavour; }
+      
+//      inline std::string Analysis::getGenParticleCollection() { return genParticleCollection_; }
    }
 }
 

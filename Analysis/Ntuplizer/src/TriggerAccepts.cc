@@ -93,12 +93,14 @@ void TriggerAccepts::Fill(const edm::Event& event, const edm::EventSetup & setup
          if ( hlt_config_.triggerName(j).find(paths_[i]) == 0 && triggers.accept(j) )
          {
 #ifndef CMSSWOLD          
-            std::pair< int, int > ps = hlt_prescale_->prescaleValues (event, setup, hlt_config_.triggerName(j));
+            const std::pair<std::vector<std::pair<std::string,int> >,int> ps = hlt_prescale_->prescaleValuesInDetail(event,setup,hlt_config_.triggerName(j));
+            psl1_[i] = ps.first[0].second;
+            pshlt_[i] = ps.second;
 #else
             std::pair< int, int > ps = hlt_config_.prescaleValues (event, setup, hlt_config_.triggerName(j));
-#endif            
             psl1_[i] = ps.first;
             pshlt_[i] = ps.second;
+#endif            
 //            psl1_[i]  = 1;
 //            pshlt_[i] = 1;
             if ( triggers.accept(j) ) accept_[i] = true;
@@ -152,6 +154,50 @@ void TriggerAccepts::LumiBlock(edm::LuminosityBlock const & lumi, edm::EventSetu
                   if ( paths_.size() >= 1000 )
                   {
                      std::cout << "analysis::ntuple::TriggerAccepts::LumiBlock - Number of trigger paths is larger than 1000." << std::endl;
+                     std::cout << "                                              Not all trigger paths will be considered."    << std::endl;
+                     break;
+                  }
+                  if ( hlt_config_.triggerName(j).find(inpaths_[i]) == 0 )
+                     paths_.push_back(hlt_config_.triggerName(j));
+               }
+            }
+         }
+      }
+      this->Branches();
+      first_ = false;
+   }
+
+}
+
+void TriggerAccepts::Run(edm::Run const & run, edm::EventSetup const& setup)
+{
+   bool changed;
+#ifndef CMSSWOLD          
+   hlt_prescale_->init(run, setup, input_collection_.process(), changed);
+   hlt_config_ = hlt_prescale_->hltConfigProvider();
+#else
+   hlt_config_.init(lumi.getRun(), setup, input_collection_.process(), changed);
+#endif            
+
+   std::vector<std::string> names = hlt_config_.triggerNames();
+   
+   if ( first_ )  // using this kind of resource to get the names from the configuration, when needed.
+   {
+      if ( ! testmode_ )
+         paths_ = inpaths_;
+      else
+      {
+         if ( inpaths_.size() == 0 ) // means all paths will be considered
+            paths_ = names;
+         else
+         {
+            for ( size_t i = 0 ; i < inpaths_.size() ; ++i )
+            {
+               for ( size_t j = 0 ; j < hlt_config_.size() ; ++j )
+               {
+                  if ( paths_.size() >= 1000 )
+                  {
+                     std::cout << "analysis::ntuple::TriggerAccepts::Run - Number of trigger paths is larger than 1000." << std::endl;
                      std::cout << "                                              Not all trigger paths will be considered."    << std::endl;
                      break;
                   }

@@ -124,6 +124,10 @@ Candidates<T>::Candidates(const edm::InputTag& tag, TTree* tree, const bool & mc
    
    // init
    btag_vars_.clear();
+   
+   // JEC info default
+   jecRecord_ = "";
+   jecFile_   = "";
     
 }
 
@@ -258,39 +262,39 @@ void Candidates<T>::Kinematics()
             jecUnc_->setJetEta(eta_[n]);
             jecUnc_->setJetPt(pt_[n]);
             jecUncert_[n] = jecUnc_->getUncertainty(true);
-//            std::cout << pt_[n] << " +- " << jecUncert_[n] << std::endl;
          }
          else
          {
             jecUncert_[n] = -1.;
          }
-
          //JER
-         if(jerRecord_ != ""){
-             // SetUp Jet parameters
-        	 JME::JetParameters jerParamRes;
-        	 jerParamRes.setJetPt(pt_[n]);
-        	 jerParamRes.setJetEta(eta_[n]);
-        	 jerParamRes.setRho(rho_);
+         if( jerRecord_ != "" )
+         {
+          // SetUp Jet parameters
+            JME::JetParameters jerParamRes;
+            jerParamRes.setJetPt(pt_[n]);
+            jerParamRes.setJetEta(eta_[n]);
+            jerParamRes.setRho(rho_);
+            
+            // Return JER
+            jerResolution_[n]    = res_.getResolution(jerParamRes);
 
-        	 // Return JER
-        	 jerResolution_[n] 	= res_.getResolution(jerParamRes);
+            JME::JetParameters jerParamSF;
+            jerParamSF.set(JME::Binning::JetEta, eta_[n]);
+            jerParamSF.set(JME::Binning::Rho, rho_);
 
-        	 JME::JetParameters jerParamSF;
-        	 jerParamSF.set(JME::Binning::JetEta, eta_[n]);
-        	 jerParamSF.set(JME::Binning::Rho, rho_);
-
-        	 jerSF_[n]			= res_sf_.getScaleFactor(jerParamSF);
-        	 jerSFUp_[n]		= res_sf_. getScaleFactor(jerParamSF,Variation::UP);
-        	 jerSFDown_[n]		= res_sf_. getScaleFactor(jerParamSF,Variation::DOWN);
-        	 
+            jerSF_[n]       = res_sf_.getScaleFactor(jerParamSF);
+            jerSFUp_[n]     = res_sf_. getScaleFactor(jerParamSF,Variation::UP);
+            jerSFDown_[n]   = res_sf_. getScaleFactor(jerParamSF,Variation::DOWN);
+            
          }
-         else{
-        	 jerResolution_[n] 	= -1;
-        	 jerSF_[n]			= -1;
-        	 jerSFUp_[n]		= -1;
-        	 jerSFDown_[n]		= -1;
-         }
+         else
+         {
+            jerResolution_[n] = -1;
+            jerSF_[n]         = -1;
+            jerSFUp_[n]       = -1;
+            jerSFDown_[n]     = -1;
+         }         
       }
       if ( is_pfjet_ )
       {
@@ -377,28 +381,39 @@ void Candidates<T>::Fill(const edm::Event& event, const edm::EventSetup& setup)
 {
    if ( jecRecord_ != "" )
    {
-      edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
-      setup.get<JetCorrectionsRecord>().get(jecRecord_,JetCorParColl); 
-      JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
-      jecUnc_ = std::unique_ptr<JetCorrectionUncertainty>(new JetCorrectionUncertainty(JetCorPar));
+      if ( jecFile_ != "" )
+      {
+         jecUnc_ = std::unique_ptr<JetCorrectionUncertainty>(new JetCorrectionUncertainty(jecFile_));
+      }
+      else
+      {
+         edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
+         setup.get<JetCorrectionsRecord>().get(jecRecord_,JetCorParColl); 
+         JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
+         jecUnc_ = std::unique_ptr<JetCorrectionUncertainty>(new JetCorrectionUncertainty(JetCorPar));
+      }
    }
-   
-   if (jerRecord_ != "" ){
-   		if(jerResFile_ != "" && jerSfFile_ != ""){
-	   		res_    = JME::JetResolution(jerResFile_);
-	   		res_sf_ = JME::JetResolutionScaleFactor(jerSfFile_);
-   		}
-   		else {
-   	   		std::string label_pt = jerRecord_ + "_pt";
-	   		res_ 	= JME::JetResolution::get(setup,label_pt);
-	   		std::string label_sf = jerRecord_;
-	   		res_sf_ 	= JME::JetResolutionScaleFactor::get(setup,label_sf);
-	   	}
-   	   edm::Handle<double> rho;
-   	   event.getByToken(RhoToken_, rho);
-   	   rho_ = *rho;
+
+   if (jerRecord_ != "" )
+   {
+      if(jerFile_ != "" && jersfFile_ != "")
+      {
+         res_    = JME::JetResolution(jerFile_);
+         res_sf_ = JME::JetResolutionScaleFactor(jersfFile_);
+      }
+      else
+      {
+         std::string label_pt = jerRecord_ + "_pt";
+         res_    = JME::JetResolution::get(setup,label_pt);
+         std::string label_sf = jerRecord_;
+         res_sf_    = JME::JetResolutionScaleFactor::get(setup,label_sf);
+      }
+
+      edm::Handle<double> rhoHandler;
+      event.getByLabel(rho_collection_, rhoHandler);
+      rho_ = *(rhoHandler.product());
+            
    }
-   
    Fill(event);
 }
 
@@ -439,12 +454,14 @@ void Candidates<T>::Branches()
          tree_->Branch("physicsFlavour", physicsFlavour_,  "physicsFlavour[n]/I");
          
 //         if ( jecRecord_ != "" )
-            tree_->Branch("jecUncert", jecUncert_, "jecUncert[n]/F");
-            tree_->Branch("jerResolution",jerResolution_,"jerResolution[n]/F");
-            tree_->Branch("jerSF",jerSF_,"jerSF[n]/F");
-            tree_->Branch("jerSFUp",jerSFUp_,"jerSFUp[n]/F");
-            tree_->Branch("jerSFDown",jerSFDown_,"jerSFDown[n]/F");
-            tree_->Branch("Rho",&rho_,"Rho/D");
+//         {
+             tree_->Branch("jecUncert", jecUncert_, "jecUncert[n]/F");
+             tree_->Branch("jerResolution",jerResolution_,"jerResolution[n]/F");
+             tree_->Branch("jerSF",jerSF_,"jerSF[n]/F");
+             tree_->Branch("jerSFUp",jerSFUp_,"jerSFUp[n]/F");
+             tree_->Branch("jerSFDown",jerSFDown_,"jerSFDown[n]/F");
+             tree_->Branch("Rho",&rho_,"Rho/D");
+//         }
          
       }
       if ( is_pfjet_ || is_patjet_ )
@@ -479,26 +496,14 @@ void Candidates<T>::Branches()
       
    
 }
-template <typename T>
-void Candidates<T>::Init( const std::vector<TitleAlias> & btagVars, const std::string & jec, const std::string & jer, const edm::EDGetTokenT<double> &RhoToken)
-{
-   jecRecord_ = jec;
-   jerRecord_ = jer;
-   RhoToken_ = RhoToken;
-   Init(btagVars);
-}
+
+// Initialisation
 
 template <typename T>
-void Candidates<T>::Init( const std::vector<TitleAlias> & btagVars, const std::string & jec, const std::string & jer, const std::string &res_file, const std::string & sf_file, const edm::EDGetTokenT<double> & RhoToken)
+void Candidates<T>::Init()
 {
-   jecRecord_ = jec;
-   jerRecord_ = jer;
-   jerResFile_ = res_file;
-   jerSfFile_  = sf_file;
-   RhoToken_ = RhoToken;
-   Init(btagVars);
+   Branches();
 }
-
 
 template <typename T>
 void Candidates<T>::Init( const std::vector<TitleAlias> & btagVars )
@@ -510,10 +515,62 @@ void Candidates<T>::Init( const std::vector<TitleAlias> & btagVars )
    
 }
 
+// template <typename T>
+// void Candidates<T>::Init( const std::vector<TitleAlias> & btagVars, const std::string & jec )
+// {
+//    jecRecord_ = jec;
+//    Init(btagVars);
+// }
+// 
+// template <typename T>
+// void Candidates<T>::Init( const std::vector<TitleAlias> & btagVars, const std::string & jec, const std::string & jer, const edm::InputTag & rho )
+// {
+//    jerRecord_ = jer;
+//    rho_collection_ = rho;
+//    Init(btagVars,jec);
+// }
+// 
+// 
+// template <typename T>
+// void Candidates<T>::Init( const std::vector<TitleAlias> & btagVars, const std::string & jec, const std::string & jer, const std::string &res_file, const std::string & sf_file, const edm::InputTag & rho )
+// {
+//    jerFile_    = res_file;
+//    jersfFile_  = sf_file;
+//    Init(btagVars,jec,jer,rho);
+// }
+
 template <typename T>
-void Candidates<T>::Init()
+void Candidates<T>::AddJecInfo( const std::string & jec )
 {
-   Branches();
+   // Will use confDB
+   jecRecord_ = jec;
+}
+
+template <typename T>
+void Candidates<T>::AddJecInfo( const std::string & jec , const std::string & jec_file )
+{
+   // Will use txt file
+   jecRecord_ = jec;
+   jecFile_   = jec_file;
+}
+
+template <typename T>
+void Candidates<T>::AddJerInfo( const std::string & jer, const edm::InputTag & rho )
+{
+   // Will use confDB
+   jerRecord_ = jer;
+   rho_collection_ = rho;
+}
+
+template <typename T>
+void Candidates<T>::AddJerInfo(const std::string & jer, const std::string & res_file, const std::string & sf_file, const edm::InputTag & rho)
+{
+   // Will use txt file
+   jerRecord_ = jer;
+   jerFile_   = res_file;
+   jersfFile_ = sf_file;
+   rho_collection_ = rho;
+   
 }
 
 // Need to declare all possible template classes here

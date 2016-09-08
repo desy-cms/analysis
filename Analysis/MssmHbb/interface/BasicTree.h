@@ -157,10 +157,7 @@ protected:
     int bq_;
 
     //Functions:
-
-    //generated:
     double mHat_;
-
 
 private:
 
