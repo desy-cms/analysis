@@ -31,15 +31,12 @@ int main(int argc, char* argv[]) {
     ("verbose,v", po::value<int>()->default_value(0), "More verbose output.")
     ("profile,p", "Create profile likelihoods of the fit parameters.")
     ("list_parameters,l", "List parameters of the chosen fit models and exit.")
-    ("input_file,i", po::value<std::string>()
-     ->default_value(cmsswBase+"/src/Analysis/BackgroundModel/"
-                     "data/HIG14017_HighMass2012_Packed_M350_inputs.root"),
+    ("input_file,i", po::value<std::string>(),
      "ROOT file from which input histograms are retrieved.")
     ("input_tree_file,t", po::value<std::string>(),
      "ROOT file from which input tree is retrieved. If this parameter is not "
      "given a binned fit is performed using 'input_file'.")
-    ("output_directory,o", po::value<std::string>()
-     ->default_value(cmsswBase+"/src/Analysis/BackgroundModel/test/"),
+    ("output_directory,o", po::value<std::string>(),
      "Directory where the output is stored.")
     ("fit_min", po::value<float>(), "Lower bound of the fit range.")
     ("fit_max", po::value<float>(), "Upper bound of the fit range.")
