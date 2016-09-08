@@ -21,7 +21,7 @@ JetAnalysisBase(inputFilelist,dataLumi,lowM,test) {
                 eta1_ = 2.2; eta2_ = 2.2; eta3_ = 2.2;
                 btag1_ = 0.8; btag2_ = 0.8; btag3_ = 0.8;
                 btagOP1_ = 1; btagOP2_ = 1; btagOP3_ = 1;
-                dR_ = 1; dEta_ = 1.55; mHat_ = 0.7
+                dR_ = 1; dEta_ = 1.55; mHat_ = 0.7;
         }
         else {
                 triggerLogicName_ = "HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v";
@@ -30,7 +30,7 @@ JetAnalysisBase(inputFilelist,dataLumi,lowM,test) {
                 eta1_ = 2.2; eta2_ = 2.2; eta3_ = 2.2;
                 btag1_ = 0.8; btag2_ = 0.8; btag3_ = 0.8;
                 btagOP1_ = 1; btagOP2_ = 1; btagOP3_ = 1;
-                dR_ = 1; dEta_ = 100.; mHta_ = 0.7;
+                dR_ = 1; dEta_ = 100.; mHat_ = 0.7;
         }
 	baseOutputName_ = "DoubleB";
 }
