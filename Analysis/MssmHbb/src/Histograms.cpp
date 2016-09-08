@@ -13,7 +13,7 @@ Histograms::Histograms() : size_(0) {
 }
 
 Histograms::~Histograms() {
-	std::cout<<"I'm at ~Histograms"<<std::endl;
+	//std::cout<<"I'm at ~Histograms"<<std::endl;
 	// TODO Auto-generated destructor stub
 }
 

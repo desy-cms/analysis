@@ -187,7 +187,7 @@ JetAnalysisBase::JetAnalysisBase(const std::string & inputFilelist, const bool &
 }
 
 JetAnalysisBase::~JetAnalysisBase() {
-	if(TEST) std::cout<<"I'm at JetAnalysisBase::~JetAnalysisBase"<<std::endl;
+	//if(TEST) std::cout<<"I'm at JetAnalysisBase::~JetAnalysisBase"<<std::endl;
 	// TODO Auto-generated destructor stub
 }
 
