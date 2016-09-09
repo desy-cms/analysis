@@ -48,6 +48,9 @@ using namespace RooFit;
  
 const double obs = 19251.;
 
+TString outdir_;
+TString outdirplots_;
+
 TH1* QCD_HistSyst(bool up, int iPar, double init_3[3], double para_a_array[3], double para_b_array[3], double dpara_b_array[3], TMatrixD para_b, TMatrixD eigenVa)
 {
   	TString outname; 
@@ -115,7 +118,7 @@ TH1* QCD_HistSyst(bool up, int iPar, double init_3[3], double para_a_array[3], d
   	// Draw all frames on a canvas
   	TCanvas* c = new TCanvas("fit result"+outname,"fit result"+outname,600,400) ;
   	gPad->SetLeftMargin(0.15); xframe->GetYaxis()->SetTitleOffset(1.6); xframe->Draw();
-	c->SaveAs("Fitresult_"+outname+"_Novo.pdf");
+	c->SaveAs(outdirplots_+"Fitresult_"+outname+"_Novo.pdf");
 
 	return h1;
 }
@@ -134,10 +137,10 @@ void drawcanvas(TH1* h_novo, TH1* h_syst)
 	canvas.SetCanvasSize(500,500);
 
 	TPad* pad1;
-   	pad1 = new TPad("pad1","",0,0.1,1,1);
-    	pad1->SetBottomMargin(0.2);
-    	pad1->SetRightMargin(0.05); // The ratio plot below inherits the right and left margins settings here!
-    	pad1->SetLeftMargin(0.16); 
+   pad1 = new TPad("pad1","",0,0.1,1,1);
+   pad1->SetBottomMargin(0.2);
+   pad1->SetRightMargin(0.05); // The ratio plot below inherits the right and left margins settings here!
+   pad1->SetLeftMargin(0.16); 
   	pad1->Draw();
   	pad1->cd();
   	if (logy) { 	pad1->SetLogy();
@@ -169,43 +172,46 @@ void drawcanvas(TH1* h_novo, TH1* h_syst)
 
 	h_ratio->SetTitle("");
 	h_ratio->Divide(h_syst);
-    	h_ratio->SetMarkerStyle(8);
+   h_ratio->SetMarkerStyle(8);
   	h_ratio->SetMarkerSize(0.5);	
-    	h_ratio->GetXaxis()->SetTitleSize(0.15);
-    	h_ratio->GetXaxis()->SetTitleOffset(0.85);
-    	h_ratio->GetXaxis()->SetLabelSize(0.12);
-    	h_ratio->GetXaxis()->SetLabelOffset(0.008);
-    	h_ratio->SetYTitle("Ratio");
-    	h_ratio->GetYaxis()->CenterTitle(kTRUE);
-    	h_ratio->GetYaxis()->SetTitleSize(0.15);
-    	h_ratio->GetYaxis()->SetTitleOffset(0.3);
-    	h_ratio->GetYaxis()->SetNdivisions(3,5,0);
-    	h_ratio->GetYaxis()->SetLabelSize(0.12);
-    	h_ratio->GetYaxis()->SetLabelOffset(0.011);
+   h_ratio->GetXaxis()->SetTitleSize(0.15);
+   h_ratio->GetXaxis()->SetTitleOffset(0.85);
+   h_ratio->GetXaxis()->SetLabelSize(0.12);
+   h_ratio->GetXaxis()->SetLabelOffset(0.008);
+   h_ratio->SetYTitle("Ratio");
+   h_ratio->GetYaxis()->CenterTitle(kTRUE);
+   h_ratio->GetYaxis()->SetTitleSize(0.15);
+   h_ratio->GetYaxis()->SetTitleOffset(0.3);
+   h_ratio->GetYaxis()->SetNdivisions(3,5,0);
+   h_ratio->GetYaxis()->SetLabelSize(0.12);
+   h_ratio->GetYaxis()->SetLabelOffset(0.011);
 
-    	h_ratio->Draw("p");
-    	h_ratio->SetMaximum(1.5);
-    	h_ratio->SetMinimum(0.5);
+   h_ratio->Draw("p");
+   h_ratio->SetMaximum(1.5);
+   h_ratio->SetMinimum(0.5);
 
 	TString pdfname;
 	pdfname = h_syst->GetName();
-	canvas.SaveAs(pdfname+"_Novo.pdf");
+	canvas.SaveAs(outdirplots_+pdfname+"_Novo.pdf");
 
 }
 
 
 //int main(int argc, char* argv[])
-void QCD_Templates_novo() 
+void BackgroundTemplates( TString directory = "novopsprod_240to1700_20GeV") 
 {
 	//TH1::SetDefaultSumw2();
  	// R e a d   w o r k s p a c e   f r o m   f i l e
   	// -----------------------------------------------
   	// Open input file with workspace
-  	TFile *f = new TFile("../background_fit/novopsprod_240to1700_20GeV/workspace/FitContainer_workspace.root") ;
+   outdir_ = "./background_fit/"+directory;
+   outdirplots_ = outdir_+"/plots/";
+   TString filename = outdir_+"/workspace/FitContainer_workspace.root";
+  	TFile *f = new TFile(filename) ;
 	TTree *t = (TTree*)f->Get("fit_b");
 
 	double covMatrix[20];
-      	double eigenVector[20];
+   double eigenVector[20];
 	t->SetBranchAddress("covMatrix", covMatrix);
 	t->SetBranchAddress("eigenVector", eigenVector);
 	t->GetEntry(0);
@@ -266,7 +272,7 @@ void QCD_Templates_novo()
   	// Draw all frames on a canvas
   	TCanvas* c = new TCanvas("fit result","fit result",650,500) ;
   	gPad->SetLeftMargin(0.15); xframe->GetYaxis()->SetTitleOffset(1.6); xframe->Draw();
-  	c->SaveAs("Fitresult_Central_Novo.pdf");
+  	c->SaveAs(outdirplots_+"Fitresult_Central_Novo.pdf");
 
   	// Central Histogram for central templates without errors
 	TH1* h_novo = (TH1*)h_central->Clone("h_novo");
@@ -278,7 +284,7 @@ void QCD_Templates_novo()
   	h_novo->SetLineWidth(2);
 
   	// Output file to store all QCD Templates
-  	TFile* outputFile = new TFile("QCD_Templates_Novo.root","RECREATE");
+  	TFile* outputFile = new TFile(outdir_+"/BackgroundTemplates.root","RECREATE");
   	outputFile->cd();
   	h_central->Write();
  	h_novo->Write();
@@ -409,7 +415,7 @@ void QCD_Templates_novo()
   	h_syst_up->Write();
   	h_syst_down->Write();
 
-  	canvas->SaveAs("QCD_Templates_Novo.pdf");
+  	canvas->SaveAs(outdirplots_+"QCD_Templates_Novo.pdf");
 
   	outputFile->Close();
   	cout << "End of code :)" << endl;
