@@ -3,7 +3,7 @@ Short Instructions for Basic Jet Analysis selection (including Mssm bbH->bbbb) a
 HOW TO:
 1)compile your project with scram b -j4
 2)Check AllInOneTool -h for available options (NOT ALL ARE INCLUDED FOR DAS, only 2bjet and datavsmc is ready, rioght now, everything else can be added if needed)
-3)run AllInOneTool with command line arguments or with "-c config.cfg" to get arguments from config file
+3)run AllInOneTool from Analysis/MssmHbb/test with command line arguments or with "-c config.cfg" to get arguments from config file
 4)find your ouput in Analysis/MssmHbb/output/ folder
 5)If values of cuts/weights/selection mechanism etc should be changed - check Analysis/MssmHbb/src/JetAnalysisBase.cpp and Analysis/MssmHbb/src/DataMcComparison.cpp Analysis/MssmHbb/src/selectionDoubleB.cpp .
 
