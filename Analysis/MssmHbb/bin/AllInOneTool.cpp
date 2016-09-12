@@ -31,7 +31,7 @@
 //#include "Analysis/MssmHbb/interface/BgStudy.h"
 #include "Analysis/MssmHbb/interface/DataMcComparison.h"
 //#include "Analysis/MssmHbb/interface/bbx.h"
-//#include "Analysis/MssmHbb/interface/CutOptimisation.h"
+#include "Analysis/MssmHbb/interface/CutOptimisation.h"
 //#include "Analysis/MssmHbb/macros/Drawer/FitMassDistribution.C"
 
 namespace fs = boost::filesystem;
@@ -225,11 +225,11 @@ int main(int argc, char * argv[])
 						  bbx analysis(txt_file,lumi_,lowM_,test_);
 						  analysis.runAnalysis(json_file_,output_,100);
 					  }
-					  else if (boost::iequals(selection_,"cut_opt")){
+*/					  else if (boost::iequals(selection_,"cut_opt")){
 						  CutOptimisation analysis(txt_file,lumi_,lowM_,nJets_,test_);
 						  analysis.runAnalysis(json_file_,output_,100);
 					  }
-*/
+
 				  }
 				  else{
 					  std::cerr<<"Input file is empty"<<std::endl;
