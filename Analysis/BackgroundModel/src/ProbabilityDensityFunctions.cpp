@@ -94,8 +94,7 @@ void ProbabilityDensityFunctions::setPdf(const std::string& function, const std:
 
 void ProbabilityDensityFunctions::getNovosibirsk(const std::string& name){
 	RooRealVar& var = *workspace_->var(var_.c_str());
-	double peakStart = peak_ == -100 ? 250. : peak_;
-	RooRealVar peak = RooRealVar("peak1", "peak", peakStart, 50.0, 500.0, "GeV");
+	RooRealVar peak = RooRealVar("peak1", "peak", getPeakStart(), 50.0, 500.0, "GeV");
 	RooRealVar width = RooRealVar("width1", "width", 50.0, 5.0, var.getMax()/2.0, "GeV");
 	RooRealVar tail = RooRealVar("tail1", "tail", -0.1, -1.0, 1.0);
 	RooNovosibirsk novo(name.c_str(),(name + "_novosibirsk").c_str(),var,peak,width,tail);

@@ -155,6 +155,8 @@ FitContainer::FitContainer(const HistContainer& container,
 
 FitContainer::FitContainer(TTree& data, const std::string& outputDir) : FitContainer()
  {
+	bkg_ = "";
+	signal_ = "";
 	outputDir_ = outputDir+"/";
 	RooRealVar mbb(mbb_.c_str(), "M_{12}",
                  0.0, data.GetMaximum(mbb_.c_str()), "GeV");
@@ -279,10 +281,12 @@ void FitContainer::setModel(const Type& type, const std::string& name) {
 
 void FitContainer::setModel(const Type& type, const std::string& name,
                             const std::vector<ParamModifier>& modifiers) {
-	std::cout<<"in FitContainer::setModel"<<std::endl;
   if (!initialized_) initialize();
 
   ProbabilityDensityFunctions pdfs(workspace_,mbb_.c_str());
+//  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
+  double peak_pos = getPeakStart_(type,500);
+  pdfs.setPeakStart(peak_pos);
   pdfs.setPdf(name,toString(type));
 
   applyModifiers_(*(workspace_.pdf(toString(type).c_str())), modifiers);
@@ -939,6 +943,40 @@ FitContainer::getCoefficients_(const int numCoeffs, const std::string& name) {
     coefficients->addClone(*coefficient);
   }
   return coefficients;
+}
+
+double FitContainer::getPeakStart_(const Type& type) {
+  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
+  return getPeakStart_(type, mbb.getMax());
+}
+
+
+double FitContainer::getPeakStart_(const Type& type, double max) {
+  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
+  double peakStart = (mbb.getMin() + max) / 2.0;
+  switch (type) {
+  case Type::signal:
+    if (signal_ != "") {
+      RooAbsData& signal = *workspace_.data(signal_.c_str());
+      peakStart = getMaxPosition_(signal);
+    }
+    break;
+  case Type::background:
+    if (bkg_ != "") {
+      RooAbsData& bkg = *workspace_.data(bkg_.c_str());
+      peakStart = getMaxPosition_(bkg);
+    }
+    break;
+  }
+  return peakStart < max ? peakStart : max;
+}
+
+
+double FitContainer::getMaxPosition_(const RooAbsData& data) {
+  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
+  std::unique_ptr<TH1> hist(data.createHistogram(mbb_.c_str(), mbb));
+  int maximumBin = hist->GetMaximumBin();
+  return hist->GetBinCenter(maximumBin);
 }
 
 const std::string FitContainer::defaultOutputDir_ =

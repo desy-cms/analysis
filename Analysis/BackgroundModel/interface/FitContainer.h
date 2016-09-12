@@ -83,6 +83,9 @@ namespace analysis {
       // methods to set the fit model
       static std::unique_ptr<RooArgList>
       getCoefficients_(const int numCoeffs, const std::string& name);
+      double getPeakStart_(const Type& type, double max);
+      double getPeakStart_(const Type& type);
+      double getMaxPosition_(const RooAbsData& data);
 
       // internal methods
       static void prepareCanvas_(TCanvas& raw);

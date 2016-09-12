@@ -12,6 +12,7 @@
 #include "Analysis/BackgroundModel/interface/FitContainer.h"
 #include "Analysis/BackgroundModel/interface/ParamModifier.h"
 #include "Analysis/BackgroundModel/interface/Tools.h"
+#include "Analysis/BackgroundModel/interface/ProbabilityDensityFunctions.h"
 
 
 namespace po = boost::program_options;
@@ -60,7 +61,7 @@ int main(int argc, char* argv[]) {
   requiredOptions.add_options()
     ("background_model,b", po::value<std::string>()->required(),
      ("Name of the background model (" +
-      boost::algorithm::join(ab::FitContainer::availableModels(), ", ") +
+      boost::algorithm::join(ab::ProbabilityDensityFunctions::getAvailableModels(), ", ") +
       ").").c_str())
     ;
   po::store(po::command_line_parser(argc, argv).options(requiredOptions)
