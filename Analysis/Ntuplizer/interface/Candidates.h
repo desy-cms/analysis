@@ -113,7 +113,6 @@ namespace analysis {
             // Jet energy resolution and scale correction
             float jecUncert_[maxCandidates];
             edm::InputTag rho_collection_;
-            double rho_;
             float jerResolution_[maxCandidates];
             float jerSF_[maxCandidates];
             float jerSFUp_[maxCandidates];

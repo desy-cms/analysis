@@ -71,7 +71,7 @@ int gen_lvl(){
 	cPrivate->Print("cPrivate_1100.pdf");
 
 	TCanvas *cAll = new TCanvas("cAll","",1000,800);
-	gPad->SetLogy();
+//	gPad->SetLogy();
 	hPrivate->SetLineColor(2);
 	hPrivate->Draw("hist");
 	hNtuples->Draw("hist same");

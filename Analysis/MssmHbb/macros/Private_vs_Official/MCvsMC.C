@@ -33,7 +33,7 @@ int MCvsMC(){
 		hOld[v]->Scale(1./hOld[v]->Integral());
 		hNew[v]->Scale(1./hNew[v]->Integral());
 		c[v] = new TCanvas( v.c_str(),v.c_str(),1000,800);
-		if(v.find("pt") != std::string::npos || v.find("m") != std::string::npos) gPad->SetLogy();
+//		if(v.find("pt") != std::string::npos || v.find("m") != std::string::npos) gPad->SetLogy();
 		l[v] = new TLegend(0.6,0.5,0.8,0.65);
 		l[v]->AddEntry(hOld[v],"Old MC","l");
 		l[v]->AddEntry(hNew[v],"New MC","lp");

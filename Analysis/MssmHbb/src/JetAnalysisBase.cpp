@@ -190,6 +190,7 @@ JetAnalysisBase::JetAnalysisBase(const std::string & inputFilelist, const bool &
 
 JetAnalysisBase::~JetAnalysisBase() {
 	if(TEST) std::cout<<"I'm at JetAnalysisBase::~JetAnalysisBase"<<std::endl;
+	outputFile_->Close();
 	// TODO Auto-generated destructor stub
 }
 
@@ -724,7 +725,6 @@ void JetAnalysisBase::writeHistograms(){
 	for(const auto & h : histo_.getHisto()){
 		if(h.second->GetEntries() != 0) h.second->Write();
 	}
-	outputFile_->Close();
 }
 
 void JetAnalysisBase::fillHistograms(const std::shared_ptr<Collection<Jet> > &offlineJets, const double & weight){
