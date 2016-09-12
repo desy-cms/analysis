@@ -22,9 +22,14 @@
 #include "RooWorkspace.h"
 #include "RooFitResult.h"
 #include "RooList.h"
+
+#include "RooGaussian.h"
+#include "RooAddPdf.h"
+
 #include "Analysis/BackgroundModel/interface/HistContainer.h"
 #include "Analysis/BackgroundModel/interface/TreeContainer.h"
 #include "Analysis/BackgroundModel/interface/ParamModifier.h"
+#include "Analysis/BackgroundModel/interface/ProbabilityDensityFunctions.h"
 
 
 namespace analysis {
@@ -41,9 +46,9 @@ namespace analysis {
         return "";              // to silence compiler
       };
 
-      FitContainer(const TH1& data, const TH1& signal, const TH1& background,
+      FitContainer(const TH1* data, const TH1* signal, const TH1* background,
 		   const std::string& outputDir = defaultOutputDir_);
-      FitContainer(const TH1& data, const std::string& outputDir = defaultOutputDir_);
+      FitContainer(const TH1* data, const std::string& outputDir = defaultOutputDir_, const std::string & type = "background");
       FitContainer(TTree& data, const std::string& outputDir = defaultOutputDir_);
       FitContainer(const HistContainer& container,
 		   const std::string& outputDir = defaultOutputDir_);
@@ -61,55 +66,28 @@ namespace analysis {
       FitContainer& fitRangeMin(float min);
       FitContainer& fitRangeMax(float max);
 
-      inline static const std::vector<std::string>& availableModels() {
-        return availableModels_; };
       void setModel(const Type& type, const std::string& model);
       void setModel(const Type& type, const std::string& model,
                     const std::vector<ParamModifier>& modifiers);
       std::unique_ptr<RooFitResult> backgroundOnlyFit(const std::string& model);
+      std::unique_ptr<RooFitResult> Fit(const std::string & model);
+
       void profileModel(const Type& type);
       void showModels() const;
 
     private:
+
+      //Private constructor to avoid code duplication for private members initialisation
+      FitContainer();
+
       // methods to set the fit model
       static std::unique_ptr<RooArgList>
       getCoefficients_(const int numCoeffs, const std::string& name);
-      void setNovosibirsk_(const Type& type);
-      void setNovoPSProd_(const Type& type);		//by CA
-      void setNovoEffProd_(const Type& type);
-      void setNovoPSHighMPol4_(const Type& type);	//by CA
-      void setNovoPSHighMPol5_(const Type& type);	//by CA
-      void setNovoPSHighMPol6_(const Type& type); 	//by CA
-      void setCrystalBall_(const Type& type);
-      void setCrystalPSProd_(const Type& type); 	//by CA
-      void setCrystalEffProd_(const Type& type);        //by CA
-      //void setCBEffProd_(const Type& type);
-      void setExpEffProd_(const Type& type);
-      void setDoubleCB_(const Type& type);
-      void setDijetv1_(const Type& type);		//by CA
-      void setDijetv1PSProd_(const Type& type);		//by CA
-      void setDijetv2_(const Type& type);		//by CA
-      void setDijetv2PSProd_(const Type& type);		//by CA
-      void setExpGausExp_(const Type& type);
-      void setGausExp_(const Type& type);		//by CA
-      void setGausExpPSProd_(const Type& type); 	//by CA
-      void setExpBWExp_(const Type& type);
-      void setBukin_(const Type& type);
-      void setBukinPSProd_(const Type& type);		//by CA
-      void setBernstein_(const Type& type, const int numCoeffs);
-      void setChebychev_(const Type& type, const int numCoeffs);
-      void setBernEffProd_(const Type& type, const int numCoeffs);
-      void setBernPSProd_(const Type& type, const int numCoeffs);	//by CA
-      void setChebEffProd_(const Type& type, const int numCoeffs);
-      static const std::vector<std::string> availableModels_;
 
       // internal methods
       static void prepareCanvas_(TCanvas& raw);
       static void prepareFrame_(RooPlot& raw);
       std::string getOutputPath_(const std::string& subdirectory = "");
-      double getPeakStart_(const Type& type);
-      double getPeakStart_(const Type& type, double max);
-      double getMaxPosition_(const RooAbsData& data);
       int getNonZeroBins_(const RooAbsData& data);
       int getBlindedBins_(const RooAbsData& data, double blind_lowEdge, double blind_highEdge);
       double chiSquare_(const RooAbsData& data, const RooCurve& fit);
@@ -120,7 +98,6 @@ namespace analysis {
                            const std::vector<ParamModifier>& modifiers);
 
       // data member
-      static const int defaultNumberOfCoefficients_;
       static const std::string defaultOutputDir_;
       bool initialized_;
       bool splitrange_;

@@ -5,11 +5,17 @@
 
 using namespace analysis::backgroundmodel;
 
-/*
+
 HistContainer::HistContainer(const std::string& input) : histFileName_(input) {
   data_ = getHistogram_("data");
-  data_->GetSumw2()->Set(0);
+  if(data_) data_->GetSumw2()->Set(0);
   bbH_ = getHistogram_("bbH");
+  summedBackground_ = getHistogram_("QCD");
+
+  if(!data_ && !bbH_ && !summedBackground_){
+	  std::cerr<<"No valid histograms in: "<<input<<std::endl;
+  }
+  /*
   const std::vector<std::string> bkgNames =
     {"B2C2B1bb", "C1bb", "Qbb", "bbB2B1C2", "bbC1Q"};
   for (const auto& bkg : bkgNames) {
@@ -22,13 +28,14 @@ HistContainer::HistContainer(const std::string& input) : histFileName_(input) {
       summedBackground_->Add(backgroundTemplates_.back().get());
     }
   }
+  */
 }
-*/
+/*
 HistContainer::HistContainer(const std::string& input) : histFileName_(input) {
   data_ = getHistogram_("data");
   data_->GetSumw2()->Set(0);
 }
-
+*/
 HistContainer::~HistContainer() = default;
 
 
@@ -65,8 +72,10 @@ void HistContainer::show() const {
 
 std::unique_ptr<TH1> HistContainer::getHistogram_(const std::string& name) const {
   TFile file(histFileName_.c_str(), "read");
+  if(!file.Get((name+"_Mbb").c_str())) return nullptr;
   std::unique_ptr<TH1> hist =
     staticCastUnique<TH1>(file.Get((name+"_Mbb").c_str())->Clone(name.c_str()));
+  if(!hist) return nullptr;
   hist->SetDirectory(0);
   file.Close();
   if (hist->GetSumw2N() == 0) hist->Sumw2();
