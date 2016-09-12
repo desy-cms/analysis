@@ -24,7 +24,7 @@
 #include "Analysis/MssmHbb/interface/json.h"
 #include "Analysis/MssmHbb/interface/BTagCalibrationStandalone.h"
 #include "Analysis/MssmHbb/interface/Weights.h"
-//#include "Analysis/MssmHbb/interface/MssmHbbSignal.h"
+#include "Analysis/MssmHbb/interface/MssmHbbSignal.h"
 #include "Analysis/MssmHbb/interface/selectionDoubleB.h"
 //#include "Analysis/MssmHbb/interface/TriggerEfficiency.h"
 //#include "Analysis/MssmHbb/interface/X750Search.h"
@@ -184,8 +184,7 @@ int main(int argc, char * argv[])
 						  std::cerr<<"Wrong files extension"<<std::endl;
 						  exit(4);
 					  }
-
-/*					  if(boost::iequals(selection_,"mssmhbb")){
+					  if(boost::iequals(selection_,"mssmhbb")){
 						  MssmHbbSignal analysis(txt_file,lumi_,lowM_,test_);//,analysis_);
 						  analysis.runAnalysis(json_file_,output_,100);
 						  if(analysis.isSignalMC()){
@@ -202,11 +201,11 @@ int main(int argc, char * argv[])
 
 
 					  }
-					  else if (boost::iequals(selection_,"trigger")){
+/*					  else if (boost::iequals(selection_,"trigger")){
 						  TriggerEfficiency analysis(txt_file,lumi_,lowM_,test_);
 						  analysis.runAnalysis(json_file_,output_,100);
 					  }
-					  else */if (boost::iequals(selection_,"2bjet")){
+					  */else if (boost::iequals(selection_,"2bjet")){
 						  selectionDoubleB analysis(txt_file,lumi_,lowM_,test_);
 						  analysis.runAnalysis(json_file_,output_,100);
 					  }
