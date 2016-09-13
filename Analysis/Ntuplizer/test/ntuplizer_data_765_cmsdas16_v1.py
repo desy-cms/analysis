@@ -20,7 +20,7 @@ process.GlobalTag.ReconnectEachRun = cms.untracked.bool( False )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(2000) )
 
-output_file = 'ntuple.root'
+output_file = 'ntuple_data.root'
 ## TFileService
 process.TFileService = cms.Service("TFileService",
    fileName = cms.string(output_file)
@@ -62,26 +62,11 @@ process.slimmedJetsCorrFactorsReapplyJEC = updatedPatJetCorrFactors.clone(
   payload = 'AK4PFchs' ) # Make sure to choose the appropriate levels and payload here!
 
 
-process.slimmedJetsPuppiCorrFactorsReapplyJEC = updatedPatJetCorrFactors.clone(
-  src = cms.InputTag("slimmedJetsPuppi"),
-  levels = ['L1FastJet', 
-        'L2Relative', 
-        'L3Absolute',
-        'L2L3Residual'],
-  payload = 'AK4PFPuppi' ) # Make sure to choose the appropriate levels and payload here!
-  
-
 from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import updatedPatJets
 process.slimmedJetsReapplyJEC = updatedPatJets.clone(
   jetSource = cms.InputTag("slimmedJets"),
   jetCorrFactorsSource = cms.VInputTag(cms.InputTag("slimmedJetsCorrFactorsReapplyJEC"))
   )
-
-process.slimmedJetsPuppiReapplyJEC = updatedPatJets.clone(
-  jetSource = cms.InputTag("slimmedJetsPuppi"),
-  jetCorrFactorsSource = cms.VInputTag(cms.InputTag("slimmedJetsPuppiCorrFactorsReapplyJEC"))
-  )
-
 
 ## ============ EVENT FILTER COUNTER ===============
 ## Filter counter (maybe more useful for MC)
@@ -104,37 +89,26 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
     FilteredEvents  = cms.InputTag("FilteredEvents"),
     PatJets     = cms.VInputTag(  
                 cms.InputTag("slimmedJetsReapplyJEC"),
-                cms.InputTag("slimmedJetsPuppiReapplyJEC"),
                 ), 
-#    PatJets     = cms.VInputTag(  
-#                cms.InputTag("slimmedJets"),
-#                cms.InputTag("slimmedJetsPuppi"),
-#                ), 
     JECRecords      = cms.vstring  (           # for the JEC uncertainties
                 "AK4PFchs",
-                "AK4PFPuppi",
                 ),
     # commented to use globaltag, uncomment if using text files                
 #     JECUncertaintyFiles = cms.vstring  (
 #                "",
-#                "",
 #                ),
     JERRecords      = cms.vstring  (           # for the JER
                 "AK4PFchs",
-                "AK4PFPuppi",
                 ),
     JERResFiles     = cms.vstring  (
                 "Fall15_25nsV2_DATA_PtResolution_AK4PFchs.txt",
-                "Fall15_25nsV2_DATA_PtResolution_AK4PFPuppi.txt",
                 ),
     JERSfFiles      = cms.vstring  (
                 "Fall15_25nsV2_DATA_SF_AK4PFchs.txt",
-                "Fall15_25nsV2_DATA_SF_AK4PFPuppi.txt",
                 ),
     FixedGridRhoAll = cms.InputTag("fixedGridRhoAll"),
     PatMETs     = cms.VInputTag(
                 cms.InputTag("slimmedMETs"),
-                cms.InputTag("slimmedMETsPuppi")
                 ), 
     PatMuons    = cms.VInputTag(
                 cms.InputTag("slimmedMuons")
@@ -154,9 +128,6 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
                     ),
     TriggerResults  = cms.VInputTag(cms.InputTag("TriggerResults","","HLT")),
     TriggerPaths    = cms.vstring  (
-    ## I recommend using the version number explicitly to be able to compare 
-    ## however for production one has to be careful that all versions are included.
-    ## Thinking of a better solution...
                                   'HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v',
                                   'HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v',
                                   'HLT_DoubleJetsC112_DoubleBTagCSV0p85_DoublePFJetsC172_v',
@@ -204,14 +175,14 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
                                        'hltSingleCaloJet170',
                                        'hltSinglePFJet200',
                ),
-#    L1ExtraJets     = cms.VInputTag(
-#                cms.InputTag("l1extraParticles","Central","RECO"),
-#                cms.InputTag("l1extraParticles","Forward","RECO"),
-#                cms.InputTag("l1extraParticles","Tau","RECO")
-#                ),
-#    L1ExtraMuons    = cms.VInputTag(
-#                cms.InputTag("l1extraParticles","","RECO")
-#                ),
+    L1ExtraJets     = cms.VInputTag(
+                cms.InputTag("l1extraParticles","Central","RECO"),
+                cms.InputTag("l1extraParticles","Forward","RECO"),
+                cms.InputTag("l1extraParticles","Tau","RECO")
+                ),
+    L1ExtraMuons    = cms.VInputTag(
+                cms.InputTag("l1extraParticles","","RECO")
+                ),
 )
 
 process.p = cms.Path(
@@ -220,7 +191,6 @@ process.p = cms.Path(
           process.primaryVertexFilter *
           process.FilteredEvents *
           process.slimmedJetsCorrFactorsReapplyJEC   * process. slimmedJetsReapplyJEC *
-          process.slimmedJetsPuppiCorrFactorsReapplyJEC  * process. slimmedJetsPuppiReapplyJEC *
           process.MssmHbb
             )
 
@@ -229,7 +199,8 @@ readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 readFiles.extend( [
-   '/store/data/Run2015C_25ns/BTagCSV/MINIAOD/16Dec2015-v1/20000/1E47E4E4-52B5-E511-938E-549F35AC7E7D.root',
+#   '/store/data/Run2015D/BTagCSV/MINIAOD/16Dec2015-v1/50000/B69C5092-43AE-E511-B4D9-0025905A60DE.root',
+    'file:/nfs/dust/cms/user/walsh/cmsdas16/examples/store/data/Run2015D/BTagCSV/MINIAOD/16Dec2015-v1/50000/B69C5092-43AE-E511-B4D9-0025905A60DE.root'
 ] );
 
 
