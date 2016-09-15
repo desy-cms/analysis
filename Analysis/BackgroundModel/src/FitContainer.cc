@@ -57,7 +57,8 @@ FitContainer::FitContainer() :
 		bkgOnlyFit_("fit_b", "fit_b"),
 		chi2BkgOnly_(-10000.0),
 		normChi2BkgOnly_(-10000.0),
-		ndfBkgOnly_(-10000)
+		ndfBkgOnly_(-10000),
+		nbins_(73)
 {}
 
 
@@ -70,6 +71,7 @@ FitContainer::FitContainer(const TH1* data, const std::string& outputDir,
 	fitRangeMin_ = mbb.getMin();
 	fitRangeMax_ = mbb.getMax();
 	workspace_.import(mbb);
+	nbins_ = data->GetNbinsX();
 	if(type == "background") {
 		RooDataHist bkgContainer(bkg_.c_str(), bkg_.c_str(), mbb, data);
 		workspace_.import(bkgContainer);
@@ -95,14 +97,17 @@ FitContainer::FitContainer(const TH1* data, const TH1* signal, const TH1* bkg,
 	if(data) {
 		xmin = data->GetXaxis()->GetXmin();
 		xmax = data->GetXaxis()->GetXmax();
+		nbins_ = data->GetNbinsX();
 	}
 	else if (signal){
 		xmin = signal->GetXaxis()->GetXmin();
 		xmax = signal->GetXaxis()->GetXmax();
+		nbins_ = signal->GetNbinsX();
 	}
 	else if (bkg){
 		xmin = bkg->GetXaxis()->GetXmin();
 		xmax = bkg->GetXaxis()->GetXmax();
+		nbins_ = bkg->GetNbinsX();
 	}
 	else {
 		std::cerr<<"Empty HistContainer was provided to FitContainer::FitContainer"<<std::endl;
@@ -148,7 +153,6 @@ FitContainer::FitContainer(const TH1* data, const TH1* signal, const TH1* bkg,
 
 }
 
-
 FitContainer::FitContainer(const HistContainer& container,
 			   const std::string& outputDir) : FitContainer(container.data().get(), container.bbH().get(), container.background().get(),
 				       outputDir)   {}
@@ -183,10 +187,15 @@ FitContainer::FitContainer(const TreeContainer& container,
 FitContainer::~FitContainer() {
   workspace_.Print();
   workspace_.writeToFile(outRootFileName_.c_str());
+  std::cout<<"LOL"<<std::endl;
   TFile out(outRootFileName_.c_str(), "update");
+  std::cout<<"LOL"<<std::endl;
   bkgOnlyFit_.SetDirectory(&out);
+  std::cout<<"LOL"<<std::endl;
   bkgOnlyFit_.Write();
+  std::cout<<"LOL"<<std::endl;
   out.Close();
+  std::cout<<"LOL"<<std::endl;
 }
 
 
@@ -212,7 +221,7 @@ void FitContainer::initialize() {
   mbb.setRange(fitRangeHighId_.c_str(), blind_highEdge_, fitRangeMax_);
   
   // set fit bins
-  mbb.setBins(73);
+  mbb.setBins(nbins_);
 
   // plot the input data:
   RooAbsData& data = *workspace_.data(data_.c_str());
@@ -240,39 +249,6 @@ void FitContainer::initialize() {
   initialized_ = true;
 }
 
-
-FitContainer& FitContainer::verbosity(int level) {
-  verbosity_ = level;
-  return *this;
-}
-
-
-FitContainer& FitContainer::fitRangeMin(float min) {
-  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  fitRangeMin_ = min;
-  mbb.setMin(min);
-  mbb.setRange(fullRangeId_.c_str(), mbb.getMin(), mbb.getMax());
-  mbb.setRange(fitRangeId_.c_str(), fitRangeMin_, fitRangeMax_);
-  mbb.setRange(fitRangeLowId_.c_str(), fitRangeMin_, blind_lowEdge_);
-  mbb.setRange(fitRangeHighId_.c_str(), blind_highEdge_, fitRangeMax_);
-
-  return *this;
-}
-
-
-FitContainer& FitContainer::fitRangeMax(float max) {
-  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  fitRangeMax_ = max;
-  mbb.setMax(max);
-  mbb.setRange(fullRangeId_.c_str(), mbb.getMin(), mbb.getMax());
-  mbb.setRange(fitRangeId_.c_str(), fitRangeMin_, fitRangeMax_);
-  mbb.setRange(fitRangeLowId_.c_str(), fitRangeMin_, blind_lowEdge_);
-  mbb.setRange(fitRangeHighId_.c_str(), blind_highEdge_, fitRangeMax_);
-
-  return *this;
-}
-
-
 void FitContainer::setModel(const Type& type, const std::string& name) {
   const std::vector<ParamModifier> modifiers; // empty modifier list
   setModel(type, name, modifiers);
@@ -292,7 +268,7 @@ void FitContainer::setModel(const Type& type, const std::string& name,
   applyModifiers_(*(workspace_.pdf(toString(type).c_str())), modifiers);
 }
 
-std::unique_ptr<RooFitResult> FitContainer::Fit(const std::string & name) {
+std::unique_ptr<RooFitResult> FitContainer::FitSignal(const std::string & name) {
 	if(!initialized_) initialize();
 
 	RooAbsPdf& Pdf = *(workspace_.pdf(toString(Type::signal).c_str()));
@@ -301,7 +277,6 @@ std::unique_ptr<RooFitResult> FitContainer::Fit(const std::string & name) {
 	}
 	RooAbsData &signal = *workspace_.data(signal_.c_str());
 	RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-
 
 	// Split Range for blinded data and perform simultaneous fit by CA
 	std::unique_ptr<RooFitResult> fitResult(Pdf.fitTo(signal,
@@ -320,12 +295,9 @@ std::unique_ptr<RooFitResult> FitContainer::Fit(const std::string & name) {
 	  fitResult->floatParsFinal().Print("v");
 
 	  // Top frame
-	    std::unique_ptr<RooPlot> frame(mbb.frame());
-	    signal.plotOn(frame.get(),
-	  	     RooFit::MarkerSize(0.8),	//0.8 for lowM
-	  	     //RooFit::DataError(RooAbsData::Auto),
-	  	     RooFit::Name("data_curve"));
-	    Pdf.plotOn(frame.get(),
+	  std::unique_ptr<RooPlot> frame(mbb.frame());
+	  signal.plotOn(frame.get(), RooFit::MarkerSize(0.8), RooFit::Name("data_curve"));
+	  Pdf.plotOn(frame.get(),
 	  	     //RooFit::VisualizeError(*fitResult,1,kFALSE),
 	               //RooFit::DrawOption("L"),
 	               RooFit::LineColor(kRed),
@@ -738,6 +710,37 @@ void FitContainer::showModels() const {
   std::cout << std::endl;
 }
 
+FitContainer& FitContainer::verbosity(int level) {
+  verbosity_ = level;
+  return *this;
+}
+
+
+FitContainer& FitContainer::fitRangeMin(float min) {
+  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
+  fitRangeMin_ = min;
+  mbb.setMin(min);
+  mbb.setRange(fullRangeId_.c_str(), mbb.getMin(), mbb.getMax());
+  mbb.setRange(fitRangeId_.c_str(), fitRangeMin_, fitRangeMax_);
+  mbb.setRange(fitRangeLowId_.c_str(), fitRangeMin_, blind_lowEdge_);
+  mbb.setRange(fitRangeHighId_.c_str(), blind_highEdge_, fitRangeMax_);
+
+  return *this;
+}
+
+
+FitContainer& FitContainer::fitRangeMax(float max) {
+  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
+  fitRangeMax_ = max;
+  mbb.setMax(max);
+  mbb.setRange(fullRangeId_.c_str(), mbb.getMin(), mbb.getMax());
+  mbb.setRange(fitRangeId_.c_str(), fitRangeMin_, fitRangeMax_);
+  mbb.setRange(fitRangeLowId_.c_str(), fitRangeMin_, blind_lowEdge_);
+  mbb.setRange(fitRangeHighId_.c_str(), blind_highEdge_, fitRangeMax_);
+
+  return *this;
+}
+
 std::string FitContainer::getOutputPath_(const std::string& subdirectory) {
   std::string path = outputDir_ + subdirectory;
   gSystem->mkdir(path.c_str(), true);
@@ -959,6 +962,7 @@ double FitContainer::getPeakStart_(const Type& type, double max) {
     if (signal_ != "") {
       RooAbsData& signal = *workspace_.data(signal_.c_str());
       peakStart = getMaxPosition_(signal);
+      return peakStart;
     }
     break;
   case Type::background:

@@ -38,6 +38,11 @@ HistContainer::HistContainer(const std::string& input) : histFileName_(input) {
 */
 HistContainer::~HistContainer() = default;
 
+void HistContainer::Rebin(const int& n) const {
+	if(data_) data_->Rebin(n);
+	if(bbH_)  bbH_ ->Rebin(n);
+	if(summedBackground_) summedBackground_ ->Rebin(n);
+}
 
 std::unique_ptr<TH1> HistContainer::data() const {
   return uniqueClone_(*data_);

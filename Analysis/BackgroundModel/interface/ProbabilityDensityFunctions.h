@@ -29,6 +29,7 @@
 #include "RooBukinPdf.h"
 #include "RooBernstein.h"
 #include "RooChebychev.h"
+#include "RooBreitWigner.h"
 
 #include "Analysis/BackgroundModel/interface/RooDoubleCB.h"
 #include "Analysis/BackgroundModel/interface/RooExpGausExp.h"
@@ -36,7 +37,10 @@
 #include "Analysis/BackgroundModel/interface/RooExpBWExp.h"
 #include "Analysis/BackgroundModel/interface/RooPhaseSpace.h"
 #include "Analysis/BackgroundModel/interface/RooPhaseSpacePol4.h"
-#include "Analysis/BackgroundModel/interface/FitContainer.h"
+#include "Analysis/BackgroundModel/interface/RooRelBreitWigner.h"
+#include "Analysis/BackgroundModel/interface/RooQuadGausExp.h"
+
+//#include "Analysis/BackgroundModel/interface/FitContainer.h"
 #include "Analysis/BackgroundModel/interface/Tools.h"
 
 namespace analysis {
@@ -82,6 +86,9 @@ namespace analysis {
   	void getChebEffProd(const std::string& name, const int& numCoeffs);
   	void getDoubleGausExp(const std::string& name);
   	void getTripleGausExp(const std::string& name);
+  	void getBreitWigner(const std::string& name);
+  	void getRelBreitWigner(const std::string& name);
+  	void getRooQuadGausExp(const std::string& name);
 
   	//Section of base function that can be used in combination
   	//with more comlicated

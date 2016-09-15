@@ -13,6 +13,8 @@
 #include "TMatrixDSym.h"
 #include "TMatrixDEigen.h"
 #include "TMatrixDSymEigen.h"
+#include "RooMinimizer.h"
+
 #include "RooPlot.h"
 #include "RooCurve.h"
 #include "RooHist.h"
@@ -70,7 +72,7 @@ namespace analysis {
       void setModel(const Type& type, const std::string& model,
                     const std::vector<ParamModifier>& modifiers);
       std::unique_ptr<RooFitResult> backgroundOnlyFit(const std::string& model);
-      std::unique_ptr<RooFitResult> Fit(const std::string & model);
+      std::unique_ptr<RooFitResult> FitSignal(const std::string & model);
 
       void profileModel(const Type& type);
       void showModels() const;
@@ -131,6 +133,7 @@ namespace analysis {
       int ndfBkgOnly_;
       double covMatrix_[20];
       double eigenVector_[20];	
+      int nbins_;
     };
 
   }

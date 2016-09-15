@@ -83,6 +83,9 @@ void ProbabilityDensityFunctions::setPdf(const std::string& function, const std:
 	else if (function == "berneffprod") getBernEffProd(name, numCoeffs);
 	else if (function == "bernpsprod") getBernPSProd(name, numCoeffs);
 	else if (function == "chebeffprod") getChebEffProd(name, numCoeffs);
+	else if (function == "breitwigner") getBreitWigner(name);
+	else if (function == "relbreitwigner") getRelBreitWigner(name);
+	else if (function == "quadgausexp") getRooQuadGausExp(name);
 	else {
 		std::stringstream msg;
 		msg << "Model '" << function
@@ -449,6 +452,38 @@ void ProbabilityDensityFunctions::getBernPSProd(const std::string& name,const in
 	workspace_->import(bernPSProd);
 }
 
+void ProbabilityDensityFunctions::getBreitWigner(const std::string& name){
+	RooRealVar& var = *workspace_->var(var_.c_str());
+	RooRealVar mean("mean","mean",getPeakStart(),200.,1500.,"GeV");
+	RooRealVar width("width","width",35.,5.0,300.,"GeV");
+	RooBreitWigner bw(name.c_str(),(name + "_breitwigner").c_str(),var,mean,width);
+	workspace_->import(bw);
+}
+
+void ProbabilityDensityFunctions::getRelBreitWigner(const std::string& name){
+	RooRealVar& var = *workspace_->var(var_.c_str());
+	RooRealVar mean("mean","mean",getPeakStart(),200.,1500.,"GeV");
+	RooRealVar width("width","width",120,5.0,300.,"GeV");
+//	RooRealVar sigma("sigma","sigma",0.1,5.0,300.,"GeV");
+	RooRelBreitWigner bw(name.c_str(),(name + "_relbreitwigner").c_str(),var,mean,width);
+	workspace_->import(bw);
+}
+
+void ProbabilityDensityFunctions::getRooQuadGausExp(const std::string& name){
+	RooRealVar& var = *workspace_->var(var_.c_str());
+	RooRealVar mean("mean","mean",getPeakStart(),200,1500,"GeV");
+	RooRealVar sigmaL1("sigmaL1", "sigmaL1", 35.0, 0.5, 800.0, "GeV");
+	RooRealVar sigmaL2("sigmaL2", "sigmaL2", 35.0, 0.5, 800.0, "GeV");
+	RooRealVar sigmaR1("sigmaR1", "sigmaR1", 35.0, 0.5, 800.0, "GeV");
+	RooRealVar sigmaR2("sigmaR2", "sigmaR2", 35.0, 0.5, 800.0, "GeV");
+	RooRealVar tail_shift("tail_shift", "tail_shift", 1.1*getPeakStart(), 200.0, 1500.0, "GeV");
+	RooRealVar tail_sigma("tail_sigma", "tail_sigma", 35.0, 0.5, 900.0, "GeV");
+	RooRealVar norm_g1("norm_g1", "norm_g1", 0.5, -1, 1);
+	RooRealVar norm_g2("norm_g2", "norm_g2", 0.5, -1, 1);
+	RooQuadGausExp quadgexp(name.c_str(),(name + "_quadgexp").c_str(),var,mean,sigmaL1,sigmaL2,sigmaR1,sigmaR2,tail_shift,tail_sigma,norm_g1,norm_g2);
+	workspace_->import(quadgexp);
+}
+
 void ProbabilityDensityFunctions::getPhaseSpace(const std::string& name){
 	RooRealVar& var = *workspace_->var(var_.c_str());
 	std::string var_name = var.GetName();
@@ -521,4 +556,7 @@ const std::vector<std::string> ProbabilityDensityFunctions::availableModels_ =
    "chebychev",
    "berneffprod",
    "bernpsprod",
-   "chebeffprod"};
+   "chebeffprod",
+   "breitwigner",
+   "relbreitwigner",
+   "quadgausexp"};
