@@ -4,7 +4,7 @@ kmax *   number of nuisance parameters
 -----------------
 observation 19251
 -----------------
-shapes * * /afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-350_TuneCUETP8M1_13TeV-pythia8.root  $PROCESS    $PROCESS_$SYSTEMATIC 
+shapes * * /nfs/dust/cms/user/walsh/cmsdas16/templates/combine_tool/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-350_TuneCUETP8M1_13TeV-pythia8.root  $PROCESS    $PROCESS_$SYSTEMATIC 
 -----------------
 bin                        bbHTo4b    bbHTo4b
 process                    bbH_Mbb    QCD_Mbb
