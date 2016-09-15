@@ -45,7 +45,7 @@ class mssm_xs_tools(object):
 
 ## and test the whole thing
 mssm = mssm_xs_tools("mhmodp_mu200_13TeV.root", True, 0)
-mA   = 350
+mA   = 160
 tanb =   20
 print "m(H)         : ", mssm.mass ("H"                 , mA, tanb)
 print "width(H)     : ", mssm.width("H"                 , mA, tanb)
