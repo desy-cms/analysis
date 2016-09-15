@@ -97,3 +97,4 @@ template class PhysicsObjectTreeBase<Muon>;
 template class PhysicsObjectTreeBase<Vertex>;
 template class PhysicsObjectTreeBase<TriggerObject>;
 template class PhysicsObjectTreeBase<GenParticle>;
+template class PhysicsObjectTreeBase<GenJet>;

@@ -83,6 +83,8 @@ namespace analysis {
             bool  idLoose_ [max_];
             bool  idTight_ [max_];
             float jecUnc_  [max_];
+            
+            bool isSimpleJet_;
 
          private:
 
@@ -160,6 +162,23 @@ namespace analysis {
            ~PhysicsObjectTree();
 
             Collection<Muon> collection();
+
+            // ----------member data ---------------------------
+         protected:
+
+         private:
+
+      };
+
+      // Specialization for GenJet
+      template <>
+      class PhysicsObjectTree<GenJet> : public PhysicsObjectTreeBase<GenJet> {
+         public:
+            PhysicsObjectTree();
+            PhysicsObjectTree(TChain * tree, const std::string & name);
+           ~PhysicsObjectTree();
+
+            Collection<GenJet> collection();
 
             // ----------member data ---------------------------
          protected:

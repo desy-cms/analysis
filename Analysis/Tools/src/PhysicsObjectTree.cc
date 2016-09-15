@@ -72,6 +72,7 @@ Collection<Candidate>  PhysicsObjectTree<Candidate>::collection()
 // Constructors and destructor
 PhysicsObjectTree<Jet>::PhysicsObjectTree(TChain * tree, const std::string & name) : PhysicsObjectTreeBase<Jet>(tree, name)
 {
+   isSimpleJet_ = false;
 //   tree_  -> SetBranchAddress( "btag_csvivf", btag_    );
    int algos = 0;
    for ( auto & branch : branches_ )
@@ -89,18 +90,26 @@ PhysicsObjectTree<Jet>::PhysicsObjectTree(TChain * tree, const std::string & nam
 //    if ( it != branches_.end() )
 //       std::cout << *it << std::endl;
    
-   tree_  -> SetBranchAddress( "flavour"        , flavour_ );
-   tree_  -> SetBranchAddress( "hadronFlavour"  , hadrflavour_ );
-   tree_  -> SetBranchAddress( "partonFlavour"  , partflavour_ );
-   tree_  -> SetBranchAddress( "physicsFlavour" , physflavour_ );
-   tree_  -> SetBranchAddress( "id_nHadFrac", nHadFrac_);
-   tree_  -> SetBranchAddress( "id_nEmFrac" , nEmFrac_ );
-   tree_  -> SetBranchAddress( "id_nMult"   , nMult_   );
-   tree_  -> SetBranchAddress( "id_cHadFrac", cHadFrac_);
-   tree_  -> SetBranchAddress( "id_cEmFrac" , cEmFrac_ );
-   tree_  -> SetBranchAddress( "id_cMult"   , cMult_   );
-   tree_  -> SetBranchAddress( "id_muonFrac", muFrac_  );
-   tree_  -> SetBranchAddress( "jecUncert"  , jecUnc_);
+   if ( mbtag_.size() > 0 )
+   {
+      tree_  -> SetBranchAddress( "flavour"        , flavour_ );
+      tree_  -> SetBranchAddress( "hadronFlavour"  , hadrflavour_ );
+      tree_  -> SetBranchAddress( "partonFlavour"  , partflavour_ );
+      tree_  -> SetBranchAddress( "physicsFlavour" , physflavour_ );
+      tree_  -> SetBranchAddress( "id_nHadFrac", nHadFrac_);
+      tree_  -> SetBranchAddress( "id_nEmFrac" , nEmFrac_ );
+      tree_  -> SetBranchAddress( "id_nMult"   , nMult_   );
+      tree_  -> SetBranchAddress( "id_cHadFrac", cHadFrac_);
+      tree_  -> SetBranchAddress( "id_cEmFrac" , cEmFrac_ );
+      tree_  -> SetBranchAddress( "id_cMult"   , cMult_   );
+      tree_  -> SetBranchAddress( "id_muonFrac", muFrac_  );
+      tree_  -> SetBranchAddress( "jecUncert"  , jecUnc_);
+   }
+   else
+   {
+      isSimpleJet_ = true;
+   }
+//   std::cout << "oioi" << std::endl;
 //   std::vector<std::string>::iterator it;
 //   it = std::find(branches_.begin(),branches_.end(),"jecUncert");  if ( it != branches_.end() ) tree_  -> SetBranchAddress( (*it).c_str(), jecUnc_);
 
@@ -220,6 +229,32 @@ Collection<Muon>  PhysicsObjectTree<Muon>::collection()
    return muonCollection;
 }
 
+// GenJet
+// Constructors and destructor
+PhysicsObjectTree<GenJet>::PhysicsObjectTree() : PhysicsObjectTreeBase<GenJet>()
+{
+}
+PhysicsObjectTree<GenJet>::PhysicsObjectTree(TChain * tree, const std::string & name) : PhysicsObjectTreeBase<GenJet>(tree, name)
+{
+}
+PhysicsObjectTree<GenJet>::~PhysicsObjectTree()
+{
+}
+// Member functions
+Collection<GenJet>  PhysicsObjectTree<GenJet>::collection()
+{
+   std::vector<GenJet> genjets;
+   for ( int i = 0 ; i < n_ ; ++i )
+   {
+      GenJet genjet(pt_[i], eta_[i], phi_[i], e_[i], q_[i]);
+      genjets.push_back(genjet);
+   }
+   Collection<GenJet> genjetCollection(genjets, name_);
+   return genjetCollection;
+}
+
+
+
 // VERTEX
 // Constructors and destructor
 PhysicsObjectTree<Vertex>::PhysicsObjectTree()              : PhysicsObjectTreeBase<Vertex>()     {}
@@ -277,3 +312,4 @@ template class PhysicsObjectTree<Muon>;
 template class PhysicsObjectTree<Vertex>;
 template class PhysicsObjectTree<TriggerObject>;
 template class PhysicsObjectTree<GenParticle>;
+template class PhysicsObjectTree<GenJet>;
