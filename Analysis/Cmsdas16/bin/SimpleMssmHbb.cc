@@ -34,11 +34,15 @@ std::map<string, TH1F*> h1_;
 
 // auxiliar variables
 bool isMC_;
-float bbbData_ = 22416;  // this nnumber change with json
-float lumi_  = 2690.496; // inb pb-1
 std::string inputList_;
 int nGenTotal_;
 std::string selection_;
+
+float bbbData_ = 22416;  // WP MMM
+//float bbbData_ = 22416;  // WP TTT
+float lumi_  = 2690.496; // inb pb-1
+
+bool isbbb_ = true;
 
 // =============================================================================================   
 int main(int argc, char * argv[])
@@ -47,8 +51,8 @@ int main(int argc, char * argv[])
    // Cuts
    float ptmin[3]   = { 100.0, 100.0, 40.0 };
    float etamax[3]  = {   2.2,   2.2 , 2.2 };
-   float btagmin[3] = {   0.8,   0.8,  0.8 };  // medium WP = 0.8; tight WP = 0.935; loose WP = 0.46
-//   float nonbtag    = 0.46;
+   float btagmin[3] = {   0.935,   0.935,  0.935 };  // medium WP = 0.8; tight WP = 0.935; loose WP = 0.46
+   float nonbtag    = 0.46;
    float dRmin      = 1.;
    float detamax    = 1.55;
    // Trigger
@@ -61,7 +65,7 @@ int main(int argc, char * argv[])
    triggerObjects.push_back("hltDoublePFJetsC100");
    
    // name of this selection
-   selection_ = "selection_bbb";
+   selection_ = "selection_bbb_TTT";
    
 
    
@@ -111,7 +115,7 @@ int main(int argc, char * argv[])
       int triggerFired = analysis.triggerResult(hltPath);
       if ( ! triggerFired ) continue;
       
-      // Jets - std::shared_ptr< Collection<Object> >
+      // Jets - std::shared_ptr< Collection<Jet> >
       auto jets = analysis.collection<Jet>("Jets");
       
 //       // Example: If need to change something and reorder the jets
@@ -135,7 +139,7 @@ int main(int argc, char * argv[])
       bool goodEvent = true;
       
       // Kinematic selection - 2 leading jets
-      for ( int j = 0; j < 3; ++j )
+      for ( int j = 0; j < 2; ++j )
       {
          if ( selJets[j]->pt() < ptmin[j] || fabs(selJets[j]->eta()) > etamax[j] || selJets[j]->btag() < btagmin[j] )
          {
@@ -146,17 +150,17 @@ int main(int argc, char * argv[])
       
       if ( ! goodEvent ) continue;
       
-//       // Kinematic selection - 3. leading jet - non b for data (blind policy)
-//       if ( ! isMC_ )
-//       {
-//          if ( selJets[2]->pt() < ptmin[2] || fabs(selJets[2]->eta()) > etamax[2] || selJets[2]->btag() > nonbtag ) goodEvent = false;
-//       }
-//       else
-//       {
-//          if ( selJets[2]->pt() < ptmin[2] || fabs(selJets[2]->eta()) > etamax[2] || selJets[2]->btag() < btagmin[2] ) goodEvent = false;
-//       }
-//          
-//       if ( ! goodEvent ) continue;
+      // Kinematic selection - 3. leading jet - non b for data (blind policy)
+      if ( ! isMC_ || ! isbbb_ )
+      {
+         if ( selJets[2]->pt() < ptmin[2] || fabs(selJets[2]->eta()) > etamax[2] || selJets[2]->btag() > nonbtag ) goodEvent = false;
+      }
+      else
+      {
+         if ( selJets[2]->pt() < ptmin[2] || fabs(selJets[2]->eta()) > etamax[2] || selJets[2]->btag() < btagmin[2] ) goodEvent = false;
+      }
+         
+      if ( ! goodEvent ) continue;
       
       // try to match the offline to the online objects
       analysis.match<Jet,TriggerObject>("Jets",triggerObjects,0.5);
@@ -188,8 +192,12 @@ int main(int argc, char * argv[])
          h1_[Form("eta_jet%i",j)]  -> Fill(selJets[j]->eta());
          h1_[Form("btag_jet%i",j)] -> Fill(selJets[j]->btag());
       }
-      float m12 = (selJets[0]->p4() + selJets[1]->p4()).M();
-      h1_["m12"] -> Fill(m12);
+      
+      if ( ! isbbb_ )
+      {
+         float m12 = (selJets[0]->p4() + selJets[1]->p4()).M();
+         h1_["m12"] -> Fill(m12);
+      }
    }
    
 // Some useful info from metadata
@@ -205,7 +213,8 @@ int main(int argc, char * argv[])
    }
    
    // Scale histograms
-//   ScaleHistograms();
+   if ( ! isbbb_ )
+      ScaleHistograms();
    
    // Finish by writing the histograms into a file
    std::string basename =  std::string(boost::filesystem::basename(inputList_));
