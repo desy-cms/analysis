@@ -381,6 +381,7 @@ std::vector<float> Btag3Weight(const std::vector<Jet*> & jets, const BTagCalibra
    {
       float pt = jets[j]->pt();
       float eta = jets[j]->eta();
+      if ( pt > 660 ) pt = 660;
       sf[j] = reader.eval(BTagEntry::FLAV_B, eta, pt);
    }
    // bin0
