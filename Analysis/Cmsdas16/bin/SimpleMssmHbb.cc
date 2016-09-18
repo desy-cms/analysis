@@ -10,6 +10,9 @@
 
 #include "Analysis/Tools/interface/Analysis.h"
 
+#include "Analysis/MssmHbb/interface/BTagCalibrationStandalone.h"
+
+
 using namespace std;
 using namespace analysis;
 using namespace analysis::tools;
@@ -26,6 +29,8 @@ void CreateHistograms();
 void ScaleHistograms();
 void WriteHistograms(const std::string & );
 
+std::vector<float> Btag3Weight(const std::vector<Jet*> &, const BTagCalibrationReader &);
+
 float SignalCrossSection();
 std::string Process();
 
@@ -38,23 +43,34 @@ std::string inputList_;
 int nGenTotal_;
 std::string selection_;
 
-float bbbData_ = 22416;  // WP MMM
-//float bbbData_ = 22416;  // WP TTT
+float bbbData_ = 20691;  // WP MMM                       <<<<===== CMSDAS
+//float bbbData_ = 6385;  // WP TTT
 float lumi_  = 2690.496; // inb pb-1
 
-bool isbbb_ = true;
+bool isbbb_;
 
 // =============================================================================================   
 int main(int argc, char * argv[])
 {   
 // EVENT SELECTION   
-   // Cuts
+   
+   // name of this selection
+   isbbb_ = true;                                  // <<<<===== CMSDAS
+   if ( isbbb_ ) selection_ = "selection_bbb_MMM"; // <<<<===== CMSDAS
+   else selection_ = "selection_bbnb_MMM";         // <<<<===== CMSDAS
+
+   
+   // Cuts                                         // <<<<===== CMSDAS
    float ptmin[3]   = { 100.0, 100.0, 40.0 };
    float etamax[3]  = {   2.2,   2.2 , 2.2 };
-   float btagmin[3] = {   0.935,   0.935,  0.935 };  // medium WP = 0.8; tight WP = 0.935; loose WP = 0.46
+   float btagmin[3] = {   0.8,   0.8,  0.8 };  // change SF below; medium WP = 0.8; tight WP = 0.935; loose WP = 0.46
+//   float btagmin[3] = {   0.935,   0.935,  0.935 };  // change SF below; medium WP = 0.8; tight WP = 0.935; loose WP = 0.46
    float nonbtag    = 0.46;
    float dRmin      = 1.;
    float detamax    = 1.55;
+   
+// -----------------
+   
    // Trigger
    std::string hltPath = "HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v";
    // Trigger objects
@@ -64,10 +80,12 @@ int main(int argc, char * argv[])
    triggerObjects.push_back("hltDoubleBTagCSV0p9");
    triggerObjects.push_back("hltDoublePFJetsC100");
    
-   // name of this selection
-   selection_ = "selection_bbb_TTT";
-   
-
+   // Btag SF
+   BTagCalibration calib("csvv2", "SFbLib.csv");
+   BTagCalibrationReader readerBSF(&calib,               // calibration instance
+                                   BTagEntry::OP_MEDIUM,  // operating point          // <<<<===== CMSDAS
+                                   "mujets",               // measurement type
+                                   "central");           // systematics type
    
 // ====================================   
    
@@ -85,12 +103,15 @@ int main(int argc, char * argv[])
       return -1;
    }
       
-// If this is data
-   isMC_ = (process != "data");
-
 // Construct the Analysis object
    Analysis analysis(inputList_);
    
+// If this is data
+   isMC_ = (process != "data");
+   
+   if ( isMC_ && !isbbb_ ) std::cout << "Warning: you are running blinding policy in MC." << std::endl;
+   if ( !isMC_ && isbbb_ ) std::cout << "Bliding policy will be enforced for data in bbb selection" << std::endl;
+
    
 // Physics Objects Collections
    // Jets
@@ -103,11 +124,16 @@ int main(int argc, char * argv[])
 
    if ( ! isMC_ ) analysis.processJsonFile("Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_Silver_v2.txt");
    
+   
+   
 // Analysis of events
 //   int bbbCount = 0;
    for ( int i = 0 ; i < analysis.size() ; ++i )
    {
       analysis.event(i);
+      
+      // Event weight
+      float evtWeight = 1;
       
       if ( !isMC_ && ! analysis.selectJson() ) continue; 
       
@@ -150,8 +176,9 @@ int main(int argc, char * argv[])
       
       if ( ! goodEvent ) continue;
       
+      // BLINDING POLICY!
       // Kinematic selection - 3. leading jet - non b for data (blind policy)
-      if ( ! isMC_ || ! isbbb_ )
+      if ( !isbbb_ )
       {
          if ( selJets[2]->pt() < ptmin[2] || fabs(selJets[2]->eta()) > etamax[2] || selJets[2]->btag() > nonbtag ) goodEvent = false;
       }
@@ -181,40 +208,56 @@ int main(int argc, char * argv[])
       if ( selJets[0]->deltaR(*selJets[2]) < dRmin ) continue;
       if ( selJets[1]->deltaR(*selJets[2]) < dRmin ) continue;
       // delta eta between two leading jets
-      if ( fabs(selJets[0]->eta() - selJets[1]->eta()) > detamax ) continue;
+      float deta12 =  fabs(selJets[0]->eta() - selJets[1]->eta()) ;
+      if ( deta12 > detamax ) continue;
       
+      // 
+      float weightBTag = 1;
+      
+      if ( isMC_ )
+      {
+         // 3 leading jets with 3 btags
+         weightBTag = Btag3Weight(selJets,readerBSF)[3];
+      }
+      
+      evtWeight *= weightBTag;
       
       // YEAH! Event passed selections!
       // Now let's fill some histograms!
       for ( int j = 0; j < 3; ++j )
       {
-         h1_[Form("pt_jet%i",j)]   -> Fill(selJets[j]->pt());
-         h1_[Form("eta_jet%i",j)]  -> Fill(selJets[j]->eta());
-         h1_[Form("btag_jet%i",j)] -> Fill(selJets[j]->btag());
+         h1_[Form("pt_jet%i",j)]   -> Fill(selJets[j]->pt(),evtWeight);
+         h1_[Form("eta_jet%i",j)]  -> Fill(selJets[j]->eta(),evtWeight);
+         h1_[Form("btag_jet%i",j)] -> Fill(selJets[j]->btag(),evtWeight);
       }
+      h1_["deta12"] -> Fill(deta12,evtWeight);
       
-      if ( ! isbbb_ )
+      if ( isMC_ || (!isMC_ && !isbbb_) ) // blinding policy for data
       {
          float m12 = (selJets[0]->p4() + selJets[1]->p4()).M();
-         h1_["m12"] -> Fill(m12);
+         h1_["m12"] -> Fill(m12,evtWeight);
+      }
+      else
+      {
+//         std::cout << "Blinding policy: m12 will not be filled for data in bbb selection." << std::endl;
       }
    }
    
 // Some useful info from metadata
    // Event filter
-   FilterResults evtFilter = analysis.eventFilter("MssmHbb/Metadata/EventFilter");
-   h1_["evtTotal"]  -> SetBinContent(1,evtFilter.total);
-   h1_["evtFilter"] -> SetBinContent(1,evtFilter.filtered);
+//   FilterResults evtFilter = analysis.eventFilter("MssmHbb/Metadata/EventFilter"); 
+//   h1_["evtTotal"]  -> SetBinContent(1,evtFilter.total);
+//   h1_["evtFilter"] -> SetBinContent(1,evtFilter.filtered);
    if ( isMC_ )
    {
       // Gen filter
       FilterResults genFilter = analysis.generatorFilter("MssmHbb/Metadata/GeneratorFilter");
       nGenTotal_ = genFilter.total;
+      h1_["nGen"] -> SetBinContent(1,nGenTotal_);
    }
    
    // Scale histograms
-   if ( ! isbbb_ )
-      ScaleHistograms();
+   ScaleHistograms();
    
    // Finish by writing the histograms into a file
    std::string basename =  std::string(boost::filesystem::basename(inputList_));
@@ -232,10 +275,9 @@ void CreateHistograms()
       h1_[Form("eta_jet%i",j)] = new TH1F(Form("eta_jet%i",j) ,Form("eta jet%i",j),120,-3.,3.);
       h1_[Form("btag_jet%i",j)] = new TH1F(Form("btag_jet%i",j),Form("btag jet%i",j),50,0.5,1.);
    }
-   h1_["m12"] = new TH1F("m12","invariant mass of the leading jets",30,0,1500);
-   
-   h1_["evtTotal"] = new TH1F("evtTotal","total number of events",1,0,1);
-   h1_["evtFilter"] = new TH1F("evtFilter","number filtered events",1,0,1);
+   h1_["deta12"] = new TH1F("deta12","delta eta between the two leading jets",32,0,1.6);
+   h1_["m12"] = new TH1F("m12","invariant mass of the leading jets",75,0,1500);
+   h1_["nGen"] = new TH1F("nGen","total number of generated events",1,0,1);
    
    for ( auto & h : h1_ )
    {
@@ -248,7 +290,15 @@ void CreateHistograms()
 void ScaleHistograms()
 {
    float sf = 1;
-   if ( ! isMC_ ) sf = bbbData_/h1_["m12"]->GetEntries();
+   
+   // scale data bbnonb to bbb
+   if ( !isMC_ && !isbbb_ )
+   {
+      std::cout << "Scaling bb-nonb to bbb in data" << std::endl;
+      sf = bbbData_/h1_["m12"]->GetEntries();
+   }
+   
+   
    if ( Process() == "mssmhbb" )
    {
       float genLumi = nGenTotal_/SignalCrossSection();
@@ -257,7 +307,7 @@ void ScaleHistograms()
    
    for ( auto & h : h1_ )
    {
-      if ( h.first != "evtTotal" || h.first != "evtFilter" )
+      if ( h.first != "nGen" )
       {
          h.second->Scale(sf);
       }
@@ -316,3 +366,30 @@ std::string Process()
    return std::string("null");
    
 }
+
+// method that calculates the event weight based on the number of b-tagged jets in MC and the expected number of b-tags among the three leading jets
+// https://twiki.cern.ch/twiki/bin/view/CMS/BTagSFMethods#1c_Event_reweighting_using_scale
+std::vector<float> Btag3Weight(const std::vector<Jet*> & jets, const BTagCalibrationReader & reader)
+{
+   std::vector<float> weights;
+      
+   if ( jets.size() < 3 ) return weights;
+   
+   // BTag Scale Factor
+   float sf[3];
+   for ( int j = 0; j < 3; ++j )
+      sf[j] = reader.eval(BTagEntry::FLAV_B, jets[j]->eta(), jets[j]->pt());
+   
+   // bin0
+   weights.push_back((1-sf[0])*(1-sf[1])*(1-sf[2]));
+   // bin1 
+   weights.push_back((1-sf[0])*(1-sf[1])*sf[2] + (1-sf[0])*(1-sf[2])*sf[1] + (1-sf[1])*(1-sf[2])*sf[0]);
+   // bin2 
+   weights.push_back((1-sf[0])*sf[1]*sf[2] + (1-sf[1])*sf[0]*sf[2] + (1-sf[2])*sf[0]*sf[1]);
+   // bin3 
+   weights.push_back(sf[0]*sf[1]*sf[2]);
+      
+   return weights;
+   
+}
+
