@@ -378,8 +378,11 @@ std::vector<float> Btag3Weight(const std::vector<Jet*> & jets, const BTagCalibra
    // BTag Scale Factor
    float sf[3];
    for ( int j = 0; j < 3; ++j )
-      sf[j] = reader.eval(BTagEntry::FLAV_B, jets[j]->eta(), jets[j]->pt());
-   
+   {
+      float pt = jets[j]->pt();
+      float eta = jets[j]->eta();
+      sf[j] = reader.eval(BTagEntry::FLAV_B, eta, pt);
+   }
    // bin0
    weights.push_back((1-sf[0])*(1-sf[1])*(1-sf[2]));
    // bin1 
