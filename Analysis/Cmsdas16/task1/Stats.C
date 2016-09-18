@@ -1,4 +1,4 @@
-float crossSection(const int &);
+float crossSection(const int &, const double &);
 
 void Stats()
 {
@@ -13,6 +13,7 @@ void Stats()
    double lumi = 2690.496;
    double ful = 1.96;
    double fp = 1; 
+   double tanb = 60;
    
    
    mass[0] = 300.;
@@ -24,13 +25,13 @@ void Stats()
    mass[6] = 1100.;
    mass[7] = 1300.;
    
-   TFile * fd = new TFile("selection_bbnb_TTT/data_analysis_histograms.root","OLD");
+   TFile * fd = new TFile("selection_bbnb_MMM/data_analysis_histograms.root","OLD");
    TH1F * m12d = (TH1F*)fd->Get("m12");
    
    TFile * f[20];
    for ( int i = 0 ; i < 8; ++i )
    {
-      f[i] = new TFile(Form("selection_bbb_TTT/mssmhbb_%i_analysis_histograms.root",(int)round(mass[i])),"OLD");
+      f[i] = new TFile(Form("selection_bbb_MMM/mssmhbb_%i_analysis_histograms.root",(int)round(mass[i])),"OLD");
       TH1F * m12 = (TH1F*)f[i]->Get("m12");
       double nGen = ((TH1F*)f[i]->Get("nGen"))->GetBinContent(1);
       double nEvts = m12->GetEffectiveEntries();
@@ -50,7 +51,7 @@ void Stats()
       eff[i] = nEvts/nGen;                                         // signal efficiency
       significance[i] = signal[i]/TMath::Sqrt(background[i]);      // significance
       ul95[i] = fp*ful*TMath::Sqrt(background[i])/(eff[i]*lumi);   // uppper limit
-      xs[i] = crossSection((int)round(mass[i]));
+      xs[i] = crossSection((int)round(mass[i]),tanb);
    }
    
    
@@ -89,7 +90,7 @@ void Stats()
    gr4 -> SetMarkerColor(kRed);
    gr4 -> SetLineColor(kRed);
    gr4 -> GetXaxis()->SetTitle("mass (GeV)");
-   gr4 -> GetYaxis()->SetTitle("x-section*BR tan beta 20 (pb)");
+   gr4 -> GetYaxis()->SetTitle("x-section*BR (pb)");
    
    TMultiGraph * mg = new TMultiGraph();
    mg -> Add(gr3);
@@ -103,10 +104,10 @@ void Stats()
    
    TLegend * leg = new TLegend(0.4,0.75,0.9,0.9); 
    leg->AddEntry("UpperLimits95","upper limit x-section*BR 95%CL","p");
-   leg->AddEntry("XSection","x-section*BR tan beta 20 mhmod+","p");
+   leg->AddEntry("XSection","MSSM x-section*BR tan beta 60 mhmod+","p");
    leg -> Draw();
    
-   TFile * out = new TFile("Stats_TTT.root","RECREATE");
+   TFile * out = new TFile("Stats_MMM.root","RECREATE");
    gr1 -> Write();
    gr2 -> Write();
    gr3 -> Write();
@@ -116,10 +117,10 @@ void Stats()
 }
 
 
-float crossSection(const  int & mass)  // in pb
+float crossSection(const  int & mass, const double & tanb)  // in pb
 {
-   
-   std::map<int,float> xs;
+   // values for tan beta =20
+   std::map<int,double> xs;
    xs[100] =  365.04 * 0.889297        +   5.21588 * 0.829672      ;
    xs[120] =  207.345 * 0.886169       +   41.7379 * 0.88271       ;
    xs[160] =  79.5406 * 0.88124        +   75.3253 * 0.879037      ;
@@ -135,5 +136,8 @@ float crossSection(const  int & mass)  // in pb
    xs[1100] =  0.0164384 * 0.254142    +   0.0164648 * 0.253845    ;
    xs[1300] =  0.00616693 * 0.242023   +   0.00617024 * 0.241754   ;
 
-   return xs[mass];
+   
+   // scale for tan beta (approx)
+   float sf = (tanb/20)*(tanb/20);
+   return xs[mass]*sf;
 }
