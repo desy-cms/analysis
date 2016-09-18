@@ -3,12 +3,12 @@ void Plots()
    double mass[20];
    mass[0] = 300.;
    mass[1] = 700.;
-   mass[2] = 1100.;
+   mass[2] = 1300.;
    
    double scale[20];
    scale[0] = 10;
    scale[1] = 1000;
-   scale[2] = 20000;
+   scale[2] = 100000;
    
    // data in the control region
    TFile * fd = new TFile("selection_bbnb_MMM/data_analysis_histograms.root","OLD");
@@ -19,6 +19,7 @@ void Plots()
    m12d -> SetMarkerColor(kBlack);
    m12d -> GetXaxis() -> SetTitle("m12 (GeV)");
    m12d -> GetYaxis() -> SetTitle("entries");
+   m12d -> SetStats(0);
    
    TH1F * pt0d = (TH1F*) fd -> Get("pt_jet0");
    pt0d -> SetName("pt0d");
@@ -27,19 +28,35 @@ void Plots()
    pt0d -> SetMarkerColor(kBlack);
    pt0d -> GetXaxis() -> SetTitle("leading jet pT (GeV)");
    pt0d -> GetYaxis() -> SetTitle("entries");
+   pt0d -> SetStats(0);
    
+   TH1F * btag0d = (TH1F*) fd -> Get("btag_jet0");
+   btag0d -> SetName("btag0d");
+   btag0d -> SetLineWidth(2);
+   btag0d -> SetMarkerStyle(20);
+   btag0d -> SetMarkerColor(kBlack);
+   btag0d -> GetXaxis() -> SetTitle("leading jet CSVv2 btag");
+   btag0d -> GetYaxis() -> SetTitle("entries");
+   btag0d -> SetStats(0);
+   btag0d -> GetXaxis() -> SetRangeUser(0.8,1);
+         
+         
    TCanvas * c1 = new TCanvas("c1","");
    m12d->Draw();
    
    TCanvas * c2 = new TCanvas("c2","");
    pt0d->Draw();
    
+   TCanvas * c3 = new TCanvas("c3","");
+   btag0d->Draw();
+   
    // Signal 
    TFile * fs[20];
    TH1F * m12[20];
    TH1F * pt0[20];
-   TLegend * leg = new TLegend(0.4,0.55,0.9,0.7); 
-   leg->AddEntry("m12d","data","p");
+   TH1F * btag0[20];
+   TLegend * leg = new TLegend(0.4,0.50,0.9,0.7); 
+   leg->AddEntry("m12d","background (data-driven)","p");
    for ( int i = 0; i < 3; ++i )
    {
       // M12
@@ -61,10 +78,24 @@ void Plots()
       pt0[i] -> SetLineColor(i+2);
       pt0[i] -> SetLineWidth(2);
       pt0[i] -> Draw("samehist");
+
+      // btag leading jet
+      c3 -> cd();
+      btag0[i] = (TH1F*) fs[i] -> Get("btag_jet0");
+      btag0[i] -> SetName(Form("btag0_%i",i));
+      btag0[i] -> Scale(scale[i]);
+      btag0[i] -> SetLineColor(i+2);
+      btag0[i] -> SetLineWidth(2);
+      btag0[i] -> Draw("samehist");
       
    }
    c1 -> cd();
    leg -> Draw();
    c2 -> cd();
    leg -> Draw();
+   c3 -> cd();
+   TLegend * leg3 = (TLegend*)leg ->Clone();
+   leg3 -> SetX1(0.1);
+   leg3 -> SetX2(0.6);
+   leg3 -> Draw();
 }
