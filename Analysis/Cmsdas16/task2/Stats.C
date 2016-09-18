@@ -15,7 +15,6 @@ void Stats()
    double fp = 1; 
    double tanb = 60;
    
-   
    mass[0] = 300.;
    mass[1] = 400.;
    mass[2] = 500.;
