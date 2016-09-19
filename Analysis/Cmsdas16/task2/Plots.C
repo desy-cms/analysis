@@ -42,12 +42,15 @@ void Plots()
          
          
    TCanvas * c1 = new TCanvas("c1","");
+   m12d -> SetTitle("CMS (in preparation)");
    m12d->Draw();
    
    TCanvas * c2 = new TCanvas("c2","");
+   pt0d -> SetTitle("CMS (in preparation)");
    pt0d->Draw();
    
    TCanvas * c3 = new TCanvas("c3","");
+   btag0d -> SetTitle("CMS (in preparation)");
    btag0d->Draw();
    
    // Signal 
