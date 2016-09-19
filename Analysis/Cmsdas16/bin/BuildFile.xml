@@ -3,10 +3,16 @@
 <use name="root"/>
 <use name="rootmath"/>
 <use name="rootgraphics"/>
+<use name="roofit"/>
 <use name="boost" />
+<use name="boost_program_options" />
 <use name="Analysis/Tools" />
 <use name="Analysis/MssmHbb" />
 
 <bin   name="SimpleMssmHbb" file="SimpleMssmHbb.cc">
+<flags   LDFLAGS="-lCore -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lz -pthread -lm -ldl -rdynamic"/>
+</bin>
+
+<bin   name="Bias_study" file="Bias_study.C">
 <flags   LDFLAGS="-lCore -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lz -pthread -lm -ldl -rdynamic"/>
 </bin>
