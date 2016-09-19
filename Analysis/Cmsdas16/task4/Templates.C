@@ -1,7 +1,7 @@
 void Templates()
 {
    gStyle -> SetOptStat(0);
-   TFile * f = new TFile("/nfs/dust/cms/user/walsh/cmsdas16/templates/combine_tool/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-500_TuneCUETP8M1_13TeV-pythia8.root","OLD");
+   TFile * f = new TFile("MssmHbbSignal_test_lowM_clange-SUSYGluGluToBBHToBB_M-500_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root","OLD");
    
    TH1D * m12 = (TH1D*) f -> Get("bbH_Mbb");
    m12 -> SetName("m12");
