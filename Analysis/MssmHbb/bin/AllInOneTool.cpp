@@ -192,10 +192,10 @@ int main(int argc, char * argv[])
 							  analysis.getOutputFile()->Close();
 							  std::string output_name = analysis.getOutputFile()->GetName();
 							  if(analysis.getLowM()){
-								  addBackgroundTemplate(output_name, "input_corrections/QCD_Templates_3M_lowM.root",19251);
+								  addBackgroundTemplate(output_name, "../bin/input_corrections/BackgroundTemplates.root",19251);
 							  }
 							  else {
-							  	addBackgroundTemplate(output_name, "input_corrections/QCD_Templates_Novo_3M_highM.root");
+							  	addBackgroundTemplate(output_name, "../bin/input_corrections/QCD_Templates_Novo_3M_highM.root");
 							  }
 						  }
 
