@@ -57,7 +57,7 @@ void Stats()
    TCanvas * c1 = new TCanvas("c1","");
    TGraph * gr1 = new TGraph(8,mass,eff);
    gr1 -> SetName("Efficiency");
-   gr1 -> SetTitle("CMS (in preparation)");
+   gr1 -> SetTitle("CMS (in progress)");
    gr1 -> SetMarkerStyle(20);
    gr1 -> GetXaxis()->SetTitle("mass (GeV)");
    gr1 -> GetYaxis()->SetTitle("Efficiency");
@@ -66,7 +66,7 @@ void Stats()
    TCanvas * c2 = new TCanvas("c2","");
    TGraph * gr2 = new TGraph(8,mass,significance);
    gr2 -> SetName("Significance");
-   gr2 -> SetTitle("CMS (in preparation)");
+   gr2 -> SetTitle("CMS (in progress)");
    gr2 -> SetMarkerStyle(20);
    gr2 -> GetXaxis()->SetTitle("mass (GeV)");
    gr2 -> GetYaxis()->SetTitle("Significance");
@@ -76,7 +76,7 @@ void Stats()
    TCanvas * c3 = new TCanvas("c3","");
    TGraph * gr3 = new TGraph(8,mass,ul95);
    gr3 -> SetName("UpperLimits95");
-   gr3 -> SetTitle("CMS (in preparation)");
+   gr3 -> SetTitle("CMS (in progress)");
    gr3 -> SetMarkerStyle(20);
    gr3 -> GetXaxis()->SetTitle("mass (GeV)");
    gr3 -> GetYaxis()->SetTitle("upper limit x-section*BR (pb) 95%CL");
@@ -99,7 +99,7 @@ void Stats()
    mg -> GetYaxis()->SetTitle("x-section*BR (pb)");
    mg -> GetYaxis()->SetRangeUser(0.001,100);
    c3->SetLogy();
-   mg -> SetTitle("CMS (in preparation)");
+   mg -> SetTitle("CMS (in progress)");
    mg -> Draw("ALP");
    
    TLegend * leg = new TLegend(0.4,0.75,0.9,0.9); 
