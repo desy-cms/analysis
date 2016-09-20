@@ -54,7 +54,8 @@ using namespace std;
 using namespace RooFit;
 
 const double n_obs = 10261.;
-const double n_ref[4] = {88.,88.,82.,51.};	//number of events from 0.5*sig_upper
+//const double n_ref[4] = {88.,88.,82.,51.};	//number of events from 0.5*sig_upper
+const double n_ref[9] = {10.,10.,10.,10.,10.,10.,10.,10.,10.};	//number of events from 0.5*sig_upper
 
 void Bias_study(const int & mass_point, const int & signal_strength, const int & toy_max, const std::string & pdf, const std::string & generator, const std::string & output, const bool & test);
 
@@ -85,12 +86,12 @@ int main(int argc, const char * argv[])
 			" \t300;\n"
 			" \t350;\n"
 			" \t400;\n"
-			" \t500;\n")
-//			" \t600;\n"
-//			" \t700;\n"
-//			" \t900;\n"
-//			" \t1100;\n"
-//			" \t1300;\n")
+			" \t500;\n"
+			" \t600;\n"
+			" \t700;\n"
+			" \t900;\n"
+			" \t1100;\n"
+			" \t1300;\n")
 			("signal_strength,r",value<int>()->required(),"Signal strength to be injected to toys fit")
 			("toy_max,n",value<int>()->required(),"Number of toys")
 			("pdf,f",value<std::string>()->required(),"Select nominal PDF to fit toys data: \n"
@@ -189,6 +190,11 @@ void Bias_study(const int & mass, const int & signal_strength, const int & toy_m
 	if(mass == 350) n_gen = n_ref[1];
 	if(mass == 400) n_gen = n_ref[2];
 	if(mass == 500) n_gen = n_ref[3];
+	if(mass == 600) n_gen = n_ref[4];
+	if(mass == 700) n_gen = n_ref[5];
+	if(mass == 900) n_gen = n_ref[6];
+	if(mass == 1100) n_gen = n_ref[7];
+	if(mass == 1300) n_gen = n_ref[8];
 	double n_sgn = signal_strength*n_gen;
 	
 	if(test){
