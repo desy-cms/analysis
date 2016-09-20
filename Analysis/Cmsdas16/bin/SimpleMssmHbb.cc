@@ -1,5 +1,6 @@
 #include <string>
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <boost/filesystem.hpp>
 
@@ -46,28 +47,36 @@ std::string selection_;
 float bbbData_ = 20691;  // WP MMM                       <<<<===== CMSDAS
 //float bbbData_ = 6385;  // WP TTT
 float lumi_  = 2690.496; // inb pb-1
+float btagcut_[3] = {0.46,0.8,0.935};
 
 bool isbbb_;
+int btagWP_;
 
 // =============================================================================================   
 int main(int argc, char * argv[])
 {   
 // EVENT SELECTION   
-   
-   // name of this selection
-   isbbb_ = true;                                  // <<<<===== CMSDAS
-   if ( isbbb_ ) selection_ = "selection_bbb_MMM"; // <<<<===== CMSDAS
-   else selection_ = "selection_bbnb_MMM";         // <<<<===== CMSDAS
 
-   
+   // signal or control region?   
+   isbbb_ = true;                                  // <<<<===== CMSDAS
+   // btag WP
+   btagWP_ = 1;  // 0:LOOSE, 1:MEDIUM, 2:TIGHT     // <<<<===== CMSDAS
+
    // Cuts                                         // <<<<===== CMSDAS
    float ptmin[3]   = { 100.0, 100.0, 40.0 };
    float etamax[3]  = {   2.2,   2.2 , 2.2 };
-   float btagmin[3] = {   0.8,   0.8,  0.8 };  // change SF below; medium WP = 0.8; tight WP = 0.935; loose WP = 0.46
-//   float btagmin[3] = {   0.935,   0.935,  0.935 };  // change SF below; medium WP = 0.8; tight WP = 0.935; loose WP = 0.46
+   float btagmin[3] = { btagcut_[btagWP_], btagcut_[btagWP_], btagcut_[btagWP_]};
    float nonbtag    = 0.46;
    float dRmin      = 1.;
    float detamax    = 1.55;
+      
+   std::string btagSel;
+   if ( btagWP_ == 0 ) btagSel = "LLL";
+   if ( btagWP_ == 1 ) btagSel = "MMM";
+   if ( btagWP_ == 2 ) btagSel = "TTT";
+   // name of this selection
+   if ( isbbb_ ) selection_ = "selection_bbb_" + btagSel; // <<<<===== CMSDAS
+   else selection_ = "selection_bbnb_" + btagSel;         // <<<<===== CMSDAS
    
 // -----------------
    
@@ -82,10 +91,11 @@ int main(int argc, char * argv[])
    
    // Btag SF
    BTagCalibration calib("csvv2", "SFbLib.csv");
-   BTagCalibrationReader readerBSF(&calib,               // calibration instance
-                                   BTagEntry::OP_MEDIUM,  // operating point          // <<<<===== CMSDAS
-                                   "mujets",               // measurement type
-                                   "central");           // systematics type
+   BTagCalibrationReader readerBSF(&calib,                              // calibration instance
+                                   (BTagEntry::OperatingPoint)btagWP_,  // operating point          // <<<<===== CMSDAS
+                                   "mujets",                            // measurement type
+                                   "central");                          // systematics type
+   
    
 // ====================================   
    
@@ -103,6 +113,29 @@ int main(int argc, char * argv[])
       return -1;
    }
       
+// Log settings
+   // create directory
+   boost::filesystem::path dir(selection_);
+   boost::filesystem::create_directory(dir);
+   std::string basename =  std::string(boost::filesystem::basename(inputList_));
+   std::string logname = selection_ + std::string("/") + basename + std::string("_analysis.log");
+   std::ofstream logfile;
+   logfile.open (logname.c_str());
+   logfile << "SimpleMssmHbb - CMSDAS 2016" << std::endl;
+   logfile << "===========================" << std::endl;
+   logfile << "Running on " << basename;
+   if ( isbbb_ ) logfile << "  in the signal region" << std::endl;
+   else          logfile << "  in the control region" << std::endl;
+   logfile << std::endl;
+   logfile << "Trigger path: " << hltPath << std::endl;
+   logfile << "Jet 1: pT > " << ptmin[0] << ",  |eta| < " << etamax[0] << ",, btag > " << btagmin[0] << std::endl;
+   logfile << "Jet 2: pT > " << ptmin[1] << ",  |eta| < " << etamax[1] << ",, btag > " << btagmin[1] << std::endl;
+   logfile << "Jet 3: pT > " << ptmin[2] << ",   |eta| < " << etamax[2] << ",, btag > " << btagmin[2] << std::endl;
+   logfile << "delta_eta_12 < " << detamax << "  and  delta _R_ij > " << dRmin << std::endl;
+   logfile << "===========================" << std::endl;
+   
+   logfile.close();
+   
 // Construct the Analysis object
    Analysis analysis(inputList_);
    
@@ -260,7 +293,6 @@ int main(int argc, char * argv[])
    ScaleHistograms();
    
    // Finish by writing the histograms into a file
-   std::string basename =  std::string(boost::filesystem::basename(inputList_));
    std::string outFile = selection_ + std::string("/") + basename + std::string("_analysis_histograms.root");
    WriteHistograms(outFile);
    
@@ -318,8 +350,6 @@ void ScaleHistograms()
 
 void WriteHistograms(const std::string & filename)
 {
-   boost::filesystem::path dir(selection_);
-   boost::filesystem::create_directory(dir);
    
    TFile * outFile = new TFile(filename.c_str(),"RECREATE");
       
