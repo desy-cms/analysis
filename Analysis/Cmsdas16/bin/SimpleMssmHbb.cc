@@ -43,9 +43,8 @@ bool isMC_;
 std::string inputList_;
 int nGenTotal_;
 std::string selection_;
+float bbbData_;
 
-float bbbData_ = 20691;  // WP MMM                       <<<<===== CMSDAS
-//float bbbData_ = 6385;  // WP TTT
 float lumi_  = 2690.496; // inb pb-1
 float btagcut_[3] = {0.46,0.8,0.935};
 
@@ -59,9 +58,14 @@ int main(int argc, char * argv[])
 
    // signal or control region?   
    isbbb_ = true;                                  // <<<<===== CMSDAS
+   
    // btag WP
    btagWP_ = 1;  // 0:LOOSE, 1:MEDIUM, 2:TIGHT     // <<<<===== CMSDAS
-
+   
+   // normalisation for data control region   
+   bbbData_ = 20691;    // WP MMM                  // <<<<===== CMSDAS
+   //bbbData_ = 6385;   // WP TTT
+   
    // Cuts                                         // <<<<===== CMSDAS
    float ptmin[3]   = { 100.0, 100.0, 40.0 };
    float etamax[3]  = {   2.2,   2.2 , 2.2 };
@@ -132,6 +136,8 @@ int main(int argc, char * argv[])
    logfile << "Jet 2: pT > " << ptmin[1] << ",  |eta| < " << etamax[1] << ",, btag > " << btagmin[1] << std::endl;
    logfile << "Jet 3: pT > " << ptmin[2] << ",   |eta| < " << etamax[2] << ",, btag > " << btagmin[2] << std::endl;
    logfile << "delta_eta_12 < " << detamax << "  and  delta _R_ij > " << dRmin << std::endl;
+   logfile << std::endl;
+   logfile << "Normalisation for data control region: " << bbbData_ << std::endl;
    logfile << "===========================" << std::endl;
    
    logfile.close();
