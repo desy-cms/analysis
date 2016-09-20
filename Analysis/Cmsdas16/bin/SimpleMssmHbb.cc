@@ -125,6 +125,7 @@ int main(int argc, char * argv[])
    std::string logname = selection_ + std::string("/") + basename + std::string("_analysis.log");
    std::ofstream logfile;
    logfile.open (logname.c_str());
+   logfile << "===========================" << std::endl;
    logfile << "SimpleMssmHbb - CMSDAS 2016" << std::endl;
    logfile << "===========================" << std::endl;
    logfile << "Running on " << basename;
@@ -132,6 +133,10 @@ int main(int argc, char * argv[])
    else          logfile << "  in the control region" << std::endl;
    logfile << std::endl;
    logfile << "Trigger path: " << hltPath << std::endl;
+   logfile << "Trigger objects: " << std::endl;
+   for ( size_t i = 0; i < triggerObjects.size() ; ++i )
+      logfile << "    - " << triggerObjects[i] << std::endl;
+   logfile << std::endl;
    logfile << "Jet 1: pT > " << ptmin[0] << ",  |eta| < " << etamax[0] << ",, btag > " << btagmin[0] << std::endl;
    logfile << "Jet 2: pT > " << ptmin[1] << ",  |eta| < " << etamax[1] << ",, btag > " << btagmin[1] << std::endl;
    logfile << "Jet 3: pT > " << ptmin[2] << ",   |eta| < " << etamax[2] << ",, btag > " << btagmin[2] << std::endl;
