@@ -4,7 +4,10 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <array>
+
 #include "TH1.h"
+#include "TFile.h"
 #include "TCanvas.h"
 #include "TObject.h"
 #include "TString.h"
@@ -80,7 +83,7 @@ namespace analysis {
     private:
 
       //Private constructor to avoid code duplication for private members initialisation
-      FitContainer();
+      FitContainer(const std::string& outputDir);
 
       // methods to set the fit model
       static std::unique_ptr<RooArgList>
@@ -131,8 +134,8 @@ namespace analysis {
       float chi2BkgOnly_;
       float normChi2BkgOnly_;
       int ndfBkgOnly_;
-      double covMatrix_[20];
-      double eigenVector_[20];	
+      double covMatrix_[100];
+      double eigenVector_[100];
       int nbins_;
     };
 

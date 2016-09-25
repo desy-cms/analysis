@@ -69,11 +69,11 @@ void templates()
 //   highMF[1300] = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_1pb_xsection_highM_SUSYGluGluToBBHToBB_M-1300_TuneCUETP8M1_13TeV-pythia8.root");
 
 
-   allInOne(inF,"lowM");
-   allInOne(highMF,"highM");
+//   allInOne(inF,"lowM");
+//   allInOne(highMF,"highM");
 
-   sistTemp(inF,"lowM");
-   sistTemp(highMF,"highM");
+//   sistTemp(inF,"lowM");
+//   sistTemp(highMF,"highM");
 
    std::vector<int> points = {300,500,700,900,1100,1300};
 
@@ -404,8 +404,8 @@ void selectedTemplates(const std::map<int,TFile*> & inF,const std::string &regim
 		if(i==1){
 			h[i-1]->GetYaxis()->SetTitle("a.u.");
 			h[i-1]->SetTitle("");
-			if(lowM) h[i-1]->SetAxisRange(0.,4.,"y");
-			else h[i-1]->SetAxisRange(0.,12.,"y");
+			if(lowM) h[i-1]->SetAxisRange(0.,9.,"y");
+			else h[i-1]->SetAxisRange(0.,9.,"y");
 			h[i-1]->SetAxisRange(h[i-1]->GetXaxis()->GetXmin(),1700.,"x");
 			h[i-1]->Draw("hist");
 		}

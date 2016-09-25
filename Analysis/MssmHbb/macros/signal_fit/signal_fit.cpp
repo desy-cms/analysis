@@ -13,6 +13,8 @@ double SignalLowMass(double *x, double *par);
 double Signal3Gaus(double * x, double * par);
 double Signal2Gaus(double * x, double * par);
 double RelBreitWigner(double *x, double *par);
+double ExpGausExp(double *x, double *par);
+double ExpGausLandau(double *x, double *par);
 
 
 void FitMass(const std::string & fileName = "MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-900_TuneCUETP8M1_13TeV-pythia8",
@@ -41,7 +43,8 @@ int signal_fit(){
 								 Point(250,cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-250_TuneCUETP8M1_13TeV-pythia8.root"),
 								 Point(300, cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-300_TuneCUETP8M1_13TeV-pythia8.root"),
 								 Point(350,cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-350_TuneCUETP8M1_13TeV-pythia8.root"),
-								 Point(400,cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-400_TuneCUETP8M1_13TeV-pythia8.root")};
+								 Point(400,cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-400_TuneCUETP8M1_13TeV-pythia8.root")
+			};
 
 	TCanvas can;
 	for(const auto & p : signal){
@@ -55,25 +58,37 @@ int signal_fit(){
 }
 
 double SimplifiedModel(double *x, double *par){
-	//pol2 + gaus + exp
-	double x1 = x[0];
-	double pol = par[0]*(par[1]*x1*x1 + par[2]*x1 + 1);
 
-	double x2 = x1 - par[3];
-	double norm_gaus = par[0]*(par[1]*par[3]*par[3] + par[2]*par[3] + 1);
-	double gaus = norm_gaus * TMath::Exp(-0.5 * (x2 - par[4]) / par[5] * (x2 - par[4]) / par[5]);
+	  Double_t aL = (x[0]-par[1])/par[2];
+	  Double_t bL = (x[0]-par[1])/par[3];
+	  Double_t aR = (x[0]-par[1])/par[4];
+	  Double_t bR = (x[0]-par[1])/par[5];
 
-	double x3 = x1 - par[6];
-	double norm_exp = TMath::Exp(-0.5 * (par[6] - par[4]) / par[5] * (par[6] - par[4]) / par[5]);
-	double exp = norm_exp * TMath::Exp(-x3*par[8]*x3*par[8]);
+	  Double_t cR  = (par[7]-par[1])/par[4];
+	  Double_t dR  = (par[7]-par[1])/par[5];
 
-	pol = pol*par[7];
-	gaus = gaus * par[7];
-	exp = exp*par[7];
+	  double norm_g2 = (1./(par[5]*par[5])*TMath::Exp(-0.5*dR*dR)) / ( 1./(par[5]*par[5])*TMath::Exp(-0.5*dR*dR) - 1./(par[4]*par[4])*TMath::Exp(-0.5*cR*cR) );
 
-	if(x1 < par[3]) return pol;
-	else if(x1 < par[6]) return gaus;
-	else return exp;
+	  Double_t gL = par[6]*TMath::Exp(-0.5*aL*aL)+(1-par[6])*TMath::Exp(-0.5*bL*bL);
+	  Double_t gR = norm_g2*TMath::Exp(-0.5*aR*aR)+(1-norm_g2)*TMath::Exp(-0.5*bR*bR);
+
+	  Double_t w = norm_g2*TMath::Exp(-0.5*cR*cR)+(1-norm_g2)*TMath::Exp(-0.5*dR*dR);
+	  double tail_sigma = - w / ( norm_g2/pow(par[4],4.) * (par[7] - par[1]) * TMath::Exp(-0.5*cR*cR) + (1 - norm_g2) / pow(par[5],4) * (par[7] - par[1]) * TMath::Exp(-0.5*dR*dR));
+
+	  Double_t aexp = (x[0]-par[7])/tail_sigma;
+
+	  Double_t resultL = par[0]*gL;
+	  Double_t resultR = par[0]*gR;
+	  Double_t norm    = par[0]*w;
+	  Double_t exp = norm*TMath::Exp(-aexp);
+
+	  Double_t result = resultL;
+	  if (x[0]>par[1])
+	    result = resultR;
+	  if (x[0]>par[7])
+	    result = exp;
+
+	  return result;
 
   return 0;
 }
@@ -191,6 +206,53 @@ double SignalLowMass(Double_t * x, Double_t * par) {
 
 }
 
+double ExpGausExp(double *x, double *par){
+	double xbar = par[0];
+	double sigma = par[1];
+	double kh = par[2];
+	double kl = par[3];
+	double X = (x[0] - xbar)/sigma;
+	double X2 = X * X;
+
+	double resultR = TMath::Exp( kh*kh/2 - kh*X );
+	double resultM = TMath::Exp( - 0.5 * X*X);
+	double resultL = TMath::Exp( kl*kl/2 + kl*X);
+	double result = 0;
+	if(X < kl) result = resultL;
+	else if ( X >= kl && X < kh) result = resultM;
+	else result = resultR;
+	result *= par[4];
+
+	return result;
+
+}
+
+double ExpGausLandau(double *x, double *par){
+	double exp = TMath::Exp( (x[0] - par[1])/ par[2] );
+
+	double Xgaus = ( x[0] - par[1])/par[3];
+	double Xgaus2 = ( x[0] - par[1])/par[6];
+	double Xgaus_p5 = ( par[4] - par[1])/par[3];
+	double Xgaus2_p5 = ( par[4] - par[1])/par[6];
+	double Xland = (x[0] - par[4])/par[5];
+
+
+	double gaus = par[7] * TMath::Exp(-0.5 * Xgaus * Xgaus ) + (1-par[7])*TMath::Exp(-0.5 * Xgaus2 * Xgaus2);
+	double gaus_p5 = (par[7] * TMath::Exp(-0.5 * Xgaus_p5 * Xgaus_p5 ) + (1-par[7])*TMath::Exp(-0.5 * Xgaus2_p5 * Xgaus2_p5))/ TMath::Exp(-0.5);
+
+	double landau = gaus_p5 * TMath::Exp(-0.5 * ( Xland + TMath::Exp(-1. * Xland) ) );
+
+
+	double result = exp;
+	if(x[0] > par[1] && x[0] <= par[4]) result = gaus;
+	if( x[0] > par[4]) result = landau;
+
+	result = result * par[0];
+
+	return result;
+
+}
+
 void FitMass(const std::string & fileName,
 		const std::string & histName,
 		const std::string & legend,
@@ -264,25 +326,38 @@ void FitMass(const std::string & fileName,
 	  fitFunc->SetParameter(10,rms);
   }
   else if (iopt==3){
-	  fitFunc = new TF1("fitFunc",SimplifiedModel,xmin,xmax,8);
-		fitFunc->SetParameter(0,0.1);
-		fitFunc->SetParameter(1,3.5);
-		fitFunc->SetParameter(2,-0.02);
-		fitFunc->SetParameter(3,550);
-		fitFunc->SetParameter(4,0.5*peak);
-		fitFunc->SetParameter(5,0.5*rms);
-		fitFunc->SetParameter(6,700);
-		fitFunc->SetParameter(7,1);
-		fitFunc->SetParameter(8,1);
-//	  fitFunc->SetParameter(0,0.3*maximum);
-//	  fitFunc->SetParameter(4,0.7*mean);
-//	  fitFunc->SetParameter(5,0.6*rms);
-//	  fitFunc->SetParameter(3,3.5);
-//	  fitFunc->SetParameter(1,-0.02);
-//	  fitFunc->SetParameter(2,0.03);
-//	  fitFunc->SetParameter(6,600);
-//	  fitFunc->SetParameter(7,1);
+	    fitFunc = new TF1("fitFunc",SimplifiedModel,xmin,xmax,8);
+	    fitFunc->SetParameter(0,maxY);
+	    fitFunc->SetParameter(1,peak);
+	    fitFunc->SetParameter(2,0.1*peak);
+	    fitFunc->SetParameter(3,0.2*peak);
+	    fitFunc->SetParameter(4,0.1*peak);
+	    fitFunc->SetParameter(5,0.2*peak);
+	    fitFunc->SetParameter(6,0.5);
+	    fitFunc->SetParameter(7,1.2*peak);
+	    fitFunc->SetParNames("global_norm","mean","sigmaL1","sigmaL2","sigmaR1","sigmaR2","norm_g1","tail_shift","tail_sigma");
     }
+  else if (iopt ==4){ //ExpGausExp
+	  fitFunc = new TF1("fitFunc",ExpGausExp,xmin,xmax,5);
+	  fitFunc->SetParameter(0,0.7*mean);
+	  fitFunc->SetParameter(1,0.5 * rms);
+	  fitFunc->SetParameter(2,1);
+	  fitFunc->SetParameter(3,1);
+	  fitFunc->SetParameter(4,0.5*maximum);
+  }
+  else if(iopt ==5){
+	    fitFunc = new TF1("fitFunc",ExpGausLandau,xmin,xmax,8);
+	    fitFunc->SetParameter(0,maxY);
+	    fitFunc->SetParameter(1,0.5*peak);
+	    fitFunc->SetParameter(2,0.7*rms);
+	    fitFunc->SetParameter(4,peak);
+	    fitFunc->SetParameter(5,1.2*rms);
+	    fitFunc->SetParameter(6,rms);
+	    fitFunc->SetParameter(7,0.5);
+	    fitFunc->SetParLimits(7,0,1);
+	    fitFunc->SetParNames("global_norm","exp(mean)","exp(sigma)","gaus(sigma)","landau(mean)","landau(sigma)","gaus2(sigma)","gaus1(frac)");
+  }
+
 
 
   TCanvas * canv = MakeCanvas(("canv"+legend).c_str(),"",600,600);

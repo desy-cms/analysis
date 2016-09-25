@@ -21,6 +21,7 @@ ProbabilityDensityFunctions::ProbabilityDensityFunctions(RooWorkspace& workspace
 
 ProbabilityDensityFunctions::~ProbabilityDensityFunctions() {
 	// TODO Auto-generated destructor stub
+//	delete workspace_;
 }
 
 void ProbabilityDensityFunctions::setPdf(const std::string& function, const std::string& name){
@@ -471,15 +472,24 @@ void ProbabilityDensityFunctions::getRelBreitWigner(const std::string& name){
 
 void ProbabilityDensityFunctions::getRooQuadGausExp(const std::string& name){
 	RooRealVar& var = *workspace_->var(var_.c_str());
+//	RooRealVar mean("mean","mean",getPeakStart(),200,1500,"GeV");
+//	RooRealVar sigmaL1("sigmaL1", "sigmaL1", 90.0, 20., 800.0, "GeV");
+//	RooRealVar sigmaL2("sigmaL2", "sigmaL2", 225.0, 20., 800.0, "GeV");
+//	RooRealVar sigmaR1("sigmaR1", "sigmaR1", 409.0, 10., 800.0, "GeV");
+//	RooRealVar sigmaR2("sigmaR2", "sigmaR2", 60.0, 20., 800.0, "GeV");
+//	RooRealVar tail_shift("tail_shift", "tail_shift", 1.2*getPeakStart(), 200.0, 1500.0, "GeV");
+//	RooRealVar tail_sigma("tail_sigma", "tail_sigma", 157.0, 0.5, 900.0, "GeV");
+//	RooRealVar norm_g1("norm_g1", "norm_g1", 0.5, 0, 1);
+//	RooRealVar norm_g2("norm_g2", "norm_g2", 0.01, 0, 1);
 	RooRealVar mean("mean","mean",getPeakStart(),200,1500,"GeV");
-	RooRealVar sigmaL1("sigmaL1", "sigmaL1", 35.0, 0.5, 800.0, "GeV");
-	RooRealVar sigmaL2("sigmaL2", "sigmaL2", 35.0, 0.5, 800.0, "GeV");
-	RooRealVar sigmaR1("sigmaR1", "sigmaR1", 35.0, 0.5, 800.0, "GeV");
-	RooRealVar sigmaR2("sigmaR2", "sigmaR2", 35.0, 0.5, 800.0, "GeV");
-	RooRealVar tail_shift("tail_shift", "tail_shift", 1.1*getPeakStart(), 200.0, 1500.0, "GeV");
-	RooRealVar tail_sigma("tail_sigma", "tail_sigma", 35.0, 0.5, 900.0, "GeV");
-	RooRealVar norm_g1("norm_g1", "norm_g1", 0.5, -1, 1);
-	RooRealVar norm_g2("norm_g2", "norm_g2", 0.5, -1, 1);
+	RooRealVar sigmaL1("sigmaL1", "sigmaL1", 0.1*getPeakStart(), 20., 800.0, "GeV");
+	RooRealVar sigmaL2("sigmaL2", "sigmaL2", 0.2*getPeakStart(), 20., 800.0, "GeV");
+	RooRealVar sigmaR1("sigmaR1", "sigmaR1", 0.1*getPeakStart(), 10., 800.0, "GeV");
+	RooRealVar sigmaR2("sigmaR2", "sigmaR2", 0.1*getPeakStart(), 20., 800.0, "GeV");
+	RooRealVar tail_shift("tail_shift", "tail_shift", 1.2*getPeakStart(), 200.0, 1500.0, "GeV");
+	RooRealVar tail_sigma("tail_sigma", "tail_sigma", 0.5*getPeakStart(), 0.5, 900.0, "GeV");
+	RooRealVar norm_g1("norm_g1", "norm_g1", 0.5, 0, 1);
+	RooRealVar norm_g2("norm_g2", "norm_g2", 0.5, 0, 1);
 	RooQuadGausExp quadgexp(name.c_str(),(name + "_quadgexp").c_str(),var,mean,sigmaL1,sigmaL2,sigmaR1,sigmaR2,tail_shift,tail_sigma,norm_g1,norm_g2);
 	workspace_->import(quadgexp);
 }

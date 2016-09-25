@@ -34,9 +34,10 @@
 using namespace analysis::backgroundmodel;
 
 //private constructor, for members initialisation
-FitContainer::FitContainer() :
+FitContainer::FitContainer(const std::string& outputDir) :
 		initialized_(false),
 		splitrange_(true),
+		outputDir_( outputDir.back() == '/' ?  outputDir : outputDir + "/"),
 		plotDir_(getOutputPath_("plots")),
 		workspaceDir_(getOutputPath_("workspace")),
 		fullRangeId_("full_range"),
@@ -63,9 +64,8 @@ FitContainer::FitContainer() :
 
 
 FitContainer::FitContainer(const TH1* data, const std::string& outputDir,
-		const std::string & type) : FitContainer()
+		const std::string & type) : FitContainer(outputDir)
 {
-	outputDir_ = outputDir+"/";
 	RooRealVar mbb(mbb_.c_str(), "M_{12}",
                  data->GetXaxis()->GetXmin(), data->GetXaxis()->GetXmax(), "GeV");
 	fitRangeMin_ = mbb.getMin();
@@ -91,7 +91,7 @@ FitContainer::FitContainer(const TH1* data, const std::string& outputDir,
 }
 
 FitContainer::FitContainer(const TH1* data, const TH1* signal, const TH1* bkg,
-			   const std::string& outputDir) : FitContainer()
+			   const std::string& outputDir) : FitContainer(outputDir)
  {
 	double xmin, xmax;
 	if(data) {
@@ -113,7 +113,6 @@ FitContainer::FitContainer(const TH1* data, const TH1* signal, const TH1* bkg,
 		std::cerr<<"Empty HistContainer was provided to FitContainer::FitContainer"<<std::endl;
 		exit(-1);
 	}
-	outputDir_ = outputDir+"/";
 	RooRealVar mbb(mbb_.c_str(), "M_{12}",
                  xmin, xmax, "GeV");
 	fitRangeMin_ = mbb.getMin();
@@ -157,11 +156,10 @@ FitContainer::FitContainer(const HistContainer& container,
 			   const std::string& outputDir) : FitContainer(container.data().get(), container.bbH().get(), container.background().get(),
 				       outputDir)   {}
 
-FitContainer::FitContainer(TTree& data, const std::string& outputDir) : FitContainer()
+FitContainer::FitContainer(TTree& data, const std::string& outputDir) : FitContainer(outputDir)
  {
 	bkg_ = "";
 	signal_ = "";
-	outputDir_ = outputDir+"/";
 	RooRealVar mbb(mbb_.c_str(), "M_{12}",
                  0.0, data.GetMaximum(mbb_.c_str()), "GeV");
 	fitRangeMin_ = mbb.getMin();
@@ -185,17 +183,12 @@ FitContainer::FitContainer(const TreeContainer& container,
 
 
 FitContainer::~FitContainer() {
-  workspace_.Print();
+  workspace_.Print("v");
   workspace_.writeToFile(outRootFileName_.c_str());
-  std::cout<<"LOL"<<std::endl;
   TFile out(outRootFileName_.c_str(), "update");
-  std::cout<<"LOL"<<std::endl;
   bkgOnlyFit_.SetDirectory(&out);
-  std::cout<<"LOL"<<std::endl;
   bkgOnlyFit_.Write();
-  std::cout<<"LOL"<<std::endl;
   out.Close();
-  std::cout<<"LOL"<<std::endl;
 }
 
 
@@ -234,13 +227,15 @@ void FitContainer::initialize() {
   frame->Draw();
   canvas.SaveAs((plotDir_+"input_data.pdf").c_str());
   canvas.SetLogy();
+  if(frame->GetMinimum() == 0) frame->SetMinimum(0.01);
+  frame->Draw();
   canvas.SaveAs((plotDir_+"input_data_log.pdf").c_str());
   // initialize background-only fit result tree:
   bkgOnlyFit_.Branch("chi2", &chi2BkgOnly_, "chi2/F");
   bkgOnlyFit_.Branch("normChi2", &normChi2BkgOnly_, "normChi2/F");
   bkgOnlyFit_.Branch("ndf", &ndfBkgOnly_, "ndf/I");
-  bkgOnlyFit_.Branch("covMatrix", covMatrix_, "covMatrix[20]/D");
-  bkgOnlyFit_.Branch("eigenVector", eigenVector_, "eigenVector[20]/D"); 
+  bkgOnlyFit_.Branch("covMatrix", covMatrix_, "covMatrix[100]/D");
+  bkgOnlyFit_.Branch("eigenVector", eigenVector_, "eigenVector[100]/D");
 
   for(int i = 0; i < 20; i++)
   {   	covMatrix_[i] = -100.;
@@ -280,11 +275,15 @@ std::unique_ptr<RooFitResult> FitContainer::FitSignal(const std::string & name) 
 
 	// Split Range for blinded data and perform simultaneous fit by CA
 	std::unique_ptr<RooFitResult> fitResult(Pdf.fitTo(signal,
+//			RooFit::NumCPU(9),
 			RooFit::Save(),
 			RooFit::PrintLevel(verbosity_),
-			RooFit::Range(fitSplRangeId_.c_str()),
+//			RooFit::Range(fitSplRangeId_.c_str()),
 			RooFit::SumW2Error(kTRUE),
-			RooFit::SplitRange()
+//			RooFit::SplitRange()
+//			RooFit::Minimizer("Minuit2"),
+			RooFit::InitialHesse(kTRUE)
+//			RooFit::Minos(kTRUE)
 	));
 
 	  std::cout << "\nconstant parameters:" << std::endl;
@@ -293,10 +292,11 @@ std::unique_ptr<RooFitResult> FitContainer::FitSignal(const std::string & name) 
 	  fitResult->floatParsInit().Print("v");
 	  std::cout << "\nfloating parameters (final):" << std::endl;
 	  fitResult->floatParsFinal().Print("v");
+	  std::cout<<"NAME: "<<name<<std::endl;
 
 	  // Top frame
 	  std::unique_ptr<RooPlot> frame(mbb.frame());
-	  signal.plotOn(frame.get(), RooFit::MarkerSize(0.8), RooFit::Name("data_curve"));
+	  signal.plotOn(frame.get(), RooFit::MarkerSize(0.8), RooFit::Name("data_points"));
 	  Pdf.plotOn(frame.get(),
 	  	     //RooFit::VisualizeError(*fitResult,1,kFALSE),
 	               //RooFit::DrawOption("L"),
@@ -304,7 +304,7 @@ std::unique_ptr<RooFitResult> FitContainer::FitSignal(const std::string & name) 
 	               //RooFit::LineWidth(2),
 	  	     //RooFit::LineStyle(kDashed),
 	  	     //RooFit::FillColor(kOrange),
-	               RooFit::Name("background_curve"),
+	               RooFit::Name("signal_curve"),
 	               RooFit::NormRange(fullRangeId_.c_str()),
 	               RooFit::Range(fitRangeId_.c_str()),
 	               RooFit::Normalization(signal.sumEntries("1", fitRangeId_.c_str()),
@@ -322,34 +322,22 @@ std::unique_ptr<RooFitResult> FitContainer::FitSignal(const std::string & name) 
 	    ////////////////////////////////////////////////////////////////////////////////
 	    //////////////////////// ChiSquare by Roofit ///////////////////////////////////
 	    ////////////////////////////////////////////////////////////////////////////////
-	    if (!splitrange_) {
-	    	ndfBkgOnly_ = getNonZeroBins_(signal) - nPars;
-	    	normChi2BkgOnly_ = frame->chiSquare("background_curve", "data_curve", nPars); //chi^2 from RooFit (RooPlot::chiSquare())
-	    	chi2BkgOnly_ = normChi2BkgOnly_ * ndfBkgOnly_;
-	    	bkgOnlyFit_.Fill();
-	    }
+	    ndfBkgOnly_ = getNonZeroBins_(signal) - nPars;
+	    normChi2BkgOnly_ = frame->chiSquare("signal_curve", "data_points", nPars); //chi^2 from RooFit (RooPlot::chiSquare())
+	    std::cout<<"ROOFIT: Chi^2/Ndf = "<<normChi2BkgOnly_<<std::endl;
+	    //chi2BkgOnly_ = normChi2BkgOnly_ * ndfBkgOnly_;
+	    //bkgOnlyFit_.Fill();
 
-	    ////////////////////////////////////////////////////////////////////////////////
-	    ////////////////////////ChiSquare by Gregor/////////////////////////////////////
-	    ////////////////////////////////////////////////////////////////////////////////
-	    //double myChi2 = chiSquare_(data,
-	    //                           *(frame->getCurve("background_curve")),
-	    //				blind_lowEdge_, blind_highEdge_, nPars);
-	    //std::string myChi2str(Form("%.1f/%d = %.1f", myChi2, ndfBkgOnly_,
-	    //			     myChi2/ndfBkgOnly_));
-	    //std::cout << "\nMy normalized chi^2: " << myChi2str << std::endl;
-	    //latex.DrawLatexNDC(0.98-canvas.GetRightMargin(), 0.93-canvas.GetTopMargin(),
-	    //                   (std::string("#chi^{2}/ndf = ")+myChi2str).c_str());
 
 	    ////////////////////////////////////////////////////////////////////////////////
 	    ////////////////////////ChiSquare by Chayanit///////////////////////////////////
 	    ////////////////////////////////////////////////////////////////////////////////
-	    else {
-	    	ndfBkgOnly_ = getNonZeroBins_(signal) - nPars - getBlindedBins_(signal,blind_lowEdge_,blind_highEdge_); // excluded blinded region
-	    	normChi2BkgOnly_ = chiSquare_CA(*frame, "background_curve", "data_curve", nPars, blind_lowEdge_, blind_highEdge_);
+//	    else {
+	    ndfBkgOnly_ = getNonZeroBins_(signal) - nPars - getBlindedBins_(signal,blind_lowEdge_,blind_highEdge_); // excluded blinded region
+	    normChi2BkgOnly_ = chiSquare_CA(*frame, "signal_curve", "data_points", nPars, blind_lowEdge_, blind_highEdge_);
 	  	chi2BkgOnly_ = normChi2BkgOnly_ * ndfBkgOnly_;
 	  	bkgOnlyFit_.Fill();
-	    }
+//	    }
 	    std::string chi2str(Form("%.1f/%d = %.1f", chi2BkgOnly_,
 	  		 	   ndfBkgOnly_, normChi2BkgOnly_));
 	    std::cout << "\nNormalized chi^2: " << chi2str << std::endl;
@@ -366,8 +354,6 @@ std::unique_ptr<RooFitResult> FitContainer::FitSignal(const std::string & name) 
 	    std::unique_ptr<RooPlot> frame2(mbb.frame());
 	    frame2->addPlotable(hpull,"P");
 	    //frame2->addObject(frame->pullHist());
-	    frame2->SetMinimum(-5.);
-	    frame2->SetMaximum(+5.);
 
 	    //TCanvas canvas("canvas", "", 600, 600);
 	    TCanvas canvas;
@@ -434,11 +420,13 @@ std::unique_ptr<RooFitResult> FitContainer::FitSignal(const std::string & name) 
 	    frame2->GetYaxis()->SetNdivisions(3,5,0);
 	    frame2->GetYaxis()->SetLabelSize(0.115);
 	    frame2->GetYaxis()->SetLabelOffset(0.011);
+	    frame2->SetMinimum(-5.);
+	    frame2->SetMaximum(+5.);
 	    frame2->Draw();
 
 	    canvas.SaveAs((plotDir_+name+"_lowM_linear.pdf").c_str());
 	    pad1->SetLogy();
-	    frame->GetYaxis()->SetRangeUser(0.1, frame->GetMaximum()*5);
+	    frame->GetYaxis()->SetRangeUser(0.001, frame->GetMaximum()*5);
 	    canvas.Modified();
 	    canvas.Update();
 	    canvas.SaveAs((plotDir_+name+"_lowM_log.pdf").c_str());
@@ -890,7 +878,7 @@ double FitContainer::chiSquare_CA(const RooPlot& frame, const char* curvename, c
 
 	// Add pull^2 to chisq
 	if (y!=0) {      
-		double pull = (y>avg) ? ((y-avg)/eyl) : ((y-avg)/eyh) ;
+		double pull = (y<avg) ? ((y-avg)/eyl) : ((y-avg)/eyh) ;
 		std::cout << "chi^2 at bin " << i << " : " << pull*pull << std::endl;
 		chisq += pull*pull ;
 		nbin++;

@@ -6,42 +6,46 @@
  */
 
 #include "../interface/ProbabilityDensityFunctions.h"
+#include "../interface/RooQuadGausExp.h"
 #include "RooWorkspace.h"
 #include "RooRealVar.h"
 #include "RooNovosibirsk.h"
 #include "TCanvas.h"
 #include "RooPlot.h"
+#include "RooCmdArg.h"
 
 using namespace analysis::backgroundmodel;
 
 int main(){
-//	RooWorkspace *workspace = new RooWorkspace("space");
-	RooWorkspace workspace("sapace");
-	TCanvas canvas("canvas", "", 600, 600);
 
-	RooRealVar var("var","var",240,1700,"ma");
-	workspace.import(var);
-	ProbabilityDensityFunctions *pdfs = new ProbabilityDensityFunctions(workspace,"var");
+	RooRealVar x("x","x",200,1700);
 
-	//test1
-	pdfs->getNovosibirsk("name");
+	RooPlot *frame = x.frame();
+	RooWorkspace *workspace = new RooWorkspace("work");
 
-	//test2
-	RooRealVar peak("peak", "peak", 450, 50.0, 500.0, "GeV");
-	RooRealVar width("width", "width", 100.0, 5.0, var.getMax()/2.0, "GeV");
-	RooRealVar tail("tail", "tail", -0.5, -1.0, 1.0);
-	pdfs->getNovosibirsk("name2","name2",peak,width,tail);
+	workspace->import(x);
+	ProbabilityDensityFunctions *pdfs = new ProbabilityDensityFunctions(*workspace,"x");
+	pdfs->setPeakStart(850.);
+	pdfs->getRooQuadGausExp("model");
+	(workspace->pdf("model"))->plotOn(frame);
+	TCanvas canvas;
+	frame->Draw();
 
-	//test3
-	pdfs->getNovoPSProd("name3");
+	RooRealVar mean("mean2","mean",850.015,200,1500,"GeV");
+	RooRealVar sigmaL1("sigmaL12", "sigmaL1", 89.062, 0.5, 800.0, "GeV");
+	RooRealVar sigmaL2("sigmaL22", "sigmaL2", 225.257, 0.5, 800.0, "GeV");
+	RooRealVar sigmaR1("sigmaR12", "sigmaR1", 409.087, 0.5, 800.0, "GeV");
+	RooRealVar sigmaR2("sigmaR22", "sigmaR2", 59.4907, 0.5, 800.0, "GeV");
+	RooRealVar tail_shift("tail_shift2", "tail_shift", 1083.93, 200.0, 1500.0, "GeV");
+	RooRealVar tail_sigma("tail_sigma2", "tail_sigma", 157.0, 0.5, 900.0, "GeV");
+	RooRealVar norm_g1("norm_g12", "norm_g1", 0.511, 0, 1);
+	RooRealVar norm_g2("norm_g22", "norm_g2", 0.01, 0, 1);
+	RooQuadGausExp quadgexp("HARDCODED","HARDCODED_quadgexp",x,mean,sigmaL1,sigmaL2,sigmaR1,sigmaR2,tail_shift,tail_sigma,norm_g1,norm_g2);
+	quadgexp.plotOn(frame,RooFit::LineColor(kRed));
+	frame->Draw();
 
-	//test4
-	pdfs->getRelBreitWigner("name4");
+	canvas.SaveAs("can.png");
 
-
-	workspace.Print();
-
-	RooPlot* frame = var.frame() ;
 	/*
 	workspace.pdf("name")->plotOn(frame);
 	std::cout<<"test1 Ok"<<std::endl;
@@ -50,10 +54,7 @@ int main(){
 	workspace.pdf("name3")->plotOn(frame);
 	std::cout<<"test3 Ok"<<std::endl;
 	*/
-	workspace.pdf("name4")->plotOn(frame);
-	std::cout<<"test4 Ok"<<std::endl;
-	frame->Draw();
-	canvas.SaveAs("can.png");
+
 //	workspace.import(pdfs.getNovosibirsk("name",var));
 //	RooAbsPdf &Pdf = *workspace.pdf("name");
 //	Pdf.Draw();
