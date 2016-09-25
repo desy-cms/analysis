@@ -31,7 +31,6 @@ using namespace analysis::mssmhbb;
 // constructors and destructor
 //
 
-
 MssmHbb::MssmHbb(const std::string & inputFilelist, const std::string & evtinfo) : Analysis(inputFilelist,evtinfo), BasicTree(this->isMC())
 {
 	if(this->isMC()){
@@ -358,5 +357,4 @@ int MssmHbb::returnMassPoint() const {
         Mpoint = std::stoi(MpointString);
         return Mpoint;
 }
-
 

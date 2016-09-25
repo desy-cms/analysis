@@ -17,9 +17,6 @@ void signalEfficiency()
    std::map<int,TFile* > inFlowM;
    std::map<int,TFile* > inFhighM;
 
-//   inFlowM[100] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-100_TuneCUETP8M1_13TeV-pythia8.root");
-//   inFlowM[120] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-120_TuneCUETP8M1_13TeV-pythia8.root");
-//   inFlowM[160] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-160_TuneCUETP8M1_13TeV-pythia8.root");
    inFlowM[200] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-200_TuneCUETP8M1_13TeV-pythia8.root");
    inFlowM[250] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-250_TuneCUETP8M1_13TeV-pythia8.root");
    inFlowM[300] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-300_TuneCUETP8M1_13TeV-pythia8.root");
@@ -32,9 +29,6 @@ void signalEfficiency()
    inFlowM[1100] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_chayanit-SUSYGluGluToBBHToBB_M-1100_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root");
    inFlowM[1300] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_clange-SUSYGluGluToBBHToBB_M-1300_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root");
 
-//   inFhighM[100] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_highM_SUSYGluGluToBBHToBB_M-100_TuneCUETP8M1_13TeV-pythia8.root");
-//   inFhighM[120] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_highM_SUSYGluGluToBBHToBB_M-120_TuneCUETP8M1_13TeV-pythia8.root");
-//   inFhighM[160] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_highM_SUSYGluGluToBBHToBB_M-160_TuneCUETP8M1_13TeV-pythia8.root");
    inFhighM[200] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_highM_SUSYGluGluToBBHToBB_M-200_TuneCUETP8M1_13TeV-pythia8.root");
    inFhighM[250] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_highM_SUSYGluGluToBBHToBB_M-250_TuneCUETP8M1_13TeV-pythia8.root");
    inFhighM[300] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_highM_SUSYGluGluToBBHToBB_M-300_TuneCUETP8M1_13TeV-pythia8.root");
@@ -47,6 +41,16 @@ void signalEfficiency()
    inFhighM[1100] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_highM_chayanit-SUSYGluGluToBBHToBB_M-1100_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root");
    inFhighM[1300] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_highM_clange-SUSYGluGluToBBHToBB_M-1300_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root");
 
+   std::map<int,double> signal_efficiency_8TeV;
+   signal_efficiency_8TeV[200] = 2.85e-03;
+   signal_efficiency_8TeV[300] = 6.38e-03;
+   signal_efficiency_8TeV[350] = 6.32e-03;
+   signal_efficiency_8TeV[400] = 6.08e-03;
+   signal_efficiency_8TeV[500] = 5.07e-03;
+   signal_efficiency_8TeV[600] = 3.85e-03;
+   signal_efficiency_8TeV[700] = 2.9e-03;
+   signal_efficiency_8TeV[900] = 1.39e-03;
+
    HbbStyle style;
    style.set(PRIVATE);
    style.drawStandardTitle();
@@ -55,7 +59,7 @@ void signalEfficiency()
    TGraphErrors *Eff = new TGraphErrors(inFlowM.size());
    Eff->SetMarkerStyle(20);
    Eff->SetMarkerSize(1.1);
-   Eff->SetTitle("Signal Efficiency; di-jet M, [GeV]; #epsilon");
+   Eff->SetTitle("; di-jet M, [GeV]; #epsilon");
 
    //highM
    TGraphErrors *EffhighM = new TGraphErrors(inFhighM.size());
@@ -63,6 +67,14 @@ void signalEfficiency()
    EffhighM->SetMarkerColor(2);
    EffhighM->SetMarkerSize(1.1);
    EffhighM->SetTitle("; di-jet M, [GeV]; #epsilon");
+
+   // 8 TeV
+   TGraphErrors *Eff8TeV = new TGraphErrors(signal_efficiency_8TeV.size());
+   Eff8TeV->SetMarkerStyle(20);
+   Eff8TeV->SetMarkerColor(2);
+   Eff8TeV->SetMarkerSize(1.1);
+   Eff8TeV->SetMaximum(2.2e-02);
+   Eff8TeV->SetTitle("; di-jet M, [GeV]; #epsilon");
 
    TCanvas * c1 = new TCanvas("c1","",700,800);
    TLegend *leg = new TLegend(0.25,0.7,0.45,0.85);
@@ -82,10 +94,15 @@ void signalEfficiency()
 	   double nTot = denum->GetMean() * 2621.181 / denum->GetMean();
 
 	   TH1 *integ = (TH1*) f.second->Get("bbH_Mbb");
-	   Eff->SetPoint(i,f.first,(double) integ->Integral(integ->FindBin(low_border),integ->FindBin(up_border))/ (nTot));
-	   std::cout<<f.first<<"  LOOOOL "<<integ->Integral(integ->FindBin(low_border),integ->FindBin(up_border))<<" "<<nTot<<" "<<integ->Integral(integ->FindBin(low_border),integ->FindBin(up_border)) / (nTot)<< std::endl;
+	   Eff->SetPoint(i,f.first,(double) integ->Integral()/ (nTot));
    }
    i=0;
+
+   for(const auto & p : signal_efficiency_8TeV){
+	++i;
+	Eff8TeV->SetPoint(i,p.first,p.second);
+   }
+   i = 0;
 
    for(const auto & f : inFhighM){
 	   ++i;
@@ -100,15 +117,19 @@ void signalEfficiency()
 	   TH1 *integ = (TH1*) f.second->Get("bbH_Mbb");
 	   double nTot = denum->GetMean() * 2621.181 / denum->GetMean();
 
-	   EffhighM->SetPoint(i,f.first,(double) integ->Integral(integ->FindBin(low_border),integ->FindBin(up_border))/nTot);
+	   EffhighM->SetPoint(i,f.first,(double) integ->Integral()/nTot);
    }
-   EffhighM->Draw("AP");
-   Eff->Draw("Psame");
+//   Eff8TeV->Draw("AP");
+//   EffhighM->Draw("AP");
+   Eff->Draw("AP");
+   Eff8TeV->Draw("P same");
    style.drawStandardTitle();
    
-   leg->AddEntry(Eff,"Low Mass","p");
-   leg->AddEntry(EffhighM,"High Mass","p");
+   leg->AddEntry(Eff,"13 TeV","p");
+   leg->AddEntry(Eff8TeV,"8 TeV","p");
+//   leg->AddEntry(EffhighM,"High Mass","p");
    leg->Draw();
+
 
    //Sensitivity
    TH1D	*hBgLowM = (TH1D*) inFlowM[500]->Get("QCD_Mbb");
@@ -182,16 +203,16 @@ std::cout<<"High M: "<<std::endl;
    Sensitivity->SetMinimum(0.);
    Sensitivity->SetTitle("");
    Sensitivity->Draw("AP");
-   SensitivityHighM->Draw("Psame");
+//   SensitivityHighM->Draw("Psame");
    style.drawStandardTitle();
 
-   leg2->AddEntry(Sensitivity,"Low Mass","p");
-   leg2->AddEntry(SensitivityHighM,"High Mass","p");
+   leg2->AddEntry(Sensitivity,"13 TeV ","p");
+//   leg2->AddEntry(SensitivityHighM,"High Mass","p");
    leg2->Draw();
 
 
-//   c1->SaveAs("pictures/signalEfficiency.pdf");
-//   c2->SaveAs("pictures/signalSensitivity.pdf");
+   c1->SaveAs("../pictures/signalEfficiency.pdf");
+   c2->SaveAs("../pictures/signalSensitivity.pdf");
 /**/
 }
 

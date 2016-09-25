@@ -43,9 +43,6 @@ double RooGausExp::evaluate() const {
   double std = (x_ - mean_) / sigma_;
   double result = 0.0;
 
-  //if (std < -left_) {
-  //  result = std::exp(0.5*left_*left_ + left_*std);
-  //} else 
   if (std <= right_) {
     result = std::exp(-0.5 * std::pow(std, 2));
   } else {
