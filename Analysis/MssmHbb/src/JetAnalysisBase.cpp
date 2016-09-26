@@ -704,7 +704,7 @@ void JetAnalysisBase::createOutputFile(const std::string &name){
 		outputFile_ = std::make_unique<TFile>(finale_name.c_str(),"RECREATE");
 	}
 	else {
-//		finale_name = cmsswBase + "/src/Analysis/MssmHbb/output/" + finale_name;
+		finale_name = cmsswBase + "/src/Analysis/MssmHbb/output/" + finale_name;
 //		finale_name = "/nfs/dust/cms/user/" + std::string(getenv("USERNAME")) + "/output/" + finale_name;
 		outputFile_ = std::make_unique<TFile>(finale_name.c_str(),"RECREATE");
 	}
