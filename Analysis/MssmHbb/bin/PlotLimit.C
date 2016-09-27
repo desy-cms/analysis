@@ -102,24 +102,6 @@ int main(int argc, char * argv[]){
 	 }
     store(parse_command_line(argc, argv,all_options), output_vm);
 
-//    std::string  mode_					=	output_vm["mode"].as<std::string>();
-//    std::string  inputList_ 			=	output_vm["input_file"].as<std::string>();
-//    std::string  benchmark_path_		=	output_vm["benchmark_path"].as<std::string>();
-//    std::string  benchmark_name_		=	output_vm["benchmark_name"].as<std::string>();
-//    std::string  outFileName_   		=	output_vm["output_file"].as<std::string>();
-//    std::vector<double> yMin_			=	output_vm["yMin"].as<std::vector<double> >();
-//    std::vector<double> yMax_			=	output_vm["yMax"].as<std::vector<double> >();
-//    std::vector<double> xMin_			=	output_vm["xMin"].as<std::vector<double> >();
-//    std::vector<double> xMax_			=	output_vm["xMax"].as<std::vector<double> >();
-//    std::vector<std::string> Lumi_ 		=	output_vm["Lumi"].as<std::vector<std::string> >();
-//    std::vector<std::string> xtitle_ 	=	output_vm["xtitle"].as<std::vector<std::string> >();
-//    std::vector<std::string> ytitle_ 	=	output_vm["ytitle"].as<std::vector<std::string> >();
-//    std::vector<bool> logY_ 			=	output_vm["logY"].as<std::vector<bool> >();
-//    auto blindData_ 					=	output_vm["blindData"].as<bool>();
-    for(int i = 0; i< 2; ++i){
-    	cout<<yMin_.at(i)<<" "<<logY_.at(i)<<std::endl;
-    }
-
   //Check whether input file contain only .root files or .txt
   cout<<inputList_<<endl;
   std::string line;
