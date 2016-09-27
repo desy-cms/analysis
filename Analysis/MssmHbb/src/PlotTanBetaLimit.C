@@ -1,5 +1,5 @@
+/*
 #include "Analysis/MssmHbb/macros/Drawer/HttStylesNew.cc"
-#include "Analysis/MssmHbb/macros/Drawer/CMS_lumi.C"
 #include "Analysis/MssmHbb/macros/signal/mssm_xs_tools.h"
 #include "Analysis/MssmHbb/macros/signal/mssm_xs_tools.C"
 
@@ -14,6 +14,7 @@
 #include "string"
 #include <iostream>
 #include <fstream>
+#include "Analysis/MssmHbb/src/Lumi_Setup.C"
 
 double XSecToTanBeta(mssm_xs_tools my,
 		     double mA,
@@ -292,10 +293,11 @@ void PlotTanBetaLimit(const std::string fileList = "Hbb.limits",
   //  line->Draw();
 
   TPad * pad = (TPad*)canv->GetPad(0);
-  writeExtraText = true;
-  lumi_13TeV = Lumi;
-  extraText = "Simulation";
-  CMS_lumi(pad,4,11); 
+  LumiSetup lum;
+  lum.CMS_lumi(pad,4,11);
+  lum.writeExtraText = true;
+  lum.lumi_13TeV = Lumi;
+  lum.extraText = "Simulation";
   pad->RedrawAxis();
 
   leg->Draw();
@@ -308,3 +310,4 @@ void PlotTanBetaLimit(const std::string fileList = "Hbb.limits",
   canv->Print( (out_name+".pdf").c_str());
 
 }
+*/

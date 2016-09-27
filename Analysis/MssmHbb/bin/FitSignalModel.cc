@@ -49,11 +49,11 @@ int main(int argc, char* argv[]) {
 
   for(const auto & mass : signal){
 	  TFile f((cmsswBase + mass.second).c_str(),"read");
-	  TH1D& hSignal = (TH1D&) f.Get(histo_name.c_str());
-//	  ab::HistContainer histContainer(cmsswBase + mass.second);//MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-400_TuneCUETP8M1_13TeV-pythia8.root");
-//	  histContainer.Rebin(1);
-//	  ab::FitContainer fitter(histContainer,cmsswBase + "/src/Analysis/MssmHbb/test/" + "mass_point_" + std::to_string(mass.first));
-	  ab::FitContainer fitter(hSignal,cmsswBase + "/src/Analysis/MssmHbb/test/" + "mass_point_test" + std::to_string(mass.first));
+//	  TH1D& hSignal = (TH1D&) f.Get(histo_name.c_str());
+	  ab::HistContainer histContainer(cmsswBase + mass.second);//MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-400_TuneCUETP8M1_13TeV-pythia8.root");
+	  histContainer.Rebin(1);
+	  ab::FitContainer fitter(histContainer,cmsswBase + "/src/Analysis/MssmHbb/test/" + "mass_point_" + std::to_string(mass.first));
+//	  ab::FitContainer fitter(hSignal,cmsswBase + "/src/Analysis/MssmHbb/test/" + "mass_point_test" + std::to_string(mass.first));
 	  fitter.verbosity(verbosity - 1);
 
 	  std::string model = "quadgausexp";//"quadgausexp";

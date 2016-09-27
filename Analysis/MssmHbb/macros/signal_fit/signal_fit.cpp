@@ -5,7 +5,7 @@
  *      Author: shevchen
  */
 #include "../Drawer/HttStylesNew.cc"
-#include "../Drawer/CMS_lumi.C"
+#include "Analysis/MssmHbb/src/Lumi_Setup.C"
 #include "../../interface/utilLib.h"
 
 double SimplifiedModel(double *x, double *par);
@@ -373,9 +373,10 @@ void FitMass(const std::string & fileName,
   leg->AddEntry(fitFunc,("#splitline{Fit: #chi^{2}/ndf = " + to_string_with_precision<double>(chi2_ndf,2) + ",}{p = " + to_string_with_precision<double>(p_val,2) + "}").c_str(),"l");
   leg->Draw();
 
-  writeExtraText = true;
-  extraText = "Simulation";
-  CMS_lumi(canv,4,33);
+  LumiSetup lum;
+  lum.CMS_lumi(canv,4,33);
+  lum.writeExtraText = true;
+  lum.extraText = "Simulation";
 
   canv->Update();
   if (iopt==1)

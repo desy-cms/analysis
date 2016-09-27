@@ -1,5 +1,5 @@
 #include "HttStylesNew.cc"
-#include "CMS_lumi.C"
+#include "Analysis/MssmHbb/src/Lumi_Setup.C"
 
 Double_t SignalHighMass(Double_t * x, Double_t * par) {
 

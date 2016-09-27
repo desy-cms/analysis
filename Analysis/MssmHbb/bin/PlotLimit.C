@@ -1,5 +1,5 @@
 #include "Analysis/MssmHbb/macros/Drawer/HttStylesNew.cc"
-#include "Analysis/MssmHbb/macros/Drawer/CMS_lumi.C"
+//#include "Analysis/MssmHbb/src/Lumi_Setup.C"
 #include "Analysis/MssmHbb/src/PlotTanBetaLimit.C"
 //#include "Analysis/MssmHbb/macros/signal/mssm_xs_tools.h"
 //#include "Analysis/MssmHbb/macros/signal/mssm_xs_tools.C"
@@ -354,10 +354,11 @@ void PlotSigmaBRLimit(const char * fileList, std::string output, bool blindData,
   //  line->Draw();
 
   TPad * pad = (TPad*)canv->GetPad(0);
-  writeExtraText = true;
-  lumi_13TeV = Lumi;
-  extraText = "Simulation";
-  CMS_lumi(pad,4,33); 
+  LumiSetup lum;
+//  lum.CMS_lumi(pad,4,33);
+//  writeExtraText = true;
+//  lumi_13TeV = Lumi;
+//  extraText = "Simulation";
   pad->RedrawAxis();
 
   leg->Draw();
