@@ -119,6 +119,7 @@ void Analysis::event(const int & event, const bool & addCollections)
       std::string type = t_type_[name];
       if ( type == "Jet" )            this->addCollection<Jet>(name);
       if ( type == "Muon" )           this->addCollection<Muon>(name);
+      if ( type == "GenJet" )         this->addCollection<GenJet>(name);
       if ( type == "MET" )            this->addCollection<MET>(name);
       if ( type == "Vertex" )         this->addCollection<Vertex>(name);
       if ( type == "TriggerObject" )  this->addCollection<TriggerObject>(name);

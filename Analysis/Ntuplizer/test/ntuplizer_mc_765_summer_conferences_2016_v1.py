@@ -21,7 +21,7 @@ process.GlobalTag.ReconnectEachRun = cms.untracked.bool( False )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
-output_file = 'ntuple.root'
+output_file = 'ntuple_mc.root'
 ## TFileService
 process.TFileService = cms.Service("TFileService",
 	fileName = cms.string(output_file)
@@ -183,14 +183,14 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
                                        'hltSingleCaloJet170',
                                        'hltSinglePFJet200',
                                    ),
-#    L1ExtraJets     = cms.VInputTag(
-#                                    cms.InputTag("l1extraParticles","Central","RECO"),
-#                                    cms.InputTag("l1extraParticles","Forward","RECO"),
-#                                    cms.InputTag("l1extraParticles","Tau","RECO")
-#                                    ),
-#    L1ExtraMuons    = cms.VInputTag(
-#                                    cms.InputTag("l1extraParticles","","RECO")
-#                                    ),
+    L1ExtraJets     = cms.VInputTag(
+                                    cms.InputTag("l1extraParticles","Central","RECO"),
+                                    cms.InputTag("l1extraParticles","Forward","RECO"),
+                                    cms.InputTag("l1extraParticles","Tau","RECO")
+                                    ),
+    L1ExtraMuons    = cms.VInputTag(
+                                    cms.InputTag("l1extraParticles","","RECO")
+                                    ),
 )
 
 process.p = cms.Path(
@@ -207,7 +207,8 @@ readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 readFiles.extend( [
-       '/store/mc/RunIIFall15MiniAODv2/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/00000/002253C9-DFB8-E511-8B0A-001A648F1C42.root',
+        '/store/mc/RunIIFall15MiniAODv2/SUSYGluGluToBBHToBB_M-300_TuneCUETP8M1_13TeV-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/00000/0E8B47FB-4EBB-E511-A42E-003048976E04.root',
+        '/store/mc/RunIIFall15MiniAODv2/SUSYGluGluToBBHToBB_M-300_TuneCUETP8M1_13TeV-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/00000/FE6AA0CD-4EBB-E511-9FA2-002590189542.root',
 ] );
 
 

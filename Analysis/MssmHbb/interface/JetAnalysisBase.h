@@ -159,6 +159,7 @@ namespace analysis{
         std::map<std::string,TH2D *>  hCorrections2D_;
         //Signal xsections
         std::map<int,double> xsection_;
+	const std::string defaultInputDir_ = std::string(gSystem->Getenv("CMSSW_BASE"))+"/src/Analysis/MssmHbb/";
 	private:
 
         std::map<std::string,pTFile> fCorrections_;

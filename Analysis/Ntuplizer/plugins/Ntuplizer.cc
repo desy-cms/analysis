@@ -77,7 +77,6 @@
 
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
-#include "JetMETCorrections/Modules/interface/JetResolution.h"
 
 
 #include "Analysis/Ntuplizer/interface/EventFilter.h"
@@ -237,8 +236,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       edm::EDGetTokenT<GenRunInfoProduct> genRunInfoToken_;
            
       edm::EDGetTokenT<std::vector<PileupSummaryInfo> > pileupInfoToken_;      
-      edm::EDGetTokenT<GenEventInfoProduct> genEventInfoToken_;
-      edm::EDGetTokenT<double> Rho_;
+      edm::EDGetTokenT<GenEventInfoProduct> genEventInfoToken_;      
       
       edm::EDGetTokenT<double> fixedGridRhoAllToken_;
 
@@ -350,9 +348,6 @@ Ntuplizer::Ntuplizer(const edm::ParameterSet& config) //:   // initialization of
  
    }
 
-   //Rho for JER
-   Rho_ = consumes<double>(config_.getParameter<edm::InputTag>("Rho"));
-
    
 }
 
@@ -447,7 +442,6 @@ void Ntuplizer::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       // trigger objects
       for ( auto & collection : triggerobjects_collections_ )
          collection -> Fill(event);
-         
 }
 
 
@@ -482,6 +476,7 @@ Ntuplizer::beginJob()
    if ( config_.exists("UseFullName") )
       use_full_name_ = config_.getParameter<bool> ("UseFullName");
 
+   
    edm::Service<TFileService> fs;
    
    TFileDirectory eventsDir = fs -> mkdir("Events");
@@ -526,8 +521,6 @@ Ntuplizer::beginJob()
    // JEC Record (from TXT files)
    std::vector<std::string > jec_files;
    // JEC Record (from CondDB)
-   std::vector<std::string > m_resolutions_files;
-   std::vector<std::string > m_scale_factors_files;
    jecRecords_.clear();
    if ( do_patjets_ && config_.exists("JECRecords") )
    {
@@ -555,7 +548,6 @@ Ntuplizer::beginJob()
       }
       
    }
-
    //
    size_t nPatJets = 0;
    if ( do_patjets_ )
@@ -563,13 +555,7 @@ Ntuplizer::beginJob()
    
    if ( nPatJets > jecRecords_.size() && jecRecords_.size() != 0 )
    {
-      std::cout << "*** ERROR ***  Ntuplizer: Number of JEC Records less than the number of PatJet collections." << std::endl;
-      exit(-1);
-   }
-   
-   if ( nPatJets > jerRecords_.size() && jerRecords_.size() != 0 )
-   {
-      std::cout << "*** ERROR ***  Ntuplizer: Number of JER Records less than the number of PatJet collections." << std::endl;
+      std::cout << "*** ERROR ***  Ntuplizer: Number of JEC Records less than the number of PatJet collections." << std::endl;;
       exit(-1);
    }
    if ( nPatJets > jerRecords_.size() && jerRecords_.size() != 0 )
@@ -584,12 +570,6 @@ Ntuplizer::beginJob()
    }
    
    
-   if ( jerRecords_.size() != 0 && m_resolutions_files.size() != 0 && m_scale_factors_files.size()!=0 &&(jerRecords_.size() != m_resolutions_files.size() || jerRecords_.size() != m_scale_factors_files.size()) )
-   {
-   		std::cerr << "*** ERROR *** Ntuplizer: Number of JER Records are not the same as number of provided input files. " <<std::endl;
-   		exit(-1);
-   }
-
    // Event info tree
    eventinfo_ = pEventInfo (new EventInfo(eventsDir));
    if ( do_pileupinfo_ )
@@ -811,6 +791,7 @@ Ntuplizer::beginJob()
 
          if ( nCounters == 2 ) 		metadata_ -> SetEventFilter(eventCounters_);
          if ( nMHatCounters == 2)	metadata_ -> SetMHatEventFilter(mHatEventCounters_);
+//         std::cout<<nMHatCounters<<std::endl;
       }
       // Pileup Info
 //       if ( inputTag == "PileupInfo" && is_mc_ )

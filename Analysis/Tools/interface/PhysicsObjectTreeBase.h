@@ -35,6 +35,7 @@
 #include "Analysis/Tools/interface/Vertex.h"
 #include "Analysis/Tools/interface/TriggerObject.h"
 #include "Analysis/Tools/interface/GenParticle.h"
+#include "Analysis/Tools/interface/GenJet.h"
 
 //
 // class declaration

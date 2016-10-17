@@ -17,24 +17,24 @@ MssmHbbSignal::MssmHbbSignal(const std::string & inputFilelist,const double & da
 								selectionDoubleB(inputFilelist,dataLumi,lowM,test)
 {
 	nJets_ = 3;
-	if(lowM){
-        btag1_ = 0.8;
-        btagOP1_ = 1;
-        btag2_ = 0.8;
-        btagOP2_ = 1;
-        btag3_ = 0.8;
-        btagOP3_ = 1;
-	}
-	else {
-//        btag3_ = 0.46;
-//        btagOP3_ = 0;
-        btag1_ = 0.8;
-        btagOP1_ = 1;
-        btag2_ = 0.8;
-        btagOP2_ = 1;
-        btag3_ = 0.8;
-        btagOP3_ = 1;
-	}
+        if(lowM){
+                triggerLogicName_ = "HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v";
+                triggerObjectName_ = {"hltL1sL1DoubleJetC100","hltDoubleJetsC100","hltDoublePFJetsC100","hltDoubleBTagCSV0p9","hltDoublePFJetsC100MaxDeta1p6"};
+                pt1_ = 100.; pt2_ = 100.; pt3_ = 40;
+                eta1_ = 2.2; eta2_ = 2.2; eta3_ = 2.2;
+                btag1_ = 0.8; btag2_ = 0.8; btag3_ = 0.8;
+                btagOP1_ = 1; btagOP2_ = 1; btagOP3_ = 1;
+                dR_ = 1; dEta_ = 1.55; mHat_ = 0.7;
+        }
+        else {
+                triggerLogicName_ = "HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v";
+                triggerObjectName_ = {"hltL1sL1DoubleJetC100","hltDoubleJetsC100","hltDoubleBTagCSV0p85","hltDoublePFJetsC160"};
+                pt1_ = 160.; pt2_ = 160.; pt3_ = 40;
+                eta1_ = 2.2; eta2_ = 2.2; eta3_ = 2.2;
+                btag1_ = 0.8; btag2_ = 0.8; btag3_ = 0.8;
+                btagOP1_ = 1; btagOP2_ = 1; btagOP3_ = 1;
+                dR_ = 1; dEta_ = 100.; mHat_ = 0.7;
+        }
 	baseOutputName_ = "MssmHbbSignal";
 }
 

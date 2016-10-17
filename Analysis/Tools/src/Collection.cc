@@ -23,6 +23,7 @@
 #include "Analysis/Tools/interface/Muon.h"
 #include "Analysis/Tools/interface/Vertex.h"
 #include "Analysis/Tools/interface/GenParticle.h"
+#include "Analysis/Tools/interface/GenJet.h"
 
 #include "Analysis/Tools/interface/Collection.h"
 
@@ -295,3 +296,4 @@ template class Collection<Muon>;
 template class Collection<Vertex>;
 template class Collection<TriggerObject>;
 template class Collection<GenParticle>;
+template class Collection<GenJet>;
