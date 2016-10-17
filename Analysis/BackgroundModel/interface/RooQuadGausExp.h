@@ -12,6 +12,7 @@ namespace analysis {
     class RooQuadGausExp : public RooAbsPdf {
     public:
       inline RooQuadGausExp() = default;
+      //RooQuadGausExp() : fValue(-1) {};
       RooQuadGausExp(const char *name, const char *title,
                   RooAbsReal& x,
                   RooAbsReal& mean,

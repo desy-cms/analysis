@@ -36,6 +36,7 @@ using namespace analysis::backgroundmodel;
 //private constructor, for members initialisation
 FitContainer::FitContainer(const std::string& outputDir) :
 		initialized_(false),
+		written_(false),
 		splitrange_(true),
 		outputDir_( outputDir.back() == '/' ?  outputDir : outputDir + "/"),
 		plotDir_(getOutputPath_("plots")),
@@ -77,8 +78,11 @@ FitContainer::FitContainer(const TH1* data, const std::string& outputDir,
 		workspace_.import(bkgContainer);
 	}
 	else if (type == "signal") {
+		data_ = signal_;
 		RooDataHist signalContainer(signal_.c_str(), signal_.c_str(), mbb, data);
 		workspace_.import(signalContainer);
+                RooDataHist dataContainer(signal_.c_str(), signal_.c_str(), mbb, data);
+                workspace_.import(dataContainer);
 	}
 	else if (type == "data") {
 		RooDataHist dataContainer(data_.c_str(), data_.c_str(), mbb, data);
@@ -184,7 +188,7 @@ FitContainer::FitContainer(const TreeContainer& container,
 
 FitContainer::~FitContainer() {
   workspace_.Print("v");
-  workspace_.writeToFile(outRootFileName_.c_str());
+  if(!written_) workspace_.writeToFile(outRootFileName_.c_str());
   TFile out(outRootFileName_.c_str(), "update");
   bkgOnlyFit_.SetDirectory(&out);
   bkgOnlyFit_.Write();
@@ -215,7 +219,6 @@ void FitContainer::initialize() {
   
   // set fit bins
   mbb.setBins(nbins_);
-
   // plot the input data:
   RooAbsData& data = *workspace_.data(data_.c_str());
   std::unique_ptr<RooPlot> frame(mbb.frame());

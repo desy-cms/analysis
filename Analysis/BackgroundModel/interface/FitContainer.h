@@ -79,6 +79,8 @@ namespace analysis {
 
       void profileModel(const Type& type);
       void showModels() const;
+      void Import(const RooAbsArg& inArg);
+      void Write();
 
     private:
 
@@ -108,6 +110,7 @@ namespace analysis {
       // data member
       static const std::string defaultOutputDir_;
       bool initialized_;
+      bool written_;
       bool splitrange_;
       std::string outputDir_;
       std::string plotDir_;
@@ -138,6 +141,9 @@ namespace analysis {
       double eigenVector_[100];
       int nbins_;
     };
+
+    inline void FitContainer::Import(const RooAbsArg& inArg){ workspace_.import(inArg);}
+    inline void FitContainer::Write(){ if(!written_) { workspace_.writeToFile(outRootFileName_.c_str()); written_ = true;}   }
 
   }
 }
