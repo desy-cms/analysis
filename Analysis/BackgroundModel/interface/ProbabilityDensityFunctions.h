@@ -39,6 +39,8 @@
 #include "Analysis/BackgroundModel/interface/RooPhaseSpacePol4.h"
 #include "Analysis/BackgroundModel/interface/RooRelBreitWigner.h"
 #include "Analysis/BackgroundModel/interface/RooQuadGausExp.h"
+#include "Analysis/BackgroundModel/interface/RooMyNovosibirsk.h"
+#include "Analysis/BackgroundModel/interface/RooExtendNovosibirsk.h"
 
 //#include "Analysis/BackgroundModel/interface/FitContainer.h"
 #include "Analysis/BackgroundModel/interface/Tools.h"
@@ -62,8 +64,11 @@ namespace analysis {
 
   	void getNovoEffProd(const std::string& name);
   	void getNovoPSHighMPol4(const std::string& name);
-  	void getNovoPSHighMPol5(const std::string& name);
-  	void getNovoPSHighMPol6(const std::string& name);
+	void getMyNovosibirsk(const std::string& name);
+	void getMyNovoPSProd(const std::string& name);
+	void getExtNovosibirsk(const std::string& name);
+	void getExtNovoPSProd(const std::string& name);
+	void getExtNovoEffProd(const std::string& name);
   	void getCrystalBall(const std::string& name);
   	void getCrystalPSProd(const std::string& name);
   	void getCrystalEffProd(const std::string& name);

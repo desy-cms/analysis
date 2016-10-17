@@ -7,4 +7,6 @@
   <class name="analysis::backgroundmodel::RooPhaseSpacePol4" />
   <class name="analysis::backgroundmodel::RooRelBreitWigner" />
   <class name="analysis::backgroundmodel::RooQuadGausExp" />
+  <class name="analysis::backgroundmodel::RooMyNovosibirsk" />
+  <class name="analysis::backgroundmodel::RooExtendNovosibirsk" />
 </lcgdict>

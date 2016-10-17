@@ -240,7 +240,7 @@ void FitContainer::initialize() {
   bkgOnlyFit_.Branch("covMatrix", covMatrix_, "covMatrix[100]/D");
   bkgOnlyFit_.Branch("eigenVector", eigenVector_, "eigenVector[100]/D");
 
-  for(int i = 0; i < 20; i++)
+  for(int i = 0; i < 100; i++)
   {   	covMatrix_[i] = -100.;
 	eigenVector_[i] = -100.;
   }	
@@ -387,7 +387,8 @@ std::unique_ptr<RooFitResult> FitContainer::FitSignal(const std::string & name) 
 	    latex.SetTextAlign(11);
 	    latex.DrawLatexNDC(pad1->GetLeftMargin(), 1.02-canvas.GetTopMargin(),
 	    //                   "CMS Preliminary #sqrt{s} = 13 TeV, L = 2.69 fb^{-1}");
-	  		     "CMS Preliminary #sqrt{s} = 13 TeV, L = 12.89 fb^{-1}");
+	    //		     "CMS Preliminary #sqrt{s} = 13 TeV, L = 12.89 fb^{-1}");
+			    "CMS Preliminary #sqrt{s} = 13 TeV, L = 20.1 fb^{-1}");
 	    latex.SetTextSize(15);
 	    latex.SetTextAlign(33);
 	    latex.SetTextColor(kBlue+2);
