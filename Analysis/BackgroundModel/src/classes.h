@@ -4,6 +4,8 @@
 #include "Analysis/BackgroundModel/interface/RooExpBWExp.h"
 #include "Analysis/BackgroundModel/interface/RooPhaseSpace.h"
 #include "Analysis/BackgroundModel/interface/RooPhaseSpacePol4.h"
+#include "Analysis/BackgroundModel/interface/RooMyNovosibirsk.h"
+#include "Analysis/BackgroundModel/interface/RooExtendNovosibirsk.h"
 
 
 

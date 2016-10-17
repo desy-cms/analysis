@@ -27,6 +27,8 @@
 #include "Analysis/BackgroundModel/interface/RooExpBWExp.h"
 #include "Analysis/BackgroundModel/interface/RooPhaseSpace.h"
 #include "Analysis/BackgroundModel/interface/RooPhaseSpacePol4.h"
+#include "Analysis/BackgroundModel/interface/RooMyNovosibirsk.h"
+#include "Analysis/BackgroundModel/interface/RooExtendNovosibirsk.h"
 #include "Analysis/BackgroundModel/interface/FitContainer.h"
 #include "Analysis/BackgroundModel/interface/Tools.h"
 
@@ -179,10 +181,10 @@ void FitContainer::initialize() {
   bkgOnlyFit_.Branch("chi2", &chi2BkgOnly_, "chi2/F");
   bkgOnlyFit_.Branch("normChi2", &normChi2BkgOnly_, "normChi2/F");
   bkgOnlyFit_.Branch("ndf", &ndfBkgOnly_, "ndf/I");
-  bkgOnlyFit_.Branch("covMatrix", covMatrix_, "covMatrix[20]/D");
-  bkgOnlyFit_.Branch("eigenVector", eigenVector_, "eigenVector[20]/D"); 
+  bkgOnlyFit_.Branch("covMatrix", covMatrix_, "covMatrix[100]/D");
+  bkgOnlyFit_.Branch("eigenVector", eigenVector_, "eigenVector[100]/D"); 
 
-  for(int i = 0; i < 20; i++)
+  for(int i = 0; i < 100; i++)
   {   	covMatrix_[i] = -100.;
 	eigenVector_[i] = -100.;
   }	
@@ -269,6 +271,11 @@ void FitContainer::setModel(const Type& type, const std::string& name,
   else if (nameSplitted[0] == "novopsprod") setNovoPSProd_(type);		//PS x Novosibirsk (3)
   else if (nameSplitted[0] == "novoeffprod") setNovoEffProd_(type);             //Eff x Novosibirsk (5)
   else if (nameSplitted[0] == "novopshighMpol4") setNovoPSHighMPol4_(type);	//PS x Novosibirsk (3) HighM Poly[4]
+  else if (nameSplitted[0] == "mynovosibirsk") setMyNovosibirsk_(type); 	//My Novosibirsk
+  else if (nameSplitted[0] == "mynovopsprod") setMyNovoPSProd_(type);		//PS x My Novosibirsk
+  else if (nameSplitted[0] == "extnovosibirsk") setExtNovosibirsk_(type);	//Extended Novosibirsk
+  else if (nameSplitted[0] == "extnovopsprod") setExtNovoPSProd_(type);		//PS x Extended Novosibirsk
+  else if (nameSplitted[0] == "extnovoeffprod") setExtNovoEffProd_(type); 	//Eff x Extended Novosibirsk
   else if (nameSplitted[0] == "crystalball") setCrystalBall_(type);
   else if (nameSplitted[0] == "crystalpsprod") setCrystalPSProd_(type);		//PS x CrystalBall (4)
   else if (nameSplitted[0] == "crystaleffprod") setCrystalEffProd_(type);       //Eff x CrystalBall (6)
@@ -447,7 +454,8 @@ std::unique_ptr<RooFitResult> FitContainer::backgroundOnlyFit(const std::string&
   latex.SetTextAlign(11);
   latex.DrawLatexNDC(pad1->GetLeftMargin(), 1.02-canvas.GetTopMargin(),
   //                   "CMS Preliminary #sqrt{s} = 13 TeV, L = 2.69 fb^{-1}");
-		     "CMS Preliminary #sqrt{s} = 13 TeV, L = 12.89 fb^{-1}");
+  //		     "CMS Preliminary #sqrt{s} = 13 TeV, L = 12.89 fb^{-1}");
+		     "CMS Preliminary #sqrt{s} = 13 TeV, L = 20.1 fb^{-1}");
   latex.SetTextSize(15);
   latex.SetTextAlign(33);
   latex.SetTextColor(kBlue+2);
@@ -581,6 +589,9 @@ void FitContainer::setNovoPSProd_(const Type& type) {
   RooRealVar peak("peak_novops", "peak", getPeakStart_(type, 500.0), 50.0, 500.0, "GeV");
   RooRealVar width("width_novops", "width", 50.0, 5.0, mbb.getMax()/2.0, "GeV");
   RooRealVar tail("tail_novops", "tail", -0.1, -1.0, 1.0);
+  //RooRealVar peak("peak_novops", "peak", getPeakStart_(type, 500.0), -1000., 1000., "GeV");
+  //RooRealVar width("width_novops", "width", 50.0, -1000., 1000., "GeV");
+  //RooRealVar tail("tail_novops", "tail", -0.1, -1000., 1000.);
 
   //RooNovosibirsk novo((toString(type)+"_novosibirsk").c_str(),
   RooNovosibirsk novo((toString(type)+"_novops").c_str(),
@@ -589,6 +600,7 @@ void FitContainer::setNovoPSProd_(const Type& type) {
 
   RooFormulaVar phasespace((toString(type)+"_phasespace").c_str(),
 			  "(1.326 / (1 + (2.287e+03 * TMath::Exp(-3.331e-02 * mbb)))) - (1.326-1.)",
+			  //"(1.159 / (1+ (12.228e+03 * TMath::Exp(-3.812e-02 * mbb)))) - (1.159-1.)",
    		      	  RooArgList(mbb));
   RooEffProd novopsprod(toString(type).c_str(),
                         (toString(type)+"_novopsprod").c_str(), novo, phasespace);
@@ -601,6 +613,9 @@ void FitContainer::setNovoEffProd_(const Type& type) {
   RooRealVar peak("peak_novoeff", "peak", getPeakStart_(type, 500.0), 50.0, 500.0, "GeV");
   RooRealVar width("width_novoeff", "width", 50.0, 5.0, mbb.getMax()/2.0, "GeV");
   RooRealVar tail("tail_novoeff", "tail", -0.1, -1.0, 1.0);
+  //RooRealVar peak("peak_novoeff", "peak", getPeakStart_(type, 500.0), -1000., 1000., "GeV");
+  //RooRealVar width("width_novoeff", "width", 50.0, -1000., 1000., "GeV");
+  //RooRealVar tail("tail_novoeff", "tail", -0.1, -1000., 1000.);
 
   RooNovosibirsk novo((toString(type)+"_novoeff").c_str(),
                       (toString(type)+"_novosibirsk").c_str(),
@@ -609,10 +624,14 @@ void FitContainer::setNovoEffProd_(const Type& type) {
   RooRealVar slope_novoeff("slope_novoeff", "slope_novoeff", 0.01, 0.0, 0.1);
   RooRealVar turnon_novoeff("turnon_novoeff", "turnon_novoeff",
                     mbb.getMin()+ 5.0, mbb.getMin(), mbb.getMax());
+  //RooRealVar slope_novoeff("slope_novoeff", "slope_novoeff", 0.01, -1000., 1000.);
+  //RooRealVar turnon_novoeff("turnon_novoeff", "turnon_novoeff", mbb.getMin()+ 5.0, -1000., 1000.);
 
   RooFormulaVar eff((toString(type)+"_novosibirskeff").c_str(),
                     "0.5*(TMath::Erf(slope_novoeff*(mbb-turnon_novoeff)) + 1)",
                     RooArgSet(mbb, slope_novoeff, turnon_novoeff));
+  //		      "0.5*(TMath::Erf(0.0161058*(mbb-244.023)) + 1)",
+  //		      RooArgList(mbb));
 
   RooEffProd novoEffProd(toString(type).c_str(),
                          (toString(type)+"_novoeffprod").c_str(), novo, eff);
@@ -633,8 +652,94 @@ void FitContainer::setNovoPSHighMPol4_(const Type& type) {
 			       (toString(type)+"_phasespace").c_str(),mbb);
 
   RooEffProd novopsprod(toString(type).c_str(),
-                        (toString(type)+"_novopsprod").c_str(), novo, phasespace);
+                       (toString(type)+"_novopsprod").c_str(), novo, phasespace);
   workspace_.import(novopsprod);
+}
+
+
+void FitContainer::setMyNovosibirsk_(const Type& type) {
+  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
+  RooRealVar peak("peak", "peak", getPeakStart_(type, 500.0), 50.0, 500.0, "GeV");
+  RooRealVar width("width", "width", 50.0, 5.0, mbb.getMax()/2.0, "GeV");
+  RooRealVar tail("tail", "tail", -0.1, -1.0, 1.0);
+  RooMyNovosibirsk novo(toString(type).c_str(),
+                      (toString(type)+"_mynovosibirsk").c_str(),
+                      mbb, peak, width, tail);
+  workspace_.import(novo);
+}
+
+
+void FitContainer::setMyNovoPSProd_(const Type& type) {
+  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
+  RooRealVar peak("peak", "peak", getPeakStart_(type, 500.0), 50.0, 500.0, "GeV");
+  RooRealVar width("width", "width", 50.0, 5.0, mbb.getMax()/2.0, "GeV");
+  RooRealVar tail("tail", "tail", -0.1, -1.0, 1.0);
+  RooMyNovosibirsk novo((toString(type)+"_mynovo").c_str(),
+                        (toString(type)+"_mynovosibirsk").c_str(),
+                         mbb, peak, width, tail);
+
+  RooFormulaVar phasespace((toString(type)+"_phasespace").c_str(),
+                          "(1.326 / (1 + (2.287e+03 * TMath::Exp(-3.331e-02 * mbb)))) - (1.326-1.)",
+                          RooArgList(mbb));
+  RooEffProd novopsprod(toString(type).c_str(),
+                       (toString(type)+"_mynovopsprod").c_str(), novo, phasespace);
+  workspace_.import(novopsprod);
+}
+
+
+void FitContainer::setExtNovosibirsk_(const Type& type) {
+  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
+  RooRealVar peak("peak", "peak", getPeakStart_(type, 500.0), 50.0, 500.0, "GeV");
+  RooRealVar width("width", "width", 50.0, 5.0, mbb.getMax()/2.0, "GeV");
+  RooRealVar tail("tail", "tail", -0.1, -1.0, 1.0);
+  RooRealVar par4("par4", "par4", -0.0001, -1.0, 1.0);
+  RooExtendNovosibirsk novo(toString(type).c_str(),
+                      (toString(type)+"_extnovosibirsk").c_str(),
+                      mbb, peak, width, tail, par4);
+  workspace_.import(novo);
+}
+
+
+void FitContainer::setExtNovoPSProd_(const Type& type) {
+  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
+  RooRealVar peak("peak", "peak", getPeakStart_(type, 500.0), 50.0, 500.0, "GeV");
+  RooRealVar width("width", "width", 50.0, 5.0, mbb.getMax()/2.0, "GeV");
+  RooRealVar tail("tail", "tail", -0.1, -1.0, 1.0);
+  RooRealVar par4("par4", "par4", -0.0001, -1.0, 1.0);
+  RooExtendNovosibirsk novo((toString(type)+"_extnovo").c_str(),
+                            (toString(type)+"_extnovosibirsk").c_str(),
+                            mbb, peak, width, tail, par4);
+
+  RooFormulaVar phasespace((toString(type)+"_phasespace").c_str(),
+                          "(1.326 / (1 + (2.287e+03 * TMath::Exp(-3.331e-02 * mbb)))) - (1.326-1.)",
+			  //"(1.159 / (1+ (12.228e+03 * TMath::Exp(-3.812e-02 * mbb)))) - (1.159-1.)",
+                          RooArgList(mbb));
+  RooEffProd novopsprod(toString(type).c_str(),
+                       (toString(type)+"_extnovopsprod").c_str(), novo, phasespace);
+  workspace_.import(novopsprod);
+}
+
+
+void FitContainer::setExtNovoEffProd_(const Type& type) {
+  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
+  RooRealVar peak("peak", "peak", getPeakStart_(type, 500.0), 50.0, 500.0, "GeV");
+  RooRealVar width("width", "width", 50.0, 5.0, mbb.getMax()/2.0, "GeV");
+  RooRealVar tail("tail", "tail", -0.1, -1.0, 1.0);
+  RooRealVar par4("par4", "par4", -0.0001, -1.0, 1.0);
+  RooExtendNovosibirsk novo((toString(type)+"_extnovo").c_str(),
+                            (toString(type)+"_extnovosibirsk").c_str(),
+                            mbb, peak, width, tail, par4);
+
+  RooRealVar slope("slope", "slope", 0.01, 0.0, 0.1);
+  RooRealVar turnon("turnon", "turnon",
+                    mbb.getMin() + 5.0, mbb.getMin(), mbb.getMax());
+  RooFormulaVar eff((toString(type)+"_eff").c_str(),
+                    "0.5*(TMath::Erf(slope*(mbb-turnon)) + 1)",
+                    RooArgSet(mbb, slope, turnon));
+
+  RooEffProd novoEffProd(toString(type).c_str(),
+                        (toString(type)+"_extnovoeffprod").c_str(), novo, eff);
+  workspace_.import(novoEffProd);
 }
 
 
@@ -675,6 +780,10 @@ void FitContainer::setCrystalEffProd_(const Type& type) {
   RooRealVar sigma("sigma_cbeff", "sigma", 35.0, 10.0, 100.0, "GeV");
   RooRealVar alpha("alpha_cbeff", "alpha", -1.0, -0.1);
   RooRealVar n("n_cbeff", "n", 20.0, 3.0, 100.0);
+  //RooRealVar m0("m0_cbeff", "m0", getPeakStart_(type, 500.0), -1000., 1000., "GeV");
+  //RooRealVar sigma("sigma_cbeff", "sigma", 35.0, -1000., 1000., "GeV");
+  //RooRealVar alpha("alpha_cbeff", "alpha", -1.0, -1000., 1000.);
+  //RooRealVar n("n_cbeff", "n", 20.0, -1000., 1000.);
 
   RooCBShape cb((toString(type)+"_cbeff").c_str(),
                 (toString(type)+"_crystalball").c_str(),
@@ -686,6 +795,8 @@ void FitContainer::setCrystalEffProd_(const Type& type) {
   RooFormulaVar eff((toString(type)+"_crystaleff").c_str(),
                     "0.5*(TMath::Erf(slope_cbeff*(mbb-turnon_cbeff)) + 1)",
                     RooArgSet(mbb, slope_cbeff, turnon_cbeff));
+  //		    "0.5*(TMath::Erf(0.0292942*(mbb-230.854)) + 1)",	//get values from the fit 
+  //		    RooArgSet(mbb));
 
   RooEffProd crystalEffprod(toString(type).c_str(),
                             (toString(type)+"_crystaleffprod").c_str(), cb, eff);
@@ -853,6 +964,11 @@ void FitContainer::setBukin_(const Type& type) {
   RooRealVar xi("xi", "xi", 0.0, 0.55);
   RooRealVar rho1("rho1", "rho1", 0.05, -0.1, 0.1); 
   RooRealVar rho2("rho2", "rho2", -0.05, -0.07, 0.045);
+  //RooRealVar Xp("Xp", "Xp", getPeakStart_(type, 350.0), -1000., 1000., "GeV");
+  //RooRealVar sigp("sigp", "sigp", 60., -1000., 1000., "GeV");
+  //RooRealVar xi("xi", "xi", 0.3, -1000., 1000.);
+  //RooRealVar rho1("rho1", "rho1", 0.05, -1000., 1000.);
+  //RooRealVar rho2("rho2", "rho2", -0.05, -1000., 1000.);
   RooBukinPdf bukin(toString(type).c_str(),
                     (toString(type)+"_bukin").c_str(),
                     mbb, Xp, sigp, xi, rho1, rho2);
@@ -1211,10 +1327,14 @@ const std::vector<std::string> FitContainer::availableModels_ =
    "novopsprod",
    "novoeffprod",
    "novopshighMpol4",
+   "mynovosibirsk",
+   "mynovopsprod",
+   "extnovosibirsk",
+   "extnovopsprod",
+   "extnovoeffprod",
    "crystalball",
    "crystalpsprod",
    "crystaleffprod",
-   "cbeffprod",
    "expeffprod",
    "doublecb",
    "dijetv1",
