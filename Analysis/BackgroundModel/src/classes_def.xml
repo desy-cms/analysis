@@ -5,4 +5,6 @@
   <class name="analysis::backgroundmodel::RooExpBWExp" />
   <class name="analysis::backgroundmodel::RooPhaseSpace" />
   <class name="analysis::backgroundmodel::RooPhaseSpacePol4" />
+  <class name="analysis::backgroundmodel::RooMyNovosibirsk" />
+  <class name="analysis::backgroundmodel::RooExtendNovosibirsk" />
 </lcgdict>
