@@ -31,8 +31,6 @@ using namespace analysis::mssmhbb;
 // constructors and destructor
 //
 
-const bool findStrings(const std::string & input, const std::string & needful);
-
 MssmHbb::MssmHbb(const std::string & inputFilelist, const std::string & evtinfo) : Analysis(inputFilelist,evtinfo), BasicTree(this->isMC())
 {
 	if(this->isMC()){
@@ -48,7 +46,7 @@ MssmHbb::MssmHbb(const std::string & inputFilelist, const std::string & evtinfo)
 		this->addTree<Jet> ("Jets","MssmHbb/Events/slimmedJetsPuppi");
 	}
 	else {
-		this->addTree<Jet> ("Jets","MssmHbb/Events/slimmedJetsPuppiReapplyJEC");
+		this->addTree<Jet> ("Jets","MssmHbb/Events/slimmedJetsReapplyJEC");
 	}
 	this->triggerResults("MssmHbb/Events/TriggerResults");
 	// Tree for Vertices
@@ -359,24 +357,4 @@ int MssmHbb::returnMassPoint() const {
         Mpoint = std::stoi(MpointString);
         return Mpoint;
 }
-
-const bool findStrings(const std::string & input, const std::string & needful){
-        std::string input1 = input;
-        std::string input2 = needful;
-        std::transform(input1.begin(),input1.end(),input1.begin(),tolower);
-        std::transform(input2.begin(),input2.end(),input2.begin(),tolower);
-        if(input1.find(input2) != std::string::npos) return true;
-        else return false;
-}
-
-
-
-
-
-
-
-
-
-
-
 

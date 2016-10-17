@@ -29,7 +29,7 @@
 
 #include "Analysis/Tools/interface/Analysis.h"
 #include "Analysis/MssmHbb/interface/BasicTree.h"
-
+#include "Analysis/MssmHbb/interface/utilLib.h"
 //Macros that provide information about the current CMSSW version
 #define CMSSW std::string(PROJECT_VERSION)
 
@@ -97,8 +97,6 @@ namespace analysis {
            const double & BTag1Cut();
            const double & BTag2Cut();
            const double & BTag3Cut();
-           bool signalMC_;
-           int Mpoint__;
 
            void setSignalMc(bool signalMc);
            //void setRun2016(bool Run2016);
@@ -124,6 +122,8 @@ namespace analysis {
            double btag1_cut__;
            double btag2_cut__;
            double btag3_cut__;
+           bool signalMC_;
+           int Mpoint__;
 
            double factorizationPtWeight1D(const double &);
            double dEtaWeight(const double &);
@@ -175,6 +175,9 @@ namespace analysis {
       inline const double & MssmHbb::BTag3Cut(){ return btag3_cut__;}
 
       inline const bool & MssmHbb::getLowMSelection(){ return lowMSelection_;}
+
+
+
 
    }
 }
