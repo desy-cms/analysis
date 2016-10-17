@@ -78,12 +78,14 @@ namespace analysis {
       void setNovoPSProd_(const Type& type);		//by CA
       void setNovoEffProd_(const Type& type);
       void setNovoPSHighMPol4_(const Type& type);	//by CA
-      void setNovoPSHighMPol5_(const Type& type);	//by CA
-      void setNovoPSHighMPol6_(const Type& type); 	//by CA
+      void setMyNovosibirsk_(const Type& type);		//by CA
+      void setMyNovoPSProd_(const Type& type); 		//by CA
+      void setExtNovosibirsk_(const Type& type);	//by CA
+      void setExtNovoPSProd_(const Type& type); 	//by CA
+      void setExtNovoEffProd_(const Type& type);  	//by CA
       void setCrystalBall_(const Type& type);
       void setCrystalPSProd_(const Type& type); 	//by CA
       void setCrystalEffProd_(const Type& type);        //by CA
-      //void setCBEffProd_(const Type& type);
       void setExpEffProd_(const Type& type);
       void setDoubleCB_(const Type& type);
       void setDijetv1_(const Type& type);		//by CA
@@ -149,8 +151,8 @@ namespace analysis {
       float chi2BkgOnly_;
       float normChi2BkgOnly_;
       int ndfBkgOnly_;
-      double covMatrix_[20];
-      double eigenVector_[20];	
+      double covMatrix_[100];
+      double eigenVector_[100];	
     };
 
   }
