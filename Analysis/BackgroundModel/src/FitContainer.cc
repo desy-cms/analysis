@@ -27,100 +27,156 @@
 #include "Analysis/BackgroundModel/interface/RooExpBWExp.h"
 #include "Analysis/BackgroundModel/interface/RooPhaseSpace.h"
 #include "Analysis/BackgroundModel/interface/RooPhaseSpacePol4.h"
-#include "Analysis/BackgroundModel/interface/RooMyNovosibirsk.h"
-#include "Analysis/BackgroundModel/interface/RooExtendNovosibirsk.h"
 #include "Analysis/BackgroundModel/interface/FitContainer.h"
 #include "Analysis/BackgroundModel/interface/Tools.h"
 
 
 using namespace analysis::backgroundmodel;
 
-//FitContainer::FitContainer(const TH1& data, const TH1& signal, const TH1& bkg,
-//			   const std::string& outputDir) :
-FitContainer::FitContainer(const TH1& data, const std::string& outputDir) :
-  initialized_(false),
-  splitrange_(true),
-  outputDir_(outputDir+"/"),
-  plotDir_(getOutputPath_("plots")),
-  workspaceDir_(getOutputPath_("workspace")),
-  fullRangeId_("full_range"),
-  fitRangeId_("fit_range"),
-  fitRangeLowId_("fit_range_low"),
-  fitRangeHighId_("fit_range_high"),
-  fitSplRangeId_("fit_range_low,fit_range_high"),
-  blind_lowEdge_(650.),
-  blind_highEdge_(650.),
-  verbosity_(1),
-  workspace_(RooWorkspace("workspace")),
-  outRootFileName_(getOutputPath_("workspace")+"workspace.root"),
-  mbb_("mbb"),
-  data_("data_container"),
-  //signal_("signal_container"),
-  //bkg_("background_container"),
-  bkgOnlyFit_("fit_b", "fit_b"),
-  chi2BkgOnly_(-10000.0),
-  normChi2BkgOnly_(-10000.0),
-  ndfBkgOnly_(-10000) {
-  RooRealVar mbb(mbb_.c_str(), "M_{12}",
-                 data.GetXaxis()->GetXmin(), data.GetXaxis()->GetXmax(), "GeV");
-  fitRangeMin_ = mbb.getMin();
-  fitRangeMax_ = mbb.getMax();
-  workspace_.import(mbb);
+//private constructor, for members initialisation
+FitContainer::FitContainer(const std::string& outputDir) :
+		initialized_(false),
+		written_(false),
+		splitrange_(true),
+		outputDir_( outputDir.back() == '/' ?  outputDir : outputDir + "/"),
+		plotDir_(getOutputPath_("plots")),
+		workspaceDir_(getOutputPath_("workspace")),
+		fullRangeId_("full_range"),
+		fitRangeId_("fit_range"),
+		fitRangeLowId_("fit_range_low"),
+		fitRangeHighId_("fit_range_high"),
+		fitSplRangeId_("fit_range_low,fit_range_high"),
+		blind_lowEdge_(650.),
+		blind_highEdge_(650.),
+		verbosity_(1),
+		workspace_(RooWorkspace("workspace")),
+		outRootFileName_(getOutputPath_("workspace")+"workspace.root"),
+		mbb_("mbb"),
+		weight_("weight"),
+		data_("data_container"),
+		signal_("signal_container"),
+		bkg_("background_container"),
+		bkgOnlyFit_("fit_b", "fit_b"),
+		chi2BkgOnly_(-10000.0),
+		normChi2BkgOnly_(-10000.0),
+		ndfBkgOnly_(-10000),
+		nbins_(73)
+{}
 
-  // Name and title of the dataset MUST be identical (see initialize() method).
-  RooDataHist dataContainer(data_.c_str(), data_.c_str(), mbb, &data);
-  //RooDataHist signalContainer(signal_.c_str(), signal_.c_str(), mbb, &signal);
-  //RooDataHist bkgContainer(bkg_.c_str(), bkg_.c_str(), mbb, &bkg);
-  workspace_.import(dataContainer);
-  //workspace_.import(signalContainer);
-  //workspace_.import(bkgContainer);
+
+FitContainer::FitContainer(const TH1* data, const std::string& outputDir,
+		const std::string & type) : FitContainer(outputDir)
+{
+	RooRealVar mbb(mbb_.c_str(), "M_{12}",
+                 data->GetXaxis()->GetXmin(), data->GetXaxis()->GetXmax(), "GeV");
+	fitRangeMin_ = mbb.getMin();
+	fitRangeMax_ = mbb.getMax();
+	workspace_.import(mbb);
+	nbins_ = data->GetNbinsX();
+	if(type == "background") {
+		RooDataHist bkgContainer(bkg_.c_str(), bkg_.c_str(), mbb, data);
+		workspace_.import(bkgContainer);
+	}
+	else if (type == "signal") {
+		data_ = signal_;
+		RooDataHist signalContainer(signal_.c_str(), signal_.c_str(), mbb, data);
+		workspace_.import(signalContainer);
+                RooDataHist dataContainer(signal_.c_str(), signal_.c_str(), mbb, data);
+                workspace_.import(dataContainer);
+	}
+	else if (type == "data") {
+		RooDataHist dataContainer(data_.c_str(), data_.c_str(), mbb, data);
+		workspace_.import(dataContainer);
+	}
+	else {
+		std::cerr<<"Wrong type were provided to FitContainer::FitContainer. Possible types are: signal / background / data"<<std::endl;
+		exit(-1);
+	}
 }
 
+FitContainer::FitContainer(const TH1* data, const TH1* signal, const TH1* bkg,
+			   const std::string& outputDir) : FitContainer(outputDir)
+ {
+	double xmin, xmax;
+	if(data) {
+		xmin = data->GetXaxis()->GetXmin();
+		xmax = data->GetXaxis()->GetXmax();
+		nbins_ = data->GetNbinsX();
+	}
+	else if (signal){
+		xmin = signal->GetXaxis()->GetXmin();
+		xmax = signal->GetXaxis()->GetXmax();
+		nbins_ = signal->GetNbinsX();
+	}
+	else if (bkg){
+		xmin = bkg->GetXaxis()->GetXmin();
+		xmax = bkg->GetXaxis()->GetXmax();
+		nbins_ = bkg->GetNbinsX();
+	}
+	else {
+		std::cerr<<"Empty HistContainer was provided to FitContainer::FitContainer"<<std::endl;
+		exit(-1);
+	}
+	RooRealVar mbb(mbb_.c_str(), "M_{12}",
+                 xmin, xmax, "GeV");
+	fitRangeMin_ = mbb.getMin();
+	fitRangeMax_ = mbb.getMax();
+	workspace_.import(mbb);
+
+	// Name and title of the dataset MUST be identical (see initialize() method).
+	if (data && signal && bkg){
+		RooDataHist dataContainer(data_.c_str(), data_.c_str(), mbb, data);
+		workspace_.import(dataContainer);
+		RooDataHist signalContainer(signal_.c_str(), signal_.c_str(), mbb, signal);
+		workspace_.import(signalContainer);
+		RooDataHist bkgContainer(bkg_.c_str(), bkg_.c_str(), mbb, bkg);
+		workspace_.import(bkgContainer);
+	}
+	else if(data) 	{
+		RooDataHist dataContainer(data_.c_str(), data_.c_str(), mbb, data);
+		workspace_.import(dataContainer);
+	}
+	else if(signal) 	{
+		data_ = signal_;
+		RooDataHist signalContainer(signal_.c_str(), signal_.c_str(), mbb, signal);
+		workspace_.import(signalContainer);
+		RooDataHist dataContainer(signal_.c_str(), signal_.c_str(), mbb, signal);
+		workspace_.import(dataContainer);
+	}
+	else if(bkg) 	{
+		data_ = bkg_;
+		RooDataHist bkgContainer(bkg_.c_str(), bkg_.c_str(), mbb, bkg);
+		workspace_.import(bkgContainer);
+		RooDataHist dataContainer(bkg_.c_str(), bkg_.c_str(), mbb, bkg);
+		workspace_.import(dataContainer);
+	}
+
+
+
+
+}
 
 FitContainer::FitContainer(const HistContainer& container,
-			   const std::string& outputDir) :
-//  FitContainer(*container.data(), *container.bbH(), *container.background(),
-//	       outputDir) {
-  FitContainer(*container.data(), outputDir) {
-}
+			   const std::string& outputDir) : FitContainer(container.data().get(), container.bbH().get(), container.background().get(),
+				       outputDir)   {}
 
-
-FitContainer::FitContainer(TTree& data, const std::string& outputDir) :
-  initialized_(false),
-  splitrange_(true),
-  outputDir_(outputDir+"/"),
-  plotDir_(getOutputPath_("plots")),
-  workspaceDir_(getOutputPath_("workspace")),
-  fullRangeId_("full_range"),
-  fitRangeId_("fit_range"),
-  fitRangeLowId_("fit_range_low"),
-  fitRangeHighId_("fit_range_high"),
-  fitSplRangeId_("fit_range_low,fit_range_high"), 
-  blind_lowEdge_(650.),
-  blind_highEdge_(650.),
-  verbosity_(1),
-  workspace_(RooWorkspace("workspace")),
-  outRootFileName_(getOutputPath_("workspace")+"workspace.root"),
-  mbb_("mbb"),
-  weight_("weight"),
-  data_("data_container"),
-  bkgOnlyFit_("fit_b", "fit_b"),
-  chi2BkgOnly_(-10000.0),
-  normChi2BkgOnly_(-10000.0),
-  ndfBkgOnly_(-10000) {
-  RooRealVar mbb(mbb_.c_str(), "M_{12}",
+FitContainer::FitContainer(TTree& data, const std::string& outputDir) : FitContainer(outputDir)
+ {
+	bkg_ = "";
+	signal_ = "";
+	RooRealVar mbb(mbb_.c_str(), "M_{12}",
                  0.0, data.GetMaximum(mbb_.c_str()), "GeV");
-  fitRangeMin_ = mbb.getMin();
-  fitRangeMax_ = mbb.getMax();
-  RooRealVar weight(weight_.c_str(), "weight", 0.0, 1000.0);
-  workspace_.import(mbb);
-  workspace_.import(weight);
+	fitRangeMin_ = mbb.getMin();
+	fitRangeMax_ = mbb.getMax();
+	RooRealVar weight(weight_.c_str(), "weight", 0.0, 1000.0);
+	workspace_.import(mbb);
+	workspace_.import(weight);
 
-  // Name and title of the dataset MUST be identical (see initialize() method).
-  RooDataSet dataContainer(data_.c_str(), data_.c_str(), RooArgSet(mbb, weight),
+	// Name and title of the dataset MUST be identical (see initialize() method).
+	RooDataSet dataContainer(data_.c_str(), data_.c_str(), RooArgSet(mbb, weight),
                            RooFit::Import(data),
                            RooFit::WeightVar(weight_.c_str()));
-  workspace_.import(dataContainer);
+	workspace_.import(dataContainer);
 }
 
 
@@ -131,8 +187,8 @@ FitContainer::FitContainer(const TreeContainer& container,
 
 
 FitContainer::~FitContainer() {
-  workspace_.Print();
-  workspace_.writeToFile(outRootFileName_.c_str());
+  workspace_.Print("v");
+  if(!written_) workspace_.writeToFile(outRootFileName_.c_str());
   TFile out(outRootFileName_.c_str(), "update");
   bkgOnlyFit_.SetDirectory(&out);
   bkgOnlyFit_.Write();
@@ -162,8 +218,7 @@ void FitContainer::initialize() {
   mbb.setRange(fitRangeHighId_.c_str(), blind_highEdge_, fitRangeMax_);
   
   // set fit bins
-  mbb.setBins(73);
-
+  mbb.setBins(nbins_);
   // plot the input data:
   RooAbsData& data = *workspace_.data(data_.c_str());
   std::unique_ptr<RooPlot> frame(mbb.frame());
@@ -175,55 +230,22 @@ void FitContainer::initialize() {
   frame->Draw();
   canvas.SaveAs((plotDir_+"input_data.pdf").c_str());
   canvas.SetLogy();
+  if(frame->GetMinimum() == 0) frame->SetMinimum(0.01);
+  frame->Draw();
   canvas.SaveAs((plotDir_+"input_data_log.pdf").c_str());
-
   // initialize background-only fit result tree:
   bkgOnlyFit_.Branch("chi2", &chi2BkgOnly_, "chi2/F");
   bkgOnlyFit_.Branch("normChi2", &normChi2BkgOnly_, "normChi2/F");
   bkgOnlyFit_.Branch("ndf", &ndfBkgOnly_, "ndf/I");
   bkgOnlyFit_.Branch("covMatrix", covMatrix_, "covMatrix[100]/D");
-  bkgOnlyFit_.Branch("eigenVector", eigenVector_, "eigenVector[100]/D"); 
+  bkgOnlyFit_.Branch("eigenVector", eigenVector_, "eigenVector[100]/D");
 
   for(int i = 0; i < 100; i++)
   {   	covMatrix_[i] = -100.;
 	eigenVector_[i] = -100.;
   }	
-
   initialized_ = true;
 }
-
-
-FitContainer& FitContainer::verbosity(int level) {
-  verbosity_ = level;
-  return *this;
-}
-
-
-FitContainer& FitContainer::fitRangeMin(float min) {
-  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  fitRangeMin_ = min;
-  mbb.setMin(min);
-  mbb.setRange(fullRangeId_.c_str(), mbb.getMin(), mbb.getMax());
-  mbb.setRange(fitRangeId_.c_str(), fitRangeMin_, fitRangeMax_);
-  mbb.setRange(fitRangeLowId_.c_str(), fitRangeMin_, blind_lowEdge_);
-  mbb.setRange(fitRangeHighId_.c_str(), blind_highEdge_, fitRangeMax_);
-
-  return *this;
-}
-
-
-FitContainer& FitContainer::fitRangeMax(float max) {
-  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  fitRangeMax_ = max;
-  mbb.setMax(max);
-  mbb.setRange(fullRangeId_.c_str(), mbb.getMin(), mbb.getMax());
-  mbb.setRange(fitRangeId_.c_str(), fitRangeMin_, fitRangeMax_);
-  mbb.setRange(fitRangeLowId_.c_str(), fitRangeMin_, blind_lowEdge_);
-  mbb.setRange(fitRangeHighId_.c_str(), blind_highEdge_, fitRangeMax_);
-
-  return *this;
-}
-
 
 void FitContainer::setModel(const Type& type, const std::string& name) {
   const std::vector<ParamModifier> modifiers; // empty modifier list
@@ -235,76 +257,186 @@ void FitContainer::setModel(const Type& type, const std::string& name,
                             const std::vector<ParamModifier>& modifiers) {
   if (!initialized_) initialize();
 
-  if (workspace_.allPdfs().find(toString(type).c_str())) {
-    std::stringstream msg;
-    msg << "Model for " << toString(type) << " has already been set!";
-    throw std::runtime_error(msg.str());
-  }
-
-  int numCoeffs = defaultNumberOfCoefficients_;
-  std::vector<std::string> nameSplitted;
-  boost::split(nameSplitted, name, boost::is_any_of(","));
-  switch (nameSplitted.size()) {
-  case 1: break;
-  case 2:
-    try {
-      numCoeffs = std::stoi(nameSplitted[1]);
-    } catch (const std::invalid_argument& ex) {
-      if (std::string(ex.what()) == "stoi") {
-        std::cerr << "Conversion of '" << nameSplitted[1]
-                  << "' to an integral value for the number of coefficients "
-                  << "failed. Using the default value of " << numCoeffs << "."
-                  << std::endl;
-      } else {
-        throw;
-      }
-    }
-    break;
-  default:
-    std::stringstream msg;
-    msg << "Unsupported number of arguments for fit model: "
-        << nameSplitted.size();
-    throw std::runtime_error(msg.str());
-  }
-
-  if (nameSplitted[0] == "novosibirsk") setNovosibirsk_(type);			//Novosibirsk (3)
-  else if (nameSplitted[0] == "novopsprod") setNovoPSProd_(type);		//PS x Novosibirsk (3)
-  else if (nameSplitted[0] == "novoeffprod") setNovoEffProd_(type);             //Eff x Novosibirsk (5)
-  else if (nameSplitted[0] == "novopshighMpol4") setNovoPSHighMPol4_(type);	//PS x Novosibirsk (3) HighM Poly[4]
-  else if (nameSplitted[0] == "mynovosibirsk") setMyNovosibirsk_(type); 	//My Novosibirsk
-  else if (nameSplitted[0] == "mynovopsprod") setMyNovoPSProd_(type);		//PS x My Novosibirsk
-  else if (nameSplitted[0] == "extnovosibirsk") setExtNovosibirsk_(type);	//Extended Novosibirsk
-  else if (nameSplitted[0] == "extnovopsprod") setExtNovoPSProd_(type);		//PS x Extended Novosibirsk
-  else if (nameSplitted[0] == "extnovoeffprod") setExtNovoEffProd_(type); 	//Eff x Extended Novosibirsk
-  else if (nameSplitted[0] == "crystalball") setCrystalBall_(type);
-  else if (nameSplitted[0] == "crystalpsprod") setCrystalPSProd_(type);		//PS x CrystalBall (4)
-  else if (nameSplitted[0] == "crystaleffprod") setCrystalEffProd_(type);       //Eff x CrystalBall (6)
-  else if (nameSplitted[0] == "expeffprod") setExpEffProd_(type);
-  else if (nameSplitted[0] == "doublecb") setDoubleCB_(type);
-  else if (nameSplitted[0] == "dijetv1") setDijetv1_(type);                     //Dijet (EXO-16-020) (3)
-  else if (nameSplitted[0] == "dijetv1psprod") setDijetv1PSProd_(type);         //PS x Dijet (3)
-  else if (nameSplitted[0] == "dijetv2") setDijetv2_(type); 			//Dijet X(750) (3)
-  else if (nameSplitted[0] == "dijetv2psprod") setDijetv2PSProd_(type);		//PS x Dijet (3)
-  else if (nameSplitted[0] == "expgausexp") setExpGausExp_(type);
-  else if (nameSplitted[0] == "gausexp") setGausExp_(type);
-  else if (nameSplitted[0] == "gausexppsprod") setGausExpPSProd_(type);		//PS x GausExp (3)
-  else if (nameSplitted[0] == "expbwexp") setExpBWExp_(type);
-  else if (nameSplitted[0] == "bukin") setBukin_(type);
-  else if (nameSplitted[0] == "bukinpsprod") setBukinPSProd_(type);		//PS x Bukin (5)
-  else if (nameSplitted[0] == "bernstein") setBernstein_(type, numCoeffs);
-  else if (nameSplitted[0] == "chebychev") setChebychev_(type, numCoeffs);
-  else if (nameSplitted[0] == "berneffprod") setBernEffProd_(type, numCoeffs);
-  else if (nameSplitted[0] == "bernpsprod") setBernPSProd_(type, numCoeffs);
-  else if (nameSplitted[0] == "chebeffprod") setChebEffProd_(type, numCoeffs);
-  else {
-    std::stringstream msg;
-    msg << "Model '" << name
-        << "' not implemented! Choose one of the following: "
-        << boost::algorithm::join(availableModels_, ", ");
-    throw std::runtime_error(msg.str());
-  }
+  ProbabilityDensityFunctions pdfs(workspace_,mbb_.c_str());
+//  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
+  double peak_pos = getPeakStart_(type,500);
+  pdfs.setPeakStart(peak_pos);
+  pdfs.setPdf(name,toString(type));
 
   applyModifiers_(*(workspace_.pdf(toString(type).c_str())), modifiers);
+}
+
+std::unique_ptr<RooFitResult> FitContainer::FitSignal(const std::string & name) {
+	if(!initialized_) initialize();
+
+	RooAbsPdf& Pdf = *(workspace_.pdf(toString(Type::signal).c_str()));
+	if(&Pdf == nullptr){
+		throw std::logic_error("No signal model has been set.");
+	}
+	RooAbsData &signal = *workspace_.data(signal_.c_str());
+	RooRealVar& mbb = *workspace_.var(mbb_.c_str());
+
+	// Split Range for blinded data and perform simultaneous fit by CA
+	std::unique_ptr<RooFitResult> fitResult(Pdf.fitTo(signal,
+//			RooFit::NumCPU(9),
+			RooFit::Save(),
+			RooFit::PrintLevel(verbosity_),
+//			RooFit::Range(fitSplRangeId_.c_str()),
+			RooFit::SumW2Error(kTRUE),
+//			RooFit::SplitRange()
+//			RooFit::Minimizer("Minuit2"),
+			RooFit::InitialHesse(kTRUE)
+//			RooFit::Minos(kTRUE)
+	));
+
+	  std::cout << "\nconstant parameters:" << std::endl;
+	  fitResult->constPars().Print("v");
+	  std::cout << "\nfloating parameters (init):" << std::endl;
+	  fitResult->floatParsInit().Print("v");
+	  std::cout << "\nfloating parameters (final):" << std::endl;
+	  fitResult->floatParsFinal().Print("v");
+	  std::cout<<"NAME: "<<name<<std::endl;
+
+	  // Top frame
+	  std::unique_ptr<RooPlot> frame(mbb.frame());
+	  signal.plotOn(frame.get(), RooFit::MarkerSize(0.8), RooFit::Name("data_points"));
+	  Pdf.plotOn(frame.get(),
+	  	     //RooFit::VisualizeError(*fitResult,1,kFALSE),
+	               //RooFit::DrawOption("L"),
+	               RooFit::LineColor(kRed),
+	               //RooFit::LineWidth(2),
+	  	     //RooFit::LineStyle(kDashed),
+	  	     //RooFit::FillColor(kOrange),
+	               RooFit::Name("signal_curve"),
+	               RooFit::NormRange(fullRangeId_.c_str()),
+	               RooFit::Range(fitRangeId_.c_str()),
+	               RooFit::Normalization(signal.sumEntries("1", fitRangeId_.c_str()),
+	                                     RooAbsReal::NumEvent));
+
+	    int nPars = fitResult->floatParsFinal().getSize();
+
+	    // Get Covariance Matrix for diagonalisation
+	    TMatrixDSymEigen CM = fitResult->covarianceMatrix();
+	    TMatrixD covVec = CM.GetEigenVectors();
+	    TMatrixD covMat = fitResult->covarianceMatrix();
+	    covMat.GetMatrix2Array(covMatrix_);
+	    covVec.GetMatrix2Array(eigenVector_);
+
+	    ////////////////////////////////////////////////////////////////////////////////
+	    //////////////////////// ChiSquare by Roofit ///////////////////////////////////
+	    ////////////////////////////////////////////////////////////////////////////////
+	    ndfBkgOnly_ = getNonZeroBins_(signal) - nPars;
+	    normChi2BkgOnly_ = frame->chiSquare("signal_curve", "data_points", nPars); //chi^2 from RooFit (RooPlot::chiSquare())
+	    std::cout<<"ROOFIT: Chi^2/Ndf = "<<normChi2BkgOnly_<<std::endl;
+	    //chi2BkgOnly_ = normChi2BkgOnly_ * ndfBkgOnly_;
+	    //bkgOnlyFit_.Fill();
+
+
+	    ////////////////////////////////////////////////////////////////////////////////
+	    ////////////////////////ChiSquare by Chayanit///////////////////////////////////
+	    ////////////////////////////////////////////////////////////////////////////////
+//	    else {
+	    ndfBkgOnly_ = getNonZeroBins_(signal) - nPars - getBlindedBins_(signal,blind_lowEdge_,blind_highEdge_); // excluded blinded region
+	    normChi2BkgOnly_ = chiSquare_CA(*frame, "signal_curve", "data_points", nPars, blind_lowEdge_, blind_highEdge_);
+	  	chi2BkgOnly_ = normChi2BkgOnly_ * ndfBkgOnly_;
+	  	bkgOnlyFit_.Fill();
+//	    }
+	    std::string chi2str(Form("%.1f/%d = %.1f", chi2BkgOnly_,
+	  		 	   ndfBkgOnly_, normChi2BkgOnly_));
+	    std::cout << "\nNormalized chi^2: " << chi2str << std::endl;
+
+	    // TMath::Prob p-value by CA
+	    double prob = TMath::Prob(chi2BkgOnly_,ndfBkgOnly_);
+	    std::string probstr(Form("%.2f", prob));
+	    std::cout << "\nTMath::Prob(#chi^{2}_{RooFit},ndf) : " << probstr << std::endl;
+
+	    // Bottom frame
+	    RooHist* hpull;
+	    hpull = frame->pullHist();
+	    hpull->SetMarkerSize(0.8);	//0.8 for lowM
+	    std::unique_ptr<RooPlot> frame2(mbb.frame());
+	    frame2->addPlotable(hpull,"P");
+	    //frame2->addObject(frame->pullHist());
+
+	    //TCanvas canvas("canvas", "", 600, 600);
+	    TCanvas canvas;
+	    canvas.SetCanvasSize(500,500);
+	    canvas.cd();
+	    //prepareCanvas_(canvas);
+	    prepareFrame_(*frame);
+	    prepareFrame_(*frame2);
+
+	    TPad* pad1;
+	    pad1 = new TPad("pad1","",0,0.1,1,1);
+	    pad1->SetBottomMargin(0.2);
+	    pad1->SetRightMargin(0.05);
+	    pad1->SetLeftMargin(0.16);
+	    pad1->Draw();
+	    pad1->cd();
+	    frame->GetXaxis()->SetTitleOffset(999); //Effectively turn off x axis title on main plot
+	    frame->GetXaxis()->SetLabelOffset(999); //Effectively turn off x axis label on main plot
+	    frame->GetYaxis()->SetTitleSize(0.038);
+	    frame->GetYaxis()->SetTitleOffset(1.6);
+	    frame->GetYaxis()->SetLabelSize(0.033);
+	    //frame->GetYaxis()->SetRangeUser(frame->GetMinimum(), frame->GetMaximum()+200);
+	    frame->Draw();
+
+	    TLatex latex;
+	    latex.SetTextFont(43);
+	    latex.SetTextSize(17);
+	    latex.SetTextAlign(11);
+	    latex.DrawLatexNDC(pad1->GetLeftMargin(), 1.02-canvas.GetTopMargin(),
+	    //                   "CMS Preliminary #sqrt{s} = 13 TeV, L = 2.69 fb^{-1}");
+	    //		     "CMS Preliminary #sqrt{s} = 13 TeV, L = 12.89 fb^{-1}");
+			    "CMS Preliminary #sqrt{s} = 13 TeV, L = 20.1 fb^{-1}");
+	    latex.SetTextSize(15);
+	    latex.SetTextAlign(33);
+	    latex.SetTextColor(kBlue+2);
+	    latex.DrawLatexNDC(0.98-pad1->GetRightMargin(), 0.98-pad1->GetTopMargin(),
+	                       (std::string("#chi^{2}_{RooFit}/ndf = ")+chi2str).c_str());
+	    latex.SetTextColor(kGreen+2);
+	    latex.DrawLatexNDC(0.98-pad1->GetRightMargin(), 0.93-pad1->GetTopMargin(),
+	    		       (std::string("p-value = ")+probstr).c_str());
+	    latex.SetTextColor(kOrange+2);
+	    std::string minstr(Form("%.0f", fitRangeMin_));
+	    std::string maxstr(Form("%.0f", fitRangeMax_));
+	    latex.DrawLatexNDC(0.98-pad1->GetRightMargin(), 0.88-pad1->GetTopMargin(),
+	    		       (minstr+std::string(" < M_{12} < ")+maxstr).c_str());
+
+	    canvas.cd();
+	    TPad *pad2 = new TPad("pad2","",0,0.0,1,0.265);
+	    pad2->SetTopMargin(1);
+	    pad2->SetBottomMargin(0.33);
+	    pad2->SetLeftMargin(pad1->GetLeftMargin());
+	    pad2->SetRightMargin(pad1->GetRightMargin());
+	    pad2->SetGridy();
+	    pad2->Draw();
+	    pad2->cd();
+	    frame2->SetTitle("");
+	    frame2->GetXaxis()->SetTitleSize(0.15);
+	    frame2->GetXaxis()->SetTitleOffset(0.9);
+	    frame2->GetXaxis()->SetLabelSize(0.115);
+	    frame2->GetXaxis()->SetLabelOffset(0.010);
+	    frame2->SetYTitle("Pulls");
+	    frame2->GetYaxis()->CenterTitle(kTRUE);
+	    frame2->GetYaxis()->SetTitleSize(0.14);
+	    frame2->GetYaxis()->SetTitleOffset(0.4);
+	    frame2->GetYaxis()->SetNdivisions(3,5,0);
+	    frame2->GetYaxis()->SetLabelSize(0.115);
+	    frame2->GetYaxis()->SetLabelOffset(0.011);
+	    frame2->SetMinimum(-5.);
+	    frame2->SetMaximum(+5.);
+	    frame2->Draw();
+
+	    canvas.SaveAs((plotDir_+name+"_lowM_linear.pdf").c_str());
+	    pad1->SetLogy();
+	    frame->GetYaxis()->SetRangeUser(0.001, frame->GetMaximum()*5);
+	    canvas.Modified();
+	    canvas.Update();
+	    canvas.SaveAs((plotDir_+name+"_lowM_log.pdf").c_str());
+
+	    return fitResult;
+
 }
 
 
@@ -454,8 +586,7 @@ std::unique_ptr<RooFitResult> FitContainer::backgroundOnlyFit(const std::string&
   latex.SetTextAlign(11);
   latex.DrawLatexNDC(pad1->GetLeftMargin(), 1.02-canvas.GetTopMargin(),
   //                   "CMS Preliminary #sqrt{s} = 13 TeV, L = 2.69 fb^{-1}");
-  //		     "CMS Preliminary #sqrt{s} = 13 TeV, L = 12.89 fb^{-1}");
-		     "CMS Preliminary #sqrt{s} = 13 TeV, L = 20.1 fb^{-1}");
+		     "CMS Preliminary #sqrt{s} = 13 TeV, L = 12.89 fb^{-1}");
   latex.SetTextSize(15);
   latex.SetTextAlign(33);
   latex.SetTextColor(kBlue+2);
@@ -571,512 +702,36 @@ void FitContainer::showModels() const {
   std::cout << std::endl;
 }
 
-
-void FitContainer::setNovosibirsk_(const Type& type) {
-  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  RooRealVar peak("peak", "peak", getPeakStart_(type, 500.0), 50.0, 500.0, "GeV");
-  RooRealVar width("width", "width", 50.0, 5.0, mbb.getMax()/2.0, "GeV");
-  RooRealVar tail("tail", "tail", -0.1, -1.0, 1.0);
-  RooNovosibirsk novo(toString(type).c_str(),
-                      (toString(type)+"_novosibirsk").c_str(),
-                      mbb, peak, width, tail);
-  workspace_.import(novo);
+FitContainer& FitContainer::verbosity(int level) {
+  verbosity_ = level;
+  return *this;
 }
 
 
-void FitContainer::setNovoPSProd_(const Type& type) {
+FitContainer& FitContainer::fitRangeMin(float min) {
   RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  RooRealVar peak("peak_novops", "peak", getPeakStart_(type, 500.0), 50.0, 500.0, "GeV");
-  RooRealVar width("width_novops", "width", 50.0, 5.0, mbb.getMax()/2.0, "GeV");
-  RooRealVar tail("tail_novops", "tail", -0.1, -1.0, 1.0);
-  //RooRealVar peak("peak_novops", "peak", getPeakStart_(type, 500.0), -1000., 1000., "GeV");
-  //RooRealVar width("width_novops", "width", 50.0, -1000., 1000., "GeV");
-  //RooRealVar tail("tail_novops", "tail", -0.1, -1000., 1000.);
+  fitRangeMin_ = min;
+  mbb.setMin(min);
+  mbb.setRange(fullRangeId_.c_str(), mbb.getMin(), mbb.getMax());
+  mbb.setRange(fitRangeId_.c_str(), fitRangeMin_, fitRangeMax_);
+  mbb.setRange(fitRangeLowId_.c_str(), fitRangeMin_, blind_lowEdge_);
+  mbb.setRange(fitRangeHighId_.c_str(), blind_highEdge_, fitRangeMax_);
 
-  //RooNovosibirsk novo((toString(type)+"_novosibirsk").c_str(),
-  RooNovosibirsk novo((toString(type)+"_novops").c_str(),
-                      (toString(type)+"_novosibirsk").c_str(),
-                      mbb, peak, width, tail);
-
-  RooFormulaVar phasespace((toString(type)+"_phasespace").c_str(),
-			  "(1.326 / (1 + (2.287e+03 * TMath::Exp(-3.331e-02 * mbb)))) - (1.326-1.)",
-			  //"(1.159 / (1+ (12.228e+03 * TMath::Exp(-3.812e-02 * mbb)))) - (1.159-1.)",
-   		      	  RooArgList(mbb));
-  RooEffProd novopsprod(toString(type).c_str(),
-                        (toString(type)+"_novopsprod").c_str(), novo, phasespace);
-  workspace_.import(novopsprod);
+  return *this;
 }
 
 
-void FitContainer::setNovoEffProd_(const Type& type) {
+FitContainer& FitContainer::fitRangeMax(float max) {
   RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  RooRealVar peak("peak_novoeff", "peak", getPeakStart_(type, 500.0), 50.0, 500.0, "GeV");
-  RooRealVar width("width_novoeff", "width", 50.0, 5.0, mbb.getMax()/2.0, "GeV");
-  RooRealVar tail("tail_novoeff", "tail", -0.1, -1.0, 1.0);
-  //RooRealVar peak("peak_novoeff", "peak", getPeakStart_(type, 500.0), -1000., 1000., "GeV");
-  //RooRealVar width("width_novoeff", "width", 50.0, -1000., 1000., "GeV");
-  //RooRealVar tail("tail_novoeff", "tail", -0.1, -1000., 1000.);
+  fitRangeMax_ = max;
+  mbb.setMax(max);
+  mbb.setRange(fullRangeId_.c_str(), mbb.getMin(), mbb.getMax());
+  mbb.setRange(fitRangeId_.c_str(), fitRangeMin_, fitRangeMax_);
+  mbb.setRange(fitRangeLowId_.c_str(), fitRangeMin_, blind_lowEdge_);
+  mbb.setRange(fitRangeHighId_.c_str(), blind_highEdge_, fitRangeMax_);
 
-  RooNovosibirsk novo((toString(type)+"_novoeff").c_str(),
-                      (toString(type)+"_novosibirsk").c_str(),
-                      mbb, peak, width, tail);
-
-  RooRealVar slope_novoeff("slope_novoeff", "slope_novoeff", 0.01, 0.0, 0.1);
-  RooRealVar turnon_novoeff("turnon_novoeff", "turnon_novoeff",
-                    mbb.getMin()+ 5.0, mbb.getMin(), mbb.getMax());
-  //RooRealVar slope_novoeff("slope_novoeff", "slope_novoeff", 0.01, -1000., 1000.);
-  //RooRealVar turnon_novoeff("turnon_novoeff", "turnon_novoeff", mbb.getMin()+ 5.0, -1000., 1000.);
-
-  RooFormulaVar eff((toString(type)+"_novosibirskeff").c_str(),
-                    "0.5*(TMath::Erf(slope_novoeff*(mbb-turnon_novoeff)) + 1)",
-                    RooArgSet(mbb, slope_novoeff, turnon_novoeff));
-  //		      "0.5*(TMath::Erf(0.0161058*(mbb-244.023)) + 1)",
-  //		      RooArgList(mbb));
-
-  RooEffProd novoEffProd(toString(type).c_str(),
-                         (toString(type)+"_novoeffprod").c_str(), novo, eff);
-  workspace_.import(novoEffProd);
+  return *this;
 }
-
-
-void FitContainer::setNovoPSHighMPol4_(const Type& type) {
-  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  RooRealVar peak("peak", "peak", getPeakStart_(type, 500.0), 50.0, 500.0, "GeV");
-  RooRealVar width("width", "width", 50.0, 5.0, mbb.getMax()/2.0, "GeV");
-  RooRealVar tail("tail", "tail", -0.1, -1.0, 1.0);
-  RooNovosibirsk novo((toString(type)+"_novosibirsk").c_str(),
-                      (toString(type)+"_novosibirsk").c_str(),
-                      mbb, peak, width, tail);
-
-  RooPhaseSpacePol4 phasespace((toString(type)+"_pspol4").c_str(),
-			       (toString(type)+"_phasespace").c_str(),mbb);
-
-  RooEffProd novopsprod(toString(type).c_str(),
-                       (toString(type)+"_novopsprod").c_str(), novo, phasespace);
-  workspace_.import(novopsprod);
-}
-
-
-void FitContainer::setMyNovosibirsk_(const Type& type) {
-  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  RooRealVar peak("peak", "peak", getPeakStart_(type, 500.0), 50.0, 500.0, "GeV");
-  RooRealVar width("width", "width", 50.0, 5.0, mbb.getMax()/2.0, "GeV");
-  RooRealVar tail("tail", "tail", -0.1, -1.0, 1.0);
-  RooMyNovosibirsk novo(toString(type).c_str(),
-                      (toString(type)+"_mynovosibirsk").c_str(),
-                      mbb, peak, width, tail);
-  workspace_.import(novo);
-}
-
-
-void FitContainer::setMyNovoPSProd_(const Type& type) {
-  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  RooRealVar peak("peak", "peak", getPeakStart_(type, 500.0), 50.0, 500.0, "GeV");
-  RooRealVar width("width", "width", 50.0, 5.0, mbb.getMax()/2.0, "GeV");
-  RooRealVar tail("tail", "tail", -0.1, -1.0, 1.0);
-  RooMyNovosibirsk novo((toString(type)+"_mynovo").c_str(),
-                        (toString(type)+"_mynovosibirsk").c_str(),
-                         mbb, peak, width, tail);
-
-  RooFormulaVar phasespace((toString(type)+"_phasespace").c_str(),
-                          "(1.326 / (1 + (2.287e+03 * TMath::Exp(-3.331e-02 * mbb)))) - (1.326-1.)",
-                          RooArgList(mbb));
-  RooEffProd novopsprod(toString(type).c_str(),
-                       (toString(type)+"_mynovopsprod").c_str(), novo, phasespace);
-  workspace_.import(novopsprod);
-}
-
-
-void FitContainer::setExtNovosibirsk_(const Type& type) {
-  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  RooRealVar peak("peak", "peak", getPeakStart_(type, 500.0), 50.0, 500.0, "GeV");
-  RooRealVar width("width", "width", 50.0, 5.0, mbb.getMax()/2.0, "GeV");
-  RooRealVar tail("tail", "tail", -0.1, -1.0, 1.0);
-  RooRealVar par4("par4", "par4", -0.0001, -1.0, 1.0);
-  RooExtendNovosibirsk novo(toString(type).c_str(),
-                      (toString(type)+"_extnovosibirsk").c_str(),
-                      mbb, peak, width, tail, par4);
-  workspace_.import(novo);
-}
-
-
-void FitContainer::setExtNovoPSProd_(const Type& type) {
-  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  RooRealVar peak("peak", "peak", getPeakStart_(type, 500.0), 50.0, 500.0, "GeV");
-  RooRealVar width("width", "width", 50.0, 5.0, mbb.getMax()/2.0, "GeV");
-  RooRealVar tail("tail", "tail", -0.1, -1.0, 1.0);
-  RooRealVar par4("par4", "par4", -0.0001, -1.0, 1.0);
-  RooExtendNovosibirsk novo((toString(type)+"_extnovo").c_str(),
-                            (toString(type)+"_extnovosibirsk").c_str(),
-                            mbb, peak, width, tail, par4);
-
-  RooFormulaVar phasespace((toString(type)+"_phasespace").c_str(),
-                          "(1.326 / (1 + (2.287e+03 * TMath::Exp(-3.331e-02 * mbb)))) - (1.326-1.)",
-			  //"(1.159 / (1+ (12.228e+03 * TMath::Exp(-3.812e-02 * mbb)))) - (1.159-1.)",
-                          RooArgList(mbb));
-  RooEffProd novopsprod(toString(type).c_str(),
-                       (toString(type)+"_extnovopsprod").c_str(), novo, phasespace);
-  workspace_.import(novopsprod);
-}
-
-
-void FitContainer::setExtNovoEffProd_(const Type& type) {
-  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  RooRealVar peak("peak", "peak", getPeakStart_(type, 500.0), 50.0, 500.0, "GeV");
-  RooRealVar width("width", "width", 50.0, 5.0, mbb.getMax()/2.0, "GeV");
-  RooRealVar tail("tail", "tail", -0.1, -1.0, 1.0);
-  RooRealVar par4("par4", "par4", -0.0001, -1.0, 1.0);
-  RooExtendNovosibirsk novo((toString(type)+"_extnovo").c_str(),
-                            (toString(type)+"_extnovosibirsk").c_str(),
-                            mbb, peak, width, tail, par4);
-
-  RooRealVar slope("slope", "slope", 0.01, 0.0, 0.1);
-  RooRealVar turnon("turnon", "turnon",
-                    mbb.getMin() + 5.0, mbb.getMin(), mbb.getMax());
-  RooFormulaVar eff((toString(type)+"_eff").c_str(),
-                    "0.5*(TMath::Erf(slope*(mbb-turnon)) + 1)",
-                    RooArgSet(mbb, slope, turnon));
-
-  RooEffProd novoEffProd(toString(type).c_str(),
-                        (toString(type)+"_extnovoeffprod").c_str(), novo, eff);
-  workspace_.import(novoEffProd);
-}
-
-
-void FitContainer::setCrystalBall_(const Type& type) {
-  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  RooRealVar m0("m0", "m0", getPeakStart_(type, 500.0), 50.0, 500.0, "GeV");
-  RooRealVar sigma("sigma", "sigma", 35.0, 10.0, 100.0, "GeV");
-  RooRealVar alpha("alpha", "alpha", -1.0, -0.1);
-  RooRealVar n("n", "n", 20.0, 3.0, 100.0);
-  RooCBShape cb(toString(type).c_str(), (toString(type)+"_crystalball").c_str(),
-                mbb, m0, sigma, alpha, n);
-  workspace_.import(cb);
-}
-
-
-void FitContainer::setCrystalPSProd_(const Type& type) {
-  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  RooRealVar m0("m0_cbps", "m0", getPeakStart_(type, 500.0), 50.0, 500.0, "GeV");
-  RooRealVar sigma("sigma_cbps", "sigma", 35.0, 10.0, 100.0, "GeV");
-  RooRealVar alpha("alpha_cbps", "alpha", -1.0, -0.1);
-  RooRealVar n("n_cbps", "n", 20.0, 3.0, 100.0);
-  RooCBShape cb((toString(type)+"_cbps").c_str(), 
-		(toString(type)+"_crystalball").c_str(),
-                mbb, m0, sigma, alpha, n);
-
-  RooFormulaVar phasespace((toString(type)+"_phasespace").c_str(),
-                          "(1.326 / (1 + (2.287e+03 * TMath::Exp(-3.331e-02 * mbb)))) - (1.326-1.)",
-                          RooArgList(mbb));
-  RooEffProd crystalpsprod(toString(type).c_str(),
-                          (toString(type)+"_crystalpsprod").c_str(), cb, phasespace);
-  workspace_.import(crystalpsprod);
-}
-
-
-void FitContainer::setCrystalEffProd_(const Type& type) {
-  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  RooRealVar m0("m0_cbeff", "m0", getPeakStart_(type, 500.0), 50.0, 500.0, "GeV");
-  RooRealVar sigma("sigma_cbeff", "sigma", 35.0, 10.0, 100.0, "GeV");
-  RooRealVar alpha("alpha_cbeff", "alpha", -1.0, -0.1);
-  RooRealVar n("n_cbeff", "n", 20.0, 3.0, 100.0);
-  //RooRealVar m0("m0_cbeff", "m0", getPeakStart_(type, 500.0), -1000., 1000., "GeV");
-  //RooRealVar sigma("sigma_cbeff", "sigma", 35.0, -1000., 1000., "GeV");
-  //RooRealVar alpha("alpha_cbeff", "alpha", -1.0, -1000., 1000.);
-  //RooRealVar n("n_cbeff", "n", 20.0, -1000., 1000.);
-
-  RooCBShape cb((toString(type)+"_cbeff").c_str(),
-                (toString(type)+"_crystalball").c_str(),
-                mbb, m0, sigma, alpha, n);
-
-  RooRealVar slope_cbeff("slope_cbeff", "slope_cbeff", 0.01, 0.0, 0.1);
-  RooRealVar turnon_cbeff("turnon_cbeff", "turnon_cbeff",
-                    mbb.getMin()+ 5.0, mbb.getMin()- 50.0, mbb.getMax());
-  RooFormulaVar eff((toString(type)+"_crystaleff").c_str(),
-                    "0.5*(TMath::Erf(slope_cbeff*(mbb-turnon_cbeff)) + 1)",
-                    RooArgSet(mbb, slope_cbeff, turnon_cbeff));
-  //		    "0.5*(TMath::Erf(0.0292942*(mbb-230.854)) + 1)",	//get values from the fit 
-  //		    RooArgSet(mbb));
-
-  RooEffProd crystalEffprod(toString(type).c_str(),
-                            (toString(type)+"_crystaleffprod").c_str(), cb, eff);
-  workspace_.import(crystalEffprod);
-}
-
-
-void FitContainer::setExpEffProd_(const Type& type) {
-  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  RooRealVar tau("tau", "tau", -0.1);
-  tau.setConstant(false);
-  RooExponential exp((toString(type)+"_exp").c_str(),
-                     (toString(type)+"_exp").c_str(), mbb, tau);
-
-  RooRealVar slope("slope", "slope", 0.01, 0.0, 0.1);
-  RooRealVar turnon("turnon", "turnon",
-                    mbb.getMin() + 5.0, mbb.getMin(), mbb.getMax());
-  RooFormulaVar eff((toString(type)+"_eff").c_str(),
-                    "0.5*(TMath::Erf(slope*(mbb-turnon)) + 1)",
-                    RooArgSet(mbb, slope, turnon));
-
-  RooEffProd expEffProd(toString(type).c_str(),
-                        (toString(type)+"_expeffprod").c_str(), exp, eff);
-  workspace_.import(expEffProd);
-}
-
-
-void FitContainer::setDoubleCB_(const Type& type) {
-  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  RooRealVar mean("mean", "mean", getPeakStart_(type, 500.0), 50.0, 500.0, "GeV");
-  RooRealVar width("width", "width", 35.0, 5.0, 100.0, "GeV");
-  RooRealVar alpha1("alpha1", "alpha1", -1.0, -0.1);
-  RooRealVar n1("n1", "n1", 20.0, 3.0, 100.0);
-  RooRealVar alpha2("alpha2", "alpha2", 0.1, 1.0);
-  RooRealVar n2("n2", "n2", 20.0, 3.0, 100.0);
-  RooDoubleCB doubleCB(toString(type).c_str(),
-                       (toString(type)+"_doublecb").c_str(),
-                       mbb, mean, width, alpha1, n1, alpha2, n2);
-  workspace_.import(doubleCB);
-}
-
-
-void FitContainer::setDijetv1_(const Type& type) {
-  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  //RooRealVar par_a("par_a", "par_a", 1.0, 0.0, 10.0);
-  RooRealVar par_b("par_b", "par_b", -13, -1000, 1000.);
-  RooRealVar par_c("par_c", "par_c", -1.4, -1000, 1000.);
-  RooGenericPdf dijet(toString(type).c_str(),
-                     (toString(type)+"_dijet").c_str(),
-                     "pow(mbb/13000. , par_b + par_c * TMath::Log(mbb/13000.))",	//(x)^(P1+P2log(x)) where x = mbb/sqrt(s)
-                     RooArgList(mbb,par_b,par_c));
-  workspace_.import(dijet);
-}
-
-
-void FitContainer::setDijetv1PSProd_(const Type& type) {
-  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  //RooRealVar par_a("par_a", "par_a", 1.0, 0.0, 10.0);
-  RooRealVar par_b("par_b", "par_b", -13, -1000, 1000.);
-  RooRealVar par_c("par_c", "par_c", -1.4, -1000, 1000.);
-  RooGenericPdf dijet((toString(type)+"_dijetpdf").c_str(),
-		      (toString(type)+"_dijet").c_str(),
-		      "pow(mbb/13000. , par_b + par_c * TMath::Log(mbb/13000.))",
-		      RooArgList(mbb,par_b,par_c));
-  RooFormulaVar phasespace((toString(type)+"_phasespace").c_str(),
-                          "(1.326 / (1 + (2.287e+03 * TMath::Exp(-3.331e-02 * mbb)))) - (1.326-1.)",
-                          RooArgList(mbb));
-  RooEffProd dijetpsprod(toString(type).c_str(),
-                        (toString(type)+"_dijetpsprod").c_str(), dijet, phasespace);
-  workspace_.import(dijetpsprod);
-}
-
-
-void FitContainer::setDijetv2_(const Type& type) {
-  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  RooRealVar par_a("par_a", "par_a", 8.0, 0.0, 10.0);
-  RooRealVar par_b("par_b", "par_b", 0.06, 0.02, 0.08);
-  RooRealVar par_c("par_c", "par_c", 70., 65., 100.);			//control non-zero values when start mbb > 200 GeV
-  RooGenericPdf dijet(toString(type).c_str(),				//(-1+cx)e^-alnx(1+blnx)
-                     (toString(type)+"_dijet").c_str(),
-                     "TMath::Exp(-par_a * TMath::Log(mbb/13000.) - par_b*par_a*(pow(TMath::Log(mbb/13000.),2)))*(-1+par_c*(mbb/13000.))",
-                     RooArgList(mbb,par_a,par_b,par_c));
-  workspace_.import(dijet);
-}
-
-
-void FitContainer::setDijetv2PSProd_(const Type& type) {
-  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  RooRealVar par_a("par_a", "par_a", 8.0, 0.0, 10.0);
-  RooRealVar par_b("par_b", "par_b", 0.06, 0.02, 0.08);
-  RooRealVar par_c("par_c", "par_c", 70., 65., 100.);
-  RooGenericPdf dijet((toString(type)+"_dijetpdf").c_str(),
-                      (toString(type)+"_dijet").c_str(),
-                      "TMath::Exp(-par_a * TMath::Log(mbb/13000.) - par_b*par_a*(pow(TMath::Log(mbb/13000.),2)))*(-1+par_c*(mbb/13000.))",
-                      RooArgList(mbb,par_a,par_b,par_c));
-  RooFormulaVar phasespace((toString(type)+"_phasespace").c_str(),
-                          "(1.326 / (1 + (2.287e+03 * TMath::Exp(-3.331e-02 * mbb)))) - (1.326-1.)",
-                          RooArgList(mbb));
-  RooEffProd dijetpsprod(toString(type).c_str(),
-                        (toString(type)+"_dijetpsprod").c_str(), dijet, phasespace);
-  workspace_.import(dijetpsprod);
-}
-
-
-void FitContainer::setExpGausExp_(const Type& type) {
-  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  RooRealVar mean("mean", "mean", getPeakStart_(type, 500.0), 50.0, 500.0, "GeV");
-  RooRealVar sigma("sigma", "sigma", 35.0, 5.0, 150.0, "GeV");
-  RooRealVar left("left", "left", 0.1, 15.0);
-  RooRealVar right("right", "right", 0.1, 15.0);
-  RooExpGausExp expGausExp(toString(type).c_str(),
-                           (toString(type)+"_expgausexp").c_str(),
-                           mbb, mean, sigma, left, right);
-  workspace_.import(expGausExp);
-}
-
-
-void FitContainer::setGausExp_(const Type& type) {
-  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  RooRealVar mean("mean", "mean", getPeakStart_(type, 500.0), 50.0, 500.0, "GeV");
-  RooRealVar sigma("sigma", "sigma", 35.0, 5.0, 150.0, "GeV");
-  RooRealVar right("right", "right", 0.4, 0.1, 15.0);
-  RooGausExp gausExp(toString(type).c_str(),
-                           (toString(type)+"_gausexp").c_str(),
-                           mbb, mean, sigma, right);
-  workspace_.import(gausExp);
-}
-
-
-void FitContainer::setGausExpPSProd_(const Type& type) {
-  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  RooRealVar mean("mean", "mean", getPeakStart_(type, 500.0), 50.0, 500.0, "GeV");
-  RooRealVar sigma("sigma", "sigma", 35.0, 5.0, 150.0, "GeV");
-  RooRealVar right("right", "right", 0.4, 0.1, 15.0);
-  RooGausExp gausExp((toString(type)+"_gausexp").c_str(),
-                     (toString(type)+"_gausexp").c_str(),
-                     mbb, mean, sigma, right);
-
-  RooFormulaVar phasespace((toString(type)+"_phasespace").c_str(),
-                          "(1.326 / (1 + (2.287e+03 * TMath::Exp(-3.331e-02 * mbb)))) - (1.326-1.)",
-                          RooArgList(mbb));
-  RooEffProd gausExppsprod(toString(type).c_str(),
-                          (toString(type)+"_gausExppsprod").c_str(), gausExp, phasespace);
-  workspace_.import(gausExppsprod);
-}
-
-
-void FitContainer::setExpBWExp_(const Type& type) {
-  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  RooRealVar peak("peak", "peak", getPeakStart_(type, 500.0), 50.0, 500.0, "GeV");
-  RooRealVar width("width", "width", 35.0, 5.0, 150.0, "GeV");
-  RooRealVar left("left", "left", 0.1, 15.0);
-  RooRealVar right("right", "right", 0.1, 15.0);
-  RooExpBWExp expBWExp(toString(type).c_str(),
-                       (toString(type)+"_expbwexp").c_str(),
-                       mbb, peak, width, left, right);
-  workspace_.import(expBWExp);
-}
-
-
-void FitContainer::setBukin_(const Type& type) {
-  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  RooRealVar Xp("Xp", "Xp", getPeakStart_(type, 350.0), 50.0, 350.0, "GeV");
-  RooRealVar sigp("sigp", "sigp", 20.0, 85.0, "GeV");
-  RooRealVar xi("xi", "xi", 0.0, 0.55);
-  RooRealVar rho1("rho1", "rho1", 0.05, -0.1, 0.1); 
-  RooRealVar rho2("rho2", "rho2", -0.05, -0.07, 0.045);
-  //RooRealVar Xp("Xp", "Xp", getPeakStart_(type, 350.0), -1000., 1000., "GeV");
-  //RooRealVar sigp("sigp", "sigp", 60., -1000., 1000., "GeV");
-  //RooRealVar xi("xi", "xi", 0.3, -1000., 1000.);
-  //RooRealVar rho1("rho1", "rho1", 0.05, -1000., 1000.);
-  //RooRealVar rho2("rho2", "rho2", -0.05, -1000., 1000.);
-  RooBukinPdf bukin(toString(type).c_str(),
-                    (toString(type)+"_bukin").c_str(),
-                    mbb, Xp, sigp, xi, rho1, rho2);
-  workspace_.import(bukin);
-}
-
-
-void FitContainer::setBukinPSProd_(const Type& type) {
-  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  RooRealVar Xp("Xp", "Xp", getPeakStart_(type, 350.0), 50.0, 350.0, "GeV");
-  RooRealVar sigp("sigp", "sigp", 20.0, 85.0, "GeV");
-  RooRealVar xi("xi", "xi", 0.0, 0.55);
-  RooRealVar rho1("rho1", "rho1", 0.05, -0.1, 0.2);
-  RooRealVar rho2("rho2", "rho2", -0.05, -0.07, 0.045);
-  RooBukinPdf bukin((toString(type)+"_bukin").c_str(),
-                    (toString(type)+"_bukin").c_str(),
-                    mbb, Xp, sigp, xi, rho1, rho2);
-
-  RooFormulaVar phasespace((toString(type)+"_phasespace").c_str(),
-                          "(1.326 / (1 + (2.287e+03 * TMath::Exp(-3.331e-02 * mbb)))) - (1.326-1.)",
-                          RooArgList(mbb));
-  RooEffProd bukinpsprod(toString(type).c_str(),
-                          (toString(type)+"_bukinpsprod").c_str(), bukin, phasespace);
-  workspace_.import(bukinpsprod);
-}
-
-
-void FitContainer::setBernstein_(const Type& type, const int numCoeffs) {
-  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  std::unique_ptr<RooArgList> coeffs(getCoefficients_(numCoeffs, "bernstein"));
-  RooBernstein bern(toString(type).c_str(),
-                    (toString(type)+"_bernstein").c_str(), mbb, *coeffs);
-  workspace_.import(bern);
-}
-
-
-void FitContainer::setChebychev_(const Type& type, const int numCoeffs) {
-  if (numCoeffs > 7) {
-    throw std::invalid_argument
-      ("Chebychev polynomials support not more than 7 coefficients.");
-  }
-  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  std::unique_ptr<RooArgList> coeffs(getCoefficients_(numCoeffs, "chebychev"));
-  RooChebychev cheb(toString(type).c_str(),
-                    (toString(type)+"_chebychev").c_str(), mbb, *coeffs);
-  workspace_.import(cheb);
-}
-
-
-void FitContainer::setBernEffProd_(const Type& type, const int numCoeffs) {
-  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  std::unique_ptr<RooArgList> coeffs(getCoefficients_(numCoeffs, "bernstein"));
-  RooBernstein bern((toString(type)+"_bernstein").c_str(),
-                    (toString(type)+"_bernstein").c_str(),
-                    mbb, *coeffs);
-
-  RooRealVar slope("slope", "slope", 0.01, 0.0, 0.1);
-  RooRealVar turnon("turnon", "turnon",
-                     mbb.getMin() + 10.0, mbb.getMin(), mbb.getMax());
-  RooFormulaVar eff((toString(type)+"_eff").c_str(),
-                    "0.5*(TMath::Erf(slope*(mbb-turnon)) + 1)",
-                    RooArgSet(mbb, slope, turnon));
-
-  RooEffProd bernEffProd(toString(type).c_str(),
-                         (toString(type)+"_berneffprod").c_str(), bern, eff);
-  workspace_.import(bernEffProd);
-}
-
-
-void FitContainer::setBernPSProd_(const Type& type, const int numCoeffs) {
-  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  std::unique_ptr<RooArgList> coeffs(getCoefficients_(numCoeffs, "bernstein"));
-  RooBernstein bern((toString(type)+"_bernstein").c_str(),
-                    (toString(type)+"_bernstein").c_str(),
-                     mbb, *coeffs);
-
-  RooFormulaVar phasespace((toString(type)+"_phasespace").c_str(),
-                          "(1.326 / (1 + (2.287e+03 * TMath::Exp(-3.331e-02 * mbb)))) - (1.326-1.)",
-                          RooArgList(mbb));
-  RooEffProd bernPSProd(toString(type).c_str(),
-                        (toString(type)+"_bernPSProd").c_str(), bern, phasespace);
-
-  workspace_.import(bernPSProd);
-}
-
-
-void FitContainer::setChebEffProd_(const Type& type, const int numCoeffs) {
-  if (numCoeffs > 7) {
-    throw std::invalid_argument
-      ("Chebychev polynomials support not more than 7 coefficients.");
-  }
-  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  std::unique_ptr<RooArgList> coeffs(getCoefficients_(numCoeffs, "chebychev"));
-  RooChebychev cheb((toString(type)+"_chebychev").c_str(),
-                    (toString(type)+"_chebychev").c_str(), mbb, *coeffs);
-
-  RooRealVar slope("slope", "slope", 0.01, 0.0, 0.1);
-  RooRealVar turnon("turnon", "turnon",
-                    mbb.getMin()+ 5.0, mbb.getMin(), mbb.getMax());
-  RooFormulaVar eff((toString(type)+"_eff").c_str(),
-                    "0.5*(TMath::Erf(slope*(mbb-turnon)) + 1)",
-                    RooArgSet(mbb, slope, turnon));
-
-  RooEffProd chebEffProd(toString(type).c_str(),
-                         (toString(type)+"_chebeffprod").c_str(), cheb, eff);
-  workspace_.import(chebEffProd);
-}
-
 
 std::string FitContainer::getOutputPath_(const std::string& subdirectory) {
   std::string path = outputDir_ + subdirectory;
@@ -1096,42 +751,6 @@ void FitContainer::prepareFrame_(RooPlot& raw) {
   raw.GetYaxis()->SetTitleOffset(2);
   raw.SetTitle("");
 }
-
-
-double FitContainer::getPeakStart_(const Type& type) {
-  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  return getPeakStart_(type, mbb.getMax());
-}
-
-
-double FitContainer::getPeakStart_(const Type& type, double max) {
-  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  double peakStart = (mbb.getMin() + max) / 2.0;
-  switch (type) {
-  case Type::signal:
-    if (signal_ != "") {
-      RooAbsData& signal = *workspace_.data(signal_.c_str());
-      peakStart = getMaxPosition_(signal);
-    }
-    break;
-  case Type::background:
-    if (bkg_ != "") {
-      RooAbsData& bkg = *workspace_.data(bkg_.c_str());
-      peakStart = getMaxPosition_(bkg);
-    }
-    break;
-  }
-  return peakStart < max ? peakStart : max;
-}
-
-
-double FitContainer::getMaxPosition_(const RooAbsData& data) {
-  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  std::unique_ptr<TH1> hist(data.createHistogram(mbb_.c_str(), mbb));
-  int maximumBin = hist->GetMaximumBin();
-  return hist->GetBinCenter(maximumBin);
-}
-
 
 int FitContainer::getNonZeroBins_(const RooAbsData& data) {
   RooRealVar& mbb = *workspace_.var(mbb_.c_str());
@@ -1263,7 +882,7 @@ double FitContainer::chiSquare_CA(const RooPlot& frame, const char* curvename, c
 
 	// Add pull^2 to chisq
 	if (y!=0) {      
-		double pull = (y>avg) ? ((y-avg)/eyl) : ((y-avg)/eyh) ;
+		double pull = (y<avg) ? ((y-avg)/eyl) : ((y-avg)/eyh) ;
 		std::cout << "chi^2 at bin " << i << " : " << pull*pull << std::endl;
 		chisq += pull*pull ;
 		nbin++;
@@ -1321,39 +940,41 @@ FitContainer::getCoefficients_(const int numCoeffs, const std::string& name) {
   return coefficients;
 }
 
+double FitContainer::getPeakStart_(const Type& type) {
+  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
+  return getPeakStart_(type, mbb.getMax());
+}
 
-const std::vector<std::string> FitContainer::availableModels_ =
-  {"novosibirsk",
-   "novopsprod",
-   "novoeffprod",
-   "novopshighMpol4",
-   "mynovosibirsk",
-   "mynovopsprod",
-   "extnovosibirsk",
-   "extnovopsprod",
-   "extnovoeffprod",
-   "crystalball",
-   "crystalpsprod",
-   "crystaleffprod",
-   "expeffprod",
-   "doublecb",
-   "dijetv1",
-   "dijetv1psprod",
-   "dijetv2",
-   "dijetv2psprod",
-   "expgausexp",
-   "gausexp",
-   "gausexppsprod",
-   "expbwexp",
-   "bukin",
-   "bukinpsprod",
-   "bernstein",
-   "chebychev",
-   "berneffprod",
-   "bernpsprod",
-   "chebeffprod"};
 
-const int FitContainer::defaultNumberOfCoefficients_ = 4;
+double FitContainer::getPeakStart_(const Type& type, double max) {
+  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
+  double peakStart = (mbb.getMin() + max) / 2.0;
+  switch (type) {
+  case Type::signal:
+    if (signal_ != "") {
+      RooAbsData& signal = *workspace_.data(signal_.c_str());
+      peakStart = getMaxPosition_(signal);
+      return peakStart;
+    }
+    break;
+  case Type::background:
+    if (bkg_ != "") {
+      RooAbsData& bkg = *workspace_.data(bkg_.c_str());
+      peakStart = getMaxPosition_(bkg);
+    }
+    break;
+  }
+  return peakStart < max ? peakStart : max;
+}
+
+
+double FitContainer::getMaxPosition_(const RooAbsData& data) {
+  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
+  std::unique_ptr<TH1> hist(data.createHistogram(mbb_.c_str(), mbb));
+  int maximumBin = hist->GetMaximumBin();
+  return hist->GetBinCenter(maximumBin);
+}
 
 const std::string FitContainer::defaultOutputDir_ =
   std::string(gSystem->Getenv("CMSSW_BASE"))+"/src/Analysis/BackgroundModel/test/";
+
