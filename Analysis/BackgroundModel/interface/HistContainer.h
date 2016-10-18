@@ -20,6 +20,7 @@ namespace analysis {
       std::unique_ptr<TH1> background() const;
       std::vector<std::unique_ptr<TH1> > backgrounds() const;
       void show() const;
+      void Rebin(const int& n = 1) const;
 
     private:
       std::unique_ptr<TH1> getHistogram_(const std::string& name) const;

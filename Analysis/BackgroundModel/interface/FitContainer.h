@@ -4,7 +4,10 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <array>
+
 #include "TH1.h"
+#include "TFile.h"
 #include "TCanvas.h"
 #include "TObject.h"
 #include "TString.h"
@@ -13,6 +16,8 @@
 #include "TMatrixDSym.h"
 #include "TMatrixDEigen.h"
 #include "TMatrixDSymEigen.h"
+#include "RooMinimizer.h"
+
 #include "RooPlot.h"
 #include "RooCurve.h"
 #include "RooHist.h"
@@ -22,9 +27,14 @@
 #include "RooWorkspace.h"
 #include "RooFitResult.h"
 #include "RooList.h"
+
+#include "RooGaussian.h"
+#include "RooAddPdf.h"
+
 #include "Analysis/BackgroundModel/interface/HistContainer.h"
 #include "Analysis/BackgroundModel/interface/TreeContainer.h"
 #include "Analysis/BackgroundModel/interface/ParamModifier.h"
+#include "Analysis/BackgroundModel/interface/ProbabilityDensityFunctions.h"
 
 
 namespace analysis {
@@ -41,9 +51,9 @@ namespace analysis {
         return "";              // to silence compiler
       };
 
-      FitContainer(const TH1& data, const TH1& signal, const TH1& background,
+      FitContainer(const TH1* data, const TH1* signal, const TH1* background,
 		   const std::string& outputDir = defaultOutputDir_);
-      FitContainer(const TH1& data, const std::string& outputDir = defaultOutputDir_);
+      FitContainer(const TH1* data, const std::string& outputDir = defaultOutputDir_, const std::string & type = "background");
       FitContainer(TTree& data, const std::string& outputDir = defaultOutputDir_);
       FitContainer(const HistContainer& container,
 		   const std::string& outputDir = defaultOutputDir_);
@@ -61,57 +71,33 @@ namespace analysis {
       FitContainer& fitRangeMin(float min);
       FitContainer& fitRangeMax(float max);
 
-      inline static const std::vector<std::string>& availableModels() {
-        return availableModels_; };
       void setModel(const Type& type, const std::string& model);
       void setModel(const Type& type, const std::string& model,
                     const std::vector<ParamModifier>& modifiers);
       std::unique_ptr<RooFitResult> backgroundOnlyFit(const std::string& model);
+      std::unique_ptr<RooFitResult> FitSignal(const std::string & model);
+
       void profileModel(const Type& type);
       void showModels() const;
+      void Import(const RooAbsArg& inArg);
+      void Write();
 
     private:
+
+      //Private constructor to avoid code duplication for private members initialisation
+      FitContainer(const std::string& outputDir);
+
       // methods to set the fit model
       static std::unique_ptr<RooArgList>
       getCoefficients_(const int numCoeffs, const std::string& name);
-      void setNovosibirsk_(const Type& type);
-      void setNovoPSProd_(const Type& type);		//by CA
-      void setNovoEffProd_(const Type& type);
-      void setNovoPSHighMPol4_(const Type& type);	//by CA
-      void setMyNovosibirsk_(const Type& type);		//by CA
-      void setMyNovoPSProd_(const Type& type); 		//by CA
-      void setExtNovosibirsk_(const Type& type);	//by CA
-      void setExtNovoPSProd_(const Type& type); 	//by CA
-      void setExtNovoEffProd_(const Type& type);  	//by CA
-      void setCrystalBall_(const Type& type);
-      void setCrystalPSProd_(const Type& type); 	//by CA
-      void setCrystalEffProd_(const Type& type);        //by CA
-      void setExpEffProd_(const Type& type);
-      void setDoubleCB_(const Type& type);
-      void setDijetv1_(const Type& type);		//by CA
-      void setDijetv1PSProd_(const Type& type);		//by CA
-      void setDijetv2_(const Type& type);		//by CA
-      void setDijetv2PSProd_(const Type& type);		//by CA
-      void setExpGausExp_(const Type& type);
-      void setGausExp_(const Type& type);		//by CA
-      void setGausExpPSProd_(const Type& type); 	//by CA
-      void setExpBWExp_(const Type& type);
-      void setBukin_(const Type& type);
-      void setBukinPSProd_(const Type& type);		//by CA
-      void setBernstein_(const Type& type, const int numCoeffs);
-      void setChebychev_(const Type& type, const int numCoeffs);
-      void setBernEffProd_(const Type& type, const int numCoeffs);
-      void setBernPSProd_(const Type& type, const int numCoeffs);	//by CA
-      void setChebEffProd_(const Type& type, const int numCoeffs);
-      static const std::vector<std::string> availableModels_;
+      double getPeakStart_(const Type& type, double max);
+      double getPeakStart_(const Type& type);
+      double getMaxPosition_(const RooAbsData& data);
 
       // internal methods
       static void prepareCanvas_(TCanvas& raw);
       static void prepareFrame_(RooPlot& raw);
       std::string getOutputPath_(const std::string& subdirectory = "");
-      double getPeakStart_(const Type& type);
-      double getPeakStart_(const Type& type, double max);
-      double getMaxPosition_(const RooAbsData& data);
       int getNonZeroBins_(const RooAbsData& data);
       int getBlindedBins_(const RooAbsData& data, double blind_lowEdge, double blind_highEdge);
       double chiSquare_(const RooAbsData& data, const RooCurve& fit);
@@ -122,9 +108,9 @@ namespace analysis {
                            const std::vector<ParamModifier>& modifiers);
 
       // data member
-      static const int defaultNumberOfCoefficients_;
       static const std::string defaultOutputDir_;
       bool initialized_;
+      bool written_;
       bool splitrange_;
       std::string outputDir_;
       std::string plotDir_;
@@ -152,8 +138,12 @@ namespace analysis {
       float normChi2BkgOnly_;
       int ndfBkgOnly_;
       double covMatrix_[100];
-      double eigenVector_[100];	
+      double eigenVector_[100];
+      int nbins_;
     };
+
+    inline void FitContainer::Import(const RooAbsArg& inArg){ workspace_.import(inArg);}
+    inline void FitContainer::Write(){ if(!written_) { workspace_.writeToFile(outRootFileName_.c_str()); written_ = true;}   }
 
   }
 }
