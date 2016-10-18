@@ -15,6 +15,7 @@ double Signal2Gaus(double * x, double * par);
 double RelBreitWigner(double *x, double *par);
 double ExpGausExp(double *x, double *par);
 double ExpGausLandau(double *x, double *par);
+double Signal2GausExpo(double *x, double *par);
 
 
 void FitMass(const std::string & fileName = "MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-900_TuneCUETP8M1_13TeV-pythia8",
@@ -34,22 +35,22 @@ int signal_fit(){
 
 	const auto cmsswBase = static_cast<std::string>(gSystem->Getenv("CMSSW_BASE"));
 	std::vector<Point> signal = {Point(700,cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_chayanit-SUSYGluGluToBBHToBB_M-700_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root"),
-								 Point(900,cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_chayanit-SUSYGluGluToBBHToBB_M-900_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root"),
-								 Point(1100,cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_chayanit-SUSYGluGluToBBHToBB_M-1100_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root"),
-								 Point(1300,cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_clange-SUSYGluGluToBBHToBB_M-1300_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root"),
-								 Point(500,cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_clange-SUSYGluGluToBBHToBB_M-500_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root"),
-								 Point(600,cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_clange-SUSYGluGluToBBHToBB_M-600_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root"),
-								 Point(200,cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-200_TuneCUETP8M1_13TeV-pythia8.root"),
-								 Point(250,cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-250_TuneCUETP8M1_13TeV-pythia8.root"),
-								 Point(300, cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-300_TuneCUETP8M1_13TeV-pythia8.root"),
-								 Point(350,cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-350_TuneCUETP8M1_13TeV-pythia8.root"),
-								 Point(400,cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-400_TuneCUETP8M1_13TeV-pythia8.root")
+//								 Point(900,cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_chayanit-SUSYGluGluToBBHToBB_M-900_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root"),
+//								 Point(1100,cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_chayanit-SUSYGluGluToBBHToBB_M-1100_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root"),
+//								 Point(1300,cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_clange-SUSYGluGluToBBHToBB_M-1300_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root"),
+//								 Point(500,cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_clange-SUSYGluGluToBBHToBB_M-500_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root"),
+//								 Point(600,cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_clange-SUSYGluGluToBBHToBB_M-600_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root"),
+//								 Point(200,cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-200_TuneCUETP8M1_13TeV-pythia8.root"),
+//								 Point(250,cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-250_TuneCUETP8M1_13TeV-pythia8.root"),
+//								 Point(300, cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-300_TuneCUETP8M1_13TeV-pythia8.root"),
+//								 Point(350,cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-350_TuneCUETP8M1_13TeV-pythia8.root"),
+//								 Point(400,cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-400_TuneCUETP8M1_13TeV-pythia8.root")
 			};
 
 	TCanvas can;
 	for(const auto & p : signal){
 		std::string name = "#Phi("+std::to_string(p.mass)+")#rightarrowb#bar{b}";
-		FitMass(p.path,"bbH_Mbb",name);
+		FitMass(p.path,"bbH_Mbb",name,"low mass trigger",2);
 	}
 //	FitMass(signal.at(0).path);
 
@@ -109,8 +110,13 @@ double RelBreitWigner(double *x, double *par){
 	  double bw = norm * k / ( std::pow(E2-M2,2.)+ M2*G2 );
 
 
-	  if(M < par[3]) return pol;
-	  else return bw;
+//	  if(M < par[3]) return pol;
+//	  else return bw;
+	  return bw;
+
+}
+
+double Signal2GausExpo(double *x, double *par){
 
 }
 
@@ -312,7 +318,7 @@ void FitMass(const std::string & fileName,
     fitFunc->SetParNames("global_norm","mean","sigmaL1","sigmaL2","sigmaR1","sigmaR2","norm_g1","norm_g2","tail_shift","tail_sigma");
   }
   else if (iopt==2) {
-	  fitFunc = new TF1("fitFunc",Signal3Gaus,xmin,xmax,8);
+	  fitFunc = new TF1("fitFunc",Signal2Gaus,xmin,xmax,8);
 	  fitFunc->SetParameter(0,0.3*maximum);
 	  fitFunc->SetParameter(1,0.7*mean);
 	  fitFunc->SetParameter(2,0.6*rms);
@@ -322,8 +328,8 @@ void FitMass(const std::string & fileName,
 	  fitFunc->SetParameter(6,0.3*maximum);
 	  fitFunc->SetParameter(7,1.3*mean);
 	  fitFunc->SetParameter(8,0.6*rms);
-	  fitFunc->SetParameter(9,1.6*mean);
-	  fitFunc->SetParameter(10,rms);
+//	  fitFunc->SetParameter(9,1.6*mean);
+//	  fitFunc->SetParameter(10,rms);
   }
   else if (iopt==3){
 	    fitFunc = new TF1("fitFunc",SimplifiedModel,xmin,xmax,8);
@@ -356,6 +362,15 @@ void FitMass(const std::string & fileName,
 	    fitFunc->SetParameter(7,0.5);
 	    fitFunc->SetParLimits(7,0,1);
 	    fitFunc->SetParNames("global_norm","exp(mean)","exp(sigma)","gaus(sigma)","landau(mean)","landau(sigma)","gaus2(sigma)","gaus1(frac)");
+  }
+  else if(iopt == 6){
+	  fitFunc = new TF1("fitFunc",RelBreitWigner,xmin,xmax,6);
+	  fitFunc->SetParameter(0,0.7*mean);
+	  fitFunc->SetParameter(1,0.5 * rms);
+	  fitFunc->SetParameter(2,1);
+	  fitFunc->SetParameter(3,1);
+	  fitFunc->SetParameter(4,peak);
+	  fitFunc->SetParameter(5,1.2*rms);
   }
 
 

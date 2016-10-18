@@ -150,9 +150,11 @@ void setup_bg(const string& in_path,const string& out_path, TH1& data_obs){
 	string bg_pdf_name = "background";
 	if(w.pdf(bg_pdf_name.c_str()) == nullptr) throw invalid_argument("Error: no <background> pdf has been found in bg workspace");
 	RooRealVar bg_norm((bg_pdf_name+"_norm").c_str(),"background_norm",data_obs.Integral());
+	bg_norm.setConstant();
 
 	w.import(data);
 	w.import(bg_norm);
+	w.Print("v");
 	w.writeToFile(out_path.c_str());
 }
 

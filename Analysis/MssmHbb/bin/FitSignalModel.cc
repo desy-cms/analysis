@@ -53,7 +53,7 @@ int main(int argc, char* argv[]) {
 
 	std::map<int,std::string> signal;
 	signal[700] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_chayanit-SUSYGluGluToBBHToBB_M-700_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root";
-	signal[900] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_chayanit-SUSYGluGluToBBHToBB_M-900_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root";
+/*	signal[900] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_chayanit-SUSYGluGluToBBHToBB_M-900_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root";
 	signal[1100]= "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_chayanit-SUSYGluGluToBBHToBB_M-1100_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root";
 	signal[1300]= "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_clange-SUSYGluGluToBBHToBB_M-1300_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root";
 	signal[500] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_clange-SUSYGluGluToBBHToBB_M-500_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root";
@@ -75,7 +75,7 @@ int main(int argc, char* argv[]) {
   for(const auto & mass : signal){
 	  TFile f((cmsswBase + mass.second).c_str(),"read");
 	  ab::HistContainer histContainer(cmsswBase + mass.second);//MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-400_TuneCUETP8M1_13TeV-pythia8.root");
-	  histContainer.Rebin(1);
+	  histContainer.Rebin(2);
 	  std::string name = cmsswBase + "/src/Analysis/MssmHbb/output/" + "mass_point_" + std::to_string(mass.first);
 	  std::string hname = histo_name;
 	  //Central value
@@ -195,10 +195,10 @@ void plotShapeParameters(const int & mass,const vector<string> &syst, const std:
 		for(const auto& p : parameters){
 			++i;
 			double up = (wUp.var(p.c_str())->getValV() - wCn.var(p.c_str())->getValV()) / wCn.var(p.c_str())->getValV();
-			if(wUp.var(p.c_str())->getError() != 0) e_up = wUp.var(p.c_str())->getValV()/wCn.var(p.c_str())->getValV() * sqrt( pow(wUp.var(p.c_str())->getValV()/wUp.var(p.c_str())->getError(),2) + pow(wCn.var(p.c_str())->getValV()/wCn.var(p.c_str())->getError(),2) );
+			if(wUp.var(p.c_str())->getError() != 0) e_up = (wUp.var(p.c_str())->getError() + wCn.var(p.c_str())->getError()) / 2.;
 			else e_up = 0;
 			double down = (wDn.var(p.c_str())->getValV() - wCn.var(p.c_str())->getValV()) /wCn.var(p.c_str())->getValV();
-			if(wDn.var(p.c_str())->getError() != 0) e_down = wDn.var(p.c_str())->getValV()/wCn.var(p.c_str())->getValV() * sqrt( pow(wDn.var(p.c_str())->getValV()/wDn.var(p.c_str())->getError(),2) + pow(wCn.var(p.c_str())->getValV()/wCn.var(p.c_str())->getError(),2) );
+			if(wDn.var(p.c_str())->getError() != 0) e_down = (wDn.var(p.c_str())->getError() + wCn.var(p.c_str())->getError()) / 2.;
 			else e_down = 0;
 			cout<<p<<" val: "<<up<<" +/- "<<e_up<<" "<<down<<" +/- "<<e_down<<endl;
 			hUp.GetXaxis()->SetBinLabel(i,p.c_str());
