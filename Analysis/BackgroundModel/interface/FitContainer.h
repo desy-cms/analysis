@@ -5,6 +5,7 @@
 #include <string>
 #include <memory>
 #include <array>
+#include <fstream>
 
 #include "TH1.h"
 #include "TFile.h"
@@ -106,6 +107,7 @@ namespace analysis {
       double chiSquare_CA(const RooPlot& frame, const char* curvename, const char* histname, int nFitParam, double blind_lowEdge, double blind_highEdge);
       bool applyModifiers_(RooAbsPdf& pdf,
                            const std::vector<ParamModifier>& modifiers);
+      void makeLog_(const RooFitResult& fitResult);
 
       // data member
       static const std::string defaultOutputDir_;
