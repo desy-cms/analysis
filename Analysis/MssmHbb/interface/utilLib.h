@@ -2,6 +2,7 @@
 #ifndef MSSMHBB_INTERFACE_UTILLIB_H_
 #define MSSMHBB_INTERFACE_UTILLIB_H_
 
+#include <iostream>
 #include <sstream>
 #include <iomanip>
 #include <string>
@@ -35,6 +36,8 @@ std::string to_string_with_precision(const T a_value, const int n = 6)
 }
 
 const bool findStrings(const std::string & input, const std::string & needful);
+
+int returnMassPoint(const std::string& name);
 
 //}  // namespace myUtil
 

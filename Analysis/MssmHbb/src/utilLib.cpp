@@ -9,3 +9,17 @@ const bool findStrings(const std::string & input, const std::string & needful)
 	if(input1.find(input2) != std::string::npos) return true;
 	else return false;
 }
+
+int returnMassPoint(const std::string& name){
+	int Mpoint = 0;
+	std::string MassPos = "_M-";
+	auto p1 = name.std::string::find(MassPos) + 3;
+	if(p1 == std::string::npos) {
+		std::cerr<<"FileNames were changed!!!!"<<std::endl;
+		exit(1);
+	}
+	auto p2 = name.std::string::find("_",p1);
+	std::string MpointString = name.std::string::substr(p1,size_t(p2-p1));
+	Mpoint = std::stoi(MpointString);
+	return Mpoint;
+}
