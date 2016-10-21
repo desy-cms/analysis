@@ -91,6 +91,7 @@ void ProbabilityDensityFunctions::setPdf(const std::string& function, const std:
 	else if (function == "mynovopsprod") getMyNovoPSProd(name);
 	else if (function == "extnovosibirsk") getExtNovosibirsk(name);
 	else if (function == "extnovopsprod") getExtNovoPSProd(name);
+	else if (function == "doublegausexp") getDoubleGausExp(name);
 	else if (function == "extnovoeffprod") getExtNovoEffProd(name);
 	else {
 		std::stringstream msg;
@@ -169,8 +170,8 @@ void ProbabilityDensityFunctions::getCrystalBall(const std::string& name){
 
 	  RooRealVar m0("m0", "m0",getPeakStart(), 50.0, 500.0, "GeV");
 	  RooRealVar sigma("sigma", "sigma", 35.0, 10.0, 100.0, "GeV");
-	  RooRealVar alpha("alpha", "alpha", -1.0, -0.1);
-	  RooRealVar n("n", "n", 20.0, 3.0, 100.0);
+	  RooRealVar alpha("alpha", "alpha", -5.0, -0.1);
+	  RooRealVar n("n", "n", 20.0, 0.0, 100.0);
 	  RooCBShape cb(name.c_str(), (name + "_crystalball").c_str(),
 	                var, m0, sigma, alpha, n);
 	  workspace_->import(cb);
@@ -222,9 +223,9 @@ void ProbabilityDensityFunctions::getDoubleCB(const std::string& name){
 	RooRealVar mean("mean", "mean", getPeakStart(), 50.0, 500.0, "GeV");
 	RooRealVar width("width", "width", 35.0, 5.0, 100.0, "GeV");
 	RooRealVar alpha1("alpha1", "alpha1", -1.0, -0.1);
-	RooRealVar n1("n1", "n1", 20.0, 3.0, 100.0);
+	RooRealVar n1("n1", "n1", 20.0, 0.1, 100.0);
 	RooRealVar alpha2("alpha2", "alpha2", 0.1, 1.0);
-	RooRealVar n2("n2", "n2", 20.0, 3.0, 100.0);
+	RooRealVar n2("n2", "n2", 20.0, 0.1, 100.0);
 	RooDoubleCB doubleCB(name.c_str(),
 	                       (name + "_doublecb").c_str(),
 	                       var, mean, width, alpha1, n1, alpha2, n2);
@@ -298,28 +299,37 @@ void ProbabilityDensityFunctions::getExpGausExp(const std::string& name){
 
 void ProbabilityDensityFunctions::getGausExp(const std::string& name){
 	RooRealVar& var = *workspace_->var(var_.c_str());
-	RooRealVar mean("mean", "mean", getPeakStart(), 50.0, 500.0, "GeV");
+	RooRealVar mean("mean", "mean", getPeakStart(), 50.0, 1500.0, "GeV");
 	RooRealVar sigma("sigma", "sigma", 35.0, 5.0, 150.0, "GeV");
-	RooRealVar right("right", "right", 0.4, 0.1, 15.0);
+	RooRealVar tail_shift("tail_shift", "tail_shift", getPeakStart() * 1.2, 50., 1800);
+	RooRealVar tail_sigma("tail_sigma", "tail_sigma", 50., 5., 300);
 	RooGausExp gausExp(name.c_str(),
 	                           (name + "_gausexp").c_str(),
-	                           var, mean, sigma, right);
+	                           var, mean, sigma, tail_shift,tail_sigma);
 	workspace_->import(gausExp);
 }
 
 void ProbabilityDensityFunctions::getDoubleGausExp(const std::string& name){
-	std::string ge_name = name + "_gausexp";
-	getGausExp(ge_name);
-	RooGausExp& gausExp = (RooGausExp&) *workspace_->pdf(ge_name.c_str());
-
-	std::string gaus_name = name + "_gaus2";
-	getGaus(gaus_name,"mean2","sigma2");
-	RooGaussian& gaus2 = (RooGaussian&) *workspace_->pdf(gaus_name.c_str());
-
-	RooRealVar g1frac("g1frac","fraction of gauss1",0.5);
-	RooRealVar g2frac("g2frac","fraction of gauss2",0.5);
-	RooAddPdf sum(name.c_str(),(name + "_doublegausexp").c_str(),RooArgList(gausExp,gaus2),RooArgList(g1frac,g2frac));
-	workspace_->import(sum);
+	RooRealVar& var = *workspace_->var(var_.c_str());
+	RooRealVar mean("mean", "mean", getPeakStart(), 50.0, 1500.0, "GeV");
+	RooRealVar sigmaL("sigmaL", "sigmaL", 35.0, 5.0, 400.0, "GeV");
+	RooRealVar sigmaR("sigmaR", "sigmaR", 35.0, 5.0, 400.0, "GeV");
+	RooRealVar tail_shift("tail_shift", "tail_shift", getPeakStart() * 1.2, 50., 1800);
+	RooRealVar tail_sigma("tail_sigma", "tail_sigma", 50., 5., 300);
+	RooDoubleGausExp res(name.c_str(),name.c_str(),var,mean,sigmaL,sigmaR,tail_shift,tail_sigma);
+	workspace_->import(res);
+//	std::string ge_name = name + "_gausexp";
+//	getGausExp(ge_name);
+//	RooGausExp& gausExp = (RooGausExp&) *workspace_->pdf(ge_name.c_str());
+//
+//	std::string gaus_name = name + "_gaus2";
+//	getGaus(gaus_name,"mean2","sigma2");
+//	RooGaussian& gaus2 = (RooGaussian&) *workspace_->pdf(gaus_name.c_str());
+//
+//	RooRealVar g1frac("g1frac","fraction of gauss1",0.5);
+//	RooRealVar g2frac("g2frac","fraction of gauss2",0.5);
+//	RooAddPdf sum(name.c_str(),(name + "_doublegausexp").c_str(),RooArgList(gausExp,gaus2),RooArgList(g1frac,g2frac));
+//	workspace_->import(sum);
 }
 
 void ProbabilityDensityFunctions::getTripleGausExp(const std::string& name){
@@ -371,11 +381,16 @@ void ProbabilityDensityFunctions::getExpBWExp(const std::string& name){
 
 void ProbabilityDensityFunctions::getBukin(const std::string& name){
 	RooRealVar& var = *workspace_->var(var_.c_str());
-	RooRealVar Xp("Xp", "Xp", getPeakStart(), 50.0, 350.0, "GeV");
-	RooRealVar sigp("sigp", "sigp", 20.0, 85.0, "GeV");
-	RooRealVar xi("xi", "xi", 0.0, 0.55);
-	RooRealVar rho1("rho1", "rho1", 0.05, -0.1, 0.1);
-	RooRealVar rho2("rho2", "rho2", -0.05, -0.07, 0.045);
+//	RooRealVar Xp("Xp", "Xp", getPeakStart(), 50.0, 350.0, "GeV");
+//	RooRealVar sigp("sigp", "sigp", 20.0, 85.0, "GeV");
+//	RooRealVar xi("xi", "xi", 0.0, 0.55);
+//	RooRealVar rho1("rho1", "rho1", 0.05, -0.1, 0.1);
+//	RooRealVar rho2("rho2", "rho2", -0.05, -0.07, 0.045);
+	RooRealVar Xp("Xp", "Xp", getPeakStart(), 00.0, 1800.0, "GeV");
+	RooRealVar sigp("sigp", "sigp", 100,20.0, 200.0, "GeV");
+	RooRealVar xi("xi", "xi", 0.2,-10.0, 10.0);
+	RooRealVar rho1("rho1", "rho1", -0.07,-10.,0.1);
+	RooRealVar rho2("rho2", "rho2", 0.14,-3.,0.2);
 	RooBukinPdf bukin(name.c_str(),
 	                    (name + "_bukin").c_str(),
 	                    var, Xp, sigp, xi, rho1, rho2);
@@ -537,24 +552,23 @@ void ProbabilityDensityFunctions::getRelBreitWigner(const std::string& name){
 
 void ProbabilityDensityFunctions::getRooQuadGausExp(const std::string& name){
 	RooRealVar& var = *workspace_->var(var_.c_str());
-//	RooRealVar mean("mean","mean",getPeakStart(),200,1500,"GeV");
-//	RooRealVar sigmaL1("sigmaL1", "sigmaL1", 90.0, 20., 800.0, "GeV");
-//	RooRealVar sigmaL2("sigmaL2", "sigmaL2", 225.0, 20., 800.0, "GeV");
-//	RooRealVar sigmaR1("sigmaR1", "sigmaR1", 409.0, 10., 800.0, "GeV");
-//	RooRealVar sigmaR2("sigmaR2", "sigmaR2", 60.0, 20., 800.0, "GeV");
-//	RooRealVar tail_shift("tail_shift", "tail_shift", 1.2*getPeakStart(), 200.0, 1500.0, "GeV");
-//	RooRealVar tail_sigma("tail_sigma", "tail_sigma", 157.0, 0.5, 900.0, "GeV");
-//	RooRealVar norm_g1("norm_g1", "norm_g1", 0.5, 0, 1);
-//	RooRealVar norm_g2("norm_g2", "norm_g2", 0.01, 0, 1);
 	RooRealVar mean("mean","mean",getPeakStart(),200,1500,"GeV");
 	RooRealVar sigmaL1("sigmaL1", "sigmaL1", 0.1*getPeakStart(), 20., 800.0, "GeV");
 	RooRealVar sigmaL2("sigmaL2", "sigmaL2", 0.2*getPeakStart(), 20., 800.0, "GeV");
 	RooRealVar sigmaR1("sigmaR1", "sigmaR1", 0.1*getPeakStart(), 10., 800.0, "GeV");
 	RooRealVar sigmaR2("sigmaR2", "sigmaR2", 0.1*getPeakStart(), 20., 800.0, "GeV");
 	RooRealVar tail_shift("tail_shift", "tail_shift", 1.2*getPeakStart(), 200.0, 1500.0, "GeV");
-	RooRealVar tail_sigma("tail_sigma", "tail_sigma", 0.5*getPeakStart(), 0.5, 900.0, "GeV");
+	RooRealVar tail_sigma("tail_sigma", "tail_sigma", 0.5*getPeakStart(), 0.5, 1500.0, "GeV");
 	RooRealVar norm_g1("norm_g1", "norm_g1", 0.5, 0, 1);
 	RooRealVar norm_g2("norm_g2", "norm_g2", 0.5, 0, 1);
+
+//	RooFormulaVar sigmaR2("sigmaR2","sigmaR2","@0",RooArgSet(sigmaL2));
+//	RooFormulaVar sigmaR1("sigmaR1","sigmaR1","@0",RooArgSet(sigmaL1));
+//	RooFormulaVar norm_g2("norm_g2","norm_g2","@0",RooArgList(norm_g1));
+
+//	norm_g2.setVal(0.);
+//	norm_g2.setConstant();
+
 	RooQuadGausExp quadgexp(name.c_str(),(name + "_quadgexp").c_str(),var,mean,sigmaL1,sigmaL2,sigmaR1,sigmaR2,tail_shift,tail_sigma,norm_g1,norm_g2);
 	workspace_->import(quadgexp);
 }
@@ -639,4 +653,5 @@ const std::vector<std::string> ProbabilityDensityFunctions::availableModels_ =
    "extnovopsprod",
    "extnovoeffprod",
    "relbreitwigner",
+   "doublegausexp",
    "quadgausexp"};

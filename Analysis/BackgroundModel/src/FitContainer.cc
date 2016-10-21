@@ -295,7 +295,6 @@ std::unique_ptr<RooFitResult> FitContainer::FitSignal(const std::string & name) 
 	  fitResult->floatParsInit().Print("v");
 	  std::cout << "\nfloating parameters (final):" << std::endl;
 	  fitResult->floatParsFinal().Print("v");
-	  std::cout<<"NAME: "<<name<<std::endl;
 	  //Create log file:
 	  makeLog_(*fitResult);
 
@@ -314,6 +313,8 @@ std::unique_ptr<RooFitResult> FitContainer::FitSignal(const std::string & name) 
 	               RooFit::Range(fitRangeId_.c_str()),
 	               RooFit::Normalization(signal.sumEntries("1", fitRangeId_.c_str()),
 	                                     RooAbsReal::NumEvent));
+//	  Pdf.paramOn(frame.get(),RooFit::Layout(0.65,0.9,0.6));//0.98-pad1->GetRightMargin(),0.83-pad1->GetTopMargin()));
+//	  frame->getAttText()->SetTextSize(0.03);
 
 	    int nPars = fitResult->floatParsFinal().getSize();
 
@@ -795,7 +796,7 @@ double FitContainer::chiSquare_(const RooAbsData& data, const RooCurve& fit) {
       double model = fit.interpolate(center);
       double dataPoint = content*densityCorrection;
       double pull = (dataPoint - model)/hist->GetBinError(i)/densityCorrection;
-      std::cout << "chi^2 at bin " << i << " : " << pull*pull << std::endl;
+//      std::cout << "chi^2 at bin " << i << " : " << pull*pull << std::endl;
       chi2 += pull*pull;
     }
   }
@@ -818,12 +819,12 @@ double FitContainer::chiSquare_(const RooAbsData& data, const RooCurve& fit, dou
     double center = hist->GetBinCenter(i);  	// x value
     double content = hist->GetBinContent(i);	// y value
     if (content > 0.0 && center > fitRangeMin_ && center < fitRangeMax_ ) {
-      std::cout << "center = " << center << std::endl; 
+//      std::cout << "center = " << center << std::endl;
       double densityCorrection = avgBinSize/hist->GetBinWidth(i);
       double model = fit.interpolate(center);
       double dataPoint = content*densityCorrection;
       double pull = (dataPoint - model)/hist->GetBinError(i)/densityCorrection;
-      std::cout << "pull^2 at bin " << i << " : " << pull*pull << std::endl;
+//      std::cout << "pull^2 at bin " << i << " : " << pull*pull << std::endl;
       chi2 += pull*pull;
       nbin++;
     }
@@ -885,7 +886,7 @@ double FitContainer::chiSquare_CA(const RooPlot& frame, const char* curvename, c
 	// Add pull^2 to chisq
 	if (y!=0) {      
 		double pull = (y>avg) ? ((y-avg)/eyl) : ((y-avg)/eyh) ;
-		std::cout << "chi^2 at bin " << i << " : " << pull*pull << std::endl;
+//		std::cout << "chi^2 at bin " << i << " : " << pull*pull << std::endl;
 		chisq += pull*pull ;
 		nbin++;
 	}
@@ -982,6 +983,8 @@ void FitContainer::makeLog_(const RooFitResult& fitResult){
 	fb.open((plotDir_ + "log.txt").c_str(),std::ios::out);
 	std::ostream f(&fb);
 //	auto f = ROOT::std::ofstream((plotDir_ + "/log.txt").c_str());
+	f<<"\n Normalized chi^2: "<<normChi2BkgOnly_<<" Probability: "<<TMath::Prob(chi2BkgOnly_,ndfBkgOnly_);
+
 	f<<"\n constant parameters: \n";
 	fitResult.constPars().printMultiline(f,1111,1);
 	f<<"\n floating parameters (init): \n";
