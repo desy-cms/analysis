@@ -69,10 +69,10 @@ void templates()
 //   highMF[1300] = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_1pb_xsection_highM_SUSYGluGluToBBHToBB_M-1300_TuneCUETP8M1_13TeV-pythia8.root");
 
 
-//   allInOne(inF,"lowM");
+   allInOne(inF,"lowM");
 //   allInOne(highMF,"highM");
 
-//   sistTemp(inF,"lowM");
+   sistTemp(inF,"lowM");
 //   sistTemp(highMF,"highM");
 
    std::vector<int> points = {300,500,700,900,1100,1300};
@@ -535,7 +535,9 @@ void sistTemp(const std::map<int,TFile*> & inF,const std::string & regime){
 			   cPad[i-1][j-1]->SetRightMargin(0.05);
 			   cPad[i-1][j-1]->Draw();
 			   cPad[i-1][j-1]->cd();
-			   singleL[i-1][j-1] 	= new TLegend(0.6,0.7,0.9,0.9);
+			   double lxmin = 0.6, lxmax = 0.9, lymin = 0.7, lymax = 0.9;
+			   if(f.first > 900) {lxmin = 0.25; lxmax = 0.55;}
+			   singleL[i-1][j-1] 	= new TLegend(lxmin,lymin,lxmax,lymax);
 			   (p.second).second->SetTitle((std::to_string(f.first)+ " GeV mass point, " + p.first+" variation").c_str());
 
 			   (p.second).first->SetMarkerColor(kRed);
@@ -597,7 +599,9 @@ void sistTemp(const std::map<int,TFile*> & inF,const std::string & regime){
 			   horizLine2 -> Draw();
 
 			   cPad[i-1][j-1]->cd();
-			   text[i-1][j-1]		= new TPaveText  (0.6,0.5,0.9,0.7,"NDC");
+			   double xmin = 0.6, ymin = 0.5, xmax = 0.9, ymax = 0.7;
+			   if (f.first > 900) {xmin = 0.25; xmax = 0.55;}
+			   text[i-1][j-1]		= new TPaveText  (xmin,ymin,xmax,ymax,"NDC");
 			   text[i-1][j-1]->SetFillColor(0);
 			   text[i-1][j-1]->SetShadowColor(0);
 			   text[i-1][j-1]->AddText(("lnN +2#sigma: " + std::to_string(lnN[i-1][j-1].first)).c_str());

@@ -12,10 +12,13 @@ double SimplifiedModel(double *x, double *par);
 double SignalLowMass(double *x, double *par);
 double Signal3Gaus(double * x, double * par);
 double Signal2Gaus(double * x, double * par);
+double Signal4Gaus(double * x, double * par);
 double RelBreitWigner(double *x, double *par);
 double ExpGausExp(double *x, double *par);
 double ExpGausLandau(double *x, double *par);
 double Signal2GausExpo(double *x, double *par);
+double DoubleGausExp(double *x, double *par);
+double Bukin(double *x, double *par);
 
 
 void FitMass(const std::string & fileName = "MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-900_TuneCUETP8M1_13TeV-pythia8",
@@ -34,7 +37,8 @@ struct Point{
 int signal_fit(){
 
 	const auto cmsswBase = static_cast<std::string>(gSystem->Getenv("CMSSW_BASE"));
-	std::vector<Point> signal = {Point(700,cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_chayanit-SUSYGluGluToBBHToBB_M-700_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root"),
+	std::vector<Point> signal = {
+//								Point(700,cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_chayanit-SUSYGluGluToBBHToBB_M-700_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root"),
 //								 Point(900,cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_chayanit-SUSYGluGluToBBHToBB_M-900_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root"),
 //								 Point(1100,cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_chayanit-SUSYGluGluToBBHToBB_M-1100_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root"),
 //								 Point(1300,cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_clange-SUSYGluGluToBBHToBB_M-1300_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root"),
@@ -42,7 +46,7 @@ int signal_fit(){
 //								 Point(600,cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_clange-SUSYGluGluToBBHToBB_M-600_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root"),
 //								 Point(200,cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-200_TuneCUETP8M1_13TeV-pythia8.root"),
 //								 Point(250,cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-250_TuneCUETP8M1_13TeV-pythia8.root"),
-//								 Point(300, cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-300_TuneCUETP8M1_13TeV-pythia8.root"),
+								 Point(300, cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-300_TuneCUETP8M1_13TeV-pythia8.root"),
 //								 Point(350,cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-350_TuneCUETP8M1_13TeV-pythia8.root"),
 //								 Point(400,cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-400_TuneCUETP8M1_13TeV-pythia8.root")
 			};
@@ -50,12 +54,71 @@ int signal_fit(){
 	TCanvas can;
 	for(const auto & p : signal){
 		std::string name = "#Phi("+std::to_string(p.mass)+")#rightarrowb#bar{b}";
-		FitMass(p.path,"bbH_Mbb",name,"low mass trigger",2);
+		FitMass(p.path,"templates/bbH_Mbb_VIS",name,"low mass trigger",3);
 	}
 //	FitMass(signal.at(0).path);
 
 
 	return 0;
+}
+
+double Bukin(double *x, double *par){
+	double xx = x[0];
+	double norm = par[0];
+	double Xp = par[1];
+	double sigp = par[2];
+	double rho1 = par[3];
+	double rho2 = par[4];
+	double xi = par[5];
+	double consts = 2*sqrt(2*log(2.));
+
+
+	double r1=0,r2=0,r3=0,r4=0,r5=0,hp=0;
+	double x1 = 0,x2 = 0;
+	double fit_result = 0;
+	hp=sigp*consts;
+	r3=log(2.);
+	r4=sqrt(TMath::Power(xi,2)+1);
+	r1=xi/r4;
+
+	  if(TMath::Abs(xi) > exp(-6.)){
+	       r5=xi/log(r4+xi);
+	  }
+	     else
+	       r5=1;
+
+	     x1 = Xp + (hp / 2) * (r1-1);
+	     x2 = Xp + (hp / 2) * (r1+1);
+
+	     //--- Left Side
+	     if(xx < x1){
+	       r2=rho1*TMath::Power((xx-x1)/(Xp-x1),2)-r3 + 4 * r3 * (xx-x1)/hp * r5 * r4/TMath::Power((r4-xi),2);
+	     }
+	     //--- Center
+	     else if(xx < x2) {
+	       if(TMath::Abs(xi) > exp(-6.)) {
+	         r2=log(1 + 4 * xi * r4 * (xx-Xp)/hp)/log(1+2*xi*(xi-r4));
+	         r2=-r3*(TMath::Power(r2,2));
+	       }
+	       else{
+	         r2=-4*r3*TMath::Power(((xx-Xp)/hp),2);
+	       }
+	     }
+	     //--- Right Side
+	     else {
+	       r2=rho2*TMath::Power((xx-x2)/(Xp-x2),2)-r3 - 4 * r3 * (xx-x2)/hp * r5 * r4/TMath::Power((r4+xi),2);
+	     }
+
+
+
+	     if(TMath::Abs(r2) > 100){
+	       fit_result = 0;
+	     }
+	     else{
+	       //---- Normalize the result
+	       fit_result = exp(r2);
+	     }
+	   return norm * fit_result;
 }
 
 double SimplifiedModel(double *x, double *par){
@@ -117,34 +180,88 @@ double RelBreitWigner(double *x, double *par){
 }
 
 double Signal2GausExpo(double *x, double *par){
+	double xx = x[0];
+	double norm = par[0];
+	double a1 = (xx - par[1])/par[2];
+	double a2 = (xx - par[1])/par[3];
+	double n1 = par[4];
+	double g1 = n1*TMath::Exp(-0.5 * a1* a1);
+	double g2 = (1-n1)*TMath::Exp(-0.5 * a1 * a2);
 
+	double shift = par[5];
+	double b1 = (shift - par[1])/par[2];
+	double b2 = (shift - par[1])/par[3];
+	double n2 = n1*TMath::Exp(-0.5 * b1* b1) + (1-n1)*TMath::Exp(-0.5 * b2 * b2);
+	double exp = n2 * TMath::Exp(- (xx - shift) / par[6] );
+
+	double result = exp;
+	if(xx < shift) result = g1+g2;
+	return par[0] * result;
+}
+
+double Signal4Gaus(double * x, double * par){
+	double xx = x[0];
+	double norm = par[0];
+	double aL1 = (xx - par[1])/par[2];
+	double aL2 = (xx - par[1])/par[3];
+	double n1 = par[4];
+
+	double gL = n1*TMath::Exp(-0.5 * aL1* aL1) + (1-n1)*TMath::Exp(-0.5 * aL2 * aL2);
+
+	//Right part;
+//	double shift = par[5];
+//	double bL1 = (shift - par[1])/par[2];
+//	double bL2 = (shift - par[1])/par[3];
+//	double nR = n1*TMath::Exp(-0.5 * bL1* bL1) + (1-n1)*TMath::Exp(-0.5 * bL2 * bL2);
+
+	double aR1 = (xx - par[1])/par[5];
+	double gR = TMath::Exp(-0.5 * aR1* aR1);
+
+	double aR2 = (xx - par[7])/par[8];
+//	double nR2 = nR * TMath::Exp(-0.5 * (par[7] - par[1])/par[6] * (par[7] - par[1])/par[6]);
+	double nR2 = TMath::Exp(-0.5 * (par[7] - par[1])/par[5] * (par[7] - par[1])/par[5] );
+	double gR2 = nR2 * TMath::Exp(-0.5 * aR2* aR2);
+
+
+
+	double result = gR2;
+//	if(xx < shift) result = gL;
+//	else if (xx >= shift && xx < par[7]) result = gR;
+//	else result = gR2;
+	if(result < par[1]) result = gL;
+	else if ( result >= par[1] && result < par[7] )	result = gR;
+	else result = gR2;
+
+	return norm * result;
 }
 
 double Signal2Gaus(double * x, double * par) {
 
   Double_t a1 = (x[0]-par[1])/par[2];
-  Double_t a2 = (x[0]-par[4])/par[5];
+  Double_t a2 = (x[0]-par[1])/par[3];
 
-  Double_t b1 = (par[6]-par[1])/par[2];
-  Double_t b2 = (par[6]-par[4])/par[5];
+  Double_t b1 = (par[4]-par[1])/par[2];
+  Double_t b2 = (par[4]-par[1])/par[3];
 
-  Double_t aexp = (x[0]-par[6])/par[7];
+  Double_t aexp = (x[0]-par[4])/par[5];
 
-  Double_t g1 = par[0]*TMath::Exp(-0.5*a1*a1);
-  Double_t g2 = par[3]*TMath::Exp(-0.5*a2*a2);
+  Double_t g1 = TMath::Exp(-0.5*a1*a1);
+  Double_t g2 = TMath::Exp(-0.5*a2*a2);
   Double_t result = g1 + g2;
 
 
-  Double_t w1 = par[0]*TMath::Exp(-0.5*b1*b1);
-  Double_t w2 = par[3]*TMath::Exp(-0.5*b2*b2);
+  Double_t w1 = TMath::Exp(-0.5*b1*b1);
+  Double_t w2 = TMath::Exp(-0.5*b2*b2);
   Double_t norm = w1 + w2;
 
-  Double_t exp = norm*TMath::Exp(-aexp);
+  Double_t exp = w2*TMath::Exp(-aexp);
 
   if (x[0]>par[6])
     result = exp;
+  else if( x[0] > par[1]) result = g2;
+  else result = g1;
 
-  return result;
+  return par[0] * result;
 
 }
 
@@ -300,7 +417,7 @@ void FitMass(const std::string & fileName,
       peak = hist->GetBinCenter(iB);
     }
   }
-
+  xmin = 200;
 
   TF1 * fitFunc = nullptr;
   if (iopt==1) {
@@ -318,16 +435,16 @@ void FitMass(const std::string & fileName,
     fitFunc->SetParNames("global_norm","mean","sigmaL1","sigmaL2","sigmaR1","sigmaR2","norm_g1","norm_g2","tail_shift","tail_sigma");
   }
   else if (iopt==2) {
-	  fitFunc = new TF1("fitFunc",Signal2Gaus,xmin,xmax,8);
-	  fitFunc->SetParameter(0,0.3*maximum);
-	  fitFunc->SetParameter(1,0.7*mean);
-	  fitFunc->SetParameter(2,0.6*rms);
-	  fitFunc->SetParameter(3,0.5*maximum);
-	  fitFunc->SetParameter(4,mean);
+	  fitFunc = new TF1("fitFunc",Signal2Gaus,xmin,800,7);
+	  fitFunc->SetParameter(0,maximum);
+	  fitFunc->SetParameter(1,mean);
+	  fitFunc->SetParameter(2,rms);
+	  fitFunc->SetParameter(3,1.2 * rms);
+	  fitFunc->SetParameter(4,1.2*mean);
 	  fitFunc->SetParameter(5,0.6*rms);
-	  fitFunc->SetParameter(6,0.3*maximum);
-	  fitFunc->SetParameter(7,1.3*mean);
-	  fitFunc->SetParameter(8,0.6*rms);
+	  fitFunc->SetParameter(6,0.5);
+//	  fitFunc->SetParameter(7,1.3*mean);
+//	  fitFunc->SetParameter(8,0.6*rms);
 //	  fitFunc->SetParameter(9,1.6*mean);
 //	  fitFunc->SetParameter(10,rms);
   }
@@ -364,16 +481,42 @@ void FitMass(const std::string & fileName,
 	    fitFunc->SetParNames("global_norm","exp(mean)","exp(sigma)","gaus(sigma)","landau(mean)","landau(sigma)","gaus2(sigma)","gaus1(frac)");
   }
   else if(iopt == 6){
-	  fitFunc = new TF1("fitFunc",RelBreitWigner,xmin,xmax,6);
-	  fitFunc->SetParameter(0,0.7*mean);
-	  fitFunc->SetParameter(1,0.5 * rms);
-	  fitFunc->SetParameter(2,1);
-	  fitFunc->SetParameter(3,1);
-	  fitFunc->SetParameter(4,peak);
-	  fitFunc->SetParameter(5,1.2*rms);
+	  fitFunc = new TF1("fitFunc",Signal2GausExpo,xmin,1100,7);
+	  fitFunc->SetParameter(0,50);
+	  fitFunc->SetParameter(1,mean);
+	  fitFunc->SetParameter(2,0.5*rms);
+	  fitFunc->SetParameter(3,1.5*rms);
+	  fitFunc->SetParameter(4,0.5);
+	  fitFunc->SetParameter(5,1.2*mean);
+	  fitFunc->SetParameter(6,0.5*rms);
+	  fitFunc->SetParNames("global_norm","peak","Sigma1","Sigma2","Norm g1-g2","shift","Exp_sigma");
   }
-
-
+  else if(iopt == 7){
+	  fitFunc = new TF1("fitFunc",Signal4Gaus,xmin,xmax,9);
+//	  fitFunc->SetParameter(0,50);
+//	  fitFunc->SetParameter(1,mean);
+//	  fitFunc->SetParameter(2,0.5*rms);
+//	  fitFunc->SetParameter(3,1.5*rms);
+//	  fitFunc->SetParameter(4,0.5);
+//	  fitFunc->SetParameter(5,1.2*mean);
+//	  fitFunc->SetParameter(6,0.5*rms);
+//	  fitFunc->SetParameter(7,1.5*mean);
+//	  fitFunc->SetParameter(8,0.5*rms);
+	  fitFunc->SetParameter(0,50);
+	  fitFunc->SetParameter(1,768);
+	  fitFunc->SetParameter(2,218);
+	  fitFunc->SetParameter(3,100);
+	  fitFunc->SetParameter(4,0.15);
+	  fitFunc->SetParameter(5,50);
+	  fitFunc->SetParameter(6,1);
+	  fitFunc->SetParameter(7,1037.);
+	  fitFunc->SetParameter(8,202);
+	  fitFunc->SetParNames("global_norm","peak","Sigma1","Sigma2","Norm g1-g2","shift","Exp_sigma");
+  }
+  else if (iopt == 8){
+	  fitFunc = new TF1("fitFunc",Bukin,xmin,xmax,6);
+	  fitFunc->SetParameters(2,800,100,-0.08,0.14,-0.4);
+  }
 
   TCanvas * canv = MakeCanvas(("canv"+legend).c_str(),"",600,600);
 
