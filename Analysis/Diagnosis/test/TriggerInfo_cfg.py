@@ -4,7 +4,7 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 process = cms.Process("Diagnosis")
 
 options = VarParsing.VarParsing ('analysis')
-options.inputFiles =  '/store/mc/RunIISpring16MiniAODv2/SUSYGluGluToBBHToBB_M-300_TuneCUETP8M1_13TeV-pythia8/MINIAODSIM/PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v1/80000/80A00D8A-D638-E611-AD68-02163E01764A.root',
+options.inputFiles =  '/store/data/Run2016H/BTagCSV/MINIAOD/PromptReco-v2/000/282/800/00000/C812D088-0291-E611-832C-FA163EE3836A.root',
 options.parseArguments()
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -18,7 +18,7 @@ process.source = cms.Source ("PoolSource",
 ##  Using MINIAOD. GlobalTag just in case jet re-clustering, L1 trigger filter  etc is needed to be done
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag as customiseGlobalTag
-process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = '80X_dataRun2_Prompt_v9')
+process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = '80X_dataRun2_Prompt_v14')
 process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_CONDITIONS'
 process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
 for pset in process.GlobalTag.toGet.value():
@@ -29,6 +29,7 @@ process.GlobalTag.ReconnectEachRun = cms.untracked.bool( False )
 
 
 process.triggerinfo = cms.EDAnalyzer('TriggerInfo',
+   PathName = cms.string("HLT_AK8PFHT750_TrimMass50_v1"),
    TriggerResults = cms.InputTag("TriggerResults","","HLT"),
    TriggerObjectsStandAlone  = cms.InputTag("selectedPatTrigger","","PAT"),
 )
