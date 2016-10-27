@@ -66,16 +66,16 @@ class TriggerInfo : public edm::EDAnalyzer
       virtual void endRun(const edm::Run&, const edm::EventSetup&) override; 
 
       // ----------member data ---------------------------
+      bool first_;
+      std::string pathName_;
       edm::InputTag triggerResults_;
       edm::InputTag triggerObjectsStandAlone_;
    
-      edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjectsStandAloneTokens_;
       edm::EDGetTokenT<edm::TriggerResults> triggerResultsTokens_;
+      edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjectsStandAloneTokens_;
       
+      HLTPrescaleProvider hltPrescaleProvider_;
       HLTConfigProvider hltConfig_;
-      std::shared_ptr<HLTPrescaleProvider> hltPrescaleProvider_;
-      
-      bool first_;
 };
 
 //
@@ -89,20 +89,17 @@ class TriggerInfo : public edm::EDAnalyzer
 //
 // constructors and destructor
 //
-TriggerInfo::TriggerInfo(const edm::ParameterSet& config)
-
+TriggerInfo::TriggerInfo(const edm::ParameterSet& config):
+   first_(true),
+   pathName_(config.getParameter<std::string> ("PathName")),
+   triggerResults_(config.getParameter<edm::InputTag> ("TriggerResults")),
+   triggerObjectsStandAlone_ (config.getParameter<edm::InputTag> ("TriggerObjectsStandAlone")),
+   triggerResultsTokens_(consumes<edm::TriggerResults>(triggerResults_)),
+   triggerObjectsStandAloneTokens_(consumes<pat::TriggerObjectStandAloneCollection>(triggerObjectsStandAlone_)),
+   hltPrescaleProvider_(config, consumesCollector(), *this)
 {
    //now do what ever initialization is needed
-   first_ = true;
    
-   triggerResults_ = config.getParameter<edm::InputTag> ("TriggerResults");
-   triggerObjectsStandAlone_ = config.getParameter<edm::InputTag> ("TriggerObjectsStandAlone");
-   
-   
-   triggerResultsTokens_    = consumes<edm::TriggerResults>(triggerResults_);
-   triggerObjectsStandAloneTokens_ = consumes<pat::TriggerObjectStandAloneCollection>(triggerObjectsStandAlone_);
-   
-   hltPrescaleProvider_ = std::shared_ptr<HLTPrescaleProvider>(new HLTPrescaleProvider(config, consumesCollector(), *this));;
 }
 
 
@@ -120,10 +117,33 @@ TriggerInfo::~TriggerInfo()
 //
 
 // ------------ method called for each event  ------------
-void TriggerInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void TriggerInfo::analyze(const edm::Event& event, const edm::EventSetup& setup)
 {
    using namespace edm;
+
+   Handle<TriggerResults> triggerResultsHandler;
+   event.getByLabel(triggerResults_, triggerResultsHandler);
+   const TriggerResults & triggers = *(triggerResultsHandler.product());   
    
+   // Loop over all triggers
+   std::vector<std::string> triggerNames = hltConfig_.triggerNames();
+   for ( size_t i = 0 ; i < triggerNames.size() ; ++i )
+   {
+      if ( triggerNames[i] == pathName_ )
+      {
+         std::cout << "Path " << triggerNames[i];
+         if ( triggers.accept(i) ) std::cout << " has fired!" << std::endl;
+         else                      std::cout << " has not fired!" << std::endl;
+         const std::pair<std::vector<std::pair<std::string,int> >,int> ps = hltPrescaleProvider_.prescaleValuesInDetail(event,setup,triggerNames[i]);
+         std::cout << "     L1 prescales (in details) " << std::endl;
+         for ( size_t j = 0; j < ps.first.size() ; ++j )
+         {
+            std::cout << "         " << ps.first[j].first << "  " << ps.first[j].second << std::endl;
+         }
+         std::cout << "     HLT prescale (in details) " << ps.second << std::endl;
+         
+      }
+   }
 }
 
 
@@ -140,15 +160,20 @@ void TriggerInfo::endJob()
 
 void TriggerInfo::beginRun(const edm::Run & run, const edm::EventSetup & setup)
 {
-   bool changed;
+   // MAIN STUFF
+   // to be called every run
+   bool changed(true);
+   // initialise the holders of trigger information
+   hltPrescaleProvider_.init(run, setup, triggerResults_.process(), changed);
+   hltConfig_ = hltPrescaleProvider_.hltConfigProvider();
+   // -------------
    
+   // PRINT NAMES AND OBJECTS FOR ALL TRIGGERS
+   // be careful! not supposed to be used directly in an analysis, need further changes in the code
+   // this info may change if config changes but it will be printed for the first event only 
    if ( first_ )
    {
    
-      // initialise the holders of trigger information
-      hltPrescaleProvider_ -> init(run, setup, triggerResults_.process(), changed);
-      hltConfig_ = hltPrescaleProvider_ -> hltConfigProvider();
-      
       std::string tablename = hltConfig_.tableName();  // menu
       std::string globaltag = hltConfig_.globalTag();  // global tag
       
@@ -170,16 +195,25 @@ void TriggerInfo::beginRun(const edm::Run & run, const edm::EventSetup & setup)
       std::vector<std::string> triggerNames = hltConfig_.triggerNames();
       for ( size_t i = 0 ; i < triggerNames.size() ; ++i )
       {
+         // L1 seeds (be aware that for 2016 prompt reco the L1 information is not correct, check WBM)
          const std::vector< std::pair< bool, std::string > > & l1GtSeeds = hltConfig_.hltL1GTSeeds(triggerNames.at(i));
+         const std::vector< std::string > & l1TSeeds = hltConfig_.hltL1TSeeds(triggerNames.at(i));
+         
+         // trigger objects
          const std::vector<std::string> & saveTags = hltConfig_.saveTagsModules(triggerNames.at(i));
          outfile << triggerNames.at(i) << std::endl;
+         
          for ( size_t j = 0; j < l1GtSeeds.size(); ++j )
          {
-            outfile << "   L1 Seed: " << l1GtSeeds.at(j).second << ","<< std::endl;
+            outfile << "   L1GT Seed: " << l1GtSeeds.at(j).second << ","<< std::endl;
+         }
+         for ( size_t j = 0; j < l1TSeeds.size(); ++j )
+         {
+            outfile << "   L1T Seed: " << l1TSeeds.at(j) << ","<< std::endl;
          }
          for ( size_t j = 0; j < saveTags.size() ; ++j )
          {
-            outfile << "      Trigger Object:    " << saveTags.at(j) << "," << std::endl;
+            outfile << "      Trigger Object:    '" << saveTags.at(j) << "'," << std::endl;
          }
          outfile << "----------------------------------------" << std::endl;
          outfile << std::endl;
@@ -188,6 +222,8 @@ void TriggerInfo::beginRun(const edm::Run & run, const edm::EventSetup & setup)
       outfile.close();
       
    }
+   
+
 }
 
 
@@ -195,8 +231,8 @@ void TriggerInfo::beginRun(const edm::Run & run, const edm::EventSetup & setup)
 
 void TriggerInfo::endRun(edm::Run const& run, edm::EventSetup const& setup)
 {
+   
 }
-
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
