@@ -163,7 +163,7 @@ int main(int argc, char* argv[]) {
                	std::unique_ptr<RooFitResult> Signalfit_syst = fit_syst.FitSignal(model);
 
                	//Write signal normalisation
-               	TH1D* hSignal_240_syst = (TH1D*) f.Get((histo_name_240).c_str());
+               	TH1D* hSignal_240_syst = (TH1D*) f.Get((histo_name_240 + "_" + CMS + "_" + syst  + "_" + energy + s).c_str());
                	RooRealVar signal_norm("signal_norm","signal_norm",hSignal_240_syst->Integral());
                	signal_norm.setConstant(true);
                	fit_syst.Import(signal_norm);
