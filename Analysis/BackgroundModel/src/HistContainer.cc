@@ -69,7 +69,10 @@ std::vector<std::unique_ptr<TH1> > HistContainer::backgrounds() const {
 
 
 void HistContainer::show() const {
-  std::cout << "Data events:            " << data_->Integral() << std::endl;
+  if(data_) std::cout << "Data events:            " << data_->Integral() << std::endl;
+  if (bbH_) std::cout << "Expected signal events: " << bbH_->Integral() << std::endl;
+  if(summedBackground_) std::cout << "Background events:      " << summedBackground_->Integral() << std::endl;
+  if(!data_ && !bbH_ && !summedBackground_) throw std::logic_error("No histograms was defined in HistContainer");
   //std::cout << "Expected signal events: " << bbH_->Integral() << std::endl;
   //std::cout << "Background events:      " << summedBackground_->Integral() << std::endl;
 }
@@ -77,9 +80,11 @@ void HistContainer::show() const {
 
 std::unique_ptr<TH1> HistContainer::getHistogram_(const std::string& name) const {
   TFile file(histFileName_.c_str(), "read");
-  if(!file.Get((name+"_Mbb").c_str())) return nullptr;
+  std::string add_name = "_Mbb";
+  if(name == "data") add_name = "_obs";
+  if(!file.Get((name+add_name).c_str())) return nullptr;
   std::unique_ptr<TH1> hist =
-    staticCastUnique<TH1>(file.Get((name+"_Mbb").c_str())->Clone(name.c_str()));
+    staticCastUnique<TH1>(file.Get((name+add_name).c_str())->Clone(name.c_str()));
   if(!hist) return nullptr;
   hist->SetDirectory(0);
   file.Close();
