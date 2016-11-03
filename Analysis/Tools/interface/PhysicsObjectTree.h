@@ -83,6 +83,10 @@ namespace analysis {
             bool  idLoose_ [max_];
             bool  idTight_ [max_];
             float jecUnc_  [max_];
+            float jerSF_   [max_];
+            float jerSFUp_ [max_];
+            float jerSFDown_ [max_];
+            float jerResolution_ [max_];
             
             bool isSimpleJet_;
 
