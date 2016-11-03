@@ -104,6 +104,10 @@ PhysicsObjectTree<Jet>::PhysicsObjectTree(TChain * tree, const std::string & nam
       tree_  -> SetBranchAddress( "id_cMult"   , cMult_   );
       tree_  -> SetBranchAddress( "id_muonFrac", muFrac_  );
       tree_  -> SetBranchAddress( "jecUncert"  , jecUnc_);
+      tree_  -> SetBranchAddress( "jerSF", jerSF_);
+      tree_  -> SetBranchAddress( "jerSFDown", jerSFDown_);
+      tree_  -> SetBranchAddress( "jerSFUp", jerSFUp_);
+      tree_  -> SetBranchAddress( "jerResolution", jerResolution_);
    }
    else
    {
@@ -138,6 +142,10 @@ Collection<Jet>  PhysicsObjectTree<Jet>::collection()
              cEmFrac_[i] ,
              cMult_[i]   ,
              muFrac_[i]  );
+      jet.JerResolution(jerResolution_[i]);
+      jet.JerSf(jerSF_[i]);
+      jet.JerSfUp(jerSFUp_[i]);
+      jet.JerSfDown(jerSFDown_[i]);
       jets.push_back(jet);
    }
    Collection<Jet> jetCollection(jets, name_);
