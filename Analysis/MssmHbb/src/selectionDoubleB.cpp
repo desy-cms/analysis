@@ -40,7 +40,7 @@ selectionDoubleB::~selectionDoubleB() {
 }
 
 const bool selectionDoubleB::leadingJetSelection(const std::shared_ptr<tools::Collection<tools::Jet> > & offlineJets){
-	if(TEST) std::cout<<"I'm in selectionDoubleB::leadingJetSelection"<<std::endl;
+//	if(TEST) std::cout<<"I'm in selectionDoubleB::leadingJetSelection"<<std::endl;
 	//Selection of good Leading Jets:
 	//Only jets that pass Loose identification will be considered
 

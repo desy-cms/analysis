@@ -250,6 +250,8 @@ void Collection<Jet>::smearTo( const Collection<Jet> & collection, const double 
 			smear_pt = std::max(0.,smear_pt);
 			smear_e = jet.matched(collection.name())->e() + sf * (jet.e() - jet.matched(collection.name())->e());
 			smear_e = std::max(0.,smear_e);
+//			std::cout<<"\n n_sigma = "<<n_sigma<<" sf = "<<sf<<" Delta = "<<(jet.pt() - jet.matched(collection.name())->pt())<<" smeared = "<<sf * (jet.pt() - jet.matched(collection.name())->pt())<<std::endl;
+//			std::cout<<"Pt: ini = "<<jet.pt()<<" smeared = "<<smear_pt<< std::endl;
 		}
 		else {
 			if(sf > 1) {
@@ -261,7 +263,6 @@ void Collection<Jet>::smearTo( const Collection<Jet> & collection, const double 
 				smear_e  = jet.e();
 			}
 		}
-
 		out.SetPtEtaPhiE(smear_pt,jet.eta(),jet.phi(),smear_e);
 		jet.p4(out);
 //		std::cout<<"After smearing: "<<jet.px()<<" "<<jet.py()<<" "<<jet.pt()<<std::endl;
