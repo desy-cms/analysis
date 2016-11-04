@@ -8,3 +8,4 @@
 #include "Analysis/BackgroundModel/interface/RooQuadGausExp.h"
 #include "Analysis/BackgroundModel/interface/RooMyNovosibirsk.h"
 #include "Analysis/BackgroundModel/interface/RooExtendNovosibirsk.h"
+#include "Analysis/BackgroundModel/interface/RooDoubleGausExp.h"
