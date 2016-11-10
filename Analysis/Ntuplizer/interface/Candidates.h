@@ -56,14 +56,8 @@ namespace analysis {
            ~Candidates();
             void ReadFromEvent(const edm::Event&);
             void BTagAlgorithms(const std::vector<std::string> &, const std::vector<std::string> &);
-//            void Init(const std::vector<std::string> &btagAlgos = std::vector<std::string>(), const std::vector<std::string> & btagAlgosAlias = std::vector<std::string>()	);
-//            void Init(const std::map<std::string, TitleIndex> & btagVars = std::map<std::string,TitleIndex>()	);
-//            void Init(const std::vector<TitleAlias> & btagVars = std::vector<TitleAlias>()	);
             void Init();
             void Init(const std::vector<TitleAlias> &	);
-//             void Init(const std::vector<TitleAlias> & , const std::string &	);
-//             void Init(const std::vector<TitleAlias> & , const std::string & , const std::string & , const edm::InputTag & );
-//             void Init(const std::vector<TitleAlias> & , const std::string & , const std::string & , const std::string & , const std::string &, const edm::InputTag & );
             void AddJecInfo(const std::string & );
             void AddJecInfo(const std::string &, const std::string & );
             void AddJerInfo(const std::string &, const edm::InputTag & );
