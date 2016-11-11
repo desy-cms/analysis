@@ -24,7 +24,7 @@ int main(int argc, char * argv[])
    Analysis analysis(inputList);
    
    // Physics Objects Collections
-   analysis.addTree<Jet> ("Jets","MssmHbb/Events/slimmedJetsPuppi");
+   analysis.addTree<Jet> ("Jets","MssmHbb/Events/slimmedJetsReapplyJEC");
 
    
    // Analysis of events
