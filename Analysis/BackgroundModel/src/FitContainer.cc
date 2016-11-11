@@ -60,7 +60,7 @@ FitContainer::FitContainer(const std::string& outputDir) :
 		chi2BkgOnly_(-10000.0),
 		normChi2BkgOnly_(-10000.0),
 		ndfBkgOnly_(-10000),
-		nbins_(73)
+		nbins_(73) //73
 {}
 
 
@@ -296,6 +296,8 @@ std::unique_ptr<RooFitResult> FitContainer::FitSignal(const std::string & name) 
 	  std::cout << "\nfloating parameters (final):" << std::endl;
 	  fitResult->floatParsFinal().Print("v");
 	  std::cout<<"NAME: "<<name<<std::endl;
+	  //Create log file:
+	  makeLog_(*fitResult);
 
 	  // Top frame
 	  std::unique_ptr<RooPlot> frame(mbb.frame());
@@ -882,7 +884,7 @@ double FitContainer::chiSquare_CA(const RooPlot& frame, const char* curvename, c
 
 	// Add pull^2 to chisq
 	if (y!=0) {      
-		double pull = (y<avg) ? ((y-avg)/eyl) : ((y-avg)/eyh) ;
+		double pull = (y>avg) ? ((y-avg)/eyl) : ((y-avg)/eyh) ;
 		std::cout << "chi^2 at bin " << i << " : " << pull*pull << std::endl;
 		chisq += pull*pull ;
 		nbin++;
@@ -975,6 +977,22 @@ double FitContainer::getMaxPosition_(const RooAbsData& data) {
   return hist->GetBinCenter(maximumBin);
 }
 
+void FitContainer::makeLog_(const RooFitResult& fitResult){
+	std::filebuf fb;
+	fb.open((plotDir_ + "log.txt").c_str(),std::ios::out);
+	std::ostream f(&fb);
+//	auto f = ROOT::std::ofstream((plotDir_ + "/log.txt").c_str());
+	f<<"\n constant parameters: \n";
+	fitResult.constPars().printMultiline(f,1111,1);
+	f<<"\n floating parameters (init): \n";
+	fitResult.floatParsInit().printMultiline(f,1111,1);
+	f<<"\n floating parameters (final): \n";
+	fitResult.floatParsFinal().printMultiline(f,1111,1);
+	f<<"\n cov.matrix: I HAVE NO IDEA HOW TO WRITE IT!!!!!!\n";
+//	fitResult.covarianceMatrix().Write();
+//	f<<fitResult.covarianceMatrix();
+	fb.close();
+}
+
 const std::string FitContainer::defaultOutputDir_ =
   std::string(gSystem->Getenv("CMSSW_BASE"))+"/src/Analysis/BackgroundModel/test/";
-

@@ -496,6 +496,7 @@ void ProbabilityDensityFunctions::getExtNovosibirsk(const std::string& name){
         RooRealVar tail("tail", "tail", -0.1, -1.0, 1.0);
 	RooRealVar par4("par4", "par4", -0.0001, -1.0, 1.0);
 	RooExtendNovosibirsk novo(name.c_str(),(name + "_extnovosibirsk").c_str(),var,peak, width, tail, par4);
+
 	workspace_->import(novo);
 }
 

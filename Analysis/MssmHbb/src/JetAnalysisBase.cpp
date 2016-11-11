@@ -225,7 +225,7 @@ void JetAnalysisBase::applySelection(){
 	cuts_ = CutFlow(baseOutputName_,selection_type);
 
 
-	if(TEST) TotalNumberOfGenEvents = 30000;
+	if(TEST) TotalNumberOfGenEvents = 100;
 	else TotalNumberOfGenEvents = this->size();
 	std::cout<<"Events to process: "<<TotalNumberOfGenEvents<<std::endl;
 
