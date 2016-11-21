@@ -63,6 +63,44 @@ FitContainer::FitContainer(const std::string& outputDir) :
 		nbins_(73) //73
 {}
 
+// Overwrite defauilt copy constructor
+FitContainer::FitContainer(const FitContainer& cont){
+	initialized_ 	= cont.initialized_;
+	written_		= cont.written_;
+	splitrange_		= cont.splitrange_;
+	outputDir_		= cont.outputDir_;
+	plotDir_		= cont.plotDir_;
+	workspaceDir_	= cont.workspaceDir_;
+	fullRangeId_	= cont.fullRangeId_;
+	fitRangeId_		= cont.fitRangeId_;
+	fitRangeLowId_	= cont.fitRangeLowId_;
+	fitRangeHighId_ = cont.fitRangeHighId_;
+	fitSplRangeId_ 	= cont.fitSplRangeId_;
+	fitRangeMin_	= cont.fitRangeMin_;
+	fitRangeMax_	= cont.fitRangeMax_;
+	blind_lowEdge_	= cont.blind_lowEdge_;
+	blind_highEdge_	= cont.blind_highEdge_;
+	verbosity_		= cont.verbosity_;
+	workspace_		= cont.workspace_;
+	outRootFileName_= cont.outRootFileName_;
+	mbb_			= cont.mbb_;
+	weight_			= cont.weight_;
+	data_			= cont.data_;
+	signal_			= cont.signal_;
+	bkg_			= cont.bkg_;
+//	Workaround to copy TTree
+//	Original idea by Gregor Mittag
+//	TODO: Implement it. DOesn't work out of the box
+//	bkgOnlyFit_(((TTree&) cont.bkgOnlyFit_).CloneTree(0));
+//	bkgOnlyFit_.SetDirectory(0);
+//	bkgOnlyFit_.CopyEntries(cont.bkgOnlyFit_);
+//	bkgOnlyFit_		= cont.bkgOnlyFit_;
+	chi2BkgOnly_	= cont.chi2BkgOnly_;
+	normChi2BkgOnly_= cont.normChi2BkgOnly_;
+	ndfBkgOnly_		= cont.ndfBkgOnly_;
+	nbins_			= cont.nbins_;
+}
+
 
 FitContainer::FitContainer(const TH1* data, const std::string& outputDir,
 		const std::string & type) : FitContainer(outputDir)
@@ -74,15 +112,18 @@ FitContainer::FitContainer(const TH1* data, const std::string& outputDir,
 	workspace_.import(mbb);
 	nbins_ = data->GetNbinsX();
 	if(type == "background") {
-		RooDataHist bkgContainer(bkg_.c_str(), bkg_.c_str(), mbb, data);
-		workspace_.import(bkgContainer);
+		data_ = bkg_;
+//		RooDataHist bkgContainer(bkg_.c_str(), bkg_.c_str(), mbb, data);
+//		workspace_.import(bkgContainer);
+		RooDataHist dataContainer(data_.c_str(), data_.c_str(), mbb, data);
+		workspace_.import(dataContainer);
 	}
 	else if (type == "signal") {
 		data_ = signal_;
 		RooDataHist signalContainer(signal_.c_str(), signal_.c_str(), mbb, data);
 		workspace_.import(signalContainer);
-                RooDataHist dataContainer(signal_.c_str(), signal_.c_str(), mbb, data);
-                workspace_.import(dataContainer);
+		RooDataHist dataContainer(signal_.c_str(), signal_.c_str(), mbb, data);
+		workspace_.import(dataContainer);
 	}
 	else if (type == "data") {
 		RooDataHist dataContainer(data_.c_str(), data_.c_str(), mbb, data);
@@ -202,21 +243,17 @@ void FitContainer::initialize() {
   // To get this hack here working, name and title of the dataset MUST be set
   // identical (see constructor methods).
   for (const auto& d: workspace_.allData()) d->SetName(d->GetTitle());
-
   // clean up possible pre-existing output:
   gSystem->Exec((std::string("rm -f "+plotDir_+"*").c_str()));
   gSystem->Exec((std::string("rm -f "+workspaceDir_+"*").c_str()));
-
   // set range used for normalization of the pdf and a default fit range:
   RooRealVar& mbb = *workspace_.var(mbb_.c_str());
   mbb.setRange(fullRangeId_.c_str(), mbb.getMin(), mbb.getMax());
   mbb.setRange(fitRangeId_.c_str(), fitRangeMin_, fitRangeMax_);
-
   // perform split range simultaneously fit to blinded data by CA
   mbb.setRange(fitRangeLowId_.c_str(), fitRangeMin_, blind_lowEdge_);  //always have to give input of --fit_min
   //mbb.setRange(fitRangeMedId_.c_str(), blind_lowEdge_, blind_highEdge_);
   mbb.setRange(fitRangeHighId_.c_str(), blind_highEdge_, fitRangeMax_);
-  
   // set fit bins
   mbb.setBins(nbins_);
   // plot the input data:
@@ -239,7 +276,7 @@ void FitContainer::initialize() {
   bkgOnlyFit_.Branch("ndf", &ndfBkgOnly_, "ndf/I");
   bkgOnlyFit_.Branch("covMatrix", covMatrix_, "covMatrix[100]/D");
   bkgOnlyFit_.Branch("eigenVector", eigenVector_, "eigenVector[100]/D");
-
+  std::cout<<"WTF"<<std::endl;
   for(int i = 0; i < 100; i++)
   {   	covMatrix_[i] = -100.;
 	eigenVector_[i] = -100.;
@@ -256,7 +293,7 @@ void FitContainer::setModel(const Type& type, const std::string& name) {
 void FitContainer::setModel(const Type& type, const std::string& name,
                             const std::vector<ParamModifier>& modifiers) {
   if (!initialized_) initialize();
-
+  std::cout<<"WTF"<<std::endl;
   ProbabilityDensityFunctions pdfs(workspace_,mbb_.c_str());
 //  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
   double peak_pos = getPeakStart_(type,500);
