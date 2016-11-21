@@ -14,33 +14,33 @@ int test(){
 
 	std::string full_path = "/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/";
 	std::string name;
-	name = full_path + "output/bbx_lowM_QCD.root";
+	name = full_path + "output/bbx_lowM_QCD_rew2b_scaled.root";
 	TFile *bbx_mc 	= new TFile( (name).c_str(),"READ" );
 	if(!bbx_mc) {
 		std::cout<<" No file: "<<name<<" were found"<<std::endl;
 		exit(-1);
 	}
 
-	name = full_path + "output/bbx_lowM_Run2015.root";
+	name = full_path + "output/bbx_lowM_Run2015D-16Dec2015-v1.root";
 	TFile *bbx_data = new TFile( (name).c_str(),"READ" );
 	if(!bbx_data){
 		std::cout<<" No file: "<<name<<" were found"<<std::endl;
 		exit(-1);
 	}
 
-	name = full_path + "output/DataMC_3b_NoHTrew_lowM_QCD.root";
+	name = full_path + "output/DataMC_3b_lowM_QCD_rew2b_scaled.root";
 	TFile *bbb_mc	= new TFile( (name).c_str(),"READ" );
 	if(!bbb_mc){
 		std::cout<<" No file: "<<name<<" were found"<<std::endl;
 		exit(-1);
 	}
 
-	name = full_path + "output/DataMC_3b_lowM_Run2015.root";
-	TFile *bbb_data	= new TFile( (name).c_str(),"READ" );
-	if(!bbb_data){
-		std::cout<<" No file: "<<name<<" were found"<<std::endl;
-		exit(-1);
-	}
+//	name = full_path + "output/DataMC_3b_lowM_Run2015.root";
+//	TFile *bbb_data	= new TFile( (name).c_str(),"READ" );
+//	if(!bbb_data){
+//		std::cout<<" No file: "<<name<<" were found"<<std::endl;
+//		exit(-1);
+//	}
 
 	//Style
 	HbbStyle style;
@@ -62,6 +62,7 @@ int test(){
 	vector<string> Syst = {"JEC","JES","PU","SFb","SFl","PtEff"};
 
 	//histo list:
+	map<string,TH1D*> hBBX_data;
 	map<string,TH1D*> hBBX_mc;
 	map<string,TH1D*> hBBB_mc;
 	map<string,TH1D*> hratio_mc;
@@ -72,29 +73,48 @@ int test(){
 	//Pt1
 	for(const string &v : Var){
 		string name = (v+"/"+v);
+		name = "general/diJet_m";
 		cout<<"Current histo: "<<name<<endl;
 
 		can_low_m[v] 	= new TCanvas((v+"_lowM").c_str(),(v+"_lowM").c_str(),1000,800);
+		hBBX_data[v]	= (TH1D*) bbx_data->Get(v.c_str());
 		hBBX_mc[v]	= (TH1D*) bbx_mc->Get(name.c_str());
 		hBBB_mc[v]	= (TH1D*) bbb_mc->Get(name.c_str());
 		renormalise(hBBB_mc[v]);
 		renormalise(hBBX_mc[v]);
+		renormalise(hBBX_data[v]);
 
 		hBBX_mc[v]->Scale(1./hBBX_mc[v]->Integral());
 		hBBB_mc[v]->Scale(1./hBBB_mc[v]->Integral());
+		hBBX_data[v] -> Scale(1./hBBX_data[v]->Integral());
+		hBBX_data[v] -> SetMarkerStyle(22);
+		hBBX_data[v] -> SetMarkerColor(4);
+		hBBX_data[v]->SetMarkerSize(1.5);
+		hBBX_mc[v]->SetMarkerStyle(20);
+		hBBX_mc[v]->SetMarkerColor(2);
+		hBBX_mc[v]->SetMarkerSize(1.5);
 		hBBB_mc[v]->SetMarkerStyle(21);
 		hBBB_mc[v]->SetMarkerSize(1.5);
 
 		leg[v] = (TLegend*) style.legend("top,right",3,0.3);
-		leg[v]->AddEntry(hBBX_mc[v],"bbx - MC","p");
+		leg[v]->AddEntry(hBBX_mc[v],"bbnb - MC","p");
+		leg[v]->AddEntry(hBBX_data[v],"bbnb - Data","p");
 		leg[v]->AddEntry(hBBB_mc[v],"bbb - MC","p");
 
+		gPad->SetLogy();
+		hBBX_mc[v]->Draw("E");
+		hBBX_data[v]->Draw("E same");
+		hBBB_mc[v]->Draw("E same");
+		leg[v]->Draw();
+
+
+/*
 		hBBX_mc[v] ->SetTitle("");
 		hratio_mc[v] = (TH1D*) ratio.DrawRatio(hBBX_mc[v],hBBB_mc[v],can_low_m[v],leg[v],nullptr);
 		hratio_mc[v]->SetAxisRange(0.,3.,"Y");
 		ratio.GetTopPad();		style.drawStandardTitle();
 		gPad->SetLogy();
-
+*/
 
 	}
 	return 0;

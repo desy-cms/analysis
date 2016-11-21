@@ -22,13 +22,13 @@ const bool findStrings(const std::string & input, const std::string & needful)
 int data_vs_mc(){
 	gROOT->Reset();
 
-	std::string selection = "DataMC_3b";
+	std::string selection = "bbx";
 	std::string lowM = "lowM";
-	std::string MCsample = "QCD";
-	TFile *data_low_m = new TFile( ("../output/" + selection + "_" + lowM + "_Run2015.root").c_str() );
-	TFile *mc_low_m 	 = new TFile( ("../output/" + selection + "_" + "NoHTrew_"  + lowM + "_" + MCsample + ".root").c_str() );
+	std::string MCsample = "QCD_rew2b_scaled";
+	TFile *data_low_m = new TFile( ("../output/" + selection + "_" + lowM + "_Run2015D-16Dec2015-v1.root").c_str() );
+	TFile *mc_low_m 	 = new TFile( ("../output/" + selection + "_" + lowM + "_" + MCsample + ".root").c_str() );
 	
-	TFile * Ht_correction = new TFile( (selection + "_HT_Correction_" + lowM + "_" + MCsample + ".root").c_str(),"RECREATE" );
+//	TFile * Ht_correction = new TFile( (selection + "_HT_Correction_" + lowM + "_" + MCsample + ".root").c_str(),"RECREATE" );
 
 	//Style
 	HbbStyle style;
@@ -44,10 +44,10 @@ int data_vs_mc(){
 	map<string,TLegend*> leg;
 
 	//variables vector:
-//	vector<string> Var={"NumberOfJets_b","jet_b_btag_csv2","jet_b_btag_cmva1","jet_b_btag_cmva2","jet_b_deta12","jet_b_dR12","diJet_b_pt","diJet_b_eta","diJet_b_phi","diJet_b_m"};
-	vector<string> Var={"NumberOfJets_b","jet_b_pt1","jet_b_pt2","jet_b_Ht","jet_b_eta1","jet_b_eta2","jet_b_phi1","jet_b_phi2","jet12_b_assym","jet_b_btag_csv1",
-						"jet_b_btag_csv2","jet_b_btag_cmva1","jet_b_btag_cmva2","jet_b_deta12","jet_b_dR12", "jet_b_dphi12",
-						"diJet_b_pt","diJet_b_eta","diJet_b_phi","diJet_b_m"};
+	vector<string> Var={"jet_b_Ht"};
+//	vector<string> Var={"NumberOfJets_b","jet_b_pt1","jet_b_pt2","jet_b_Ht","jet_b_eta1","jet_b_eta2","jet_b_phi1","jet_b_phi2","jet12_b_assym","jet_b_btag_csv1",
+//						"jet_b_btag_csv2","jet_b_btag_cmva1","jet_b_btag_cmva2","jet_b_deta12","jet_b_dR12", "jet_b_dphi12",
+//						"diJet_b_pt","diJet_b_eta","diJet_b_phi","diJet_b_m"};
 						//,"jet_b_dphi12"};
 	//Systematic list:
 	vector<string> Syst = {"JEC","JES","PU","SFb","SFl","PtEff"};
@@ -67,11 +67,11 @@ int data_vs_mc(){
 		cout<<"Current histo: "<<name<<endl;
 
 		can_low_m[v] 	= new TCanvas((v+"_lowM").c_str(),(v+"_lowM").c_str(),1000,800);
-		h_data_low_m[v]	= (TH1D*) data_low_m->Get(name.c_str());
+		h_data_low_m[v]	= (TH1D*) data_low_m->Get(v.c_str());
 		h_mc_low_m[v]	= (TH1D*) mc_low_m->Get(name.c_str());
 		std::cout<<"Scale = "<<h_data_low_m[v]->Integral()/h_mc_low_m[v]->Integral()<<std::endl;
 //		h_mc_low_m[v] ->Scale(h_data_low_m[v]->Integral()/h_mc_low_m[v]->Integral());
-		if(MCsample == "BGenFilter")  h_mc_low_m[v] ->Scale(1./0.3);
+//		if(MCsample == "BGenFilter")  h_mc_low_m[v] ->Scale(1./0.3);
 		h_syst_low_m[v]	= (TH1D*) h_mc_low_m[v]->Clone();
 		h_data_low_m[v] -> SetMinimum(0.);
 		h_data_low_m[v] ->SetTitle("");
@@ -101,16 +101,16 @@ int data_vs_mc(){
 			h_data_low_m[v]->SetMinimum(0.01);
 			gPad->SetLogy();
 		}
-		if (findStrings(v,"Ht") && (MCsample == "BGenFilter" || MCsample == "TuneCUETP8M1" || MCsample.find("QCD") != std::string::npos)){
-			TH1D *h_temp = (TH1D*) h_ratio_low_m[v] -> Clone("h_clone");
+//		if (findStrings(v,"Ht")){
+//			TH1D *h_temp = (TH1D*) h_ratio_low_m[v] -> Clone("h_clone");
 //			h_temp->GetYaxis()->SetRangeUser(0,5);
-			std::cout<<"WTF"<<std::endl;
-			h_temp -> Write();
-		}
+//			h_temp->Scale(1./h_temp->Integral());
+//			h_temp -> Write();
+//		}
 		can_low_m[v]->Print(("pictures/DataVsMC/" + v + "_" + lowM + "_" + MCsample + ".pdf").c_str());
 		/**/
 	}
-	Ht_correction->Close();
+//	Ht_correction->Close();
 	return 0;
 }
 
