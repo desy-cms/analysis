@@ -72,6 +72,7 @@ namespace analysis {
       FitContainer& verbosity(int level);
       FitContainer& fitRangeMin(float min);
       FitContainer& fitRangeMax(float max);
+      RooWorkspace& getWorkspace();
 
       void setModel(const Type& type, const std::string& model);
       void setModel(const Type& type, const std::string& model,
@@ -150,6 +151,7 @@ namespace analysis {
 
     inline void FitContainer::Import(const RooAbsArg& inArg){ workspace_.import(inArg);}
     inline void FitContainer::Write(){ if(!written_) { workspace_.writeToFile(outRootFileName_.c_str()); written_ = true;}   }
+    inline RooWorkspace& FitContainer::getWorkspace() {return workspace_;};
 
 inline float FitContainer::getChi2BkgOnly() const {
 	return chi2BkgOnly_;
