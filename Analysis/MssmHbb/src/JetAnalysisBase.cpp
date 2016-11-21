@@ -258,7 +258,6 @@ void JetAnalysisBase::applySelection(){
 		    offlineJets->smearTo(*genJets_,JERshift_);
 		}
 
-//		if(offlineJets->size() < nJets_ ) continue;
 		if(!cuts_.check("nJets",offlineJets->size() >= nJets_)) continue;
 		//Match offline Jets to online Objects
 
@@ -504,8 +503,10 @@ void JetAnalysisBase::loadCorrections(){
 		std::string file_ht_name;
 		if(file_name.find("bEnriched") != std::string::npos || file_name.find("BGenFilter") != std::string::npos){
 //			fCorrections_["fHtWeight"] = std::make_unique<TFile>("input_corrections/bbx_HT_Correction_lowM_QCD_b_Ht.root","read");
-			if(nJets_ == 2) file_ht_name = "bin/input_corrections/QCD_HT_2b_Correction_lowM_QCD.root";
-			else file_ht_name = "bin/input_corrections/bbx_HT_Correction_lowM_QCD.root";
+//			Use the same reweighting function for all topologies
+			if(file_name.find("bbx") == std::string::npos && nJets_ == 2) file_ht_name = "bin/input_corrections/DataMC_HT_Correction_lowM_QCD_not_rew.root";
+			else if (file_name.find("bbx") == std::string::npos && nJets_ == 3) file_ht_name = "bin/input_corrections/DataMC_HT_Correction_lowM_QCD_not_rew.root";
+			if (file_name.find("bbx") != std::string::npos) file_ht_name = "bin/input_corrections/DataMC_HT_Correction_lowM_QCD_not_rew.root";
 			fCorrections_["fHtWeight"] = std::make_unique<TFile>((defaultInputDir_ + file_ht_name).c_str(),"read");
 			hCorrections1D_["hHtWeight"] =  (TH1D*) fCorrections_["fHtWeight"] -> Get("h_clone") ;
 			std::cout<<"HT corrections for bEnriched + BGenFilter samples were loaded"<<std::endl;

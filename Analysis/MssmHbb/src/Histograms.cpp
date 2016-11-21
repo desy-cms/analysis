@@ -86,13 +86,13 @@ void Histograms::Make(const int &size, const bool & lowM) {
 	histo_["diJet_pt"]			=  new TH1D("diJet_pt","p_{T} of the di-Jet object;di-Jet p_{T}, [GeV]",size,0.,1500.);
 	histo_["diJet_eta"]			=  new TH1D("diJet_eta","#eta of the di-Jet object; di-Jet #eta",(int)size/2,-2.5,2.5);
 	histo_["diJet_phi"]			=  new TH1D("diJet_phi","#phi of the di-Jet object; di-Jet #phi",(int)size/2,0,2.*TMath::Pi());
-	histo_["diJet_m"]			=  new TH1D("diJet_m","M_{12} of the di-Jet object; di-Jet M_{12}, [GeV]",size,0.,1500);
-	histo_["diJet_m_bb"]		=  new TH1D("diJet_m_bb","M_{12} of the di-Jet object; di-Jet M_{12}, [GeV]",size,0.,1500);
-	histo_["diJet_m_cc"]		=  new TH1D("diJet_m_cc","M_{12} of the di-Jet object; di-Jet M_{12}, [GeV]",size,0.,1500);
-	histo_["diJet_m_ll"]		=  new TH1D("diJet_m_ll","M_{12} of the di-Jet object; di-Jet M_{12}, [GeV]",size,0.,1500);
-	histo_["diJet_m_bc"]		=  new TH1D("diJet_m_bc","M_{12} of the di-Jet object; di-Jet M_{12}, [GeV]",size,0.,1500);
-	histo_["diJet_m_cl"]		=  new TH1D("diJet_m_cl","M_{12} of the di-Jet object; di-Jet M_{12}, [GeV]",size,0.,1500);
-	histo_["diJet_m_bl"]		=  new TH1D("diJet_m_bl","M_{12} of the di-Jet object; di-Jet M_{12}, [GeV]",size,0.,1500);
+	histo_["diJet_m"]			=  new TH1D("diJet_m","M_{12} of the di-Jet object; di-Jet M_{12}, [GeV]",size,0.,1700);
+	histo_["diJet_m_bb"]		=  new TH1D("diJet_m_bb","M_{12} of the di-Jet object; di-Jet M_{12}, [GeV]",size,0.,1700);
+	histo_["diJet_m_cc"]		=  new TH1D("diJet_m_cc","M_{12} of the di-Jet object; di-Jet M_{12}, [GeV]",size,0.,1700);
+	histo_["diJet_m_ll"]		=  new TH1D("diJet_m_ll","M_{12} of the di-Jet object; di-Jet M_{12}, [GeV]",size,0.,1700);
+	histo_["diJet_m_bc"]		=  new TH1D("diJet_m_bc","M_{12} of the di-Jet object; di-Jet M_{12}, [GeV]",size,0.,1700);
+	histo_["diJet_m_cl"]		=  new TH1D("diJet_m_cl","M_{12} of the di-Jet object; di-Jet M_{12}, [GeV]",size,0.,1700);
+	histo_["diJet_m_bl"]		=  new TH1D("diJet_m_bl","M_{12} of the di-Jet object; di-Jet M_{12}, [GeV]",size,0.,1700);
 
 	/***********************Trigger Object Parameters*********************/
 	histo_["onlobject_L1_pt1"]	= new TH1D("onlobject_L1_pt1","p_{T} of the L1 Obj. matched to the first Leading Jet; L1-Obj. p^{(1)}_{T}, [GeV]",size,0.,1500.);
@@ -236,6 +236,8 @@ void Histograms::Make(const int &size, const bool & lowM) {
 	//Kinematic trigger efificiency
 	histo_["template_PtEff_down"]		= new TH1D("template_PtEff_down","",temp_bins,xMin,xMax);
 	histo_["template_PtEff_up"]			= new TH1D("template_PtEff_up","",temp_bins,xMin,xMax);
+
+	histo_["template_Mbb_17GeV"]			=  new TH1D("template_Mbb_17GeV","M_{12} of the di_jet object; di-Jet M_{12}, [GeV]",86,240.,1702);
 
 	/* Dublication of the current templtes
 	 * just for the visualisation
