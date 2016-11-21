@@ -923,7 +923,7 @@ double FitContainer::chiSquare_CA(const RooPlot& frame, const char* curvename, c
 	// Add pull^2 to chisq
 	if (y!=0) {      
 		double pull = (y>avg) ? ((y-avg)/eyl) : ((y-avg)/eyh) ;
-//		std::cout << "chi^2 at bin " << i << " : " << pull*pull << std::endl;
+		std::cout << "chi^2 at bin " << i << " : " << pull*pull << std::endl;
 		chisq += pull*pull ;
 		nbin++;
 	}
@@ -1019,9 +1019,7 @@ void FitContainer::makeLog_(const RooFitResult& fitResult){
 	std::filebuf fb;
 	fb.open((plotDir_ + "log.txt").c_str(),std::ios::out);
 	std::ostream f(&fb);
-//	auto f = ROOT::std::ofstream((plotDir_ + "/log.txt").c_str());
 	f<<"\n Normalized chi^2: "<<normChi2BkgOnly_<<" Probability: "<<TMath::Prob(chi2BkgOnly_,ndfBkgOnly_);
-
 	f<<"\n constant parameters: \n";
 	fitResult.constPars().printMultiline(f,1111,1);
 	f<<"\n floating parameters (init): \n";
@@ -1029,8 +1027,6 @@ void FitContainer::makeLog_(const RooFitResult& fitResult){
 	f<<"\n floating parameters (final): \n";
 	fitResult.floatParsFinal().printMultiline(f,1111,1);
 	f<<"\n cov.matrix: I HAVE NO IDEA HOW TO WRITE IT!!!!!!\n";
-//	fitResult.covarianceMatrix().Write();
-//	f<<fitResult.covarianceMatrix();
 	fb.close();
 }
 

@@ -222,9 +222,15 @@ void Candidates<T>::Kinematics()
       et_[n]  = candidates_[i].et();
       q_[n]   = candidates_[i].charge();
       
+      // PAT JETS
       if ( is_patjet_ )
       {
          pat::Jet * jet = dynamic_cast<pat::Jet*> (&candidates_[i]);
+         
+//         std::string sv = "pfSecondaryVertexTagInfos";
+//         std::cout << "oioi   " << sv << std::endl;
+//         const reco::SecondaryVertexTagInfo * svTI = jet->tagInfoSecondaryVertex("secondaryVertex");
+//         std::cout << "oioi   " << svTI << std::endl;
          
          for ( size_t it = 0 ; it < btag_vars_.size() ; ++it )
             btag_[it][n] = jet->bDiscriminator(btag_vars_[it].title);
@@ -515,29 +521,7 @@ void Candidates<T>::Init( const std::vector<TitleAlias> & btagVars )
    
 }
 
-// template <typename T>
-// void Candidates<T>::Init( const std::vector<TitleAlias> & btagVars, const std::string & jec )
-// {
-//    jecRecord_ = jec;
-//    Init(btagVars);
-// }
-// 
-// template <typename T>
-// void Candidates<T>::Init( const std::vector<TitleAlias> & btagVars, const std::string & jec, const std::string & jer, const edm::InputTag & rho )
-// {
-//    jerRecord_ = jer;
-//    rho_collection_ = rho;
-//    Init(btagVars,jec);
-// }
-// 
-// 
-// template <typename T>
-// void Candidates<T>::Init( const std::vector<TitleAlias> & btagVars, const std::string & jec, const std::string & jer, const std::string &res_file, const std::string & sf_file, const edm::InputTag & rho )
-// {
-//    jerFile_    = res_file;
-//    jersfFile_  = sf_file;
-//    Init(btagVars,jec,jer,rho);
-// }
+
 
 template <typename T>
 void Candidates<T>::AddJecInfo( const std::string & jec )
