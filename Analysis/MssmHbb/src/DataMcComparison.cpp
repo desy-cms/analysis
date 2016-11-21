@@ -172,31 +172,31 @@ void DataMcComparison::runAnalysis(const std::string &json, const std::string &o
 	this->setupAnalysis(json);
 	std::cout<<"Total number of events: "<<this->size()<<std::endl;
 	this->makeHistograms(size);
-//	if(isMC()){
-//		for(int i = 0; i < 3 ; ++i){
-//		JERshift_ = 0;
-//		if(i==0) JESshift_ = 0;
-//		else if (i == 1){
-//			JESshift_ = 1;
-//		}
-//		else {
-//			JESshift_ = - 1;
-//		}
-//		this->applySelection();
-//		}
-//
-//		for(int i = 1; i < 3; ++i){
-//			JESshift_ = 0;
-//			if (i == 1){
-//				JERshift_ = 2;
-//			}
-//			else {
-//				JERshift_ = -2;
-//			}
-//			this->applySelection();
-//		}
-//	}
-//	else
+	if(isMC()){
+		for(int i = 0; i < 3 ; ++i){
+		JERshift_ = 0;
+		if(i==0) JESshift_ = 0;
+		else if (i == 1){
+			JESshift_ = 1;
+		}
+		else {
+			JESshift_ = - 1;
+		}
+		this->applySelection();
+		}
+
+		for(int i = 1; i < 3; ++i){
+			JESshift_ = 0;
+			if (i == 1){
+				JERshift_ = 2;
+			}
+			else {
+				JERshift_ = -2;
+			}
+			this->applySelection();
+		}
+	}
+	else
 		this->applySelection();
 
 	this->writeHistograms();
@@ -220,7 +220,7 @@ const double DataMcComparison::assignWeight(){
 	if(isMC()) {
 		weight = weight_["PtEff_central"] * weight_["PU_central"] * weight_["SFb_central"] * weight_["SFl_central"];
 //		if(file_name.find("madgraphMLM") != std::string::npos){
-//			weight = weight * weight_["Ht"];
+			weight = weight * weight_["Ht"];
 //		}
 	}
 	return weight;

@@ -137,6 +137,9 @@ void selectionDoubleB::fillHistograms(const std::shared_ptr<Collection<Jet> > &o
 	(histo_.getHisto())["diJet_phi"]->Fill(obj12.Phi(),weight);
 	(histo_.getHisto())["diJet_m"]->Fill(obj12.M(),weight);
 
+	(histo_.getHisto())["template_Mbb"]->Fill(obj12.M(),weight);
+	(histo_.getHisto())["template_Mbb_17GeV"]->Fill(obj12.M(),weight);
+
 }
 
 const double selectionDoubleB::assignWeight(){
