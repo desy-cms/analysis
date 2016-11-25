@@ -1,1 +1,1 @@
-/pnfs/desy.de/cms/tier2/store/user/rwalsh/Analysis/Ntuples/MC/Spring16/80x_summer_conferences_2016_v1/SUSYGluGluToBBHToBB_NarrowWidth_M-600_TuneCUETP8M1_13TeV-pythia8/clange-SUSYGluGluToBBHToBB_NarrowWidth_M-600_TuneCUETP8M1_13TeV-pythia8_MiniAODv2_80X-b773ac922eef67f3b5600ed596c9ce54/160801_093435/0000/ntuple_1.root
+/pnfs/desy.de/cms/tier2/store/user/rwalsh/Analysis/Ntuples/DATA/Run2016/80x_summer_conferences_2016_v1/BTagCSV/Run2016G-PromptReco-v1/161004_083350/0000/ntuple_1.root
