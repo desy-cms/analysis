@@ -74,9 +74,7 @@ probValue = (
          0.0,
         0.0 )
  
-file = createRootFile("file.root")
-h = createHisto("histo",probValue)
+file = createRootFile("MC_Spring16_PU25ns_V1.root")
+h = createHisto("pileup",probValue)
 h.Write()
 file.Close()
-    
-
