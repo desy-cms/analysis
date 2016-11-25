@@ -193,6 +193,17 @@ int Analysis::triggerResult(const std::string & trig)
    return triggerResults_[trig];
 }
 
+int Analysis::triggerL1Prescale(const std::string & trig)
+{
+//   if ( t_triggerResults_ == NULL ) return -1.;
+   return triggerResultsPS_["psl1_"+trig];
+}
+int Analysis::triggerHLTPrescale(const std::string & trig)
+{
+//   if ( t_triggerResults_ == NULL ) return -1.;
+   return triggerResultsPS_["pshlt_"+trig];
+}
+
 
 // ===========================================================
 // =================   METADATA   ============================
