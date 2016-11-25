@@ -1,2 +1,0 @@
-/nfs/dust/cms/user/shevchen/samples/miniaod/2015/76X/Fall15.76X.20160616/Pythia8_QCD/QCD_Pt_470to600_TuneCUETP8M1_13TeV_pythia8.txt
-/nfs/dust/cms/user/shevchen/samples/miniaod/2015/76X/Fall15.76X.20160616/Pythia8_QCD/QCD_Pt_600to800_TuneCUETP8M1_13TeV_pythia8.txt
