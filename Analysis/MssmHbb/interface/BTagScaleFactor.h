@@ -29,9 +29,6 @@ public:
 //	Constructor from tagger and .csv path
 	BTagScaleFactor(const std::string& tagger, const std::string& path_to_csv);
 
-	//	Method to fill BTagCalibrationReader map
-	void setBTagCalibrationReaders(const BTagCalibration* calibration);
-
     struct ScaleFactor{
     	ScaleFactor() : central(0), up(0), down (0), flavour(-100) {};
     	ScaleFactor(const double & centr, const double & upper, const double & lower, const int & flav) :
@@ -52,6 +49,10 @@ public:
 
 private:
 	std::map<std::string,BTagCalibrationReader> reader_;
+//	Method to fill BTagCalibrationReader map
+	void LoadPOGCalibrations_(const BTagCalibration& calibration);
+//  Method to load correcitons
+	void setBTagCalibrationReaders_(const BTagCalibration& calibration);
 
 
 };
