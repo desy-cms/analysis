@@ -155,7 +155,6 @@ void setup_bg(const string& in_path,const string& out_path, TH1& data_obs){
 	//Prepare RooDataHist for data_obs;
 	RooRealVar mbb("mbb","mbb",data_obs.GetXaxis()->GetXmin(),data_obs.GetXaxis()->GetXmax());
 	mbb.setBins(100000);
-//	RooDataHist data("data_obs","data_obs",mbb,RooFit::Import(data_obs));
 
 	//Prepare Bg normalisation variable WARNING - can be wrong!!!
 	string bg_pdf_name = "background";
@@ -163,33 +162,9 @@ void setup_bg(const string& in_path,const string& out_path, TH1& data_obs){
 	RooRealVar bg_norm((bg_pdf_name+"_norm").c_str(),"background_norm",data_obs.Integral());
 	bg_norm.setConstant();
 
-//	w.var("peak_novops")->setConstant();
-//	w.var("tail_novops")->setConstant();
-//	w.var("width_novops")->setConstant();
-//	w.var("peak_novops")->Print();
-//	w.var("tail_novops")->Print();
-//	w.var("width_novops")->Print();
-//	w.var("peak_novops")->removeRange();
-//	w.var("tail_novops")->removeRange();
-//	w.var("width_novops")->removeRange();
-//	w.var("peak_novops")->removeError();
-//	w.var("tail_novops")->removeError();
-//	w.var("width_novops")->removeError();
-//        w.var("peak_novops")->Print();
-//        w.var("tail_novops")->Print();
-//        w.var("width_novops")->Print();
-
-//	w.import(data);
-//	w.import(bg_norm);
-//	w.Print("v");
-//	w.writeToFile(out_path.c_str());
-
 	//Try another workspace
 	RooWorkspace wOut("workspace");
 	wOut.import(*(RooAbsPdf*)w.pdf(bg_pdf_name.c_str()));
-//	wOut.import(*(RooFormulaVar*)w.function("background_phasespace"));
-//	wOut.import(*(RooAbsPdf*)w.pdf("background_novops"));
-
 	TH1& h = *w.pdf(bg_pdf_name.c_str())->createHistogram("QCD",mbb,RooFit::Binning(100000,240.,1700));
 	h.Scale(data_obs.Integral() / h.Integral());
 	h.SetTitle("data_obs");
@@ -335,11 +310,7 @@ void setup_signal(const string& in_folder, const vector<string>& syst){
 													(RooFormulaVar&) *w.function("sigmaR"),(RooFormulaVar&)*w.function("tail_shift"),
 													(RooFormulaVar&) *w.function("tail_sigma"));
 	}
-	else throw logic_error("WRROR");
-//	analysis::backgroundmodel::RooQuadGausExp func("signal","signal",mbb,(RooFormulaVar&) *w.function("mean"), (RooFormulaVar&) *w.function("sigmaL1"),
-//			(RooFormulaVar&) *w.function("sigmaL2"), (RooFormulaVar&) *w.function("sigmaR1"),
-//			(RooFormulaVar&) *w.function("sigmaR2"), (RooFormulaVar&) *w.function("tail_shift"),
-//			(RooFormulaVar&) *w.function("tail_sigma"), (RooFormulaVar&) *w.function("norm_g1"), (RooFormulaVar&) *w.function("norm_g2"));
+	else throw logic_error("ERROR");
 	w.import(*func.get());
 	w.Print("v");
 	string out_path = in_folder + "/workspace/signal_workspace.root";

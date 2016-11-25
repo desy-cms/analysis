@@ -172,6 +172,7 @@ int main(int argc, char * argv[])
 		  addAnalyticalFits();
 		  return 0;
 	  }
+	  bool root_files = false;
 	  std::string line;
 	  std::ifstream infile(inputList_);
 	  if(infile){
@@ -183,6 +184,7 @@ int main(int argc, char * argv[])
 					  if(fs::extension(p) == ".root"){
 						  std::cout<<"THIS are ROOT files in .txt"<<std::endl;
 						  txt_file = inputList_;
+						  root_files = true;
 					  }
 					  else if (fs::extension(p) == ".txt"){
 						  std::cout<<"this is txt file that conatin .gtxt files inside"<<std::endl;
@@ -200,14 +202,13 @@ int main(int argc, char * argv[])
 							  analysis.addStatErrorsTemplates(10);
 							  analysis.getOutputFile()->Close();
 							  std::string output_name = analysis.getOutputFile()->GetName();
-							  if(analysis.getLowM()){
-//								  addBackgroundTemplate(output_name, "input_corrections/QCD_Templates_Novo.root",21093);
-								  addBackgroundTemplate(output_name, "input_corrections/QCD_Templates_3M_lowM.root",19251);
-							  }
-							  else {
-							  	addBackgroundTemplate(output_name, "input_corrections/QCD_Templates_Novo_3M_highM.root");
-							  }
-//							  addAnalyticalFits(analysis.getOutputFile(), analysis.returnMassPoint());
+//							  if(analysis.getLowM()){
+////								  addBackgroundTemplate(output_name, "input_corrections/QCD_Templates_Novo.root",21093);
+//								  addBackgroundTemplate(output_name, "input_corrections/QCD_Templates_3M_lowM.root",19251);
+//							  }
+//							  else {
+//							  	addBackgroundTemplate(output_name, "input_corrections/QCD_Templates_Novo_3M_highM.root");
+//							  }
 						  }
 
 
@@ -246,6 +247,8 @@ int main(int argc, char * argv[])
 					  std::cerr<<"Input file is empty"<<std::endl;
 					  exit(3);
 				  }
+
+				  if(root_files) break;
 			  }
 			  catch (const fs::filesystem_error& ex) {
 			      cout << ex.what() << '\n';
