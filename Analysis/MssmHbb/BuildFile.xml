@@ -1,5 +1,7 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
+<use name="CondFormats/BTauObjects"/>
+<use name="CondTools/BTau"/>
 <use name="root"/>
 <use name="rootmath"/>
 <use name="rootgraphics"/>
