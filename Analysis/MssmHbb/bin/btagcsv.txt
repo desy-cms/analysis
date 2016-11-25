@@ -1,2 +1,0 @@
-/nfs/dust/cms/user/shevchen/samples/miniaod/2015/76X/Fall15.76X.20160616/BTagCSVData/Run2015D-16Dec2015-v1.txt
-/nfs/dust/cms/user/shevchen/samples/miniaod/2015/76X/Fall15.76X.20160616/BTagCSVData/Run2015C_25ns-16Dec2015-v1.txt
