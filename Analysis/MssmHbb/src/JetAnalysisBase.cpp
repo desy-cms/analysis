@@ -81,15 +81,14 @@ JetAnalysisBase::JetAnalysisBase(const std::string & inputFilelist, const double
 	// Tree for Vertices
 	this->addTree<Vertex> ("Vertices","MssmHbb/Events/offlineSlimmedPrimaryVertices");
 
-	triggerObjectName_ = {"hltL1sL1DoubleJetC100","hltDoubleJetsC100","hltDoubleBTagCSV0p85","hltDoublePFJetsC160"};
 	baseOutputName_ = "JetAnalysisBase";
 
 	std::string selection_type;
 	if(lowM){
-		triggerLogicName_ = "HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v";
-		triggerObjectName_ = {"hltL1sL1DoubleJetC100","hltDoubleJetsC100","hltDoublePFJetsC100","hltDoubleBTagCSV0p9","hltDoublePFJetsC100MaxDeta1p6"};
+		triggerLogicName_ = "HLT_DoubleJetsC100_DoubleBTagCSV_p014_DoublePFJetsC100MaxDeta1p6_v";
+		triggerObjectName_ = {"hltL1sDoubleJetC100","hltDoubleJetsC100","hltBTagCaloCSVp014DoubleWithMatching","hltDoublePFJetsC100","hltDoublePFJetsC100MaxDeta1p6"};
         pt1_ = 100.; pt2_ = 100.;
-        btag1_ = 0.935; btag2_ = 0.935;
+        btag1_ = 0.8; btag2_ = 0.8;
         btagOP1_ = 2; btagOP2_ = 2;
         btag3_ = 0.8;
         btagOP3_ = 1;	//Mid OP
@@ -98,8 +97,8 @@ JetAnalysisBase::JetAnalysisBase(const std::string & inputFilelist, const double
 	else {
         btag3_ = 0.46;
         btagOP3_ = 0; // Loose OP
-		triggerLogicName_ = "HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v";
-		triggerObjectName_ = {"hltL1sL1DoubleJetC100","hltDoubleJetsC100","hltDoubleBTagCSV0p85","hltDoublePFJetsC160"};
+		triggerLogicName_ = "HLT_DoubleJetsC100_DoubleBTagCSV_p026_DoublePFJetsC160_v";
+		triggerObjectName_ = {"hltL1sDoubleJetC100","hltDoubleJetsC100","hltBTagCaloCSVp026DoubleWithMatching","hltDoublePFJetsC160"};
         pt1_ = 160.; pt2_ = 160.;
         btag1_ = 0.8; btag2_ = 0.8;
         btagOP1_ = 1; btagOP2_ = 1;
@@ -174,12 +173,12 @@ JetAnalysisBase::JetAnalysisBase(const std::string & inputFilelist, const bool &
 	std::string selection_type;
 	if(lowM_){
 		triggerLogicName_ = "HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v";
-		triggerObjectName_ = {"hltL1sL1DoubleJetC100","hltDoubleJetsC100","hltDoublePFJetsC100","hltDoubleBTagCSV0p9","hltDoublePFJetsC100MaxDeta1p6"};
+		triggerObjectName_ = {"hltL1sDoubleJetC100","hltDoubleJetsC100","hltDoublePFJetsC100","hltDoubleBTagCSV0p9","hltDoublePFJetsC100MaxDeta1p6"};
         selection_type = "Low Mass";
 	}
 	else {
 		triggerLogicName_ = "HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v";
-		triggerObjectName_ = {"hltL1sL1DoubleJetC100","hltDoubleJetsC100","hltDoubleBTagCSV0p85","hltDoublePFJetsC160"};
+		triggerObjectName_ = {"hltL1sDoubleJetC100","hltDoubleJetsC100","hltDoubleBTagCSV0p85","hltDoublePFJetsC160"};
         selection_type = "High Mass";
 	}
 
@@ -369,19 +368,12 @@ void JetAnalysisBase::applySelection(){
 	    	weight_["PtTriggerEfficiency"]= pWeight_->PtTriggerEfficiency(LeadJet[0].pt(), LeadJet[0].eta()) * pWeight_->PtTriggerEfficiency(LeadJet[1].pt(), LeadJet[1].eta());
 	    	weight_["dEta"]     		= pWeight_->dEtaWeight(std::abs(LeadJet[0].eta() - LeadJet[1].eta()));
 	    	//TODO: Data luminosity!!!
-//	    	if(!signalMC_) {
-//	    		weight_["Lumi"] 			=pWeight_->LumiWeight(dataLumi_,this->luminosity());
-//	    	}
-//	    	else weight_["Lumi"] 			=pWeight_->LumiWeight(dataLumi_,this->numberGenEvents()/xsection_[returnMassPoint()]);
-
-//	    	else weight_["Lumi"] 			=pWeight_->LumiWeight(dataLumi_,weight_["TOT_GEN_EVENTS"]/xsection_[returnMassPoint()]);
-//	    	else weight_["Lumi"] 			=pWeight_->LumiWeight(dataLumi_,this->numberFilteredGenEvents()/xsection_[returnMassPoint()]);
 
 	    	std::string file_name = outputFile_->GetName();
-	    	if(file_name.find("madgraphMLM") != std::string::npos && ( file_name.find("bEnriched") != std::string::npos || file_name.find("TuneCUETP8M1") != std::string::npos )){
-	    		weight_["Ht"]  = pWeight_->HtWeight(hCorrections1D_["hHtWeight"],Ht);
-	    	}
-	    	else weight_["Ht"] = 1;
+//	    	if(file_name.find("madgraphMLM") != std::string::npos && ( file_name.find("bEnriched") != std::string::npos || file_name.find("TuneCUETP8M1") != std::string::npos )){
+//	    		weight_["Ht"]  = pWeight_->HtWeight(hCorrections1D_["hHtWeight"],Ht);
+//	    	}
+//	    	else weight_["Ht"] = 1;
 
 	    	//2SIGMA variation!!!!!!
 	    	weight_["PU_down"]    	= pWeight_->PileUpWeight(hCorrections1D_["hPileUpData_down"],hCorrections1D_["hPileUpMC"],this->nTruePileup());
@@ -405,14 +397,14 @@ void JetAnalysisBase::applySelection(){
 	    	//..........................SF weight...............
 	    	combineBTagSFs(BTagSFs);
         	  //Selection depending weights
-        	  if(lowM_){
-            	  weight_["BTag"] = pWeight_->BTagWeight(hCorrections1D_["hRelBTagEff0p9"],hCorrections1D_["hRelBTagEff0p9_1p4"],hCorrections1D_["hRelBTagEff1p4_2p5"],LeadJet[0].pt(),LeadJet[0].eta()) *
-            			  	  	   pWeight_->BTagWeight(hCorrections1D_["hRelBTagEff0p9"],hCorrections1D_["hRelBTagEff0p9_1p4"],hCorrections1D_["hRelBTagEff1p4_2p5"],LeadJet[1].pt(),LeadJet[1].eta());
-        	  }
-        	  else {
-            	  weight_["BTag"] = pWeight_->BTagWeight(hCorrections2D_["hRelBTagEff2D"], LeadJet[0].pt(),LeadJet[0].eta())*
-            			  	  	   pWeight_->BTagWeight(hCorrections2D_["hRelBTagEff2D"], LeadJet[1].pt(), LeadJet[1].eta());
-        	  }
+//        	  if(lowM_){
+//            	  weight_["BTag"] = pWeight_->BTagWeight(hCorrections1D_["hRelBTagEff0p9"],hCorrections1D_["hRelBTagEff0p9_1p4"],hCorrections1D_["hRelBTagEff1p4_2p5"],LeadJet[0].pt(),LeadJet[0].eta()) *
+//            			  	  	   pWeight_->BTagWeight(hCorrections1D_["hRelBTagEff0p9"],hCorrections1D_["hRelBTagEff0p9_1p4"],hCorrections1D_["hRelBTagEff1p4_2p5"],LeadJet[1].pt(),LeadJet[1].eta());
+//        	  }
+//        	  else {
+//            	  weight_["BTag"] = pWeight_->BTagWeight(hCorrections2D_["hRelBTagEff2D"], LeadJet[0].pt(),LeadJet[0].eta())*
+//            			  	  	   pWeight_->BTagWeight(hCorrections2D_["hRelBTagEff2D"], LeadJet[1].pt(), LeadJet[1].eta());
+//        	  }
 
 	    }
 
@@ -466,6 +458,7 @@ void JetAnalysisBase::applySelection(){
 }
 void JetAnalysisBase::addTriggerObjects(const std::vector<std::string> &triggerObjectName, const std::string & path)
 {
+	if(TEST) std::cout<<"I'm in JetAnalysisBase::addTriggerObjects"<<std::endl;
 
 	if(triggerObjectName.size() == 0)
 	{
@@ -484,69 +477,60 @@ void JetAnalysisBase::addTriggerObjects(const std::vector<std::string> &triggerO
 void JetAnalysisBase::loadCorrections(){
 	if(TEST) std::cout<<"I'm in JetAnalysisBase::loadCorrections"<<std::endl;
 	TH1::AddDirectory(0);
-	if(lowM_){
-		//Online BTag Trigger Efficiency produced by Ye Chen
-		fCorrections_["fRelBTagEff"] = std::make_unique<TFile>((defaultInputDir_ + "bin/input_corrections/RelOnlineBTagCSV0p9Eff_PtEta.root").c_str(),"read");
-		hCorrections1D_["hRelBTagEff0p9"] 		=	  (TH1D*) fCorrections_["fRelBTagEff"] -> Get("heh4") ;			// eta <0.9
-		hCorrections1D_["hRelBTagEff0p9_1p4"] 	=	 (TH1D*) fCorrections_["fRelBTagEff"] -> Get("heh3") ;		// 1.4 > eta >0.9
-		hCorrections1D_["hRelBTagEff1p4_2p5"] 	= 	 (TH1D*) fCorrections_["fRelBTagEff"] -> Get("heh2") ;		// 2.5 > eta > 1.4
-		//Online Pt trigger efficiency:
-		fCorrections_["fPtTriggerEff"] = std::make_unique<TFile>((defaultInputDir_ + "bin/input_corrections/TwoDPtLowMassEfficiency.root").c_str(),"read");
-		hCorrections2D_["hPtTriggerEff"] = (TH2D*) fCorrections_["fPtTriggerEff"] ->Get("TwoDEff_Num") ; // 2D
-
-		// Add Ht reweighting:
-		std::string file_name = outputFile_->GetName();
-//		if(file_name.find("BGenFilter") != std::string::npos ){
-//			fCorrections_["fHtWeight"] = std::make_unique<TFile>("input_corrections/DataMC_HT_Correction_lowM_BGenFilter.root","read");
+//	if(lowM_){
+//		// Add Ht reweighting:
+//		std::string file_name = outputFile_->GetName();
+////		if(file_name.find("BGenFilter") != std::string::npos ){
+////			fCorrections_["fHtWeight"] = std::make_unique<TFile>("input_corrections/DataMC_HT_Correction_lowM_BGenFilter.root","read");
+////			hCorrections1D_["hHtWeight"] =  (TH1D*) fCorrections_["fHtWeight"] -> Get("h_clone") ;
+////		}
+//		std::string file_ht_name;
+//		if(file_name.find("bEnriched") != std::string::npos || file_name.find("BGenFilter") != std::string::npos){
+////			fCorrections_["fHtWeight"] = std::make_unique<TFile>("input_corrections/bbx_HT_Correction_lowM_QCD_b_Ht.root","read");
+////			Use the same reweighting function for all topologies
+//			if(file_name.find("bbx") == std::string::npos && nJets_ == 2) file_ht_name = "bin/input_corrections/DataMC_HT_Correction_lowM_QCD_not_rew.root";
+//			else if (file_name.find("bbx") == std::string::npos && nJets_ == 3) file_ht_name = "bin/input_corrections/DataMC_HT_Correction_lowM_QCD_not_rew.root";
+//			if (file_name.find("bbx") != std::string::npos) file_ht_name = "bin/input_corrections/DataMC_HT_Correction_lowM_QCD_not_rew.root";
+//			fCorrections_["fHtWeight"] = std::make_unique<TFile>((defaultInputDir_ + file_ht_name).c_str(),"read");
+//			hCorrections1D_["hHtWeight"] =  (TH1D*) fCorrections_["fHtWeight"] -> Get("h_clone") ;
+//			std::cout<<"HT corrections for bEnriched + BGenFilter samples were loaded"<<std::endl;
+//		}
+//		else if (file_name.find("TuneCUETP8M1") != std::string::npos) {
+//			fCorrections_["fHtWeight"] = std::make_unique<TFile>((defaultInputDir_ + "bin/input_corrections/DataMC_HT_Correction_lowM_TuneCUETP8M1.root").c_str(),"read");
 //			hCorrections1D_["hHtWeight"] =  (TH1D*) fCorrections_["fHtWeight"] -> Get("h_clone") ;
 //		}
-		std::string file_ht_name;
-		if(file_name.find("bEnriched") != std::string::npos || file_name.find("BGenFilter") != std::string::npos){
-//			fCorrections_["fHtWeight"] = std::make_unique<TFile>("input_corrections/bbx_HT_Correction_lowM_QCD_b_Ht.root","read");
-//			Use the same reweighting function for all topologies
-			if(file_name.find("bbx") == std::string::npos && nJets_ == 2) file_ht_name = "bin/input_corrections/DataMC_HT_Correction_lowM_QCD_not_rew.root";
-			else if (file_name.find("bbx") == std::string::npos && nJets_ == 3) file_ht_name = "bin/input_corrections/DataMC_HT_Correction_lowM_QCD_not_rew.root";
-			if (file_name.find("bbx") != std::string::npos) file_ht_name = "bin/input_corrections/DataMC_HT_Correction_lowM_QCD_not_rew.root";
-			fCorrections_["fHtWeight"] = std::make_unique<TFile>((defaultInputDir_ + file_ht_name).c_str(),"read");
-			hCorrections1D_["hHtWeight"] =  (TH1D*) fCorrections_["fHtWeight"] -> Get("h_clone") ;
-			std::cout<<"HT corrections for bEnriched + BGenFilter samples were loaded"<<std::endl;
-		}
-		else if (file_name.find("TuneCUETP8M1") != std::string::npos) {
-			fCorrections_["fHtWeight"] = std::make_unique<TFile>((defaultInputDir_ + "bin/input_corrections/DataMC_HT_Correction_lowM_TuneCUETP8M1.root").c_str(),"read");
-			hCorrections1D_["hHtWeight"] =  (TH1D*) fCorrections_["fHtWeight"] -> Get("h_clone") ;
-		}
-
-	}
-	else {
-		// For high mass trigger only 2D efficiency were provided
-		fCorrections_["fRelBTagEff"] = std::make_unique<TFile>((defaultInputDir_ + "bin/input_corrections/TwoDBTagCSV0p85_2D_PtEta.root").c_str(),"read");
-		hCorrections2D_["hRelBTagEff2D"] = (TH2D*) fCorrections_["fRelBTagEff"] ->Get("h2ehn") ;
-		//Online Pt trigger efficiency:
-		fCorrections_["fPtTriggerEff"] = std::make_unique<TFile>((defaultInputDir_ + "bin/input_corrections/TwoDPtHighMassEfficiency.root").c_str(),"read");
-		hCorrections2D_["hPtTriggerEff"]  = (TH2D*) fCorrections_["fPtTriggerEff"] ->Get("TwoDEff_Num"); // 2D
-		// Add Ht reweighting:
-		std::string file_name = outputFile_->GetName();
-		if(file_name.find("BGenFilter") != std::string::npos ){
-			fCorrections_["fHtWeight"] = std::make_unique<TFile>((defaultInputDir_ + "bin/input_corrections/DataMC_HT_Correction_highM_BGenFilter.root").c_str(),"read");
-			hCorrections1D_["hHtWeight"] =  (TH1D*) fCorrections_["fHtWeight"] -> Get("h_clone") ;
-		}
-		else if (file_name.find("TuneCUETP8M1") != std::string::npos) {
-			fCorrections_["fHtWeight"] = std::make_unique<TFile>((defaultInputDir_ + "bin/input_corrections/DataMC_HT_Correction_highM_TuneCUETP8M1.root").c_str(),"read");
-			hCorrections1D_["hHtWeight"] =  (TH1D*) fCorrections_["fHtWeight"] -> Get("h_clone") ;
-		}
-	}
-	fCorrections_["fPileUpData_central"] = std::make_unique<TFile>((defaultInputDir_ + "bin/input_corrections/PileUp_2015Dec_central.root").c_str(),"read");
-	fCorrections_["fPileUpData_up"] = std::make_unique<TFile>((defaultInputDir_ + "bin/input_corrections/PileUp_2015Dec_up.root").c_str(),"read");
-	fCorrections_["fPileUpData_down"] = std::make_unique<TFile>((defaultInputDir_ + "bin/input_corrections/PileUp_2015Dec_down.root").c_str(),"read");
+//
+//	}
+//	else {
+//		// Add Ht reweighting:
+//		std::string file_name = outputFile_->GetName();
+//		if(file_name.find("BGenFilter") != std::string::npos ){
+//			fCorrections_["fHtWeight"] = std::make_unique<TFile>((defaultInputDir_ + "bin/input_corrections/DataMC_HT_Correction_highM_BGenFilter.root").c_str(),"read");
+//			hCorrections1D_["hHtWeight"] =  (TH1D*) fCorrections_["fHtWeight"] -> Get("h_clone") ;
+//		}
+//		else if (file_name.find("TuneCUETP8M1") != std::string::npos) {
+//			fCorrections_["fHtWeight"] = std::make_unique<TFile>((defaultInputDir_ + "bin/input_corrections/DataMC_HT_Correction_highM_TuneCUETP8M1.root").c_str(),"read");
+//			hCorrections1D_["hHtWeight"] =  (TH1D*) fCorrections_["fHtWeight"] -> Get("h_clone") ;
+//		}
+//	}
+	fCorrections_["fPileUpData_central"] = std::make_unique<TFile>((defaultInputDir_ + "bin/input_corrections/Data_Pileup_2016_ReReco.root").c_str(),"read");
+	CheckZombie(*fCorrections_["fPileUpData_central"].get());
+	CheckZombieObjectInTFile(*fCorrections_["fPileUpData_central"].get(),"pileup");
+	fCorrections_["fPileUpData_up"] = std::make_unique<TFile>((defaultInputDir_ + "bin/input_corrections/Data_Pileup_2016_ReReco_up2Sigma.root").c_str(),"read");
+	CheckZombie(*fCorrections_["fPileUpData_up"].get());
+	CheckZombieObjectInTFile(*fCorrections_["fPileUpData_up"].get(),"pileup");
+	fCorrections_["fPileUpData_down"] = std::make_unique<TFile>((defaultInputDir_ + "bin/input_corrections/Data_Pileup_2016_ReReco_down2Sigma.root").c_str(),"read");
+	CheckZombie(*fCorrections_["fPileUpData_down"].get());
+	CheckZombieObjectInTFile(*fCorrections_["fPileUpData_down"].get(),"pileup");
 	hCorrections1D_["hPileUpData_central"] = (TH1D*) fCorrections_["fPileUpData_central"]->Get("pileup");
 	hCorrections1D_["hPileUpData_up"] = (TH1D*) fCorrections_["fPileUpData_up"]->Get("pileup");
 	hCorrections1D_["hPileUpData_down"] = (TH1D*) fCorrections_["fPileUpData_down"]->Get("pileup");
-	fCorrections_["fPileUpMC"] = std::make_unique<TFile>((defaultInputDir_ + "bin/input_corrections/MC_Fall15_PU25_V1.root").c_str(),"read");
+	fCorrections_["fPileUpMC"] = std::make_unique<TFile>((defaultInputDir_ + "bin/input_corrections/MC_Spring16_PU25ns_V1.root").c_str(),"read");
+	CheckZombie(*fCorrections_["fPileUpMC"].get());
+	CheckZombieObjectInTFile(*fCorrections_["fPileUpMC"].get(),"pileup");
 	hCorrections1D_["hPileUpMC"] = (TH1D*) fCorrections_["fPileUpMC"] -> Get("pileup") ;
-
 	//Declare weights:
 	pWeight_ = std::unique_ptr<Weights>(new Weights(lowM_));
-
 }
 
 const bool JetAnalysisBase::leadingJetSelection(const std::shared_ptr<tools::Collection<tools::Jet> > & offlineJets){
@@ -748,6 +732,8 @@ void JetAnalysisBase::setupXSections(){
     xsection_[500] = 1.;//0.88;	//0.877385402091
     xsection_[600] = 1.;//0.377;	//0.376766971183
     xsection_[700] = 1.;//0.18;	//0.17940535717
+    xsection_[750] = 1.;//0.18;	//0.17940535717
+    xsection_[800] = 1.;//0.18;	//0.17940535717
     xsection_[900] = 1.;//0.051;	//0.0507664661841
     xsection_[1100] = 1.;//0.018;//0.0180548176636
     xsection_[1300] = 1.;//0.008;//0.00802737010696

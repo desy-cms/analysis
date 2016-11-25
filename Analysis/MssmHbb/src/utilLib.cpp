@@ -23,3 +23,14 @@ int returnMassPoint(const std::string& name){
 	Mpoint = std::stoi(MpointString);
 	return Mpoint;
 }
+
+void CheckZombie(const TFile& file){
+	if(file.IsZombie()){
+		throw std::invalid_argument("ERROR: TFile " + std::string(file.GetName()) + " is Zombie");
+	}
+}
+
+void CheckZombieObjectInTFile(const TFile& file, const std::string& name){
+	if(! file.GetListOfKeys()->Contains(name.c_str()))
+		throw std::invalid_argument("ERROR: Object: " + name + " is not in TFile " + std::string(file.GetName()));
+}

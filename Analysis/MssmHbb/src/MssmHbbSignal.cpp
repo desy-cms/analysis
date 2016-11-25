@@ -18,22 +18,22 @@ MssmHbbSignal::MssmHbbSignal(const std::string & inputFilelist,const double & da
 {
 	nJets_ = 3;
         if(lowM){
-                triggerLogicName_ = "HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v";
-                triggerObjectName_ = {"hltL1sL1DoubleJetC100","hltDoubleJetsC100","hltDoublePFJetsC100","hltDoubleBTagCSV0p9","hltDoublePFJetsC100MaxDeta1p6"};
-                pt1_ = 100.; pt2_ = 100.; pt3_ = 40;
-                eta1_ = 2.2; eta2_ = 2.2; eta3_ = 2.2;
-                btag1_ = 0.8; btag2_ = 0.8; btag3_ = 0.8;
-                btagOP1_ = 1; btagOP2_ = 1; btagOP3_ = 1;
-                dR_ = 1; dEta_ = 1.55; mHat_ = 0.7;
+        	triggerLogicName_ = "HLT_DoubleJetsC100_DoubleBTagCSV_p014_DoublePFJetsC100MaxDeta1p6_v";
+        	triggerObjectName_ = {"hltL1sDoubleJetC100","hltDoubleJetsC100","hltBTagCaloCSVp014DoubleWithMatching","hltDoublePFJetsC100","hltDoublePFJetsC100MaxDeta1p6"};
+        	pt1_ = 100.; pt2_ = 100.; pt3_ = 40;
+        	eta1_ = 2.2; eta2_ = 2.2; eta3_ = 2.2;
+        	btag1_ = 0.8; btag2_ = 0.8; btag3_ = 0.8;
+        	btagOP1_ = 1; btagOP2_ = 1; btagOP3_ = 1;
+        	dR_ = 1; dEta_ = 1.55; mHat_ = 0.7;
         }
         else {
-                triggerLogicName_ = "HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v";
-                triggerObjectName_ = {"hltL1sL1DoubleJetC100","hltDoubleJetsC100","hltDoubleBTagCSV0p85","hltDoublePFJetsC160"};
-                pt1_ = 160.; pt2_ = 160.; pt3_ = 40;
-                eta1_ = 2.2; eta2_ = 2.2; eta3_ = 2.2;
-                btag1_ = 0.8; btag2_ = 0.8; btag3_ = 0.8;
-                btagOP1_ = 1; btagOP2_ = 1; btagOP3_ = 1;
-                dR_ = 1; dEta_ = 100.; mHat_ = 0.7;
+        	triggerLogicName_ = "HLT_DoubleJetsC100_DoubleBTagCSV_p026_DoublePFJetsC160_v";
+        	triggerObjectName_ = {"hltL1sDoubleJetC100","hltDoubleJetsC100","hltBTagCaloCSVp026DoubleWithMatching","hltDoublePFJetsC160"};
+        	pt1_ = 160.; pt2_ = 160.; pt3_ = 40;
+        	eta1_ = 2.2; eta2_ = 2.2; eta3_ = 2.2;
+        	btag1_ = 0.8; btag2_ = 0.8; btag3_ = 0.8;
+        	btagOP1_ = 1; btagOP2_ = 1; btagOP3_ = 1;
+        	dR_ = 1; dEta_ = 100.; mHat_ = 0.7;
         }
 	baseOutputName_ = "MssmHbbSignal";
 }
@@ -222,11 +222,13 @@ std::shared_ptr<tools::Collection<tools::Jet> > MssmHbbSignal::modifyJetCollecti
 }
 
 void MssmHbbSignal::runAnalysis(const std::string &json, const std::string &output, const int &size){
-
+	if(TEST) std::cout<<"I'm in MssmHbbSignal::runAnalysis"<<std::endl;
 	this->SetupStandardOutputFile(output);
 	this->setupAnalysis(json);
 	std::cout<<"Total number of events: "<<this->size()<<std::endl;
 	this->makeHistograms(size);
+	makeM12Templates();
+
 
 	if(signalMC_){
 		for(int i = 0; i < 3 ; ++i){
@@ -321,3 +323,30 @@ void MssmHbbSignal::addStatErrorsTemplates(const int & nbins){
 
 }
 
+void MssmHbbSignal::makeM12Templates(){
+	if(TEST) std::cout<<"I'm in MssmHbbSignal::makeM12Templates"<<std::endl;
+	if(!signalMC_) histo_.MakeM12Templates();
+	else {
+		std::size_t nbins;
+		double max;
+		double min;
+		double mass = returnMassPoint();
+		if(mass == 300 || mass == 350 || mass == 400 || mass == 500){
+			nbins = 45;
+			min = 200;
+			max = 650;
+		}
+		else if (mass == 600 || mass == 700 || mass == 900){
+			nbins = 42;
+			min = 350;
+			max = 1190;
+		}
+		else{
+			nbins = 48;
+			min = 500.;
+			max = 1700;
+		}
+		histo_.MakeM12Templates(nbins,min,max);
+	}
+
+}

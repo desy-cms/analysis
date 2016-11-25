@@ -45,6 +45,8 @@ namespace analysis{
 				void runAnalysis(const std::string &json, const std::string &output = "", const int &size = 100);
 				//Calculate Signal Efficiency
 				void signalEfficiency();
+				// Make M12 templates according to the Mass point (2016 analysis)
+				void makeM12Templates();
 
 
 			protected:

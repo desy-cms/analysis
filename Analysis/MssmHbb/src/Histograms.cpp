@@ -201,50 +201,9 @@ void Histograms::Make(const int &size, const bool & lowM) {
 	histo_["template_PtEff_down"]		= new TH1D("template_PtEff_down","",temp_bins,temp_bin);
 	histo_["template_PtEff_up"]			= new TH1D("template_PtEff_up","",temp_bins,temp_bin);
 	*/
-    int temp_bins;
-    double xMin, xMax;
-    if(lowM){
-    	temp_bins = 73;
-    	xMin = 240;
-    	xMax = 1700;
-    }
-    else {
-    	temp_bins = 106;
-    	xMin = 350;
-    	xMax = 3000;
-    }
-	histo_["template_Mbb"]			=  new TH1D("template_Mbb","M_{12} of the di_jet object; di-Jet M_{12}, [GeV]",temp_bins,xMin,xMax);
-	histo_["template_SFb_down"]			= new TH1D("template_SFb_down","",temp_bins,xMin,xMax);
-	histo_["template_SFb_up"]			= new TH1D("template_SFb_up","",temp_bins,xMin,xMax);
-
-	//SFl
-	histo_["template_SFl_down"]			= new TH1D("template_SFl_down","",temp_bins,xMin,xMax);
-	histo_["template_SFl_up"]			= new TH1D("template_SFl_up","",temp_bins,xMin,xMax);
-
-	//JES
-	histo_["template_JES_down"]			= new TH1D("template_JES_down","",temp_bins,xMin,xMax);
-	histo_["template_JES_up"]			= new TH1D("template_JES_up","",temp_bins,xMin,xMax);
-
-	//JER
-	histo_["template_JER_down"]			= new TH1D("template_JER_down","",temp_bins,xMin,xMax);
-	histo_["template_JER_up"]			= new TH1D("template_JER_up","",temp_bins,xMin,xMax);
-
-	//Pileup
-	histo_["template_PU_down"]			= new TH1D("template_PU_down","",temp_bins,xMin,xMax);
-	histo_["template_PU_up"]				= new TH1D("template_PU_up","",temp_bins,xMin,xMax);
-
-	//Kinematic trigger efificiency
-	histo_["template_PtEff_down"]		= new TH1D("template_PtEff_down","",temp_bins,xMin,xMax);
-	histo_["template_PtEff_up"]			= new TH1D("template_PtEff_up","",temp_bins,xMin,xMax);
-
-	histo_["template_Mbb_17GeV"]			=  new TH1D("template_Mbb_17GeV","M_{12} of the di_jet object; di-Jet M_{12}, [GeV]",86,240.,1702);
-
-	/* Dublication of the current templtes
-	 * just for the visualisation
-	 */
-
-	int vis_bins;
-	vis_bins = temp_bins*(1 + xMin/(xMax-xMin));
+	int vis_bins = 80;
+	double xMax = 1700;
+//	vis_bins = temp_bins*(1 + xMin/(xMax-xMin));
 
 	histo_["template_Mbb_VIS"]				= new TH1D("template_Mbb_VIS","M_{12} of the di_jet object; di-Jet M_{12}, [GeV]",vis_bins,0.,xMax);
 	histo_["template_SFb_VIS_down"]			= new TH1D("template_SFb_VIS_down","",vis_bins,0,xMax);
@@ -624,4 +583,14 @@ std::map<std::string, TH1* >& Histograms::getHisto() {
 
 std::map<std::string, TH2*>& Histograms::getHisto2D() {
 	return histo2D_;
+}
+
+void Histograms::MakeM12Templates(const std::size_t& nbins, const double& xmin, const double& xmax){
+
+	std::array<std::string,13> syst = {{"Mbb","SFb_down","SFb_up","SFl_down","SFl_up","JES_down","JES_up","JER_down","JER_up","PU_down","PU_up","PtEff_down","PtEff_up"}};
+	for(const auto& h: syst){
+		std::string name = "template_" + h;
+		if(histo_[name] != nullptr) throw std::invalid_argument("Histogram: " + name + " already exists. Check spelling");
+		histo_[name] = new TH1D( name.c_str(),"",nbins,xmin,xmax);
+	}
 }
