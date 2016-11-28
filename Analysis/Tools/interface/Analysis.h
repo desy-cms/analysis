@@ -61,6 +61,8 @@ namespace analysis {
             int  run();
             int  lumiSection();
             bool isMC();
+            std::string fileName();
+            std::string fileFullName();
             
             // PileupInfo
             int   nPileup();
@@ -325,6 +327,8 @@ namespace analysis {
       
       inline void Analysis::btagEfficienciesAlgo(const std::string & algo )      { btageff_algo_    = algo; }
       inline void Analysis::btagEfficienciesFlavour(const std::string & flavour) { btageff_flavour_ = flavour; }
+      
+      inline std::string Analysis::fileFullName()     { return std::string(t_event_ -> GetFile() -> GetName()) ;    }
       
 //      inline std::string Analysis::getGenParticleCollection() { return genParticleCollection_; }
 

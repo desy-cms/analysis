@@ -20,6 +20,7 @@
 #include "TKey.h"
 #include "Analysis/Tools/interface/Analysis.h"
 #include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
 
 using namespace analysis;
 using namespace analysis::tools;
@@ -489,4 +490,10 @@ void triggerNames(std::string &trueTriggerNames,const char *myTriggerNames, TTre
 }
 */
 
- 
+std::string Analysis::fileName()
+{
+   std::string filename;
+   filename = boost::filesystem::basename(this->fileFullName())+boost::filesystem::extension(this->fileFullName());
+   return filename ;
+}
+
