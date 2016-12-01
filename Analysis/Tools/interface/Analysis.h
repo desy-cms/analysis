@@ -52,6 +52,10 @@ namespace analysis {
          public:
             Analysis(const std::string & inputFilelist, const std::string & evtinfo = "MssmHbb/Events/EventInfo");
            ~Analysis();
+           
+            // Info
+            void tag(const std::string &);
+            std::string tag();
 
             // Event
             int  numberEvents();
@@ -144,6 +148,9 @@ namespace analysis {
             TFileCollection * fileCollection_;
             TCollection * fileList_;
             std::string inputFilelist_;
+            
+            // Info
+            std::string tag_;
             
             // btagging efficiencies
             TFile * fileBtagEff_;
@@ -310,6 +317,10 @@ namespace analysis {
       }
       
 // ========================================================
+      inline void        Analysis::tag(const std::string & t) { std::cout << "Tag " << t << " has been defined." << std::endl ;
+      																			 tag_ = t;     }
+      inline std::string Analysis::tag()                      { return tag_ ; }
+      
 
       inline int   Analysis::numberEvents() { return nevents_;   }
       inline int   Analysis::size()         { return nevents_;   }
