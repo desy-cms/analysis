@@ -168,18 +168,24 @@ void Jet::id      (const float & nHadFrac,
                    const float & muFrac  )
 {
    // Jet ID
+   // Update: https://twiki.cern.ch/twiki/bin/view/CMS/JetID?rev=95#Recommendations_for_13_TeV_data
    int nM = (int)round(nMult);
    int cM = (int)round(cMult);
    int numConst = nM + cM;
-   if ( fabs(p4_.Eta()) <= 3. )
+   if ( fabs(p4_.Eta()) <= 2.7 )
    {
-      idloose_ = ((nHadFrac<0.99 && nEmFrac<0.99 && numConst>1) && ((abs(p4_.Eta())<=2.4 && cHadFrac>0 && cM>0 && cEmFrac<0.99) || fabs(p4_.Eta())>2.4) && fabs(p4_.Eta())<=3.0);
-      idtight_ = ((nHadFrac<0.90 && nEmFrac<0.90 && numConst>1) && ((abs(p4_.Eta())<=2.4 && cHadFrac>0 && cM>0 && cEmFrac<0.99) || fabs(p4_.Eta())>2.4) && fabs(p4_.Eta())<=3.0);
+      idloose_ = ((nHadFrac<0.99 && nEmFrac<0.99 && numConst>1) && ((abs(p4_.Eta())<=2.4 && cHadFrac>0 && cM>0 && cEmFrac<0.99) || fabs(p4_.Eta())>2.4) && fabs(p4_.Eta())<=2.7);
+      idtight_ = ((nHadFrac<0.90 && nEmFrac<0.90 && numConst>1) && ((abs(p4_.Eta())<=2.4 && cHadFrac>0 && cM>0 && cEmFrac<0.99) || fabs(p4_.Eta())>2.4) && fabs(p4_.Eta())<=2.7);
+   }
+   else if ( fabs(p4_.Eta()) > 2.7 && fabs(p4_.Eta()) <= 3. )
+   {
+      idloose_ = (nEmFrac<0.90 && nM>2);
+      idtight_ = (nEmFrac<0.90 && nM>2);
    }
    else
    {
-      idloose_ = (nEmFrac<0.90 && nM>10 && fabs(p4_.Eta())>3.0);
-      idtight_ = (nEmFrac<0.90 && nM>10 && fabs(p4_.Eta())>3.0);
-   }   
+      idloose_ = (nEmFrac<0.90 && nM>10);
+      idtight_ = (nEmFrac<0.90 && nM>10);
+   }
 
 }
