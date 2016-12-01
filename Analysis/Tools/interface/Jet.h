@@ -76,14 +76,14 @@ namespace analysis {
             /// returns jet energy resolution SF Up variation
             float JerSfUp() const;
             
-            float neutralHadronFraction();
-            float neutralEmFraction();
-            int   neutralMultiplicity();
-            float chargedHadronFraction();
-            float chargedEmFraction();
-            int   chargedMultiplicity();
-            float muonFraction();
-            int   constituents();
+            float neutralHadronFraction()  const ;
+            float neutralEmFraction()      const ;
+            int   neutralMultiplicity()    const ;
+            float chargedHadronFraction()  const ;
+            float chargedEmFraction()      const ;
+            int   chargedMultiplicity()    const ;
+            float muonFraction()           const ;
+            int   constituents()           const ;
             
                
             // Sets

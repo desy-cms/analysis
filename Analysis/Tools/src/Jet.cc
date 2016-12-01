@@ -62,11 +62,22 @@ float Jet::jecUncert()                             const { return jecUnc_;      
 std::vector<int> Jet::flavours()                   const { return flavours_;               }
 std::vector< std::shared_ptr<GenParticle> >\
       Jet::partons()                               const { return partons_;        }
-std::string Jet::extendedFlavour()                 const { return extendedFlavour_;        }
-float Jet::JerResolution()							const { return jerResolution_;}
-float Jet::JerSf() 									const {	return jerSF_; }
-float Jet::JerSfDown() 								const { return jerSFDown_; }
-float Jet::JerSfUp() 								const { return jerSFUp_; }
+std::string Jet::extendedFlavour()                 const { return extendedFlavour_; }
+float Jet::JerResolution()                         const { return jerResolution_;}
+float Jet::JerSf()                                 const { return jerSF_; }
+float Jet::JerSfDown()                             const { return jerSFDown_; }
+float Jet::JerSfUp()                               const { return jerSFUp_; }
+
+float Jet::neutralHadronFraction()                 const { return nHadFrac_; }
+float Jet::neutralEmFraction()                     const { return nEmFrac_;  }
+int   Jet::neutralMultiplicity()                   const { return nMult_;    }
+float Jet::chargedHadronFraction()                 const { return cHadFrac_; }
+float Jet::chargedEmFraction()                     const { return cEmFrac_;  }
+int   Jet::chargedMultiplicity()                   const { return cMult_;    }
+float Jet::muonFraction()                          const { return muFrac_;   }
+int   Jet::constituents()                          const { return nConst_;   }
+
+
 
 // Sets                                                             
 void Jet::btag     (const float & btag)                               { btag_    = btag; } 
@@ -79,10 +90,10 @@ void Jet::jecUncert(const float & ju)                                 { jecUnc_ 
 void Jet::addParton(const std::shared_ptr<GenParticle> & parton)      { partons_.push_back(parton);
                                                                         flavours_.push_back(parton->pdgId());  }
 void Jet::btagAlgo (const std::string & algo )                        { btagAlgo_ = algo; }                                                                        
-void Jet::JerResolution(const float & jerResolution) 					{ jerResolution_ = jerResolution; }
-void Jet::JerSf(const float & jerSf) 									{ jerSF_ = jerSf; }
-void Jet::JerSfDown(const float & jerSfDown) 							{ jerSFDown_ = jerSfDown; }
-void Jet::JerSfUp(const float & jerSfUp) 								{ jerSFUp_ = jerSfUp; }
+void Jet::JerResolution(const float & jerResolution)                  { jerResolution_ = jerResolution; }
+void Jet::JerSf(const float & jerSf)                                  { jerSF_ = jerSf; }
+void Jet::JerSfDown(const float & jerSfDown)                          { jerSFDown_ = jerSfDown; }
+void Jet::JerSfUp(const float & jerSfUp)                              { jerSFUp_ = jerSfUp; }
 
 int Jet::removeParton(const int & i)
 {
