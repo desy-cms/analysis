@@ -187,5 +187,14 @@ void Jet::id      (const float & nHadFrac,
       idloose_ = (nEmFrac<0.90 && nM>10);
       idtight_ = (nEmFrac<0.90 && nM>10);
    }
+   
+   nHadFrac_ = nHadFrac;
+   nEmFrac_  = nEmFrac;
+   nMult_    = nM;
+   cHadFrac_ = cHadFrac;
+   cEmFrac_  = cEmFrac;
+   cMult_    = cM;
+   muFrac_   = muFrac;
+   nConst_   = numConst;
 
 }

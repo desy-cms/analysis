@@ -68,14 +68,24 @@ namespace analysis {
             /// returns the vector of pointers to the generated partons
             std::vector< std::shared_ptr<GenParticle> > partons() const;
             /// returns jet energy resolution
-        	float JerResolution() const;
-        	/// returns jet energy resolution SF
-        	float JerSf() const;
-        	/// returns jet energy resolution SF Down variation
-        	float JerSfDown() const;
-        	/// returns jet energy resolution SF Up variation
-        	float JerSfUp() const;
+            float JerResolution() const;
+            /// returns jet energy resolution SF
+            float JerSf() const;
+            /// returns jet energy resolution SF Down variation
+            float JerSfDown() const;
+            /// returns jet energy resolution SF Up variation
+            float JerSfUp() const;
             
+            float neutralHadronFraction();
+            float neutralEmFraction();
+            int   neutralMultiplicity();
+            float chargedHadronFraction();
+            float chargedEmFraction();
+            int   chargedMultiplicity();
+            float muonFraction();
+            int   constituents();
+            
+               
             // Sets
             /// sets the btag value
             void  btag(const float &);
@@ -105,6 +115,14 @@ namespace analysis {
             void addParton(const std::shared_ptr<GenParticle> &);
             /// remove parton from jet parton list
             int removeParton(const int &);
+            
+            void neutralHadronFraction(const float & nHadFrac);
+            void neutralEmFraction(const float & nEmFrac);
+            void neutralMultiplicity(const int & nMult);
+            void chargedHadronFraction(const float & cHadFrac);
+            void chargedEmFraction(const float & cEmFrac);
+            void chargedMultiplicity(const int & cMult);
+            void muonFraction(const float & muFrac);
             
             /// calculates the jet id
             void id(const float & nHadFrac,
@@ -150,6 +168,16 @@ namespace analysis {
             float jerSFDown_;
             /// jet energy resolution
             float jerResolution_;
+            
+            float nHadFrac_;
+            float nEmFrac_;
+            int   nMult_;
+            float cHadFrac_;
+            float cEmFrac_;
+            int   cMult_;
+            float muFrac_;
+            int   nConst_;
+            
          private:
             // ----------member data ---------------------------
             
