@@ -188,19 +188,19 @@ void Jet::id      (const float & nHadFrac,
       idtight_ = (nEmFrac<0.90 && nM>10);
    }
    
-   if ( tag_ == "JetIdOld" )
-   {
-      if ( fabs(p4_.Eta()) <= 3.0 )
-      {
-         idloose_ = ((nHadFrac<0.99 && nEmFrac<0.99 && numConst>1) && ((abs(p4_.Eta())<=2.4 && cHadFrac>0 && cM>0 && cEmFrac<0.99) || fabs(p4_.Eta())>2.4) && fabs(p4_.Eta())<=3.0);
-         idtight_ = ((nHadFrac<0.90 && nEmFrac<0.90 && numConst>1) && ((abs(p4_.Eta())<=2.4 && cHadFrac>0 && cM>0 && cEmFrac<0.99) || fabs(p4_.Eta())>2.4) && fabs(p4_.Eta())<=3.0);
-      }
-      else
-      {
-         idloose_ = (nEmFrac<0.90 && nM>10);
-         idtight_ = (nEmFrac<0.90 && nM>10);
-      }
-   }
+//    if ( tag_ == "JetIdOld" )
+//    {
+//       if ( fabs(p4_.Eta()) <= 3.0 )
+//       {
+//          idloose_ = ((nHadFrac<0.99 && nEmFrac<0.99 && numConst>1) && ((abs(p4_.Eta())<=2.4 && cHadFrac>0 && cM>0 && cEmFrac<0.99) || fabs(p4_.Eta())>2.4) && fabs(p4_.Eta())<=3.0);
+//          idtight_ = ((nHadFrac<0.90 && nEmFrac<0.90 && numConst>1) && ((abs(p4_.Eta())<=2.4 && cHadFrac>0 && cM>0 && cEmFrac<0.99) || fabs(p4_.Eta())>2.4) && fabs(p4_.Eta())<=3.0);
+//       }
+//       else
+//       {
+//          idloose_ = (nEmFrac<0.90 && nM>10);
+//          idtight_ = (nEmFrac<0.90 && nM>10);
+//       }
+//    }
    
    nHadFrac_ = nHadFrac;
    nEmFrac_  = nEmFrac;
