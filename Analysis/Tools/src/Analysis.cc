@@ -20,6 +20,7 @@
 #include "TKey.h"
 #include "Analysis/Tools/interface/Analysis.h"
 #include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
 
 using namespace analysis;
 using namespace analysis::tools;
@@ -191,6 +192,17 @@ int Analysis::triggerResult(const std::string & trig)
 {
    if ( t_triggerResults_ == NULL ) return -1.;
    return triggerResults_[trig];
+}
+
+int Analysis::triggerL1Prescale(const std::string & trig)
+{
+//   if ( t_triggerResults_ == NULL ) return -1.;
+   return triggerResultsPS_["psl1_"+trig];
+}
+int Analysis::triggerHLTPrescale(const std::string & trig)
+{
+//   if ( t_triggerResults_ == NULL ) return -1.;
+   return triggerResultsPS_["pshlt_"+trig];
 }
 
 
@@ -478,4 +490,10 @@ void triggerNames(std::string &trueTriggerNames,const char *myTriggerNames, TTre
 }
 */
 
- 
+std::string Analysis::fileName()
+{
+   std::string filename;
+   filename = boost::filesystem::basename(this->fileFullName())+boost::filesystem::extension(this->fileFullName());
+   return filename ;
+}
+
