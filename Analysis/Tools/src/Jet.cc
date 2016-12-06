@@ -62,11 +62,22 @@ float Jet::jecUncert()                             const { return jecUnc_;      
 std::vector<int> Jet::flavours()                   const { return flavours_;               }
 std::vector< std::shared_ptr<GenParticle> >\
       Jet::partons()                               const { return partons_;        }
-std::string Jet::extendedFlavour()                 const { return extendedFlavour_;        }
-float Jet::JerResolution()							const { return jerResolution_;}
-float Jet::JerSf() 									const {	return jerSF_; }
-float Jet::JerSfDown() 								const { return jerSFDown_; }
-float Jet::JerSfUp() 								const { return jerSFUp_; }
+std::string Jet::extendedFlavour()                 const { return extendedFlavour_; }
+float Jet::JerResolution()                         const { return jerResolution_;}
+float Jet::JerSf()                                 const { return jerSF_; }
+float Jet::JerSfDown()                             const { return jerSFDown_; }
+float Jet::JerSfUp()                               const { return jerSFUp_; }
+
+float Jet::neutralHadronFraction()                 const { return nHadFrac_; }
+float Jet::neutralEmFraction()                     const { return nEmFrac_;  }
+int   Jet::neutralMultiplicity()                   const { return nMult_;    }
+float Jet::chargedHadronFraction()                 const { return cHadFrac_; }
+float Jet::chargedEmFraction()                     const { return cEmFrac_;  }
+int   Jet::chargedMultiplicity()                   const { return cMult_;    }
+float Jet::muonFraction()                          const { return muFrac_;   }
+int   Jet::constituents()                          const { return nConst_;   }
+
+
 
 // Sets                                                             
 void Jet::btag     (const float & btag)                               { btag_    = btag; } 
@@ -79,10 +90,10 @@ void Jet::jecUncert(const float & ju)                                 { jecUnc_ 
 void Jet::addParton(const std::shared_ptr<GenParticle> & parton)      { partons_.push_back(parton);
                                                                         flavours_.push_back(parton->pdgId());  }
 void Jet::btagAlgo (const std::string & algo )                        { btagAlgo_ = algo; }                                                                        
-void Jet::JerResolution(const float & jerResolution) 					{ jerResolution_ = jerResolution; }
-void Jet::JerSf(const float & jerSf) 									{ jerSF_ = jerSf; }
-void Jet::JerSfDown(const float & jerSfDown) 							{ jerSFDown_ = jerSfDown; }
-void Jet::JerSfUp(const float & jerSfUp) 								{ jerSFUp_ = jerSfUp; }
+void Jet::JerResolution(const float & jerResolution)                  { jerResolution_ = jerResolution; }
+void Jet::JerSf(const float & jerSf)                                  { jerSF_ = jerSf; }
+void Jet::JerSfDown(const float & jerSfDown)                          { jerSFDown_ = jerSfDown; }
+void Jet::JerSfUp(const float & jerSfUp)                              { jerSFUp_ = jerSfUp; }
 
 int Jet::removeParton(const int & i)
 {
@@ -168,18 +179,47 @@ void Jet::id      (const float & nHadFrac,
                    const float & muFrac  )
 {
    // Jet ID
+   // Update: https://twiki.cern.ch/twiki/bin/view/CMS/JetID?rev=95#Recommendations_for_13_TeV_data
    int nM = (int)round(nMult);
    int cM = (int)round(cMult);
    int numConst = nM + cM;
-   if ( fabs(p4_.Eta()) <= 3. )
+   if ( fabs(p4_.Eta()) <= 2.7 )
    {
-      idloose_ = ((nHadFrac<0.99 && nEmFrac<0.99 && numConst>1) && ((abs(p4_.Eta())<=2.4 && cHadFrac>0 && cM>0 && cEmFrac<0.99) || fabs(p4_.Eta())>2.4) && fabs(p4_.Eta())<=3.0);
-      idtight_ = ((nHadFrac<0.90 && nEmFrac<0.90 && numConst>1) && ((abs(p4_.Eta())<=2.4 && cHadFrac>0 && cM>0 && cEmFrac<0.99) || fabs(p4_.Eta())>2.4) && fabs(p4_.Eta())<=3.0);
+      idloose_ = ((nHadFrac<0.99 && nEmFrac<0.99 && numConst>1) && ((abs(p4_.Eta())<=2.4 && cHadFrac>0 && cM>0 && cEmFrac<0.99) || fabs(p4_.Eta())>2.4) && fabs(p4_.Eta())<=2.7);
+      idtight_ = ((nHadFrac<0.90 && nEmFrac<0.90 && numConst>1) && ((abs(p4_.Eta())<=2.4 && cHadFrac>0 && cM>0 && cEmFrac<0.99) || fabs(p4_.Eta())>2.4) && fabs(p4_.Eta())<=2.7);
+   }
+   else if ( fabs(p4_.Eta()) > 2.7 && fabs(p4_.Eta()) <= 3. )
+   {
+      idloose_ = (nEmFrac<0.90 && nM>2);
+      idtight_ = (nEmFrac<0.90 && nM>2);
    }
    else
    {
-      idloose_ = (nEmFrac<0.90 && nM>10 && fabs(p4_.Eta())>3.0);
-      idtight_ = (nEmFrac<0.90 && nM>10 && fabs(p4_.Eta())>3.0);
-   }   
+      idloose_ = (nEmFrac<0.90 && nM>10);
+      idtight_ = (nEmFrac<0.90 && nM>10);
+   }
+   
+//    if ( tag_ == "JetIdOld" )
+//    {
+//       if ( fabs(p4_.Eta()) <= 3.0 )
+//       {
+//          idloose_ = ((nHadFrac<0.99 && nEmFrac<0.99 && numConst>1) && ((abs(p4_.Eta())<=2.4 && cHadFrac>0 && cM>0 && cEmFrac<0.99) || fabs(p4_.Eta())>2.4) && fabs(p4_.Eta())<=3.0);
+//          idtight_ = ((nHadFrac<0.90 && nEmFrac<0.90 && numConst>1) && ((abs(p4_.Eta())<=2.4 && cHadFrac>0 && cM>0 && cEmFrac<0.99) || fabs(p4_.Eta())>2.4) && fabs(p4_.Eta())<=3.0);
+//       }
+//       else
+//       {
+//          idloose_ = (nEmFrac<0.90 && nM>10);
+//          idtight_ = (nEmFrac<0.90 && nM>10);
+//       }
+//    }
+   
+   nHadFrac_ = nHadFrac;
+   nEmFrac_  = nEmFrac;
+   nMult_    = nM;
+   cHadFrac_ = cHadFrac;
+   cEmFrac_  = cEmFrac;
+   cMult_    = cM;
+   muFrac_   = muFrac;
+   nConst_   = numConst;
 
 }
