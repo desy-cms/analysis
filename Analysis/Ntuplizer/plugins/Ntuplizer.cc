@@ -193,6 +193,8 @@ class Ntuplizer : public edm::EDAnalyzer {
       bool do_triggerobjects_;
       bool do_genruninfo_;
       
+      bool readprescale_;
+      
       bool testmode_;
       
       std::vector< std::string > inputTagsVec_;
@@ -299,6 +301,11 @@ Ntuplizer::Ntuplizer(const edm::ParameterSet& config) //:   // initialization of
    
    //now do what ever initialization is needed
    is_mc_         = config.getParameter<bool> ("MonteCarlo");
+   readprescale_  = true;
+   if ( config.exists("ReadPrescale") )
+   {
+      readprescale_ = config.getParameter<bool> ("ReadPrescale");
+   }
    use_full_name_ = true;
    testmode_      = false;
    inputTagsVec_ = config.getParameterNamesForType<InputTags>();
@@ -773,7 +780,7 @@ Ntuplizer::beginJob()
             triggeraccepts_collections_.push_back( pTriggerAccepts( new TriggerAccepts(collection, tree_[name], trigger_paths, testmode_) ));  
 #endif                      
 //            triggeraccepts_collections_.back() -> Branches();
-            triggeraccepts_collections_.back() -> SavePrescaleInfo(false);  // sometimes an error occurs as if the collection was not consumed!??? See TriggerAccepts
+            triggeraccepts_collections_.back() -> ReadPrescaleInfo(readprescale_);  // sometimes an error occurs as if the collection was not consumed!??? See TriggerAccepts
          }
          
          // Primary Vertices
