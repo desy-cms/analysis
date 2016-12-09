@@ -171,7 +171,7 @@ void HltTriggerSummary::analyze(const edm::Event& event, const edm::EventSetup& 
    
    for ( size_t j = 0 ; j < triggerObjectsLabels_.size() ; ++j )
    {
-      const unsigned int filterIndex(triggerEvent.filterIndex(InputTag(triggerObjectsLabels_[j],"","HLT")));
+      const unsigned int filterIndex(triggerEvent.filterIndex(InputTag(triggerObjectsLabels_[j],"",triggerEventProcess_)));
       
       if ( filterIndex < triggerEvent.sizeFilters() )
       {
