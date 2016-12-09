@@ -57,6 +57,9 @@ namespace analysis {
             void Branches();
             void LumiBlock(edm::LuminosityBlock const & , edm::EventSetup const& );
             void Run(edm::Run const & , edm::EventSetup const& );
+            
+            void ReadPrescaleInfo(const bool &);
+            bool ReadPrescaleInfo();
       
          private:
             // ----------member data ---------------------------
@@ -76,6 +79,8 @@ namespace analysis {
             bool testmode_;
             
             TTree * tree_;
+            
+            bool psinfo_;
             
       };
    }
