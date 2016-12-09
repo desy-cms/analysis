@@ -4,5 +4,7 @@
 <use name="DataFormats/Common"/>
 <use name="DataFormats/PatCandidates"/>
 <use name="HLTrigger/HLTcore"/>
+<use name="PhysicsTools/UtilAlgos"/>
+<use name="FWCore/ServiceRegistry"/>
 
 <flags EDM_PLUGIN="1"/>
