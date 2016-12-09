@@ -74,6 +74,7 @@
 
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
 
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
@@ -117,6 +118,7 @@ typedef analysis::ntuple::Candidates<pat::Muon> PatMuonCandidates;
 typedef analysis::ntuple::Candidates<reco::GenJet> GenJetCandidates;
 typedef analysis::ntuple::Candidates<reco::GenParticle> GenParticleCandidates;
 typedef analysis::ntuple::Candidates<pat::TriggerObject> TriggerObjectCandidates;
+typedef analysis::ntuple::Candidates<trigger::TriggerObject> TriggerObjectRecoCandidates;
 typedef analysis::ntuple::JetsTags JetsTags;
 typedef analysis::ntuple::TriggerAccepts TriggerAccepts;
 typedef analysis::ntuple::Vertices PrimaryVertices;
@@ -137,6 +139,7 @@ typedef std::unique_ptr<PatMuonCandidates> pPatMuonCandidates;
 typedef std::unique_ptr<GenJetCandidates> pGenJetCandidates;
 typedef std::unique_ptr<GenParticleCandidates> pGenParticleCandidates;
 typedef std::unique_ptr<TriggerObjectCandidates> pTriggerObjectCandidates;
+typedef std::unique_ptr<TriggerObjectRecoCandidates> pTriggerObjectRecoCandidates;
 typedef std::unique_ptr<JetsTags> pJetsTags;
 typedef std::unique_ptr<TriggerAccepts> pTriggerAccepts;
 typedef std::unique_ptr<PrimaryVertices> pPrimaryVertices;
@@ -211,6 +214,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       std::map<std::string, edm::EDGetTokenT<reco::GenJetCollection> > genJetTokens_;
       std::map<std::string, edm::EDGetTokenT<reco::GenParticleCollection> > genPartTokens_;
       std::map<std::string, edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> > triggerObjTokens_;
+      std::map<std::string, edm::EDGetTokenT<trigger::TriggerEvent> > triggerEventTokens_;
       std::map<std::string, edm::EDGetTokenT<edm::TriggerResults> > triggerResultsTokens_;
       std::map<std::string, edm::EDGetTokenT<reco::VertexCollection> > primaryVertexTokens_;
 
@@ -265,6 +269,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       std::vector<pPrimaryVertices> primaryvertices_collections_;
       std::vector<pTriggerAccepts> triggeraccepts_collections_;
       std::vector<pTriggerObjectCandidates> triggerobjects_collections_;
+      std::vector<pTriggerObjectRecoCandidates> triggerobjectsreco_collections_;
       
       
       
@@ -319,10 +324,9 @@ Ntuplizer::Ntuplizer(const edm::ParameterSet& config) //:   // initialization of
          if ( inputTags == "GenJets" ) genJetTokens_[collection_name] = consumes<reco::GenJetCollection>(collection);
          if ( inputTags == "GenParticles" ) genPartTokens_[collection_name] = consumes<reco::GenParticleCollection>(collection);
          if ( inputTags == "TriggerObjectStandAlone"  ) triggerObjTokens_[collection_name] = consumes<pat::TriggerObjectStandAloneCollection>(collection);
+         if ( inputTags == "TriggerEvent"  ) triggerEventTokens_[collection_name] = consumes<trigger::TriggerEvent>(collection);
          if ( inputTags == "PrimaryVertices"  ) primaryVertexTokens_[collection_name] = consumes<reco::VertexCollection>(collection);
          if ( inputTags == "TriggerResults"  ) triggerResultsTokens_[collection_name] = consumes<edm::TriggerResults>(collection);
-
-         
      }
    }
    
@@ -334,7 +338,6 @@ Ntuplizer::Ntuplizer(const edm::ParameterSet& config) //:   // initialization of
    for ( auto & inputTag : inputTags_ )
    {
       edm::InputTag collection = config_.getParameter<edm::InputTag>(inputTag);
-      
       // Lumi products
       if ( inputTag == "GenFilterInfo" )  { genFilterInfoToken_    = consumes<GenFilterInfo,edm::InLumi>(collection);         genFilterInfo_   = collection;}
       if ( inputTag == "TotalEvents" )    { totalEventsToken_      = consumes<edm::MergeableCounter,edm::InLumi>(collection); totalEvents_     = collection;}
@@ -366,7 +369,7 @@ Ntuplizer::~Ntuplizer()
 //
 
 // ------------ method called for each event  ------------
-void Ntuplizer::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
+void Ntuplizer::analyze(const edm::Event& event, const edm::EventSetup& setup)
 {
    using namespace edm;
    
@@ -409,7 +412,7 @@ void Ntuplizer::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
 
       // Pat jets (pat)
       for ( auto & collection : patjets_collections_ )
-         collection -> Fill(event, iSetup);
+         collection -> Fill(event, setup);
    
       // Pat mets (pat)
       for ( auto & collection : patmets_collections_ )
@@ -431,17 +434,22 @@ void Ntuplizer::analyze(const edm::Event& event, const edm::EventSetup& iSetup)
       for ( auto & collection : jetstags_collections_ )
          collection -> Fill(event);
       
+      
       // trigger accecpts
       for ( auto & collection : triggeraccepts_collections_ )
-         collection -> Fill(event, iSetup);
+         collection -> Fill(event, setup);
       
-      // primary vertices
+       // primary vertices
       for ( auto & collection : primaryvertices_collections_ )
          collection -> Fill(event);
    
       // trigger objects
       for ( auto & collection : triggerobjects_collections_ )
          collection -> Fill(event);
+      
+      for ( auto & collection : triggerobjectsreco_collections_ )
+         collection -> Fill(event);
+      
 }
 
 
@@ -467,7 +475,7 @@ Ntuplizer::beginJob()
 //   do_eventfilter_      = config_.exists("EventFilter");
    do_eventfilter_      = config_.exists("TotalEvents")  && config_.exists("FilteredEvents");
    do_genfilter_        = config_.exists("GenFilterInfo");
-   do_triggerobjects_   = config_.exists("TriggerObjectStandAlone") &&  config_.exists("TriggerObjectLabels");
+   do_triggerobjects_   = ( config_.exists("TriggerObjectStandAlone") || config_.exists("TriggerEvent") ) &&  config_.exists("TriggerObjectLabels");
    do_genruninfo_       = config_.exists("GenRunInfo") && is_mc_ ;
    
    if ( config_.exists("TestMode") ) // This is DANGEROUS! but can be useful. So BE CAREFUL!!!!
@@ -612,7 +620,7 @@ Ntuplizer::beginJob()
          if ( use_full_name_ ) name = fullname;
          
          // Initialise trees
-         if ( inputTags != "TriggerObjectStandAlone" )
+         if ( inputTags != "TriggerObjectStandAlone" && inputTags != "TriggerEvent"  )
             tree_[name] = eventsDir.make<TTree>(name.c_str(),fullname.c_str());
          
          // L1 Jets
@@ -715,7 +723,8 @@ Ntuplizer::beginJob()
             jetstags_collections_.push_back( pJetsTags( new JetsTags(collection, tree_[name]) ));
             jetstags_collections_.back() -> Branches();
          }
-         
+   
+
          // Trigger Objects
          if ( do_triggerobjects_ && inputTags == "TriggerObjectStandAlone"  )
          {
@@ -734,6 +743,23 @@ Ntuplizer::beginJob()
             }
          }
          
+         if ( do_triggerobjects_ && inputTags == "TriggerEvent"  )
+         {
+            if ( triggerObjectLabels_.empty() )
+               triggerObjectLabels_ = config_.getParameter< std::vector<std::string> >("TriggerObjectLabels");
+            std::string dir = name;
+            TFileDirectory triggerObjectsDir = eventsDir.mkdir(dir);
+      
+            for ( auto & triggerObjectLabel : triggerObjectLabels_ )
+            {
+               name = triggerObjectLabel;
+               if ( use_full_name_ ) name += "_" + dir;
+               tree_[name] = triggerObjectsDir.make<TTree>(name.c_str(),name.c_str());
+               triggerobjectsreco_collections_.push_back(pTriggerObjectRecoCandidates( new TriggerObjectRecoCandidates(collection, tree_[name], is_mc_ ) ));
+               triggerobjectsreco_collections_.back() -> Init();
+            }
+         }
+         
          // Trigger Accepts
          if ( do_triggeraccepts_ && inputTags == "TriggerResults" )
          {
@@ -747,7 +773,9 @@ Ntuplizer::beginJob()
             triggeraccepts_collections_.push_back( pTriggerAccepts( new TriggerAccepts(collection, tree_[name], trigger_paths, testmode_) ));  
 #endif                      
 //            triggeraccepts_collections_.back() -> Branches();
+            triggeraccepts_collections_.back() -> SavePrescaleInfo(false);  // sometimes an error occurs as if the collection was not consumed!??? See TriggerAccepts
          }
+         
          // Primary Vertices
          if ( inputTags == "PrimaryVertices" )
          {
@@ -773,7 +801,6 @@ Ntuplizer::beginJob()
          name = label;
          fullname = name + "_" + inst + "_" + proc;
          if ( use_full_name_ ) name = fullname;
-         
          
       // Generator filter
       if ( do_genfilter_ && inputTag == "GenFilterInfo" && is_mc_ )
@@ -804,8 +831,9 @@ Ntuplizer::beginJob()
          
 
 
-   } 
 
+   } 
+   
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -826,6 +854,7 @@ void Ntuplizer::beginRun(edm::Run const& run, edm::EventSetup const& setup)
          triggeraccepts_collections_[i]  -> Run(run,setup);
       }
    }
+   
 }
 
 
