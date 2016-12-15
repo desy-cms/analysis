@@ -197,8 +197,9 @@ void Candidates<trigger::TriggerObject>::ReadFromEvent(const edm::Event& event)
    
    const std::string treename = tree_ -> GetName(); // using the label to name the tree
    const std::string delimiter = "_";
+   const std::string processName(handler->usedProcessName());
    std::string label = treename.substr(0, treename.find(delimiter));
-   const unsigned int filterIndex(handler->filterIndex(InputTag(label,"","HLT")));
+   const unsigned int filterIndex(handler->filterIndex(InputTag(label,"",processName)));
    if ( filterIndex < handler->sizeFilters() )
    {
       const trigger::Keys& keys(handler->filterKeys(filterIndex));
