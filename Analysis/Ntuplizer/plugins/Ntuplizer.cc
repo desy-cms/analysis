@@ -737,6 +737,8 @@ Ntuplizer::beginJob()
          {
             if ( triggerObjectLabels_.empty() )
                triggerObjectLabels_ = config_.getParameter< std::vector<std::string> >("TriggerObjectLabels");
+            sort( triggerObjectLabels_.begin(), triggerObjectLabels_.end() );
+            triggerObjectLabels_.erase( unique( triggerObjectLabels_.begin(), triggerObjectLabels_.end() ), triggerObjectLabels_.end() );
             std::string dir = name;
             TFileDirectory triggerObjectsDir = eventsDir.mkdir(dir);
       
@@ -754,6 +756,8 @@ Ntuplizer::beginJob()
          {
             if ( triggerObjectLabels_.empty() )
                triggerObjectLabels_ = config_.getParameter< std::vector<std::string> >("TriggerObjectLabels");
+            sort( triggerObjectLabels_.begin(), triggerObjectLabels_.end() );
+            triggerObjectLabels_.erase( unique( triggerObjectLabels_.begin(), triggerObjectLabels_.end() ), triggerObjectLabels_.end() );
             std::string dir = name;
             TFileDirectory triggerObjectsDir = eventsDir.mkdir(dir);
       
