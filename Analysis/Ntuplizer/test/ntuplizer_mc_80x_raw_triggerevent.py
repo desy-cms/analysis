@@ -37,6 +37,7 @@ process.DesyCmsHiggsNtuple     = cms.EDAnalyzer("Ntuplizer",
     GenFilterInfo   = cms.InputTag("genFilterEfficiencyProducer"),
     GenRunInfo      = cms.InputTag("generator"),
     GenEventInfo    = cms.InputTag("generator"),
+    PileupInfo      = cms.InputTag("addPileupInfo","","HLT"),						
     ###################
     TriggerResults  = cms.VInputTag(cms.InputTag("TriggerResults","","HLT")),
     TriggerPaths    = cms.vstring  (
