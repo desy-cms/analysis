@@ -10,13 +10,13 @@ from WMCore.Configuration import Configuration
 
 # ---
 # Some parameter steering
-PROCESS         = 'QCD_pythia8'
-UNITS_PER_JOB   = 5
+PROCESS         = 'MSSM_Hbb'
+UNITS_PER_JOB   = 2
 TYPE            = 'MC'
-PSET            = 'ntuplizer_mc_765_summer_conferences_2016_v1.py'
-CAMPAIGN        = 'Fall15/76x_summer_conferences_2016_v1'
+PSET            = 'ntuplizer_mc_80X_moriond_2017_v1.py'
+CAMPAIGN        = 'Moriond17/80x_moriond_2017_tranchiv_v1'
 BASEOUTDIR      = '/store/user/rwalsh/Analysis/Ntuples/' + TYPE + '/' + CAMPAIGN
-URL             = 'http://www.desy.de/~walsh/cms/analysis/samples/miniaodsim/Fall15'
+URL             = 'http://www.desy.de/~walsh/cms/analysis/samples/miniaodsim/Moriond17'
 
 # ---
 dataset_list    = URL + '/' + PROCESS + '.txt'
@@ -39,7 +39,7 @@ if __name__ == '__main__':
    config = crabConfig()
 
 # ====== GENERAL
-#   config.General.workArea += '_' + PROCESS
+   config.General.workArea += '_' + PROCESS
    
 # ====== DATA   
    config.Data.splitting   = 'FileBased'
@@ -50,7 +50,7 @@ if __name__ == '__main__':
 #   config.Data.allowNonValidInputDataset = True    # If dataset not valid yet, will run over valid files only
 
 # ====== JOBTYPE
-   config.JobType.inputFiles = ['Fall15_25nsV2_MC_PtResolution_AK4PFPuppi.txt','Fall15_25nsV2_MC_PtResolution_AK4PFchs.txt','Fall15_25nsV2_MC_SF_AK4PFPuppi.txt','Fall15_25nsV2_MC_SF_AK4PFchs.txt']
+#   config.JobType.inputFiles = ['Fall15_25nsV2_MC_PtResolution_AK4PFPuppi.txt','Fall15_25nsV2_MC_PtResolution_AK4PFchs.txt','Fall15_25nsV2_MC_SF_AK4PFPuppi.txt','Fall15_25nsV2_MC_SF_AK4PFchs.txt']
 
    for dataset in datasets:
       dataset=dataset.replace(" ", "")

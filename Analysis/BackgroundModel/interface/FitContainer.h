@@ -63,7 +63,8 @@ namespace analysis {
       virtual ~FitContainer();
       void initialize();
 
-      FitContainer(const FitContainer&) = default;
+//      FitContainer(const FitContainer&) = default;
+      FitContainer(const FitContainer& cont);
       FitContainer& operator=(const FitContainer&) = default;
       FitContainer(FitContainer&&) = default;
       FitContainer& operator=(FitContainer&&) = default;
@@ -71,6 +72,7 @@ namespace analysis {
       FitContainer& verbosity(int level);
       FitContainer& fitRangeMin(float min);
       FitContainer& fitRangeMax(float max);
+      RooWorkspace& getWorkspace();
 
       void setModel(const Type& type, const std::string& model);
       void setModel(const Type& type, const std::string& model,
@@ -82,6 +84,9 @@ namespace analysis {
       void showModels() const;
       void Import(const RooAbsArg& inArg);
       void Write();
+	float getChi2BkgOnly() const;
+	int getNdfBkgOnly() const;
+	float getNormChi2BkgOnly() const;
 
     private:
 
@@ -135,7 +140,7 @@ namespace analysis {
       std::string bkg_;
       float fitRangeMin_;
       float fitRangeMax_;
-      TTree bkgOnlyFit_;
+      TTree bkgOnlyFit_ {};
       float chi2BkgOnly_;
       float normChi2BkgOnly_;
       int ndfBkgOnly_;
@@ -146,8 +151,21 @@ namespace analysis {
 
     inline void FitContainer::Import(const RooAbsArg& inArg){ workspace_.import(inArg);}
     inline void FitContainer::Write(){ if(!written_) { workspace_.writeToFile(outRootFileName_.c_str()); written_ = true;}   }
+    inline RooWorkspace& FitContainer::getWorkspace() {return workspace_;};
 
-  }
+inline float FitContainer::getChi2BkgOnly() const {
+	return chi2BkgOnly_;
+}
+
+inline int FitContainer::getNdfBkgOnly() const {
+	return ndfBkgOnly_;
+}
+
+inline float FitContainer::getNormChi2BkgOnly() const {
+	return normChi2BkgOnly_;
+}
+
+}
 }
 
 #endif  // Analysis_BackgroundModel_FitContainer_h

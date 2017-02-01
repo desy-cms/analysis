@@ -1,3 +1,6 @@
+__init__.py
 *.pyc
+.*.swp
+.#*
+#*#
 *~
-Analysis/*/python/__init__.py
