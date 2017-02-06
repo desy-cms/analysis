@@ -13,6 +13,7 @@
 <use name="CondFormats/JetMETObjects"/>
 <use name="JetMETCorrections/Objects"/>
 <use name="JetMETCorrections/Modules"/>
+<use name="DataFormats/Scalers"/>
 <use name="root"/>
 <use name="rootmath"/>
 <use name="boost" />
