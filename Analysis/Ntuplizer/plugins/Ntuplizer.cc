@@ -78,7 +78,7 @@
 
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
-
+#include "DataFormats/Scalers/interface/LumiScalers.h"
 
 #include "Analysis/Ntuplizer/interface/EventFilter.h"
 #include "Analysis/Ntuplizer/interface/Utils.h"
@@ -192,6 +192,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       bool do_genfilter_;
       bool do_triggerobjects_;
       bool do_genruninfo_;
+      bool do_lumiscalers_;
       
       bool readprescale_;
       
@@ -232,6 +233,7 @@ class Ntuplizer : public edm::EDAnalyzer {
       
       edm::InputTag pileupInfo_;
       edm::InputTag genEventInfo_;
+      edm::InputTag lumiScalers_;
       
       edm::InputTag fixedGridRhoAll_;
      
@@ -243,6 +245,7 @@ class Ntuplizer : public edm::EDAnalyzer {
            
       edm::EDGetTokenT<std::vector<PileupSummaryInfo> > pileupInfoToken_;      
       edm::EDGetTokenT<GenEventInfoProduct> genEventInfoToken_;      
+      edm::EDGetTokenT<LumiScalersCollection> lumiScalersToken_;      
       
       edm::EDGetTokenT<double> fixedGridRhoAllToken_;
 
@@ -354,6 +357,7 @@ Ntuplizer::Ntuplizer(const edm::ParameterSet& config) //:   // initialization of
 
       if ( inputTag == "PileupInfo" )     { pileupInfoToken_       = consumes<std::vector<PileupSummaryInfo> >(collection);   pileupInfo_      = collection;}
       if ( inputTag == "GenEventInfo" )   { genEventInfoToken_     = consumes<GenEventInfoProduct>(collection);               genEventInfo_    = collection;}
+      if ( inputTag == "LumiScalers" )    { lumiScalersToken_      = consumes<LumiScalersCollection>(collection);             lumiScalers_     = collection;}
       if ( inputTag == "FixedGridRhoAll" ){ fixedGridRhoAllToken_  = consumes<double>(collection);                            fixedGridRhoAll_ = collection;}
  
    }
@@ -466,6 +470,7 @@ Ntuplizer::beginJob()
 {
    do_pileupinfo_       = config_.exists("PileupInfo") && is_mc_;
    do_geneventinfo_     = config_.exists("GenEventInfo") && is_mc_;
+   do_lumiscalers_      = config_.exists("LumiScalers");
    do_l1jets_           = config_.exists("L1ExtraJets");
    do_l1muons_          = config_.exists("L1ExtraMuons");
    do_calojets_         = config_.exists("CaloJets");
@@ -591,6 +596,8 @@ Ntuplizer::beginJob()
       eventinfo_ -> PileupInfo(config_.getParameter<edm::InputTag>("PileupInfo"));
    if ( do_geneventinfo_ )
       eventinfo_ -> GenEventInfo(config_.getParameter<edm::InputTag>("GenEventInfo"));
+   if ( do_lumiscalers_ )
+      eventinfo_ -> LumiScalersInfo(config_.getParameter<edm::InputTag>("LumiScalers"));
    
     // Metadata 
    metadata_ = pMetadata (new Metadata(fs,is_mc_));

@@ -21,6 +21,7 @@
 #include "Analysis/Ntuplizer/interface/EventInfo.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "DataFormats/Scalers/interface/LumiScalers.h"
 
 
 //
@@ -49,9 +50,10 @@ EventInfo::EventInfo(edm::Service<TFileService> & fs)
    tree_->Branch("lumisection" , &lumi_ , "lumisection/I");
    tree_->Branch("bx"   , &bx_   , "bx/I");
    tree_->Branch("orbit", &orbit_, "orbit/I");
-
-   do_pu_  = false;
-   do_gen_ = false;
+   
+   do_pu_   = false;
+   do_gen_  = false;
+   do_lumi_ = false;
    
    
 }
@@ -68,8 +70,9 @@ EventInfo::EventInfo(TFileDirectory & dir)
    tree_->Branch("bx"   , &bx_   , "bx/I");
    tree_->Branch("orbit", &orbit_, "orbit/I");
 
-   do_pu_  = false;
-   do_gen_ = false;
+   do_pu_   = false;
+   do_gen_  = false;
+   do_lumi_ = false;
    
 }
 
@@ -120,6 +123,11 @@ void EventInfo::Fill(const edm::Event& event)
       pdfx1_      = -1.;
       pdfx2_      = -1.;
               
+   }
+   
+   if ( do_lumi_ )
+   {
+      ReadLumiScalers(event);
    }
       
    tree_ -> Fill();
@@ -201,6 +209,27 @@ void EventInfo::ReadGenEventInfo(const edm::Event& event)
       pdfx2_     = hepmc -> pdf() -> x.second;
    }
 
+   
+}
+
+void EventInfo::LumiScalersInfo(const edm::InputTag& tag)
+{
+   do_lumi_  = true;
+   
+   lumiScalers_ = tag;
+   
+   // lumiScalers
+   tree_->Branch("instantLumi", &instLumi_,"instantLumi/F");
+   tree_->Branch("lumiPileup", &lumiPU_,"lumiPileup/F");
+}
+
+void EventInfo::ReadLumiScalers(const edm::Event& event)
+{
+   edm::Handle<LumiScalersCollection> lumis;
+   event.getByLabel(lumiScalers_, lumis);
+   
+   instLumi_ = lumis -> begin() -> instantLumi();
+   lumiPU_   = lumis -> begin() -> pileup();
    
 }
 

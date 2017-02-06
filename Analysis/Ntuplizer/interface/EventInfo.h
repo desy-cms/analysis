@@ -52,8 +52,10 @@ namespace analysis {
             void Init();
             void PileupInfo(const edm::InputTag&);
             void GenEventInfo(const edm::InputTag&);
+            void LumiScalersInfo(const edm::InputTag&);
             void ReadPileupInfo(const edm::Event&);
             void ReadGenEventInfo(const edm::Event&);
+            void ReadLumiScalers(const edm::Event&);
             TTree * Tree();
       
          private:
@@ -85,6 +87,11 @@ namespace analysis {
             double pdfx1_;
             double pdfx2_;
             
+            // Lumi scalers
+            bool  do_lumi_;
+            edm::InputTag lumiScalers_;
+            float instLumi_;
+            float lumiPU_;
             
       };
    }
