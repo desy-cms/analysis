@@ -15,7 +15,7 @@ using namespace std;
 using namespace analysis;
 using namespace analysis::tools;
 
-bool TriggerObjectSelection(const std::shared_ptr< Collection<TriggerObject> > objects, const unsigned int & nmin, const double & ptmin, const double & etamax, const double & detamax);
+bool TriggerObjectSelection(const std::shared_ptr< Collection<TriggerObject> > objects, const unsigned int & nmin, const double & ptmin, const double & etamax, const double & detamax = -1);
 
 // =============================================================================================   
 int main(int argc, char * argv[])
@@ -94,9 +94,9 @@ int main(int argc, char * argv[])
       
       // New trigger emulation
       auto l1Jet20    = analysis.collection<TriggerObject>("hltL1sSingleJet20_hltTriggerSummaryAOD__HLT2");
-      bool l1DiJet100 = TriggerObjectSelection(l1Jet20,2,100,3,-1);
+      bool l1New      = TriggerObjectSelection(l1Jet20,1,90,10);
       
-      if ( ! l1DiJet100 ) continue;
+      if ( ! l1New ) continue;
       
       ++nTrg;
       h_nTrg -> Fill(pileup);
@@ -105,6 +105,7 @@ int main(int argc, char * argv[])
    
    std::cout << "Num reference trigger fired = " << nRefTrg << std::endl;
    std::cout << "Num trigger fired           = " << nTrg << std::endl;
+   std::cout << "Efficiency of the trigger   = " << (double) nTrg/nRefTrg;
    
    TGraphAsymmErrors * g_effTrg = new TGraphAsymmErrors(h_nTrg,h_nRefTrg,"cl=0.683 b(1,1) mode");
    
