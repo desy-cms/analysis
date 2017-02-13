@@ -21,13 +21,17 @@ class BTagScaleFactor {
 
 public:
 //	Default constructor is forbiden
-	BTagScaleFactor() = delete;
+	BTagScaleFactor() = default;
 //	Default destructor:
 	virtual ~BTagScaleFactor() = default;
 //	Default copy constructor:
 	BTagScaleFactor(const BTagScaleFactor& b) = default;
 //	Constructor from tagger and .csv path
 	BTagScaleFactor(const std::string& tagger, const std::string& path_to_csv);
+//	Method to setup everything
+	void Setup(const std::string& tagger, const std::string& path_to_csv);
+//	Setup for different .csv for different periods
+	void Setup(const std::string& tagger, const std::vector<std::string>& path_to_csv);
 
     struct ScaleFactor{
     	ScaleFactor() : central(0), up(0), down (0), flavour(-100) {};
@@ -45,14 +49,15 @@ public:
     };
 
 //    Method to perform a calcualtion of BTag Sfs and return the value.
-    const ScaleFactor calculateBTagSF(const analysis::tools::Jet & jet,const int & op);
+//    const ScaleFactor calculateBTagSF(const analysis::tools::Jet & jet,const int & op, const int& period = 0);
+    const std::vector<ScaleFactor> calculateBTagSF(const analysis::tools::Jet & jet,const int & op);
 
 private:
 	std::map<std::string,BTagCalibrationReader> reader_;
 //	Method to fill BTagCalibrationReader map
-	void LoadPOGCalibrations_(const BTagCalibration& calibration);
+	void LoadPOGCalibrations_(const BTagCalibration& calibration, const std::string& add = "_period0");
 //  Method to load correcitons
-	void setBTagCalibrationReaders_(const BTagCalibration& calibration);
+	void setBTagCalibrationReaders_(const BTagCalibration& calibration, const std::string& add = "_period0");
 
 
 };
