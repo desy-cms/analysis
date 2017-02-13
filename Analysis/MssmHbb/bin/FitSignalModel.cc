@@ -57,31 +57,25 @@ int main(int argc, char* argv[]) {
   const auto cmsswBase = static_cast<std::string>(gSystem->Getenv("CMSSW_BASE"));
 
 	std::map<int,std::string> signal;
-//	signal[700] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_test_2016_lowM_clange-SUSYGluGluToBBHToBB_NarrowWidth_M-100_TuneCUETP8M1_13TeV-pythia8_MiniAODv2_80X-b773ac922eef67f3b5600ed596c9ce54.root";
-//	signal[900] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_test_2016_lowM_clange-SUSYGluGluToBBHToBB_NarrowWidth_M-120_TuneCUETP8M1_13TeV-pythia8_MiniAODv2_80X-b773ac922eef67f3b5600ed596c9ce54.root";
-//	signal[1100]= "/src/Analysis/MssmHbb/output/MssmHbbSignal_test_2016_lowM_clange-SUSYGluGluToBBHToBB_NarrowWidth_M-160_TuneCUETP8M1_13TeV-pythia8_MiniAODv2_80X-b773ac922eef67f3b5600ed596c9ce54.root";
-//	signal[1300]= "/src/Analysis/MssmHbb/output/MssmHbbSignal_test_2016_lowM_clange-SUSYGluGluToBBHToBB_NarrowWidth_M-200_TuneCUETP8M1_13TeV-pythia8_MiniAODv2_80X-b773ac922eef67f3b5600ed596c9ce54.root";
-//	signal[500] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_test_2016_lowM_clange-SUSYGluGluToBBHToBB_NarrowWidth_M-250_TuneCUETP8M1_13TeV-pythia8_MiniAODv2_80X-b773ac922eef67f3b5600ed596c9ce54.root";
-	signal[300] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_test_2016_lowM_clange-SUSYGluGluToBBHToBB_NarrowWidth_M-300_TuneCUETP8M1_13TeV-pythia8_MiniAODv2_80X-b773ac922eef67f3b5600ed596c9ce54.root";
-	signal[350] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_test_2016_lowM_clange-SUSYGluGluToBBHToBB_NarrowWidth_M-350_TuneCUETP8M1_13TeV-pythia8_MiniAODv2_80X-b773ac922eef67f3b5600ed596c9ce54.root";
-	signal[400] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_test_2016_lowM_clange-SUSYGluGluToBBHToBB_NarrowWidth_M-400_TuneCUETP8M1_13TeV-pythia8_MiniAODv2_80X-b773ac922eef67f3b5600ed596c9ce54.root";
-	signal[500] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_test_2016_lowM_clange-SUSYGluGluToBBHToBB_NarrowWidth_M-500_TuneCUETP8M1_13TeV-pythia8_MiniAODv2_80X-b773ac922eef67f3b5600ed596c9ce54.root";
-	signal[600] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_test_2016_lowM_clange-SUSYGluGluToBBHToBB_NarrowWidth_M-600_TuneCUETP8M1_13TeV-pythia8_MiniAODv2_80X-b773ac922eef67f3b5600ed596c9ce54.root";
-	signal[700] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_test_2016_lowM_clange-SUSYGluGluToBBHToBB_NarrowWidth_M-700_TuneCUETP8M1_13TeV-pythia8_MiniAODv2_80X-b773ac922eef67f3b5600ed596c9ce54.root";
-	signal[750] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_test_2016_lowM_clange-SUSYGluGluToBBHToBB_NarrowWidth_M-750_TuneCUETP8M1_13TeV-pythia8_MiniAODv2_80X-b773ac922eef67f3b5600ed596c9ce54.root";
-	signal[800] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_test_2016_lowM_clange-SUSYGluGluToBBHToBB_NarrowWidth_M-800_TuneCUETP8M1_13TeV-pythia8_MiniAODv2_80X-b773ac922eef67f3b5600ed596c9ce54.root";
-	signal[900] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_test_2016_lowM_clange-SUSYGluGluToBBHToBB_NarrowWidth_M-900_TuneCUETP8M1_13TeV-pythia8_MiniAODv2_80X-b773ac922eef67f3b5600ed596c9ce54.root";
-	signal[1100] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_test_2016_lowM_clange-SUSYGluGluToBBHToBB_NarrowWidth_M-1100_TuneCUETP8M1_13TeV-pythia8_MiniAODv2_80X-b773ac922eef67f3b5600ed596c9ce54.root";
-	signal[1300] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_test_2016_lowM_clange-SUSYGluGluToBBHToBB_NarrowWidth_M-1300_TuneCUETP8M1_13TeV-pythia8_MiniAODv2_80X-b773ac922eef67f3b5600ed596c9ce54.root";
+	string selection = "ReReco_36615fb_4xBins";//"ReReco_36615fb_SFb";//
+//	signal[300] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_" + selection + "_lowM_SUSYGluGluToBBHToBB_NarrowWidth_M-300_TuneCUETP8M1_13TeV-pythia8.root";
+//	signal[350] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_" + selection + "_lowM_SUSYGluGluToBBHToBB_NarrowWidth_M-350_TuneCUETP8M1_13TeV-pythia8.root";
+	signal[400] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_" + selection + "_lowM_SUSYGluGluToBBHToBB_NarrowWidth_M-400_TuneCUETP8M1_13TeV-pythia8.root";
+//	signal[500] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_" + selection + "_lowM_SUSYGluGluToBBHToBB_NarrowWidth_M-500_TuneCUETP8M1_13TeV-pythia8.root";
+//	signal[600] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_" + selection + "_lowM_SUSYGluGluToBBHToBB_NarrowWidth_M-600_TuneCUETP8M1_13TeV-pythia8.root";
+//	signal[700] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_" + selection + "_lowM_SUSYGluGluToBBHToBB_NarrowWidth_M-700_TuneCUETP8M1_13TeV-pythia8.root";
+//	signal[900] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_" + selection + "_lowM_SUSYGluGluToBBHToBB_NarrowWidth_M-900_TuneCUETP8M1_13TeV-pythia8.root";
+//	signal[1100] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_" + selection + "_lowM_SUSYGluGluToBBHToBB_NarrowWidth_M-1100_TuneCUETP8M1_13TeV-pythia8.root";
+//	signal[1300] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_" + selection + "_lowM_SUSYGluGluToBBHToBB_NarrowWidth_M-1300_TuneCUETP8M1_13TeV-pythia8.root";
 /**/
-  const int rebin = 1;
+  int rebin = 1;
   const int verbosity = 1;
-  const double min = 0;
-  const double max = 1700;
+  double min = 0;
+  double max = 1700;
   std::string histo_name = "templates/bbH_Mbb_VIS";
   std::string histo_name_240 = "bbH_Mbb";
   //List of shape uncertainties
-  std::vector<std::string> shape_unc = {"JER","JES","PtEff"};
+  std::vector<std::string> shape_unc = {"JES","JER","PtEff","SFb"};//{};//
   map<string,int> colors;
   colors["Up"] = 4;
   colors["Down"] = 2;
@@ -91,21 +85,29 @@ int main(int argc, char* argv[]) {
   std::string model = "doublegausexp";
   RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
   for(const auto & mass : signal){
+
+	  std::cout<<"***************************************"<<std::endl;
+	  std::cout<<"*************** M = "<<mass.first<<"***************"<<std::endl;
+	  std::cout<<"***************************************"<<std::endl;
 	  TFile f((cmsswBase + mass.second).c_str(),"read");
-	  std::string name = cmsswBase + "/src/Analysis/MssmHbb/output/" + "mass_point_" + std::to_string(mass.first);
-	  std::string hname = histo_name;
+	  std::string name = cmsswBase + "/src/Analysis/MssmHbb/output/" + "4xBins_ReReco_signal_M-" + std::to_string(mass.first);
+	  std::string hname =  histo_name_240; //histo_name;//
 	  //Central value
-	  TH1D* hSignal = (TH1D*) f.Get(histo_name.c_str());
-	  if(hSignal == nullptr) throw std::logic_error("Wrong histo name: " + histo_name + " has been provided");
-	  hSignal->Rebin(rebin);
-	  ab::FitContainer fitter(hSignal,name,"signal");
-	  fitter.fitRangeMin(min);
-	  fitter.fitRangeMax(max);
-	  fitter.verbosity(verbosity - 1);
+	  TH1D* hSignal = (TH1D*) f.Get(hname.c_str());
+	  if(hSignal == nullptr) throw std::logic_error("Wrong histo name: " + hname + " has been provided");
 	  if(mass.first == 200 || mass.first > 500){
 		  model = "bukin";
 	  }
-	  else model =  "doublegausexp";
+	  else model =  "doublegausexp";//"doublegausexp";//
+//	  if(mass.first == 300) rebin = 2;
+//	  else rebin = 1;
+	  hSignal->Rebin(rebin);
+	  ab::FitContainer fitter(hSignal,name,"signal");
+	  min = hSignal->GetXaxis()->GetXmin();
+	  max = hSignal->GetXaxis()->GetXmax();
+	  fitter.fitRangeMin(min);
+	  fitter.fitRangeMax(max);
+	  fitter.verbosity(verbosity - 1);
 	  fitter.setModel(ab::FitContainer::Type::signal,model);
 	  RooWorkspace& wC = fitter.getWorkspace();
 	  std::unique_ptr<RooFitResult> Signalfit = fitter.FitSignal(model);
@@ -116,16 +118,26 @@ int main(int argc, char* argv[]) {
 	  fitter.Write();
 	  //Syst variation
 	  for(const auto & syst : shape_unc){
+		  std::cout<<"***************************************"<<std::endl;
+		  std::cout<<"***************"<<syst<<"***************"<<std::endl;
+		  std::cout<<"***************************************"<<std::endl;
 		for(const auto & s : sign){
-               	hname = "templates/" + histo_name_240 + "_" + CMS + "_" + syst + "_VIS_" + energy + s;
-               	TH1D* hSignal_syst = (TH1D*) f.Get(hname.c_str());
-               	if(hSignal_syst == nullptr) throw std::logic_error("Wrong histo name: " + hname + " has been provided");
-               	hSignal_syst->Rebin(rebin);
-               	ab::FitContainer fit_syst(hSignal_syst,name + "/" + syst + "_" + s,"signal");
-               	fit_syst.verbosity(verbosity - 1);
-               	fit_syst.setModel(ab::FitContainer::Type::signal,model);
-               	RooWorkspace& w = fit_syst.getWorkspace();
-               	setParameters(w,wC);
+			  std::cout<<"***************************************"<<std::endl;
+			  std::cout<<"***************"<<syst<<" : "<<s<<"***************"<<std::endl;
+			  std::cout<<"***************************************"<<std::endl;
+
+			  hname = histo_name_240 + "_" + CMS + "_" + syst + "_" + energy + s;
+//			  hname = "templates/" + histo_name_240 + "_" + CMS + "_" + syst + "_VIS_" + energy + s;
+			  TH1D* hSignal_syst = (TH1D*) f.Get(hname.c_str());
+			  if(hSignal_syst == nullptr) throw std::logic_error("Wrong histo name: " + hname + " has been provided");
+			  hSignal_syst->Rebin(rebin);
+			  ab::FitContainer fit_syst(hSignal_syst,name + "/" + syst + "_" + s,"signal");
+			  fit_syst.fitRangeMin(min);
+			  fit_syst.fitRangeMax(max);
+			  fit_syst.verbosity(verbosity - 1);
+			  fit_syst.setModel(ab::FitContainer::Type::signal,model);
+			  RooWorkspace& w = fit_syst.getWorkspace();
+			  setParameters(w,wC);
           	  if(syst == "JER") {
           		  if(model == "bukin"){
           			  fixParameters("Xp",w,wC);
@@ -163,6 +175,16 @@ int main(int argc, char* argv[]) {
           			fixParameters("tail_sigma",w,wC);
           			fixParameters("mean",w,wC);
           			fixParameters("tail_shift",w,wC);
+          		  }
+          	  }
+          	  else if (syst == "SFb"){
+          		  if(model == "bukin"){
+          			  fixParameters("Xp",w,wC);
+          			fixParameters("sigp",w,wC);
+          		  }
+          		  else{
+          			fixParameters("tail_shift",w,wC);
+          			fixParameters("mean",w,wC);
           		  }
           	  }
                	std::unique_ptr<RooFitResult> Signalfit_syst = fit_syst.FitSignal(model);

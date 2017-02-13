@@ -276,7 +276,6 @@ void FitContainer::initialize() {
   bkgOnlyFit_.Branch("ndf", &ndfBkgOnly_, "ndf/I");
   bkgOnlyFit_.Branch("covMatrix", covMatrix_, "covMatrix[100]/D");
   bkgOnlyFit_.Branch("eigenVector", eigenVector_, "eigenVector[100]/D");
-  std::cout<<"WTF"<<std::endl;
   for(int i = 0; i < 100; i++)
   {   	covMatrix_[i] = -100.;
 	eigenVector_[i] = -100.;
@@ -293,7 +292,6 @@ void FitContainer::setModel(const Type& type, const std::string& name) {
 void FitContainer::setModel(const Type& type, const std::string& name,
                             const std::vector<ParamModifier>& modifiers) {
   if (!initialized_) initialize();
-  std::cout<<"WTF"<<std::endl;
   ProbabilityDensityFunctions pdfs(workspace_,mbb_.c_str());
 //  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
   double peak_pos = getPeakStart_(type,500);
@@ -350,7 +348,9 @@ std::unique_ptr<RooFitResult> FitContainer::FitSignal(const std::string & name) 
 	               RooFit::Range(fitRangeId_.c_str()),
 	               RooFit::Normalization(signal.sumEntries("1", fitRangeId_.c_str()),
 	                                     RooAbsReal::NumEvent));
-//	  Pdf.paramOn(frame.get(),RooFit::Layout(0.65,0.9,0.6));//0.98-pad1->GetRightMargin(),0.83-pad1->GetTopMargin()));
+//	  double par_xmin = 0.65, par_xmax = 0.9, par_ymax = 0.6;
+//	  par_xmin = 0.2; par_xmax = 0.45; par_ymax = 0.9;
+//	  Pdf.paramOn(frame.get(),RooFit::Layout(par_xmin,par_xmax,par_ymax));//0.98-pad1->GetRightMargin(),0.83-pad1->GetTopMargin()));
 //	  frame->getAttText()->SetTextSize(0.03);
 
 	    int nPars = fitResult->floatParsFinal().getSize();
@@ -428,7 +428,7 @@ std::unique_ptr<RooFitResult> FitContainer::FitSignal(const std::string & name) 
 	    latex.DrawLatexNDC(pad1->GetLeftMargin(), 1.02-canvas.GetTopMargin(),
 	    //                   "CMS Preliminary #sqrt{s} = 13 TeV, L = 2.69 fb^{-1}");
 	    //		     "CMS Preliminary #sqrt{s} = 13 TeV, L = 12.89 fb^{-1}");
-			    "CMS Preliminary #sqrt{s} = 13 TeV, L = 20.1 fb^{-1}");
+			    "CMS Preliminary #sqrt{s} = 13 TeV, L = 36.62 fb^{-1}");
 	    latex.SetTextSize(15);
 	    latex.SetTextAlign(33);
 	    latex.SetTextColor(kBlue+2);
@@ -923,7 +923,7 @@ double FitContainer::chiSquare_CA(const RooPlot& frame, const char* curvename, c
 	// Add pull^2 to chisq
 	if (y!=0) {      
 		double pull = (y>avg) ? ((y-avg)/eyl) : ((y-avg)/eyh) ;
-		std::cout << "chi^2 at bin " << i << " : " << pull*pull << std::endl;
+		std::cout << "chi^2 at bin " << i << " : " << pull*pull << std::endl;// " wtf: eyl = "<<eyl<<" eyh = "<<eyh<<" y = "<<y<<" avg = "<<avg<<std::endl;
 		chisq += pull*pull ;
 		nbin++;
 	}

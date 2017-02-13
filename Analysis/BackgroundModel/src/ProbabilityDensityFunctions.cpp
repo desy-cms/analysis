@@ -91,7 +91,7 @@ void ProbabilityDensityFunctions::setPdf(const std::string& function, const std:
 	else if (function == "mynovopsprod") getMyNovoPSProd(name);
 	else if (function == "extnovosibirsk") getExtNovosibirsk(name);
 	else if (function == "extnovopsprod") getExtNovoPSProd(name);
-	else if (function == "doublegausexp") getDoubleGausExp(name);
+//	else if (function == "doublegausexp") getDoubleGausExp(name);
 	else if (function == "extnovoeffprod") getExtNovoEffProd(name);
 	else {
 		std::stringstream msg;
@@ -310,12 +310,18 @@ void ProbabilityDensityFunctions::getGausExp(const std::string& name){
 }
 
 void ProbabilityDensityFunctions::getDoubleGausExp(const std::string& name){
+	double mean_tail_sigma = 50., mean_sigmaL = 35., mean_sigmaR = 35.;
+	if(getPeakStart() > 400) {
+		mean_sigmaL = 90.;
+		mean_tail_sigma = 30.;
+		mean_sigmaR = 40.;
+	}
 	RooRealVar& var = *workspace_->var(var_.c_str());
 	RooRealVar mean("mean", "mean", getPeakStart(), 50.0, 1500.0, "GeV");
-	RooRealVar sigmaL("sigmaL", "sigmaL", 35.0, 5.0, 400.0, "GeV");
-	RooRealVar sigmaR("sigmaR", "sigmaR", 35.0, 5.0, 400.0, "GeV");
+	RooRealVar sigmaL("sigmaL", "sigmaL", mean_sigmaL, 5.0, 400.0, "GeV");
+	RooRealVar sigmaR("sigmaR", "sigmaR", mean_sigmaR, 5.0, 400.0, "GeV");
 	RooRealVar tail_shift("tail_shift", "tail_shift", getPeakStart() * 1.2, 50., 1800);
-	RooRealVar tail_sigma("tail_sigma", "tail_sigma", 50., 5., 300);
+	RooRealVar tail_sigma("tail_sigma", "tail_sigma", mean_tail_sigma, 5., 300);
 	RooDoubleGausExp res(name.c_str(),name.c_str(),var,mean,sigmaL,sigmaR,tail_shift,tail_sigma);
 	workspace_->import(res);
 //	std::string ge_name = name + "_gausexp";
@@ -389,8 +395,8 @@ void ProbabilityDensityFunctions::getBukin(const std::string& name){
 	RooRealVar Xp("Xp", "Xp", getPeakStart(), 00.0, 1800.0, "GeV");
 	RooRealVar sigp("sigp", "sigp", 100,20.0, 200.0, "GeV");
 	RooRealVar xi("xi", "xi", 0.2,-10.0, 10.0);
-	RooRealVar rho1("rho1", "rho1", -0.07,-10.,0.1);
-	RooRealVar rho2("rho2", "rho2", 0.14,-3.,0.2);
+	RooRealVar rho1("rho1", "rho1", -0.07,-10.,0.5);
+	RooRealVar rho2("rho2", "rho2", -0.3,-3.,3.);
 	RooBukinPdf bukin(name.c_str(),
 	                    (name + "_bukin").c_str(),
 	                    var, Xp, sigp, xi, rho1, rho2);
