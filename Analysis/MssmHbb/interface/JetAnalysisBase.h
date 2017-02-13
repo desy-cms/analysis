@@ -71,7 +71,7 @@ namespace analysis{
         // virtual method that create histogrmas
         virtual void makeHistograms(const int &size = 100);
         //Create standart output file name
-        void SetupStandardOutputFile(const std::string & outputFileName = "");
+        virtual void SetupStandardOutputFile(const std::string & outputFileName = "");
         void createOutputFile(const std::string &name );
 
         const virtual bool OnlineSelection(const analysis::tools::Jet &fLeadOfflineJet,const analysis::tools::Jet &sLeadOfflineJet);
@@ -120,6 +120,7 @@ namespace analysis{
 
 //        Method to combine BTag SFs from different jets:
         virtual void combineBTagSFs(const std::array<BTagScaleFactor::ScaleFactor,3>& sf);
+        virtual void combineBTagSFs(const std::array< std::vector<BTagScaleFactor::ScaleFactor> , 3 >& sf, const std::vector<double>& lumis, const double& lumi_tot);
 
         void Ht(const double & Ht);
         const double & Ht();
@@ -142,6 +143,7 @@ namespace analysis{
         double mHat_ = 0;
 
         std::unique_ptr<Weights> pWeight_;
+        BTagScaleFactor BTagLib_;
         std::map<std::string,TH1D *>  hCorrections1D_;
         std::map<std::string,TH2D *>  hCorrections2D_;
         //Signal xsections

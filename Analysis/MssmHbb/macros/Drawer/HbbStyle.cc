@@ -304,7 +304,7 @@ TPaveText* HbbStyle::title(const TString& txt) {
 
 // --------------------------------------------------------------
 TString HbbStyle::header(const PublicationStatus status) {
-  TString txt = "2.69 fb^{-1} (13 TeV)";
+  TString txt = "36.62 fb^{-1} (13 TeV)";
   if( status == INTERNAL_SIMULATION ) {
     txt = "Simulation (8 TeV)";
   } else if( status == PRELIMINARY ) {

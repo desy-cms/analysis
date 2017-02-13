@@ -6,31 +6,36 @@
  */
 
 #include "Analysis/MssmHbb/interface/TriggerEfficiency.h"
+#include <boost/filesystem.hpp>
+
+namespace fs = boost::filesystem ;
 
 using namespace analysis;
 using namespace analysis::tools;
 using namespace analysis::mssmhbb;
 
-std::string constructTemplateName(const std::string & name);
-
 TriggerEfficiency::TriggerEfficiency(const std::string & inputFilelist,const double & dataLumi, const bool & lowM, const bool & test) :
 								selectionDoubleB(inputFilelist,dataLumi,lowM,test)
 {
 	nJets_ = 2;
-	if(lowM_){
-		pt1_ = 100;
-		pt2_ = 100;
+	if(lowM){
+        pt1_ = 100.; pt2_ = 100.;
+        eta1_ = 2.2; eta2_ = 2.2;
+        btag1_ = 0.8; btag2_ = 0.8;
+        btagOP1_ = 2; btagOP2_ = 2;
+        btag3_ = 0.8;
+        btagOP3_ = 1;	//Mid OP
 	}
-	else{
-		pt1_ = 160.;
-		pt2_ = 160.;
+	else {
+        btag3_ = 0.46;
+        btagOP3_ = 0; // Loose OP
+        pt1_ = 160.; pt2_ = 160.;
+        btag1_ = 0.8; btag2_ = 0.8;
+        btagOP1_ = 1; btagOP2_ = 1;
 	}
-	eta1_ = 2.2;
-	eta2_ = 2.2;
-	dR_ = 1.;
-	triggerLogicName_ = "HLT_PFJet60_v";
-	triggerObjectName_ = {"hltL1sL1SingleJet36","hltSingleCaloJet40","hltSinglePFJet60","hltL1sL1SingleJet52","hltSingleCaloJet50","hltSinglePFJet80"};
 	baseOutputName_ = "TriggerEff";
+	triggerLogicName_ = "HLT_PFJet60_v";
+	triggerObjectName_ = {"hltL1sSingleJet35","hltSingleCaloJet40","hltSinglePFJet60","hltL1sSingleJet60","hltSingleCaloJet50","hltSinglePFJet80"};
 }
 
 TriggerEfficiency::~TriggerEfficiency() {
@@ -77,7 +82,7 @@ void TriggerEfficiency::fillHistograms(const std::shared_ptr<Collection<Jet> > &
 	(histo_.getHisto())["jet_turnOn_pt1"]->Fill(jet1.pt(),weight);
 	if(isMC() && genJets_->size() != 0) (histo_.getHisto())["Genjet_turnOn_pt1"]->Fill((genJets_->at(0)).pt(),weight);
 
-	const Candidate * j1l1 = jet1.matched("hltL1sL1SingleJet52");
+	const Candidate * j1l1 = jet1.matched("hltL1sSingleJet60");
 	const Candidate * j1l2 = jet1.matched("hltSingleCaloJet50");
 	const Candidate * j1l3 = jet1.matched("hltSinglePFJet80");
 
@@ -331,6 +336,7 @@ void TriggerEfficiency::writeHistograms(){
 	outputFile_->mkdir("TriggerEfficiencies","different trigger efficiencies");
 	for(const auto & h: (histo_.getHisto())){
 		if(h.second->GetEntries() == 0) continue; 			//skip empty histograms
+		if(isMC()) h.second->Scale(weight_["Lumi"]);
 		//if(h.first.find("TrigEff_Den") != std::string::npos || h.first.find("TrigEff_Num") != std::string::npos) continue;	// skip Numerators and Den
 		if(h.first.find("TrigEff") != std::string::npos){
 			outputFile_->cd("TriggerEfficiencies");
@@ -347,6 +353,7 @@ void TriggerEfficiency::writeHistograms(){
 	//2d Efficiency:
 	for(const auto & h: (histo_.getHisto2D())){
 		if(h.second->GetEntries() == 0) continue; 			//skip empty histograms
+		if(isMC()) h.second->Scale(weight_["Lumi"]);
 		//if(h.first.find("TrigEff_Den") != std::string::npos || h.first.find("TrigEff_Num") != std::string::npos) continue;	// skip Numerators and Den
 		if(h.first.find("TrigEff") != std::string::npos){
 			outputFile_->cd("TriggerEfficiencies");
@@ -366,7 +373,8 @@ const double TriggerEfficiency::assignWeight(){
 double weight = 1;
 	if(isMC()) {
 //		weight = weight_["dEta"] * weight_["Lumi"] * weight_["2DPt"] * weight_["BTag"] * weight_["PU_central"] * weight_["SFb_central"] * weight_["SFl_central"];
-		weight = weight_["Lumi"] ;//* weight_["PU_central"];
+//		weight = weight_["Lumi"] ;//* weight_["PU_central"];
+	weight = 1;
 	}
 	//std::cout<<" weight = "<<weight<<" "<<weight_["dEta"]<<" "<<weight_["Lumi"]<<" "<<weight_["2DPt"]<<" "<<weight_["BTag"]<<" "<<weight_["PU_central"]<<" "<<weight_["SFb_central"]<<" "<<weight_["SFl_central"]<<std::endl;
 	return weight;
@@ -377,6 +385,7 @@ void TriggerEfficiency::runAnalysis(const std::string &json, const std::string &
 	this->setupAnalysis(json);
 	std::cout<<"\n Total number of events: "<<this->size()<<std::endl;
 	this->makeHistograms(size);
+//	this->createOutputFile(fs::basename(inputFilelist_)); //TODO implement more clever solution!!!!
 	this->SetupStandardOutputFile(output);
 	this->applySelection();
 	this->writeHistograms();
@@ -384,21 +393,19 @@ void TriggerEfficiency::runAnalysis(const std::string &json, const std::string &
 
 bool TriggerEfficiency::matchToPF60(const Jet &jet){
 	bool matched = false;
-//	if(jet.matched("hltL1sL1SingleJet36") && jet.matched("hltSingleCaloJet40") &&jet.matched("hltSinglePFJet60") ) matched = true;
 	matched = this->triggerResult("HLT_PFJet60_v");
 	return matched;
 }
 
 bool TriggerEfficiency::matchToPF80(const Jet &jet){
 	bool matched = false;
-//	if(jet.matched("hltL1sL1SingleJet52") && jet.matched("hltSingleCaloJet50") &&jet.matched("hltSinglePFJet80") ) matched = true;
 	matched = this->triggerResult("HLT_PFJet80_v");
 	return matched;
 }
 
 bool TriggerEfficiency::matchToPF100_PF60(const Jet &jet){
 	bool matched = false;
-	const Candidate * l1 = jet.matched("hltL1sL1SingleJet36");
+	const Candidate * l1 = jet.matched("hltL1sSingleJet35");
 	const Candidate * l2 = jet.matched("hltSingleCaloJet40");
 	const Candidate * l3 = jet.matched("hltSinglePFJet60");
 	if( l1 && l2 && l3 && l1->pt() >= 100 && l2->pt() >= 100 && l3->pt() >= 100  ) matched = true;
@@ -408,7 +415,7 @@ bool TriggerEfficiency::matchToPF100_PF60(const Jet &jet){
 
 bool TriggerEfficiency::matchToPF100_PF80(const Jet &jet){
 	bool matched = false;
-	const Candidate * l1 = jet.matched("hltL1sL1SingleJet52");
+	const Candidate * l1 = jet.matched("hltL1sSingleJet60");
 	const Candidate * l2 = jet.matched("hltSingleCaloJet50");
 	const Candidate * l3 = jet.matched("hltSinglePFJet80");
 	if( l1 && l2 && l3 && l1->pt() >= 100 && l2->pt() >= 100 && l3->pt() >= 100  ) matched = true;
@@ -436,7 +443,7 @@ bool TriggerEfficiency::matchToPF100dEta1p6_PF80(const Jet &jet1 , const Jet &je
 
 bool TriggerEfficiency::matchToPF160_PF60(const Jet &jet){
 	bool matched = false;
-	const Candidate * l1 = jet.matched("hltL1sL1SingleJet36");
+	const Candidate * l1 = jet.matched("hltL1sSingleJet35");
 	const Candidate * l2 = jet.matched("hltSingleCaloJet40");
 	const Candidate * l3 = jet.matched("hltSinglePFJet60");
 	if( l1 && l2 && l3 && l1->pt() >= 100 && l2->pt() >= 100 && l3->pt() >= 160  ) matched = true;
@@ -446,7 +453,7 @@ bool TriggerEfficiency::matchToPF160_PF60(const Jet &jet){
 
 bool TriggerEfficiency::matchToPF160_PF80(const Jet &jet){
 	bool matched = false;
-	const Candidate * l1 = jet.matched("hltL1sL1SingleJet52");
+	const Candidate * l1 = jet.matched("hltL1sSingleJet60");
 	const Candidate * l2 = jet.matched("hltSingleCaloJet50");
 	const Candidate * l3 = jet.matched("hltSinglePFJet80");
 	if( l1 && l2 && l3 && l1->pt() >= 100 && l2->pt() >= 100 && l3->pt() >= 160  ) matched = true;
@@ -469,4 +476,22 @@ bool TriggerEfficiency::matchToPF100L3_PF80(const analysis::tools::Jet & jet){
 	if(l3 && l3->pt() >= 100) matched = true;
 
 	return matched;
+}
+
+void TriggerEfficiency::SetupStandardOutputFile(const std::string & outputFileName){
+
+		//get the full file name and path from the Tree
+		std::string fullName = fs::basename(inputFilelist_);
+		std::string outputName = baseOutputName_;
+		if(outputFileName != "") outputName+="_"+outputFileName;
+		if(lowM_) outputName += "_lowM_";
+		else {outputName += "_highM_";}
+
+
+		outputName += fullName;// + ".root";
+		this->createOutputFile(outputName);
+//	else{
+//		this->createOutputFile(outputFileName);
+//	}
+
 }

@@ -114,7 +114,7 @@ TH1* RatioPlots::DrawRatio(TH1 *numerator, TH1 *denumerator, TCanvas *can, TLege
 		if(systErr) numerator->SetMaximum(denumerator->GetMaximum() + .2* denumerator->GetMaximum());
 		else numerator->SetMaximum(denumerator->GetMaximum() + .1* denumerator->GetMaximum());
 	}
-	numerator -> Draw();
+	numerator -> Draw("E");
 
 	if(systErr){
 	systErr->SetLineColor(2);
@@ -131,7 +131,7 @@ TH1* RatioPlots::DrawRatio(TH1 *numerator, TH1 *denumerator, TCanvas *can, TLege
 	er_1->Draw();
 	denumerator -> Draw("same");
 	er_0->Draw();
-	numerator -> Draw("same");
+	numerator -> Draw("Esame");
 
 	if(leg) leg->Draw();
 //	style_.standardTitle()->Draw();

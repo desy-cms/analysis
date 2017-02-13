@@ -15,6 +15,9 @@ Histograms::Histograms() : size_(0) {
 Histograms::~Histograms() {
 	std::cout<<"I'm at ~Histograms"<<std::endl;
 	// TODO Auto-generated destructor stub
+	//Clean memory:
+	histo_.clear();
+	histo2D_.clear();
 }
 
 void Histograms::Make(const int &size, const bool & lowM) {
@@ -28,6 +31,7 @@ void Histograms::Make(const int &size, const bool & lowM) {
 
 	histo_["lumi_weight"]							= new TH1D("lumi_weight","Lumi weight = (Data Luminosity / MC luminositry) ",1,0,5.e+08);
 	histo_["xsection"]								= new TH1D("xsection","Cross section in pb",1,0,5.e+08);
+	histo_["nTruePileup"]							= new TH1D("nTruePileup","True Pileup",75,0,75);
 
 	histo_["NumberOfJets"]					= new TH1D("NumberOfJets","Total Number Of jets; Jet multiplicity",14,0,14);
 
@@ -218,6 +222,8 @@ void Histograms::Make(const int &size, const bool & lowM) {
 	histo_["template_PU_VIS_up"]			= new TH1D("template_PU_VIS_up","",vis_bins,0,xMax);
 	histo_["template_PtEff_VIS_down"]		= new TH1D("template_PtEff_VIS_down","",vis_bins,0,xMax);
 	histo_["template_PtEff_VIS_up"]			= new TH1D("template_PtEff_VIS_up","",vis_bins,0,xMax);
+	histo_["template_BTagEff_VIS_down"]		= new TH1D("template_BTagEff_VIS_down","",vis_bins,0,xMax);
+	histo_["template_BTagEff_VIS_up"]		= new TH1D("template_BTagEff_VIS_up","",vis_bins,0,xMax);
 
 //	syst_["Pileup"]
 
@@ -526,7 +532,7 @@ void Histograms::DeclareDataMCHistograms(const int &size){
 
 
 	//Systematic list:
-	std::vector<std::string> Syst = {"_PtEff_","_PU_","_SFb_","_SFl_","_JES_","_JER_"};
+	std::vector<std::string> Syst = {"_PtEff_","_PU_","_SFb_","_SFl_","_JES_","_JER_","_OnlBTag_"};
 	//Variation list:
 	std::vector<std::string> Variation = {"up","down"};
 
@@ -587,10 +593,11 @@ std::map<std::string, TH2*>& Histograms::getHisto2D() {
 
 void Histograms::MakeM12Templates(const std::size_t& nbins, const double& xmin, const double& xmax){
 
-	std::array<std::string,13> syst = {{"Mbb","SFb_down","SFb_up","SFl_down","SFl_up","JES_down","JES_up","JER_down","JER_up","PU_down","PU_up","PtEff_down","PtEff_up"}};
+	std::array<std::string,15> syst = {{"Mbb","SFb_down","SFb_up","SFl_down","SFl_up","JES_down","JES_up","JER_down","JER_up","PU_down","PU_up","PtEff_down","PtEff_up","BTagEff_up","BTagEff_down"}};
 	for(const auto& h: syst){
 		std::string name = "template_" + h;
 		if(histo_[name] != nullptr) throw std::invalid_argument("Histogram: " + name + " already exists. Check spelling");
 		histo_[name] = new TH1D( name.c_str(),"",nbins,xmin,xmax);
+//		histo_[name + "_2xBins"] = new TH1D( (name + "_2xBins").c_str(),"",nbins*2,xmin,xmax);
 	}
 }

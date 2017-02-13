@@ -86,7 +86,12 @@ void selectionDoubleB::fillHistograms(const std::shared_ptr<Collection<Jet> > &o
 	Jet jet1 = offlineJets->at(0);
 	Jet jet2 = offlineJets->at(1);
 
-	(histo_.getHisto())["NumberOfJets"]->Fill(offlineJets->size());
+	int njets = 0;
+	for (int iJet = 0; iJet < offlineJets -> size(); ++iJet){
+		if(offlineJets->at(iJet).pt() > 20) ++njets;
+	}
+	(histo_.getHisto())["NumberOfJets"]->Fill(njets);
+//	(histo_.getHisto())["NumberOfJets"]->Fill(offlineJets->size());
 
 	(histo_.getHisto())["jet_pt1"]->Fill(jet1.pt(),weight);
 	(histo_.getHisto())["jet_pt2"]->Fill(jet2.pt(),weight);

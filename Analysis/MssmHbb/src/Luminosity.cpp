@@ -95,9 +95,9 @@ void Luminosity::CMS_lumi(TPad* pad, int iPeriod, int iPosX )
 
   float extraTextSize = extraOverCmsTextSize*cmsTextSize;
 
-  latex.SetTextFont(42);
+  latex.SetTextFont(42);//42
   latex.SetTextAlign(31);
-  latex.SetTextSize(lumiTextSize*t);
+  latex.SetTextSize(lumiTextSize*t-0.01);
   latex.DrawLatex(1-r,1-t+lumiTextOffset*t,lumiText);
 
   if( outOfFrame )

@@ -14,7 +14,7 @@ int returnMassPoint(const std::string& name){
 	int Mpoint = 0;
 	std::string MassPos = "_M-";
 	auto p1 = name.std::string::find(MassPos) + 3;
-	if(p1 == std::string::npos) {
+	if(p1 == 3) {
 		std::cerr<<"FileNames were changed!!!!"<<std::endl;
 		exit(1);
 	}
@@ -34,3 +34,4 @@ void CheckZombieObjectInTFile(const TFile& file, const std::string& name){
 	if(! file.GetListOfKeys()->Contains(name.c_str()))
 		throw std::invalid_argument("ERROR: Object: " + name + " is not in TFile " + std::string(file.GetName()));
 }
+

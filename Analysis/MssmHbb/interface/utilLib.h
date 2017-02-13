@@ -2,6 +2,8 @@
 #ifndef MSSMHBB_INTERFACE_UTILLIB_H_
 #define MSSMHBB_INTERFACE_UTILLIB_H_
 
+#include <sys/stat.h>
+
 #include <iostream>
 #include <sstream>
 #include <iomanip>
@@ -36,15 +38,24 @@ std::string to_string_with_precision(const T a_value, const int n = 6)
     return out.str();
 }
 
+// Function to check whether file exists or not
+inline bool file_exists(const std::string&name);
+
 const bool findStrings(const std::string & input, const std::string & needful);
 //Function to check whether root file isSombie or not
 void CheckZombie(const TFile& name);
+//Function to get TFile:
+const TFile& OpenTFile(const std::string& name);
 void CheckZombieObjectInTFile(const TFile& file, const std::string& name);
 
 int returnMassPoint(const std::string& name);
 
 //}  // namespace myUtil
 
+inline bool file_exists(const std::string&name){
+	struct stat buffer;
+	return (stat (name.c_str(), &buffer) == 0);
+}
 
 
 #endif

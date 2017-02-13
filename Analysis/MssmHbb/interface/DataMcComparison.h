@@ -43,6 +43,7 @@ namespace analysis{
 			void runAnalysis(const std::string &json, const std::string &output, const int &size);
 			//Overwrite writeHistograms method
 			void writeHistograms();
+			void SetupStandardOutputFile(const std::string & outputFileName);
 		protected:
 			//Overwrite modifyJetCollection method
 			std::shared_ptr<tools::Collection<tools::Jet> > modifyJetCollection(tools::Jet & jet,

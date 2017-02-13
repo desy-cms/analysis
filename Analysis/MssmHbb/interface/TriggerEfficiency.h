@@ -38,6 +38,8 @@ namespace analysis{
 				void runAnalysis(const std::string &json, const std::string &output = "", const int &size = 100);
 				//Calculate Signal Efficiency
 				void signalEfficiency();
+				//Overwrite naming for the output file!
+				void SetupStandardOutputFile(const std::string & outputFileName);
 
 				//Trigger matching
 				//PF100
