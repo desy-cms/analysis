@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <chrono>
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string.hpp>
@@ -166,6 +167,7 @@ int main(int argc, char * argv[])
 	  auto test_		 =  output_vm["test"].as<int>();
 	  auto lumi_				= output_vm["lumi"].as<double>();
 	  int nJets_		= output_vm["nJets"].as<int>();
+	  bool subranges    = true;
 
 	  //Check whether input file contain only .root files or .txt
 	  if(boost::iequals(selection_,"fitter")){
@@ -196,22 +198,36 @@ int main(int argc, char * argv[])
 					  }
 
 					  if(boost::iequals(selection_,"mssmhbb")){
+						  std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
 						  MssmHbbSignal analysis(txt_file,lumi_,lowM_,test_);//,analysis_);
-						  analysis.runAnalysis(json_file_,output_,100);
+						  analysis.runAnalysis(json_file_,output_,subranges);
 						  if(analysis.isSignalMC()){
 							  analysis.addStatErrorsTemplates(10);
 							  analysis.getOutputFile()->Close();
 							  std::string output_name = analysis.getOutputFile()->GetName();
-//							  if(analysis.getLowM()){
-////								  addBackgroundTemplate(output_name, "input_corrections/QCD_Templates_Novo.root",21093);
-//								  addBackgroundTemplate(output_name, "input_corrections/QCD_Templates_3M_lowM.root",19251);
-//							  }
+							  if(analysis.getLowM()){
+								  if(subranges){
+									  if(output_name.find("M-300") != std::string::npos || output_name.find("M-350") != std::string::npos ||
+											  output_name.find("M-400") != std::string::npos || output_name.find("M-500") != std::string::npos){
+										  addBackgroundTemplate(output_name, "input_corrections/Rereco2016_Prescale/QCD_Templates_SR1.root",358932);
+									  }
+									  else if ( output_name.find("M-600") != std::string::npos || output_name.find("M-700") != std::string::npos ||
+											  output_name.find("M-900") != std::string::npos ){
+										  addBackgroundTemplate(output_name, "input_corrections/Rereco2016_Prescale/QCD_Templates_SR2.root",147630);
+									  }
+									  else if ( output_name.find("M-1100") != std::string::npos || output_name.find("M-1300") != std::string::npos ){
+										  addBackgroundTemplate(output_name, "input_corrections/Rereco2016_Prescale/QCD_Templates_SR3.root",38906);
+									  }
+								  }
+								  else
+									  addBackgroundTemplate(output_name, "input_corrections/Rereco2016_Prescale/QCD_Templates_2016.root",371729);
+							  }
 //							  else {
 //							  	addBackgroundTemplate(output_name, "input_corrections/QCD_Templates_Novo_3M_highM.root");
 //							  }
 						  }
-
-
+						  std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+						  std::cout<<"MSSMHBB tooks "<<std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()<<" ms."<<std::endl;
 					  }
 					  else if (boost::iequals(selection_,"trigger")){
 						  TriggerEfficiency analysis(txt_file,lumi_,lowM_,test_);
