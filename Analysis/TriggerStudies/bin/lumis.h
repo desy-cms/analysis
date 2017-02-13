@@ -24,7 +24,7 @@ brilcalc readLumisCsv(const std::string & csv)
    float pileup;
    
    TTree *T = new TTree("ntuple","data from csv file");
-   T->ReadFile(csv.c_str(),"run/I:fill/I:ls/I:deliv/F:record/F:pileup:F",',');
+   T->ReadFile(csv.c_str(),"run/I:fill/I:ls/I:deliv/F:record/F:pileup/F",',');
    
    T->SetBranchAddress("run"   ,&run);
    T->SetBranchAddress("fill"  ,&fill);

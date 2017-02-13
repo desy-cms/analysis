@@ -26,8 +26,8 @@ int main(int argc, char * argv[])
    std::cout << "Starting ...." << std::endl;
    
    brilcalc bc = readLumisCsv("lumis.csv");
-   std::map<int, std::map<int,float> > * lumiByLS = &(bc.lumiByLS);
-   std::map<int, std::map<int,float> > * pileupByLS = &(bc.pileupByLS);
+   std::map<int, std::map<int,float> > & lumiByLS = bc.lumiByLS;
+   std::map<int, std::map<int,float> > & pileupByLS = bc.pileupByLS;
    
    TH1::SetDefaultSumw2();  // proper treatment of errors when scaling histograms
    
@@ -84,8 +84,11 @@ int main(int argc, char * argv[])
 //      if ( analysis.run() == 283453 ) continue;
 //      if ( analysis.run() == 283865 ) continue;
             
-      float pileup = analysis.lumiPileup();
-      float instLumi = analysis.instantLumi();
+//      float pileup = analysis.lumiPileup();
+//      float instLumi = analysis.instantLumi();
+
+      float instLumi = lumiByLS[analysis.run()][analysis.lumiSection()]/23.4;
+      float pileup   = pileupByLS[analysis.run()][analysis.lumiSection()];
       
 //      instLumi = lumiByLS[analysis.run()][analysis.lumiSection()]/23.4*1.e6;
       
