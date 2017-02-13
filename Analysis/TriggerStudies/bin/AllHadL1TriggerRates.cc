@@ -1,6 +1,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <map>
 
 #include "TFile.h" 
 #include "TFileCollection.h"
@@ -11,9 +12,15 @@
 
 #include "Analysis/Tools/interface/Analysis.h"
 
+//#include "lumis.h"
+
 using namespace std;
 using namespace analysis;
 using namespace analysis::tools;
+
+std::map<int, std::map<int,float> > lumiByLS;
+
+void readLumisCsv();
 
 bool TriggerObjectSelection(const std::shared_ptr< Collection<TriggerObject> > objects, const unsigned int & nmin, const double & ptmin, const double & etamax, const double & detamax = -1);
 
@@ -21,6 +28,8 @@ bool TriggerObjectSelection(const std::shared_ptr< Collection<TriggerObject> > o
 int main(int argc, char * argv[])
 {
    std::cout << "Starting ...." << std::endl;
+   
+   readLumisCsv();
    
    TH1::SetDefaultSumw2();  // proper treatment of errors when scaling histograms
    
@@ -32,16 +41,16 @@ int main(int argc, char * argv[])
    std::cout << "Setting up physics objects to be used in the analysis..." << std::endl;
    // Physics Objects Collections
    // Trigger results
-   analysis.triggerResults("MssmHbbTrigger/Events/TriggerResults__HLT2");
+   analysis.triggerResults("MssmHbbTrigger/Events/TriggerResults");
    std::string hltPath[20];
    hltPath[0] = "HLT_ZeroBias_v";
-   hltPath[1] = "HLT_L1SingleJet20_v";
+   hltPath[1] = "HLT_L1DoubleJetC100_v";
    
    // Trigger objects
    std::vector<std::string> triggerObjects;
-   triggerObjects.push_back("hltL1sSingleJet20_hltTriggerSummaryAOD__HLT2");
+   triggerObjects.push_back("hltL1sDoubleJetC100");
    
-   std::string trgobj_path = "MssmHbbTrigger/Events/hltTriggerSummaryAOD__HLT2/";
+   std::string trgobj_path = "MssmHbbTrigger/Events/hltTriggerSummaryAOD/";
    for ( auto & obj : triggerObjects )
       analysis.addTree<TriggerObject>(obj,trgobj_path+obj);
    
@@ -54,24 +63,40 @@ int main(int argc, char * argv[])
    int nRefTrg = 0;
    int nTrg = 0;
    
-   TH1F * h_nRefTrg = new TH1F("h_nRefTrg","",28,20,48);
-   TH1F * h_nTrg    = new TH1F("h_nTrg","",28,20,48);
+   TH1F * h_nRefTrg = new TH1F("h_nRefTrg","",30,20,50);
+   TH1F * h_nTrg    = new TH1F("h_nTrg","",30,20,50);
+   
+   TH1F * h_lumiRefTrg = new TH1F("h_lumiRefTrg","",60,5000,15000);
+   TH1F * h_lumiTrg    = new TH1F("h_lumiTrg","",60,5000,15000);
    
    TH1F * h_pu = new TH1F("h_pu","",100,0,100);
-   TH1F * h_lumi = new TH1F("h_lumi","",100,0,30000);
+   TH1F * h_zb   = new TH1F("h_zb","",100,5000,15000);
+   TH1F * h_lumi = new TH1F("h_lumi","",100,5000,15000);
    
-   TH2F * h_pu_lumi = new TH2F("h_pu_lumi","",100,0,100,100,0,30000);
+   TH2F * h_pu_lumi = new TH2F("h_pu_lumi","",30,20,50,100,5000,15000);
    
    for ( int i = 0 ; i < analysis.size() ; ++i )
    {
       analysis.event(i);
       
-      if ( analysis.run() != 283408 ) continue;
-      if ( analysis.lumiSection() < 30 || analysis.lumiSection() > 101 ) continue; 
-      
+      // skip runs
+//      if ( analysis.run() == 282730 ) continue;
+//      if ( analysis.run() == 283306 ) continue;
+//      if ( analysis.run() == 283408 ) continue;
+//      if ( analysis.run() == 283453 ) continue;
+//      if ( analysis.run() == 283865 ) continue;
+            
       float pileup = analysis.lumiPileup();
       float instLumi = analysis.instantLumi();
       
+//      instLumi = lumiByLS[analysis.run()][analysis.lumiSection()]/23.4*1.e6;
+      
+      float fbx = 2200./3564. * 40800000.;
+      float sigMB = 80000;
+      pileup = instLumi*sigMB/fbx;
+      
+//      std::cout << "Run= " << analysis.run() << "  LS = " << analysis.lumiSection() << "    Pile up = " << pileup << "   inst Lumi = " << instLumi << std::endl;
+
       h_pu -> Fill(pileup);
       h_lumi -> Fill(instLumi);
       
@@ -86,34 +111,41 @@ int main(int argc, char * argv[])
       ++nRefTrg;
       
       h_nRefTrg -> Fill(pileup);
+      h_lumiRefTrg -> Fill(instLumi);
+      h_zb -> Fill(instLumi);
       
       
       // Trigger basis
       if ( ! analysis.triggerResult(hltPath[1]) ) continue;
       
       
-      // New trigger emulation
-      auto l1Jet20    = analysis.collection<TriggerObject>("hltL1sSingleJet20_hltTriggerSummaryAOD__HLT2");
-      bool l1New      = TriggerObjectSelection(l1Jet20,1,90,10);
-      
-      if ( ! l1New ) continue;
+//       // New trigger emulation
+//       auto l1Jet20    = analysis.collection<TriggerObject>("hltL1sSingleJet20_hltTriggerSummaryAOD");
+//       bool l1New      = TriggerObjectSelection(l1Jet20,1,90,10);
+//       
+//       if ( ! l1New ) continue;
       
       ++nTrg;
       h_nTrg -> Fill(pileup);
+      h_lumiTrg -> Fill(instLumi);
       
    }
    
    std::cout << "Num reference trigger fired = " << nRefTrg << std::endl;
    std::cout << "Num trigger fired           = " << nTrg << std::endl;
-   std::cout << "Efficiency of the trigger   = " << (double) nTrg/nRefTrg;
+   std::cout << "Efficiency of the trigger   = " << (double) nTrg/nRefTrg << std::endl;
    
    TGraphAsymmErrors * g_effTrg = new TGraphAsymmErrors(h_nTrg,h_nRefTrg,"cl=0.683 b(1,1) mode");
+   TGraphAsymmErrors * g_effLumiTrg = new TGraphAsymmErrors(h_lumiTrg,h_lumiRefTrg,"cl=0.683 b(1,1) mode");
    
    
    TFile * fout = new TFile("output.root","recreate");
    h_nRefTrg -> Write();
    h_nTrg -> Write();
+   h_lumiRefTrg -> Write();
+   h_lumiTrg -> Write();
    g_effTrg -> Write();
+   g_effLumiTrg -> Write();
    
    h_pu -> Write();
    h_lumi -> Write();
@@ -161,5 +193,26 @@ bool TriggerObjectSelection(const std::shared_ptr< Collection<TriggerObject> > o
    fired = (objectSelection && deltaEtaSelection);
    
    return fired;
+   
+}
+
+void readLumisCsv()
+{
+   int run;
+   int ls;
+   float lumi;
+   
+   TTree *T = new TTree("ntuple","data from csv file");
+   T->ReadFile("lumi.csv","run/I:ls/I:lumi/F",',');
+   
+   T->SetBranchAddress("run" ,&run);
+   T->SetBranchAddress("ls"  ,&ls);
+   T->SetBranchAddress("lumi",&lumi);
+   
+   for ( int i = 0 ; i < T->GetEntries() ; ++i )
+   {
+      T -> GetEntry(i);
+      lumiByLS[run][ls] = lumi;
+   }
    
 }
