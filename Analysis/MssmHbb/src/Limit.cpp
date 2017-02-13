@@ -14,11 +14,11 @@ Limit::Limit(const int& mass, const double& median, const double& observed, cons
 
 Limit::Limit(const int& mass,const double&expected): Measurement(expected), mass_(mass), observed_(0) {};
 
-int Limit::getMass() const {
+double Limit::getX() const {
 	return mass_;
 }
 
-void Limit::setMass(const int& mass) {
+void Limit::setX(const double& mass) {
 	mass_ = mass;
 }
 

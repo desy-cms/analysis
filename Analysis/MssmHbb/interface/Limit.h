@@ -18,8 +18,8 @@ public:
 	Limit(const int& mass, const double& expected);
 	virtual ~Limit();
 
-	int getMass() const;
-	void setMass(const int& mass);
+	double getX() const;
+	void setX(const double& x);
 	double getObserved() const;
 	void setObserved(const double& observed);
 
@@ -27,7 +27,7 @@ public:
 	double getExpected() const;
 
 private:
-	int mass_;
+	double mass_;
 	double observed_;
 };
 
