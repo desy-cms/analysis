@@ -12,15 +12,11 @@
 
 #include "Analysis/Tools/interface/Analysis.h"
 
-//#include "lumis.h"
+#include "lumis.h"
 
 using namespace std;
 using namespace analysis;
 using namespace analysis::tools;
-
-std::map<int, std::map<int,float> > lumiByLS;
-
-void readLumisCsv();
 
 bool TriggerObjectSelection(const std::shared_ptr< Collection<TriggerObject> > objects, const unsigned int & nmin, const double & ptmin, const double & etamax, const double & detamax = -1);
 
@@ -29,7 +25,9 @@ int main(int argc, char * argv[])
 {
    std::cout << "Starting ...." << std::endl;
    
-   readLumisCsv();
+   brilcalc bc = readLumisCsv("lumis.csv");
+   std::map<int, std::map<int,float> > * lumiByLS = &(bc.lumiByLS);
+   std::map<int, std::map<int,float> > * pileupByLS = &(bc.pileupByLS);
    
    TH1::SetDefaultSumw2();  // proper treatment of errors when scaling histograms
    
@@ -196,23 +194,3 @@ bool TriggerObjectSelection(const std::shared_ptr< Collection<TriggerObject> > o
    
 }
 
-void readLumisCsv()
-{
-   int run;
-   int ls;
-   float lumi;
-   
-   TTree *T = new TTree("ntuple","data from csv file");
-   T->ReadFile("lumi.csv","run/I:ls/I:lumi/F",',');
-   
-   T->SetBranchAddress("run" ,&run);
-   T->SetBranchAddress("ls"  ,&ls);
-   T->SetBranchAddress("lumi",&lumi);
-   
-   for ( int i = 0 ; i < T->GetEntries() ; ++i )
-   {
-      T -> GetEntry(i);
-      lumiByLS[run][ls] = lumi;
-   }
-   
-}
