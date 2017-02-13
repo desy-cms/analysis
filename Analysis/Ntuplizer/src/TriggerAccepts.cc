@@ -48,6 +48,7 @@ TriggerAccepts::TriggerAccepts(const edm::InputTag& tag, TTree* tree, const std:
    first_ = true;
    testmode_ = testmode;
    if ( inpaths_.size() == 0 ) testmode_ = true;
+   psinfo_ = true;
 }
 #endif
 
@@ -60,6 +61,7 @@ TriggerAccepts::TriggerAccepts(const edm::InputTag& tag, TTree* tree, const std:
    first_ = true;
    testmode_ = testmode;
    if ( inpaths_.size() == 0 ) testmode_ = true;
+   psinfo_ = true;
 }
 
 TriggerAccepts::~TriggerAccepts()
@@ -92,23 +94,26 @@ void TriggerAccepts::Fill(const edm::Event& event, const edm::EventSetup & setup
       {
          if ( hlt_config_.triggerName(j).find(paths_[i]) == 0 && triggers.accept(j) )
          {
+            psl1_[i] = 1.;
+            pshlt_[i] = 1.;
+            if ( psinfo_ )
+            {
 #ifndef CMSSWOLD          
-            const std::pair<std::vector<std::pair<std::string,int> >,int> ps = hlt_prescale_->prescaleValuesInDetail(event,setup,hlt_config_.triggerName(j));
-            psl1_[i] = ps.first[0].second;
-            pshlt_[i] = ps.second;
+               const std::pair<std::vector<std::pair<std::string,int> >,int> ps = hlt_prescale_->prescaleValuesInDetail(event,setup,hlt_config_.triggerName(j));
+               psl1_[i] = ps.first[0].second;
+               pshlt_[i] = ps.second;
 #else
-            std::pair< int, int > ps = hlt_config_.prescaleValues (event, setup, hlt_config_.triggerName(j));
-            psl1_[i] = ps.first;
-            pshlt_[i] = ps.second;
+               std::pair< int, int > ps = hlt_config_.prescaleValues (event, setup, hlt_config_.triggerName(j));
+               psl1_[i] = ps.first;
+               pshlt_[i] = ps.second;
 #endif            
-//            psl1_[i]  = 1;
-//            pshlt_[i] = 1;
+            }
             if ( triggers.accept(j) ) accept_[i] = true;
 
          }
       }
    }
-   
+
    tree_ -> Fill();
    
 }
@@ -211,4 +216,12 @@ void TriggerAccepts::Run(edm::Run const & run, edm::EventSetup const& setup)
       first_ = false;
    }
 
+}
+void TriggerAccepts::ReadPrescaleInfo(const bool & ok)
+{
+   psinfo_ = ok;
+}
+bool TriggerAccepts::ReadPrescaleInfo()
+{
+   return psinfo_;
 }

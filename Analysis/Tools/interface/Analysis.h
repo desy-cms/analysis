@@ -52,6 +52,10 @@ namespace analysis {
          public:
             Analysis(const std::string & inputFilelist, const std::string & evtinfo = "MssmHbb/Events/EventInfo");
            ~Analysis();
+           
+            // Info
+            void tag(const std::string &);
+            std::string tag();
 
             // Event
             int  numberEvents();
@@ -63,6 +67,8 @@ namespace analysis {
             int  run();
             int  lumiSection();
             bool isMC();
+            std::string fileName();
+            std::string fileFullName();
             
             // PileupInfo
             int   nPileup();
@@ -108,6 +114,8 @@ namespace analysis {
             // Trigger results
             void triggerResults(const std::string & path);
             int triggerResult(const std::string & trig);
+            int triggerL1Prescale(const std::string & trig);
+            int triggerHLTPrescale(const std::string & trig);
 
             // Generator Filter
             FilterResults generatorFilter(const std::string & path);
@@ -143,6 +151,9 @@ namespace analysis {
             TFileCollection * fileCollection_;
             TCollection * fileList_;
             std::string inputFilelist_;
+            
+            // Info
+            std::string tag_;
             
             // btagging efficiencies
             TFile * fileBtagEff_;
@@ -309,6 +320,10 @@ namespace analysis {
       }
       
 // ========================================================
+      inline void        Analysis::tag(const std::string & t) { std::cout << "Tag " << t << " has been defined." << std::endl ;
+      																			 tag_ = t;     }
+      inline std::string Analysis::tag()                      { return tag_ ; }
+      
 
       inline int   Analysis::numberEvents() 	{ return nevents_;   }
       inline int   Analysis::numberFilteredGenEvents()	{ return evtfilter_.mHatFiltered; }
@@ -328,6 +343,8 @@ namespace analysis {
       
       inline void Analysis::btagEfficienciesAlgo(const std::string & algo )      { btageff_algo_    = algo; }
       inline void Analysis::btagEfficienciesFlavour(const std::string & flavour) { btageff_flavour_ = flavour; }
+      
+      inline std::string Analysis::fileFullName()     { return std::string(t_event_ -> GetFile() -> GetName()) ;    }
       
 //      inline std::string Analysis::getGenParticleCollection() { return genParticleCollection_; }
    }

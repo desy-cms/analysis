@@ -1,15 +1,14 @@
 import FWCore.ParameterSet.Config as cms
-import os
 
 process = cms.Process("MssmHbb")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(1000)
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(10000)
 
 ##  Using MINIAOD. GlobalTag just in case jet re-clustering, L1 trigger filter  etc is needed to be done
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag as customiseGlobalTag
-process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = '76X_mcRun2_asymptotic_RunIIFall15DR76_v1')
+process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = '80X_mcRun2_asymptotic_2016_TrancheIV_v6')
 ######################################################################
 process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_CONDITIONS'
 process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
@@ -19,9 +18,9 @@ for pset in process.GlobalTag.toGet.value():
 process.GlobalTag.RefreshEachRun = cms.untracked.bool( False )
 process.GlobalTag.ReconnectEachRun = cms.untracked.bool( False )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
-output_file = 'ntuple_mc.root'
+output_file = 'ntuple.root'
 ## TFileService
 process.TFileService = cms.Service("TFileService",
 	fileName = cms.string(output_file)
@@ -32,19 +31,18 @@ process.TFileService = cms.Service("TFileService",
 from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import updatedPatJetCorrFactors
 process.slimmedJetsCorrFactorsReapplyJEC = updatedPatJetCorrFactors.clone(
   src = cms.InputTag("slimmedJets","","PAT"),
-  levels = ['L1FastJet', 
-            'L2Relative', 
+  levels = ['L1FastJet',
+            'L2Relative',
             'L3Absolute'],
   payload = 'AK4PFchs' ) # Make sure to choose the appropriate levels and payload here!
 
 
 process.slimmedJetsPuppiCorrFactorsReapplyJEC = updatedPatJetCorrFactors.clone(
   src = cms.InputTag("slimmedJetsPuppi","","PAT"),
-  levels = ['L1FastJet', 
-            'L2Relative', 
+  levels = ['L1FastJet',
+            'L2Relative',
             'L3Absolute'],
   payload = 'AK4PFPuppi' ) # Make sure to choose the appropriate levels and payload here!
-  
 
 from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import updatedPatJets
 process.slimmedJetsReapplyJEC = updatedPatJets.clone(
@@ -68,6 +66,26 @@ process.primaryVertexFilter = cms.EDFilter("VertexSelector",
    src = cms.InputTag("offlineSlimmedPrimaryVertices"), # primary vertex collection name
    cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2"), # ndof>thr=4 corresponds to sum(track_weigths) > (thr+3)/2 = 3.5 so typically 4 good tracks
    filter = cms.bool(True),   # otherwise it won't filter the events, just produce an empty vertex collection.
+)
+
+## ===========    JET N FILTER  ==============
+process.jetCounterFilter = cms.EDFilter("CandViewCountFilter",
+    src = cms.InputTag("slimmedJetsPuppiReapplyJEC"), # new slimmed Jets
+    minNumber = cms.uint32(2),
+    )
+
+## ============ KINEMATIC JET FILTER ===============
+process.jetKinematicFilter = cms.EDFilter("kinematicJetFilter",
+    src = cms.InputTag("slimmedJetsPuppiReapplyJEC"),
+    pt = cms.vdouble(80.,80.),
+    eta = cms.vdouble(3.,3.),
+)
+
+## ============ BTAG JET FILTER ===============
+process.jetBTagFilter = cms.EDFilter("btagJetFilter",
+    src = cms.InputTag("slimmedJetsPuppiReapplyJEC"),
+    algo = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
+    btag = cms.vdouble(0.5,0.5),
 )
 
 ## ============  THE NTUPLIZER!!!  ===============
@@ -102,24 +120,24 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
                                     "AK4PFchs",
                                     "AK4PFPuppi",
                                     ),
-    JERResFiles     = cms.vstring  (
-                                    "Fall15_25nsV2_MC_PtResolution_AK4PFchs.txt",
-                                    "Fall15_25nsV2_MC_PtResolution_AK4PFPuppi.txt",
-                                    ),
-    JERSfFiles      = cms.vstring  (
-                                    "Fall15_25nsV2_MC_SF_AK4PFchs.txt",
-                                    "Fall15_25nsV2_MC_SF_AK4PFPuppi.txt",
-                                    ),
+#     JERResFiles     = cms.vstring  (
+#                                     "",
+#                                     "",
+#                                     ),
+#     JERSfFiles      = cms.vstring  (
+#                                     "",
+#                                     "",
+#                                     ),
     FixedGridRhoAll = cms.InputTag("fixedGridRhoAll"),
     PatMETs         = cms.VInputTag(
-                                    cms.InputTag("slimmedMETs","","PAT"),
-                                    cms.InputTag("slimmedMETsPuppi","","PAT")
+                                    cms.InputTag("slimmedMETs"),
+                                    cms.InputTag("slimmedMETsPuppi")
                                     ), 
     PatMuons        = cms.VInputTag(
-                                    cms.InputTag("slimmedMuons","","PAT")
+                                    cms.InputTag("slimmedMuons")
                                     ), 
     PrimaryVertices = cms.VInputTag(
-                                    cms.InputTag("offlineSlimmedPrimaryVertices","","PAT")
+                                    cms.InputTag("offlineSlimmedPrimaryVertices")
                                     ), 
     BTagAlgorithms = cms.vstring   (
                                     "pfCombinedInclusiveSecondaryVertexV2BJetTags",
@@ -133,64 +151,82 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
                                         ),
     TriggerResults  = cms.VInputTag(cms.InputTag("TriggerResults","","HLT")),
     TriggerPaths    = cms.vstring  (
-    ## I recommend using the version number explicitly to be able to compare 
+    ## I recommend using the version number explicitly to be able to compare
     ## however for production one has to be careful that all versions are included.
     ## Thinking of a better solution...
-                                  'HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v',
-                                  'HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v',
-                                  'HLT_DoubleJetsC112_DoubleBTagCSV0p85_DoublePFJetsC172_v',
-                                  'HLT_DoubleJetsC112_DoubleBTagCSV0p9_DoublePFJetsC112MaxDeta1p6_v',
+                                  'HLT_DoubleJetsC100_DoubleBTagCSV_p014_DoublePFJetsC100MaxDeta1p6_v',
+                                  'HLT_DoubleJetsC100_DoubleBTagCSV_p026_DoublePFJetsC160_v',
+                                  'HLT_DoubleJetsC112_DoubleBTagCSV_p014_DoublePFJetsC112MaxDeta1p6_v',
+                                  'HLT_DoubleJetsC112_DoubleBTagCSV_p026_DoublePFJetsC172_v',
+#
+                                  'HLT_DoubleJetsC100_SingleBTagCSV_p014_v',
+                                  'HLT_DoubleJetsC100_SingleBTagCSV_p014_SinglePFJetC350_v',
+                                  'HLT_DoubleJetsC100_SingleBTagCSV_p026_v',
+                                  'HLT_DoubleJetsC100_SingleBTagCSV_p014_SinglePFJetC350_v',
+#
                                   'HLT_PFJet40_v',
                                   'HLT_PFJet60_v',
                                   'HLT_PFJet80_v',
                                   'HLT_PFJet140_v',
                                   'HLT_PFJet200_v',
-                                   ),
+               ),
     TriggerObjectStandAlone  = cms.VInputTag(
-                                             cms.InputTag("selectedPatTrigger","","PAT"),
-                                             ),
+                     cms.InputTag("selectedPatTrigger"),
+                     ),
     TriggerObjectLabels    = cms.vstring  (
-                                       'hltL1sL1DoubleJetC100',
+                                       'hltL1sDoubleJetC100',
                                        'hltDoubleJetsC100',
+                                       'hltBTagCaloCSVp014DoubleWithMatching',
                                        'hltDoublePFJetsC100',
                                        'hltDoublePFJetsC100MaxDeta1p6',
+#
+                                       'hltBTagCaloCSVp026DoubleWithMatching',
                                        'hltDoublePFJetsC160',
-                                       'hltDoubleBTagCSV0p85',
-                                       'hltDoubleBTagCSV0p9',
-                                       'hltL1sL1DoubleJetC112',
+#
+                                       'hltL1sDoubleJetC112',
                                        'hltDoubleJetsC112',
                                        'hltDoublePFJetsC112',
-                                       'hltDoublePFJetsC112MaxDeta1p6',
+                                       'hltDoublePFJetsC112MaxDeta1p6'
+#
                                        'hltDoublePFJetsC172',
-                                       'hltL1sL1ZeroBias',
-                                       'hltPFJetsCorrectedMatchedToCaloJets10',
+#                                       
+                                       'hltSingleBTagCSV0p84',
+                                       'hltJetC350',
+                                       'hltSingleBTagCSV0p78',
+#
+                                       'hltL1sZeroBias',
                                        'hltSingleCaloJet10',
+                                       'hltPFJetsCorrectedMatchedToCaloJets10',
                                        'hltSinglePFJet40',
-                                       'hltL1sL1SingleJet36',
+#
+                                       'hltL1sSingleJet35',
                                        'hltSingleCaloJet40',
                                        'hltPFJetsCorrectedMatchedToCaloJets40',
                                        'hltSinglePFJet60',
-                                       'hltL1sL1SingleJet52',
-                                       'hltPFJetsCorrectedMatchedToCaloJets50',
+#
+                                       'hltL1sSingleJet60',
                                        'hltSingleCaloJet50',
+                                       'hltPFJetsCorrectedMatchedToCaloJets50',
                                        'hltSinglePFJet80',
-                                       'hltL1sL1SingleJet92',
-                                       'hltPFJetsCorrectedMatchedToCaloJets110',
+#
+                                       'hltL1sSingleJet90',
                                        'hltSingleCaloJet110',
+                                       'hltPFJetsCorrectedMatchedToCaloJets110',
                                        'hltSinglePFJet140',
-                                       'hltL1sL1SingleJet128',
-                                       'hltPFJetsCorrectedMatchedToCaloJets170',
+#
+                                       'hltL1sSingleJet120',
                                        'hltSingleCaloJet170',
+                                       'hltPFJetsCorrectedMatchedToCaloJets170',
                                        'hltSinglePFJet200',
-                                   ),
-    L1ExtraJets     = cms.VInputTag(
-                                    cms.InputTag("l1extraParticles","Central","RECO"),
-                                    cms.InputTag("l1extraParticles","Forward","RECO"),
-                                    cms.InputTag("l1extraParticles","Tau","RECO")
-                                    ),
-    L1ExtraMuons    = cms.VInputTag(
-                                    cms.InputTag("l1extraParticles","","RECO")
-                                    ),
+               ),
+#    L1ExtraJets     = cms.VInputTag(
+#                                    cms.InputTag("l1extraParticles","Central","RECO"),
+#                                    cms.InputTag("l1extraParticles","Forward","RECO"),
+#                                    cms.InputTag("l1extraParticles","Tau","RECO")
+#                                    ),
+#    L1ExtraMuons    = cms.VInputTag(
+#                                    cms.InputTag("l1extraParticles","","RECO")
+#                                    ),
 )
 
 process.p = cms.Path(
@@ -204,11 +240,10 @@ process.p = cms.Path(
 
 
 readFiles = cms.untracked.vstring()
-secFiles = cms.untracked.vstring() 
+secFiles = cms.untracked.vstring()
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 readFiles.extend( [
-        '/store/mc/RunIIFall15MiniAODv2/SUSYGluGluToBBHToBB_M-300_TuneCUETP8M1_13TeV-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/00000/0E8B47FB-4EBB-E511-A42E-003048976E04.root',
-        '/store/mc/RunIIFall15MiniAODv2/SUSYGluGluToBBHToBB_M-300_TuneCUETP8M1_13TeV-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/00000/FE6AA0CD-4EBB-E511-9FA2-002590189542.root',
+       '/store/mc/RunIISummer16MiniAODv2/QCD_Pt_170to300_TuneCUETP8M1_13TeV_pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1/50000/02D7719D-01B5-E611-A239-A0000420FE80.root',
 ] );
 
 

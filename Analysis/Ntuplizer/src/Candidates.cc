@@ -47,6 +47,7 @@
 
 #include "CommonTools/Utils/interface/PtComparator.h"
 
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 
 #include "Analysis/Ntuplizer/interface/Candidates.h"
@@ -70,6 +71,8 @@ namespace analysis {
    namespace ntuple {
       template <> void Candidates<pat::TriggerObject>::ReadFromEvent(const edm::Event& event);
       template <> void Candidates<pat::Jet>::JECRecord(const std::string & jr);
+      template <> void Candidates<trigger::TriggerObject>::ReadFromEvent(const edm::Event& event);
+      template <> void Candidates<trigger::TriggerObject>::Kinematics();
  }
 }   
 //
@@ -88,17 +91,18 @@ Candidates<T>::Candidates(const edm::InputTag& tag, TTree* tree, const bool & mc
    input_collection_ = tag;
    tree_ = tree;
    
-   is_l1jet_        = std::is_same<T,l1extra::L1JetParticle>::value;
-   is_l1muon_       = std::is_same<T,l1extra::L1MuonParticle>::value;
-   is_calojet_      = std::is_same<T,reco::CaloJet>::value;
-   is_pfjet_        = std::is_same<T,reco::PFJet>::value;
-   is_patjet_       = std::is_same<T,pat::Jet>::value;
-   is_patmuon_      = std::is_same<T,pat::Muon>::value;
-   is_patmet_       = std::is_same<T,pat::MET>::value;
-   is_genjet_       = std::is_same<T,reco::GenJet>::value;
-   is_genparticle_  = std::is_same<T,reco::GenParticle>::value;
-   is_trigobject_   = std::is_same<T,pat::TriggerObject>::value;
-   is_mc_           = mc;
+   is_mc_              = mc;
+   is_l1jet_           = std::is_same<T,l1extra::L1JetParticle>::value;
+   is_l1muon_          = std::is_same<T,l1extra::L1MuonParticle>::value;
+   is_calojet_         = std::is_same<T,reco::CaloJet>::value;
+   is_pfjet_           = std::is_same<T,reco::PFJet>::value;
+   is_patjet_          = std::is_same<T,pat::Jet>::value;
+   is_patmuon_         = std::is_same<T,pat::Muon>::value;
+   is_patmet_          = std::is_same<T,pat::MET>::value;
+   is_genjet_          = std::is_same<T,reco::GenJet>::value;
+   is_genparticle_     = std::is_same<T,reco::GenParticle>::value;
+   is_trigobject_      = std::is_same<T,pat::TriggerObject>::value;
+   is_trigobject_reco_ = std::is_same<T,trigger::TriggerObject>::value;
    
 //   do_kinematics_ = ( is_l1jet_ || is_l1muon_ || is_calojet_ || is_pfjet_ || is_patjet_ || is_patmuon_ || is_genjet_ || is_genparticle_ );
    do_kinematics_ = true;
@@ -156,7 +160,7 @@ void Candidates<T>::ReadFromEvent(const edm::Event& event)
    candidates_ = *(handler.product());
 }
 
-// Specialization for trigger objects
+// Specialization for trigger objects (pat)
 template <>
 void Candidates<pat::TriggerObject>::ReadFromEvent(const edm::Event& event)
 {
@@ -178,6 +182,38 @@ void Candidates<pat::TriggerObject>::ReadFromEvent(const edm::Event& event)
    
    // Sort the objects by pt
    NumericSafeGreaterByPt<pat::TriggerObject> triggerObjectGreaterByPt;
+   std::sort (candidates_.begin(), candidates_.end(),triggerObjectGreaterByPt);
+}
+
+// Specialization for trigger objects (trigger - reco)
+template <>
+void Candidates<trigger::TriggerObject>::ReadFromEvent(const edm::Event& event)
+{
+   using namespace edm;
+   
+   candidates_.clear();
+   // The stand alone collection
+   
+   edm::Handle<trigger::TriggerEvent> handler;
+   event.getByLabel(input_collection_, handler);
+   
+   const std::string treename = tree_ -> GetName(); // using the label to name the tree
+   const std::string delimiter = "_";
+   const std::string processName(handler->usedProcessName());
+   std::string label = treename.substr(0, treename.find(delimiter));
+   const unsigned int filterIndex(handler->filterIndex(InputTag(label,"",processName)));
+   if ( filterIndex < handler->sizeFilters() )
+   {
+      const trigger::Keys& keys(handler->filterKeys(filterIndex));
+      const trigger::TriggerObjectCollection & triggerObjects = handler->getObjects();
+      for ( auto & key : keys )
+      {
+         candidates_.push_back(triggerObjects[key]);
+      }
+   }
+   
+   // Sort the objects by pt
+   NumericSafeGreaterByPt<trigger::TriggerObject> triggerObjectGreaterByPt;
    std::sort (candidates_.begin(), candidates_.end(),triggerObjectGreaterByPt);
 }
 
@@ -336,12 +372,49 @@ void Candidates<T>::Kinematics()
          if ( to->triggerObjectTypes().size() > 0 )
             type_[n] = to->triggerObjectTypes().at(0);
       }
+      if ( is_trigobject_reco_ )
+      {
+         trigger::TriggerObject * to = dynamic_cast<trigger::TriggerObject*> (&candidates_[i]);
+         type_[n] = to -> id();
+      }
       
       ++n;
    }
    n_ = n;
 
 }
+
+template <>
+void Candidates<trigger::TriggerObject>::Kinematics()
+{
+   using namespace edm;
+
+   int n = 0;
+   for ( size_t i = 0 ; i < candidates_.size(); ++i )
+   {
+      if ( n >= maxCandidates ) break;
+      
+      if ( minPt_  >= 0. && candidates_[i].pt()  < minPt_  ) continue;
+      if ( maxEta_ >= 0. && fabs(candidates_[i].eta()) > maxEta_ ) continue;
+
+      pt_[n]  = candidates_[i].pt();
+      eta_[n] = candidates_[i].eta();
+      phi_[n] = candidates_[i].phi();
+      px_[n]  = candidates_[i].px();
+      py_[n]  = candidates_[i].py();
+      pz_[n]  = candidates_[i].pz();
+      e_[n]   = candidates_[i].energy();
+      et_[n]  = candidates_[i].et();
+      q_[n]   = 0;
+      type_[n] = candidates_[i].id();
+      
+      ++n;
+   }
+   n_ = n;
+
+}
+
+
 template <typename T>
 void Candidates<T>::JECRecord(const std::string& jr)
 {
@@ -489,7 +562,7 @@ void Candidates<T>::Branches()
         }
       }
       
-      if ( is_trigobject_ )
+      if ( is_trigobject_ || is_trigobject_reco_ )
       {
          // there may be more than one type for an object, one has to be careful depending on the trigger
          // for now only the first entry is used.
@@ -568,3 +641,4 @@ template class Candidates<pat::MET>;
 template class Candidates<reco::GenJet>;
 template class Candidates<reco::GenParticle>;
 template class Candidates<pat::TriggerObject>;
+template class Candidates<trigger::TriggerObject>;

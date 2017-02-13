@@ -1,4 +1,8 @@
+__init__.py
 *.pyc
+.*.swp
+.#*
+#*#
 *~
 *.root
 *.project

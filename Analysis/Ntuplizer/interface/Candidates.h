@@ -151,6 +151,7 @@ namespace analysis {
             bool is_genjet_;
             bool is_genparticle_;
             bool is_trigobject_;
+            bool is_trigobject_reco_;
             bool is_patmet_;
             bool is_mc_;
             bool do_kinematics_;
