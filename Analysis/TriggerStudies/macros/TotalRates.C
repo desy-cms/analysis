@@ -13,14 +13,14 @@ void TotalRates()
    std::vector<TGraphErrors *> g_rate;
    
    
-//    f.push_back(new TFile("../test/rates_QCD_Pt_15to30_original.root","old"));
-    f.push_back(new TFile("../test/rates_QCD_Pt_30to50_original.root","old"));
-    f.push_back(new TFile("../test/rates_QCD_Pt_50to80_original.root","old"));
-    f.push_back(new TFile("../test/rates_QCD_Pt_80to120_original.root","old"));
-    f.push_back(new TFile("../test/rates_QCD_Pt_120to170_original.root","old"));
-    f.push_back(new TFile("../test/rates_QCD_Pt_170to300_original.root","old"));
-    f.push_back(new TFile("../test/rates_QCD_Pt_300to470_original.root","old"));
-    f.push_back(new TFile("../test/rates_QCD_Pt_470to600_original.root","old"));
+//    f.push_back(new TFile("../test/rates_QCD_Pt_15to30.root","old"));
+//    f.push_back(new TFile("../test/rates_QCD_Pt_30to50.root","old"));
+    f.push_back(new TFile("../test/rates_QCD_Pt_50to80.root","old"));
+    f.push_back(new TFile("../test/rates_QCD_Pt_80to120.root","old"));
+    f.push_back(new TFile("../test/rates_QCD_Pt_120to170.root","old"));
+    f.push_back(new TFile("../test/rates_QCD_Pt_170to300.root","old"));
+    f.push_back(new TFile("../test/rates_QCD_Pt_300to470.root","old"));
+    f.push_back(new TFile("../test/rates_QCD_Pt_470to600.root","old"));
    
    std::vector<double> totRate;
    std::vector<double> totRateErr;
@@ -80,7 +80,55 @@ void TotalRates()
    }
    TGraphErrors * g_totRate = new TGraphErrors(int(totRate.size()),&totPU[0],&totRate[0],&totPUErr[0],&totRateErr[0]);
    
-   g_totRate -> Draw("ALP");
+   g_totRate -> SetMarkerStyle(20);
+   
+   g_totRate -> GetXaxis() -> SetTitle("pile up");
+   g_totRate -> GetXaxis() -> SetTitleSize(0.05);
+   g_totRate -> GetXaxis() -> SetLabelSize(0.05);
+   
+   g_totRate -> GetYaxis() -> SetTitle("rate (Hz)");
+   g_totRate -> GetYaxis() -> SetTitleSize(0.05);
+   g_totRate -> GetYaxis() -> SetLabelSize(0.05);
+//   g_totRate -> GetYaxis() -> SetRangeUser(0,35000);
+   g_totRate -> GetYaxis() -> SetRangeUser(0,130);
+   
+   
+   g_totRate -> SetTitle("");
+   
+// L1 functions   
+//    TF1 * f1 = new TF1("f1","217 + 98.7*x + 0.381*x*x",20,65);
+//    f1 -> SetLineColor(4);
+//    TF1 * f2 = new TF1("f2","-1.23e+3 + 255*x -5.01*x*x + 0.0594*x*x*x",20,65);
+//    f2 -> SetLineColor(6);
+   
+// HLT functions  
+   TF1 * f11 = new TF1("f11","[0]*x +[1]*x*x",20,65);
+   double factor = fBX/(80000);
+   f11 -> SetParameter(0,0.00107*factor);
+   f11 -> SetParameter(1,1.02e-8*factor*factor);
+   f11 -> SetLineColor(4);
+   
+   TF1 * f21 = new TF1("f21","[0]*x +[1]*x*x + [2]*x*x*x",20,65);
+   f21 -> SetParameter(0,0.00104*factor);
+   f21 -> SetParameter(1,1.71e-8*factor*factor);
+   f21 -> SetParameter(2,-3.74e-13*factor*factor*factor);
+   f21 -> SetLineColor(6);
+   
+   TCanvas * c1 = new TCanvas("c1","",600,500);
+   
+   g_totRate -> Draw("AP");
+   
+   g_totRate -> Fit("pol2");
+   
+//   f1 -> Draw("same");
+//   f2 -> Draw("same");
+   
+   f21 -> Draw("same");
+   f11 -> Draw("same");
+   
+   c1 -> SaveAs("hltrates.png");
+   
+   
    
    
    

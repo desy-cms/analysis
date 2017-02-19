@@ -50,7 +50,8 @@ int main(int argc, char * argv[])
    // Physics Objects Collections
    analysis.triggerResults("MssmHbbTrigger/Events/TriggerResults");
    std::string hltPath[20];
-   hltPath[0] = "HLT_DoubleJetsC100_DoubleBTagCSV_p014_DoublePFJetsC100MaxDeta1p6_v";
+   hltPath[0] = "HLT_DoubleJetsC100_DoubleBTagCSV_p014_DoublePFJetsC100MaxDeta1p6_v1";
+//   hltPath[0] = "HLT_L1SingleJet20_v1";
    
    // Trigger objects
    std::vector<std::string> jetTriggerObjects;
@@ -59,6 +60,7 @@ int main(int argc, char * argv[])
    jetTriggerObjects.push_back("hltBTagCaloCSVp014DoubleWithMatching");
    jetTriggerObjects.push_back("hltDoublePFJetsC100");
    jetTriggerObjects.push_back("hltDoublePFJetsC100MaxDeta1p6");
+//   jetTriggerObjects.push_back("hltL1sSingleJet20");
    
    std::string trgobj_path = "MssmHbbTrigger/Events/hltTriggerSummaryAOD/";
    for ( auto & obj : jetTriggerObjects )
@@ -94,6 +96,60 @@ int main(int argc, char * argv[])
       
       if ( ! trg_fired ) continue;
       
+      // FOR L1 TRIGGER
+//       auto l1jet20 = analysis.collection<TriggerObject>("hltL1sSingleJet20");
+//       if ( l1jet20->size() < 2 ) continue;
+//       
+//       std::vector<TriggerObject> l1dijetc100;
+//       for ( int j = 0 ; j < l1jet20->size() ; ++j )
+//       {
+//          TriggerObject jet = l1jet20->at(j);
+//          if ( jet.pt() < 100. || fabs(jet.eta()) > 2.3 ) continue;
+//          l1dijetc100.push_back(jet);
+//       }
+//       
+//       if ( l1dijetc100.size() < 2 ) continue;
+//       
+//       bool deta = false;
+//       for ( int j1 = 0 ; j1 < (int)l1dijetc100.size()-1 ; ++j1 )
+//       {
+//          for ( int j2 = j1+1 ; j2 < (int)l1dijetc100.size() ; ++j2 )
+//          {
+//             float eta1 = l1dijetc100.at(j1).eta();
+//             float eta2 = l1dijetc100.at(j2).eta();
+//             if ( fabs(eta1-eta2) <= 1.6 ) deta = true;
+//          }
+//       }
+//       
+//       if ( ! deta ) continue;
+      
+      
+      // All hadronic path
+      
+      // L1 
+      auto l1dijetc100 = analysis.collection<TriggerObject>("hltL1sDoubleJetC100");
+      std::vector<TriggerObject> l1dijet100eta2p3;
+      for ( int j = 0 ; j < l1dijetc100->size() ; ++j )
+      {
+         TriggerObject jet = l1dijetc100->at(j);
+         if ( fabs(jet.eta()) > 2.3 ) continue;
+         l1dijet100eta2p3.push_back(jet);
+      }
+      
+      if ( l1dijet100eta2p3.size() < 2 ) continue;
+      
+      bool deta = false;
+      for ( int j1 = 0 ; j1 < (int)l1dijet100eta2p3.size()-1 ; ++j1 )
+      {
+         for ( int j2 = j1+1 ; j2 < (int)l1dijet100eta2p3.size() ; ++j2 )
+         {
+            float eta1 = l1dijet100eta2p3.at(j1).eta();
+            float eta2 = l1dijet100eta2p3.at(j2).eta();
+            if ( fabs(eta1-eta2) <= 1.6 ) deta = true;
+         }
+      }
+      if ( ! deta ) continue;
+      
       // online b-tagging trigger objects
       // at most 6 jets with pT > 80 GeV
       auto hlt8bJets30 = analysis.collection<TriggerObject>("hltBTagCaloCSVp014DoubleWithMatching");
@@ -107,6 +163,18 @@ int main(int argc, char * argv[])
       }
       
       if ( hlt6bJets80.size() < 2 ) continue;
+      
+      auto hltdipf100 = analysis.collection<TriggerObject>("hltDoublePFJetsC100");
+      std::vector<TriggerObject> hltdipf100eta2p3;
+      for ( int j = 0 ; j < hltdipf100->size() ; ++j )
+      {
+         TriggerObject jet = hltdipf100->at(j);
+         if ( fabs(jet.eta()) > 2.3 ) continue;
+         hltdipf100eta2p3.push_back(jet);
+      }
+      
+      if ( hltdipf100eta2p3.size() < 2 ) continue;
+      
       
 //       // muon selection at L1
 //       auto l1Mu3s = analysis.collection<TriggerObject>("hltL1sSingleMu3");
@@ -166,7 +234,7 @@ int main(int argc, char * argv[])
    g_rates_ = new TGraphErrors(35,pu,rate,puErr,rateErr);
    g_rates_ -> SetName("rates");
    
-   TFile * f_out = new TFile(Form("rates_%s.root",basename_.c_str()),"RECREATE");
+   TFile * f_out = new TFile(Form("hltrates_mod_%s.root",basename_.c_str()),"RECREATE");
    for ( auto & h : h1_ )
    {
       std::cout << h.first << std::endl;
