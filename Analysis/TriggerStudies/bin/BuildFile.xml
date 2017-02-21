@@ -9,3 +9,19 @@
 <bin   name="AllHadTrigger" file="AllHadTrigger.cc">
 <flags   LDFLAGS="-lCore -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lz -pthread -lm -ldl -rdynamic"/>
 </bin>
+
+<bin   name="AllHadL1TriggerRates" file="AllHadL1TriggerRates.cc">
+<flags   LDFLAGS="-lCore -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lz -pthread -lm -ldl -rdynamic"/>
+</bin>
+
+<bin   name="MssmHbbTriggerRates" file="MssmHbbTriggerRates.cc">
+<flags   LDFLAGS="-lCore -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lz -pthread -lm -ldl -rdynamic"/>
+</bin>
+
+<bin   name="MssmHbbTriggers" file="MssmHbbTriggers.cc">
+<flags   LDFLAGS="-lCore -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lz -pthread -lm -ldl -rdynamic"/>
+</bin>
+
+<bin   name="SaveHistograms" file="SaveHistograms.cc">
+<flags   LDFLAGS="-lCore -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lz -pthread -lm -ldl -rdynamic"/>
+</bin>

@@ -72,6 +72,9 @@ namespace analysis {
             int   nPileup();
             float nTruePileup();
             
+            float lumiPileup();
+            float instantLumi();
+            
             // GenEventInfo
             double genWeight();
             double genScale();
@@ -176,6 +179,9 @@ namespace analysis {
             
             int n_pu_;
             float n_true_pu_;
+            
+            float lumi_pu_;
+            float inst_lumi_;
             
             double genWeight_;
             double genScale_;
@@ -331,6 +337,9 @@ namespace analysis {
       
       inline int   Analysis::nPileup()      { return n_pu_;      }
       inline float Analysis::nTruePileup()  { return n_true_pu_; }
+      
+      inline float Analysis::lumiPileup()   { return lumi_pu_;   }
+      inline float Analysis::instantLumi()  { return inst_lumi_;}
       
       inline double Analysis::genWeight()   { return genWeight_; }
       inline double Analysis::genScale()    { return genScale_;  }
