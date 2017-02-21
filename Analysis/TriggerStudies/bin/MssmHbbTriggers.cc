@@ -17,6 +17,7 @@
 
 #include "HLTPathsAllHad.h"
 #include "L1TriggersAllHad.h"
+#include "L1TriggersSemiLep.h"
 
 #include "lumis.h" 
 
@@ -57,6 +58,7 @@ int main(int argc, char * argv[])
    triggers_.push_back("L1_DoubleJetC100Eta2p3_dEtaMax1p6");
    triggers_.push_back("HLT_LowMassAllHad");
    triggers_.push_back("HLT_LowMassAllHad2017");
+   triggers_.push_back("L1_SingleMu3");
    
    for ( size_t i = 0 ; i < triggers_.size(); ++i )
    {
@@ -146,6 +148,10 @@ int main(int argc, char * argv[])
       if ( L1DoubleJetC100(analysis) )
       {
          h1_["L1_DoubleJetC100"] -> Fill(nPileup);
+      }
+      if ( L1SingleMu3(analysis) )
+      {
+         h1_["L1_SingleMu3"] -> Fill(nPileup);
       }
       
       if ( L1DoubleJet100Eta2p3(analysis) )
