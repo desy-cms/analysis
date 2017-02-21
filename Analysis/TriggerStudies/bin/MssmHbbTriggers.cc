@@ -18,6 +18,8 @@
 #include "HLTPathsAllHad.h"
 #include "L1TriggersAllHad.h"
 
+#include "lumis.h" 
+
 using namespace std;
 using namespace analysis;
 using namespace analysis::tools;
@@ -29,9 +31,15 @@ TGraphErrors * g_rates_;
 std::string inputList_;
 std::string basename_;
 std::vector<std::string> triggers_;
+bool isData_;
 
 std::map<std::string, double> xsections_;
 std::vector<std::string> jetTriggerObjects_;
+
+// lumi / pile up from data
+brilcalc bc_;
+//std::map<int, std::map<int,float> > lumiByLS_;
+std::map<int, std::map<int,float> > pileupByLS_;
 
 std::map<std::string, double> CrossSections();
 
@@ -52,16 +60,18 @@ int main(int argc, char * argv[])
    
    for ( size_t i = 0 ; i < triggers_.size(); ++i )
    {
-      h1_[triggers_[i]] = new TH1F(Form("h_n%s",triggers_[i].c_str()),"",35,27.5,62.5);
+      h1_[triggers_[i]] = new TH1F(Form("h_n%s",triggers_[i].c_str()),"",58,4.5,62.5);
    }
    
    // Input files list
    inputList_ = "rootFileList.txt";
+   isData_ = false;
    if ( argc == 2 )
    {
       inputList_ = std::string(argv[1]);
       basename_ =  std::string(boost::filesystem::basename(inputList_));
       std::cout << basename_ << std::endl;
+      isData_ = (basename_.find("data") != std::string::npos);
    }
    
    Analysis analysis(inputList_,"MssmHbbTrigger/Events/EventInfo");
@@ -86,10 +96,23 @@ int main(int argc, char * argv[])
       analysis.addTree<TriggerObject>(obj,trgobj_path+obj);
    
    // Get cross section
-   analysis.crossSections("MssmHbbTrigger/Metadata/CrossSections");
+   double crossSection  = -1.;
+   if ( ! isData_ )
+   {
+      analysis.crossSections("MssmHbbTrigger/Metadata/CrossSections");
+      crossSection = analysis.crossSection();
+      crossSection = xsections_[basename_];
+   }
    
-   double crossSection = analysis.crossSection();
-   crossSection = xsections_[basename_];
+   // DATA only
+   if ( isData_ )
+   {
+      bc_ = readLumisCsv("lumis.csv");
+//      lumiByLS_ = bc_.lumiByLS;
+      pileupByLS_ = bc_.pileupByLS;
+      // Certified lumis
+      analysis.processJsonFile("json.txt");
+   }
    
    // Analysis of events
    std::cout << "This analysis has " << analysis.size() << " events" << std::endl;
@@ -103,34 +126,45 @@ int main(int argc, char * argv[])
          std::cout << i << " events analysed" << std::endl;
       }
       
+      float nPileup;
+      if ( isData_ )
+      {
+         if ( ! analysis.selectJson() ) continue;
+         nPileup = pileupByLS_[analysis.run()][analysis.lumiSection()];
+      }
+      else
+      {
+         nPileup = (float)analysis.nTruePileup();
+      }
+       
       // hltPath0 - reference trigger
       if ( analysis.triggerResult("HLT_ZeroBias_v") ) 
       {
-         h1_["ZeroBias"] -> Fill(analysis.nTruePileup());
+         h1_["ZeroBias"] -> Fill(nPileup);
       }
       
       if ( L1DoubleJetC100(analysis) )
       {
-         h1_["L1_DoubleJetC100"] -> Fill(analysis.nTruePileup());
+         h1_["L1_DoubleJetC100"] -> Fill(nPileup);
       }
       
       if ( L1DoubleJet100Eta2p3(analysis) )
       {
-         h1_["L1_DoubleJetC100Eta2p3"] -> Fill(analysis.nTruePileup());
+         h1_["L1_DoubleJetC100Eta2p3"] -> Fill(nPileup);
       }
       
       if ( L1DoubleJet100Eta2p3_dEtaMax1p6(analysis) )
       {
-         h1_["L1_DoubleJetC100Eta2p3_dEtaMax1p6"] -> Fill(analysis.nTruePileup());
+         h1_["L1_DoubleJetC100Eta2p3_dEtaMax1p6"] -> Fill(nPileup);
       }
       
       if ( LowMassAllHad(analysis) )
       {
-         h1_["HLT_LowMassAllHad"] -> Fill(analysis.nTruePileup());
+         h1_["HLT_LowMassAllHad"] -> Fill(nPileup);
       }
       if ( LowMassAllHad2017(analysis) )
       {
-         h1_["HLT_LowMassAllHad2017"] -> Fill(analysis.nTruePileup());
+         h1_["HLT_LowMassAllHad2017"] -> Fill(nPileup);
       }
    }
    
