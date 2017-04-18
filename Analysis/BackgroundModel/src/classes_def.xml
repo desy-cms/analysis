@@ -10,6 +10,5 @@
   <class name="analysis::backgroundmodel::RooMyNovosibirsk" />
   <class name="analysis::backgroundmodel::RooExtendNovosibirsk" />
   <class name="analysis::backgroundmodel::RooDoubleGausExp" />
-  <class name="analysis::backgroundmodel::RooExtendNovosibirskV2" />
   <class name="analysis::backgroundmodel::RooPolyDijet" />
 </lcgdict>

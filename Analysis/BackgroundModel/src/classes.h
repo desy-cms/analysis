@@ -9,6 +9,5 @@
 #include "Analysis/BackgroundModel/interface/RooMyNovosibirsk.h"
 #include "Analysis/BackgroundModel/interface/RooExtendNovosibirsk.h"
 #include "Analysis/BackgroundModel/interface/RooDoubleGausExp.h"
-#include "Analysis/BackgroundModel/interface/RooExtendNovosibirskV2.h"
 #include "Analysis/BackgroundModel/interface/RooPolyDijet.h"
 

@@ -6,7 +6,5 @@
 
 <bin name="FitBackgroundModel" file="FitBackgroundModel.cc" />
 <bin name="CreateInput_13TeV" file="CreateInput_13TeV.cc" />
-<bin name="DeltaRCorrection_v1" file="DeltaRCorrection_v1.cc" />
-<bin name="DeltaRCorrection_v2" file="DeltaRCorrection_v2.cc" />
 
 
