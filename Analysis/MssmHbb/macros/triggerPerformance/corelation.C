@@ -1,5 +1,6 @@
 #include "Analysis/MssmHbb/macros/Drawer/HbbStyle.cc"
 #include "Analysis/MssmHbb/macros/Drawer/RatioPlots.cpp"
+#include "Analysis/MssmHbb/src/utilLib.cpp"
 #include "TEfficiency.h"
 
 TEfficiency * GetEfficiency(TFile * f, const std::string & name_num, const std::string & name_den);
@@ -20,27 +21,14 @@ int corelation(){
 
 	TH1::SetDefaultSumw2();
 
-	TFile *fDataLowM = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_Run2015D-16Dec2015-v1.root");
-	TFile *fDataHighM = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_highM_Run2015D-16Dec2015-v1.root");
-
-   std::map<int,TFile* > SignalMC;
-//   SignalMC[100] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-100_TuneCUETP8M1_13TeV-pythia8.root");
-   SignalMC[120] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-120_TuneCUETP8M1_13TeV-pythia8.root");
-   SignalMC[160] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-160_TuneCUETP8M1_13TeV-pythia8.root");
-   SignalMC[200] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-200_TuneCUETP8M1_13TeV-pythia8.root");
-   SignalMC[250] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-250_TuneCUETP8M1_13TeV-pythia8.root");
-   SignalMC[300] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-300_TuneCUETP8M1_13TeV-pythia8.root");
-   SignalMC[350] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-350_TuneCUETP8M1_13TeV-pythia8.root");
-   SignalMC[400] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-400_TuneCUETP8M1_13TeV-pythia8.root");
-   SignalMC[500]	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-500_TuneCUETP8M1_13TeV-pythia8.root");
-   SignalMC[600]	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-600_TuneCUETP8M1_13TeV-pythia8.root");
-   SignalMC[700] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-700_TuneCUETP8M1_13TeV-pythia8.root");
-   SignalMC[900] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-900_TuneCUETP8M1_13TeV-pythia8.root");
-   SignalMC[1100] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-1100_TuneCUETP8M1_13TeV-pythia8.root");
-   SignalMC[1300] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-1300_TuneCUETP8M1_13TeV-pythia8.root");
+	const auto cmsswBase = static_cast<std::string>(gSystem->Getenv("CMSSW_BASE"));
+	TFile *fDataLowM = new TFile( ( cmsswBase + "/src/Analysis/MssmHbb/output/TriggerEff_Data2016_ReReco.root").c_str());
+	CheckZombie(*fDataLowM);
+//	TFile *fDataHighM = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_highM_Run2015D-16Dec2015-v1.root");
 
    //BG MC:
-   TFile *BgMC = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_QCD.root");
+   TFile *BgMC = new TFile( ( cmsswBase + "/src/Analysis/MssmHbb/output/TriggerEff_ReReco_lowM_QCD_Pt.root").c_str());
+   CheckZombie(*BgMC);
 
 
    std::string error_mode = "";
@@ -59,11 +47,11 @@ int corelation(){
 	//***************2D Efficiency in Data*****************//
 	TCanvas *twoDplotLowM = new TCanvas("twoDplotLowM","Two dimensional Efficiency");
 	twoDplotLowM->SetRightMargin(0.13);
-    TH2D *TwoDEff_Num = (TH2D*) fDataLowM->Get("TriggerEfficiencies/KinTrigEff_Num_2D_PF80_PF100_pt1vspt2");
-    TH2D *TwoDEff_Den = (TH2D*) fDataLowM->Get("TriggerEfficiencies/KinTrigEff_Den_2D_PF80_PF100_pt1vspt2");
+    TH2D *TwoDEff_Num = (TH2D*) fDataLowM->Get("TriggerEfficiencies/KinTrigEff_Num_2D_PF60_PF100_pt1vspt2");
+    TH2D *TwoDEff_Den = (TH2D*) fDataLowM->Get("TriggerEfficiencies/KinTrigEff_Den_2D_PF60_PF100_pt1vspt2");
 	TEfficiency *TwoDEff_data = new TEfficiency(*TwoDEff_Num,*TwoDEff_Den);
-	TH2D *TwoDEff_NumSym = (TH2D*) fDataLowM->Get("TriggerEfficiencies/KinTrigEff_Num_2D_PF80_PF100_pt2vspt1");
-    TH2D *TwoDEff_DenSym = (TH2D*) fDataLowM->Get("TriggerEfficiencies/KinTrigEff_Den_2D_PF80_PF100_pt2vspt1");
+	TH2D *TwoDEff_NumSym = (TH2D*) fDataLowM->Get("TriggerEfficiencies/KinTrigEff_Num_2D_PF60_PF100_pt2vspt1");
+    TH2D *TwoDEff_DenSym = (TH2D*) fDataLowM->Get("TriggerEfficiencies/KinTrigEff_Den_2D_PF60_PF100_pt2vspt1");
     for(int binx = 1; binx <= TwoDEff_NumSym->GetNbinsX(); binx++)
     {
     	for(int biny = 1; biny <= TwoDEff_NumSym->GetNbinsY(); biny++)
@@ -87,15 +75,15 @@ int corelation(){
     TwoDEff_data->GetPaintedHistogram()->GetZaxis()->SetRangeUser(0.,1.);
     TwoDEff_data->GetPaintedHistogram()->GetZaxis()->SetTitleOffset(0.8);
     style.drawStandardTitle();
-	twoDplotLowM->Print("../pictures/TriggerPerformance/2DEff_Data_PF80_PF100_LowM_COLZ.pdf");
+	twoDplotLowM->Print("../pictures/TriggerPerformance/2DEff_Data_PF60_PF100_LowM_COLZ.pdf");
     //***************2D Efficiency in QCD*****************//
 	TCanvas *twoDplotLowM_qcd = new TCanvas("twoDplotLowM_qcd","Two dimensional Efficiency");
 	twoDplotLowM_qcd->SetRightMargin(0.13);
-    TH2D *TwoDEff_QCD_Num = (TH2D*) BgMC->Get("TriggerEfficiencies/KinTrigEff_Num_2D_PF80_PF100_pt1vspt2");
-    TH2D *TwoDEff_QCD_Den = (TH2D*) BgMC->Get("TriggerEfficiencies/KinTrigEff_Den_2D_PF80_PF100_pt1vspt2");
+    TH2D *TwoDEff_QCD_Num = (TH2D*) BgMC->Get("TriggerEfficiencies/KinTrigEff_Num_2D_PF60_PF100_pt1vspt2");
+    TH2D *TwoDEff_QCD_Den = (TH2D*) BgMC->Get("TriggerEfficiencies/KinTrigEff_Den_2D_PF60_PF100_pt1vspt2");
 	TEfficiency *TwoDEff_qcd = new TEfficiency(*TwoDEff_QCD_Num,*TwoDEff_QCD_Den);
-	TH2D *TwoDEff_QCD_NumSym = (TH2D*) BgMC->Get("TriggerEfficiencies/KinTrigEff_Num_2D_PF80_PF100_pt2vspt1");
-	TH2D *TwoDEff_QCD_DenSym = (TH2D*) BgMC->Get("TriggerEfficiencies/KinTrigEff_Den_2D_PF80_PF100_pt2vspt1");
+	TH2D *TwoDEff_QCD_NumSym = (TH2D*) BgMC->Get("TriggerEfficiencies/KinTrigEff_Num_2D_PF60_PF100_pt2vspt1");
+	TH2D *TwoDEff_QCD_DenSym = (TH2D*) BgMC->Get("TriggerEfficiencies/KinTrigEff_Den_2D_PF60_PF100_pt2vspt1");
 	    for(int binx = 1; binx <= TwoDEff_QCD_NumSym->GetNbinsX(); binx++)
 	    {
 	    	for(int biny = 1; biny <= TwoDEff_QCD_NumSym->GetNbinsY(); biny++)
@@ -119,7 +107,7 @@ int corelation(){
 	    TwoDEff_qcd->GetPaintedHistogram()->GetZaxis()->SetTitleOffset(0.8);
     	TwoDEff_qcd->GetPaintedHistogram()->GetZaxis()->SetRangeUser(0.,1.);
 	    style.drawStandardTitle();
-		twoDplotLowM_qcd->Print("../pictures/TriggerPerformance/2DEff_QCD_PF80_PF100_LowM_COLZ.pdf");
+		twoDplotLowM_qcd->Print("../pictures/TriggerPerformance/2DEff_QCD_PF60_PF100_LowM_COLZ.pdf");
 
 		//******************Corelation****************//
 		TCanvas *can_correl = new TCanvas("can_correl","Correlation in data");
@@ -130,7 +118,7 @@ int corelation(){
 		TH1D *h_qcd_pt_den_slice[nBinsPt1Pt2], *h_qcd_pt_num_slice[nBinsPt1Pt2], *h_qcd_pt_den_slice_sym[nBinsPt1Pt2], *h_qcd_pt_num_slice_sym[nBinsPt1Pt2];
 		TEfficiency *eff_qcd_pt_slice[nBinsPt1Pt2], *eff_qcd_pt_slice_sym[nBinsPt1Pt2];
 		//data for ratio
-		TH2D *Correlation_PF80_LowM = new TH2D(*TwoDEff_Num);
+		TH2D *Correlation_PF60_LowM = new TH2D(*TwoDEff_Num);
 	    for(int binx = 1; binx <= TwoDEff_Num->GetNbinsX(); binx++)
 	    {
 	    	//Data
@@ -176,21 +164,21 @@ int corelation(){
 	    		          ecxy = sqrt( exy*exy + 0.25*exx*exx + 0.25*eyy*eyy );
 	    			}
 	    		}
-	    		Correlation_PF80_LowM->SetBinContent(binx+1,biny+1,cxy);
-	    		Correlation_PF80_LowM->SetBinError(binx+1,biny+1,ecxy);
+	    		Correlation_PF60_LowM->SetBinContent(binx+1,biny+1,cxy);
+	    		Correlation_PF60_LowM->SetBinError(binx+1,biny+1,ecxy);
 	    	}
 	    }
-	    Correlation_PF80_LowM->SetTitle(";sub-leading jet p_{T}, [GeV];leading jet p_{T}, [GeV]; #epsilon");
-	    Correlation_PF80_LowM->GetXaxis()->SetTitleOffset(1.1);
-	    Correlation_PF80_LowM->GetYaxis()->SetTitleOffset(1.5);
-	    Correlation_PF80_LowM->GetZaxis()->SetTitleOffset(0.8);
-	    Correlation_PF80_LowM->Draw("COLZ");
+	    Correlation_PF60_LowM->SetTitle(";sub-leading jet p_{T}, [GeV];leading jet p_{T}, [GeV]; #epsilon");
+	    Correlation_PF60_LowM->GetXaxis()->SetTitleOffset(1.1);
+	    Correlation_PF60_LowM->GetYaxis()->SetTitleOffset(1.5);
+	    Correlation_PF60_LowM->GetZaxis()->SetTitleOffset(0.8);
+	    Correlation_PF60_LowM->Draw("COLZ");
 	    style.drawStandardTitle();
-	    can_correl->Print("../pictures/TriggerPerformance/Correlation_PF80_PF100_LowM_COLZ.pdf");
+	    can_correl->Print("../pictures/TriggerPerformance/Correlation_PF60_PF100_LowM_COLZ.pdf");
 
 	    TCanvas *can_correl_qcd = new TCanvas("can_correl_qcd","Correlation in QCD");
 	    can_correl_qcd->SetRightMargin(0.13);
-	    TH2D *Correlation_qcd_PF80_LowM = new TH2D(*TwoDEff_QCD_Num);
+	    TH2D *Correlation_qcd_PF60_LowM = new TH2D(*TwoDEff_QCD_Num);
 	    for(int binx = 0; binx < TwoDEff_Num->GetNbinsX(); binx++)
 	    {
 	    	for(int biny = 0; biny < TwoDEff_Num->GetNbinsY(); biny++)
@@ -212,17 +200,17 @@ int corelation(){
 	    			}
 	    		}
 	    		std::cout<<xx<<" "<<yy<<" "<<xy<<" val: "<<cxy<<" eval: "<<ecxy<<" up: "<<eff_qcd_pt_slice[binx-1]->GetEfficiencyErrorUp(biny)<<" low: "<<eff_qcd_pt_slice[binx-1]->GetEfficiencyErrorLow(biny)<<std::endl;
-	    		Correlation_qcd_PF80_LowM->SetBinContent(binx+1,biny+1,cxy);
-	    		Correlation_qcd_PF80_LowM->SetBinError(binx+1,biny+1,ecxy);
+	    		Correlation_qcd_PF60_LowM->SetBinContent(binx+1,biny+1,cxy);
+	    		Correlation_qcd_PF60_LowM->SetBinError(binx+1,biny+1,ecxy);
 	    	}
 	    }
-	    Correlation_qcd_PF80_LowM->SetTitle(";sub-leading jet p_{T}, [GeV];leading jet p_{T}, [GeV]; #epsilon");
-	    Correlation_qcd_PF80_LowM->GetXaxis()->SetTitleOffset(1.1);
-	    Correlation_qcd_PF80_LowM->GetYaxis()->SetTitleOffset(1.5);
-	    Correlation_qcd_PF80_LowM->GetZaxis()->SetTitleOffset(0.8);
-	    Correlation_qcd_PF80_LowM->Draw("COLZ");
+	    Correlation_qcd_PF60_LowM->SetTitle(";sub-leading jet p_{T}, [GeV];leading jet p_{T}, [GeV]; #epsilon");
+	    Correlation_qcd_PF60_LowM->GetXaxis()->SetTitleOffset(1.1);
+	    Correlation_qcd_PF60_LowM->GetYaxis()->SetTitleOffset(1.5);
+	    Correlation_qcd_PF60_LowM->GetZaxis()->SetTitleOffset(0.8);
+	    Correlation_qcd_PF60_LowM->Draw("COLZ");
 	    style.drawStandardTitle();
-	    can_correl_qcd->Print("../pictures/TriggerPerformance/Correlation_QCD_PF80_PF100_LowM_COLZ.pdf");
+	    can_correl_qcd->Print("../pictures/TriggerPerformance/Correlation_QCD_PF60_PF100_LowM_COLZ.pdf");
 	    
 	    /****************Projection of Correlations*******************/
 	    	    //Slices:
@@ -236,10 +224,10 @@ int corelation(){
 	    for(int biny = 1; biny < TwoDEff_Num->GetNbinsY(); biny++){
 	    	canb = new TCanvas("canb");
 	    	pt_def[biny] = new TPaveText(0.5,0.4,0.7,0.6,"NDC");
-	    	slix_qcd_corel_lowM[biny]	= Correlation_qcd_PF80_LowM->ProjectionX(("Slice_qcd_Corel_LowM_ybin_" + to_string_with_precision<int>(biny+1,1) ).c_str(),biny+1,biny+1,"e");
+	    	slix_qcd_corel_lowM[biny]	= Correlation_qcd_PF60_LowM->ProjectionX(("Slice_qcd_Corel_LowM_ybin_" + to_string_with_precision<int>(biny+1,1) ).c_str(),biny+1,biny+1,"e");
 	    	slix_qcd_corel_lowM[biny]->SetLineColor(2);
 	    	slix_qcd_corel_lowM[biny]->Draw("E");
-	    	slix_corel_lowM[biny]	= Correlation_PF80_LowM->ProjectionX(("Slice_Corel_LowM_ybin_" + to_string_with_precision<int>(biny+1,1) ).c_str(),biny+1,biny+1,"e");
+	    	slix_corel_lowM[biny]	= Correlation_PF60_LowM->ProjectionX(("Slice_Corel_LowM_ybin_" + to_string_with_precision<int>(biny+1,1) ).c_str(),biny+1,biny+1,"e");
 	    	slix_corel_lowM[biny]->Draw("E same");
 
 	    	std::cout<<"\n"<<std::endl;

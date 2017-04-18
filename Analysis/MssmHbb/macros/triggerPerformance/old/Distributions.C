@@ -12,42 +12,42 @@ int Distributions(){
 
 	TH1::SetDefaultSumw2();
 
-	TFile *fDataLowM = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_Run2015D-16Dec2015-v1.root");
-	TFile *fDataHighM = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_highM_Run2015D-16Dec2015-v1.root");
+	TFile *fDataLowM = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/TriggerEff_lowM_Run2015D-16Dec2015-v1.root");
+	TFile *fDataHighM = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/TriggerEff_highM_Run2015D-16Dec2015-v1.root");
 
    std::map<int,TFile* > SignalMC;
-   SignalMC[100] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-100_TuneCUETP8M1_13TeV-pythia8.root");
-   SignalMC[120] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-120_TuneCUETP8M1_13TeV-pythia8.root");
-   SignalMC[160] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-160_TuneCUETP8M1_13TeV-pythia8.root");
-   SignalMC[200] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-200_TuneCUETP8M1_13TeV-pythia8.root");
-   SignalMC[250] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-250_TuneCUETP8M1_13TeV-pythia8.root");
-   SignalMC[300] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-300_TuneCUETP8M1_13TeV-pythia8.root");
-   SignalMC[350] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-350_TuneCUETP8M1_13TeV-pythia8.root");
-   SignalMC[400] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-400_TuneCUETP8M1_13TeV-pythia8.root");
-   SignalMC[500]	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-500_TuneCUETP8M1_13TeV-pythia8.root");
-   SignalMC[600]	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-600_TuneCUETP8M1_13TeV-pythia8.root");
-   SignalMC[700] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-700_TuneCUETP8M1_13TeV-pythia8.root");
-   SignalMC[900] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-900_TuneCUETP8M1_13TeV-pythia8.root");
-   SignalMC[1100] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-1100_TuneCUETP8M1_13TeV-pythia8.root");
-   SignalMC[1300] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-1300_TuneCUETP8M1_13TeV-pythia8.root");
+   SignalMC[100] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-100_TuneCUETP8M1_13TeV-pythia8.root");
+   SignalMC[120] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-120_TuneCUETP8M1_13TeV-pythia8.root");
+   SignalMC[160] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-160_TuneCUETP8M1_13TeV-pythia8.root");
+   SignalMC[200] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-200_TuneCUETP8M1_13TeV-pythia8.root");
+   SignalMC[250] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-250_TuneCUETP8M1_13TeV-pythia8.root");
+   SignalMC[300] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-300_TuneCUETP8M1_13TeV-pythia8.root");
+   SignalMC[350] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-350_TuneCUETP8M1_13TeV-pythia8.root");
+   SignalMC[400] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-400_TuneCUETP8M1_13TeV-pythia8.root");
+   SignalMC[500]	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-500_TuneCUETP8M1_13TeV-pythia8.root");
+   SignalMC[600]	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-600_TuneCUETP8M1_13TeV-pythia8.root");
+   SignalMC[700] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-700_TuneCUETP8M1_13TeV-pythia8.root");
+   SignalMC[900] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-900_TuneCUETP8M1_13TeV-pythia8.root");
+   SignalMC[1100] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-1100_TuneCUETP8M1_13TeV-pythia8.root");
+   SignalMC[1300] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/TriggerEff_lowM_SUSYGluGluToBBHToBB_M-1300_TuneCUETP8M1_13TeV-pythia8.root");
 
    //BG MC:
-   TFile *BgMC = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_QCD_0p4.root");
-   TFile *BgMC_b = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_QCD_b_0p4.root");
+   TFile *BgMC = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/TriggerEff_lowM_QCD_0p4.root");
+   TFile *BgMC_b = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/TriggerEff_lowM_QCD_b_0p4.root");
    std::map<std::string,TFile* > pTHat;
-//   pTHat["50to80"] = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8.root");
-//   pTHat["80to120"] = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_QCD_Pt_80to120_TuneCUETP8M1_13TeV_pythia8.root");
-//   pTHat["120to170"] = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_QCD_Pt_120to170_TuneCUETP8M1_13TeV_pythia8.root");
-//   pTHat["170to300"] = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_QCD_Pt_170to300_TuneCUETP8M1_13TeV_pythia8.root");
-//   pTHat["300to470"] = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_QCD_Pt_300to470_TuneCUETP8M1_13TeV_pythia8.root");
-//   pTHat["470to600"] = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_QCD_Pt_470to600_TuneCUETP8M1_13TeV_pythia8.root");
-//   pTHat["600to800"] = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_QCD_Pt_600to800_TuneCUETP8M1_13TeV_pythia8.root");
-//   pTHat["800to1000"] = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_QCD_Pt_800to1000_TuneCUETP8M1_13TeV_pythia8.root");
-//   pTHat["1000to1400"] = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_QCD_Pt_1000to1400_TuneCUETP8M1_13TeV_pythia8.root");
-//   pTHat["1400to1800"] = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_QCD_Pt_1400to1800_TuneCUETP8M1_13TeV_pythia8.root");
-//   pTHat["1800to2400"] = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_QCD_Pt_1800to2400_TuneCUETP8M1_13TeV_pythia8.root");
-//   pTHat["2400to3200"] = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_QCD_Pt_2400to3200_TuneCUETP8M1_13TeV_pythia8.root");
-//   pTHat["3200toInf"] = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8.root");
+//   pTHat["50to80"] = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/TriggerEff_lowM_QCD_Pt_50to80_TuneCUETP8M1_13TeV_pythia8.root");
+//   pTHat["80to120"] = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/TriggerEff_lowM_QCD_Pt_80to120_TuneCUETP8M1_13TeV_pythia8.root");
+//   pTHat["120to170"] = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/TriggerEff_lowM_QCD_Pt_120to170_TuneCUETP8M1_13TeV_pythia8.root");
+//   pTHat["170to300"] = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/TriggerEff_lowM_QCD_Pt_170to300_TuneCUETP8M1_13TeV_pythia8.root");
+//   pTHat["300to470"] = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/TriggerEff_lowM_QCD_Pt_300to470_TuneCUETP8M1_13TeV_pythia8.root");
+//   pTHat["470to600"] = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/TriggerEff_lowM_QCD_Pt_470to600_TuneCUETP8M1_13TeV_pythia8.root");
+//   pTHat["600to800"] = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/TriggerEff_lowM_QCD_Pt_600to800_TuneCUETP8M1_13TeV_pythia8.root");
+//   pTHat["800to1000"] = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/TriggerEff_lowM_QCD_Pt_800to1000_TuneCUETP8M1_13TeV_pythia8.root");
+//   pTHat["1000to1400"] = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/TriggerEff_lowM_QCD_Pt_1000to1400_TuneCUETP8M1_13TeV_pythia8.root");
+//   pTHat["1400to1800"] = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/TriggerEff_lowM_QCD_Pt_1400to1800_TuneCUETP8M1_13TeV_pythia8.root");
+//   pTHat["1800to2400"] = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/TriggerEff_lowM_QCD_Pt_1800to2400_TuneCUETP8M1_13TeV_pythia8.root");
+//   pTHat["2400to3200"] = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/TriggerEff_lowM_QCD_Pt_2400to3200_TuneCUETP8M1_13TeV_pythia8.root");
+//   pTHat["3200toInf"] = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/TriggerEff_lowM_QCD_Pt_3200toInf_TuneCUETP8M1_13TeV_pythia8.root");
 
 
    std::string error_mode = "";
@@ -261,9 +261,6 @@ int Distributions(){
    TCanvas * can_eta_comp_1by1_5 = new TCanvas("can_eta_comp_1by1_5","can_eta_comp_1by1_5",1000,800);
    TH1D *r_eta1 = (TH1D*) ratio.DrawRatio(h_eta1,(TH1D*)h_eta1_b->Clone(),can_eta_comp_1by1_5);
 
-   ratio.SetRatioTitle("All-Fl./ b-Fl.");
-   ratio.SetRatioRange(0.,5.);
-   TLegend *leg_Trig_ov_off = new TLegend(0.5,0.5,0.7,0.7);
    TCanvas *can_ratio_of_pt1 = new TCanvas("can_ratio_of_pt1","can_ratio_of_pt",1000,800);
    TH1D *h_ratio_l1		= (TH1D*) BgMC->Get("distributions/onlobject_turnOn_L1ovOff_pt1");
    h_ratio_l1->Scale(1./h_ratio_l1->Integral());
@@ -273,10 +270,7 @@ int Distributions(){
    h_ratio_l1_b->Scale(1./h_ratio_l1_b->Integral());
    h_ratio_l1_b->SetMarkerStyle(22);
    h_ratio_l1_b->SetMarkerColor(2);
-   h_ratio_l1->GetXaxis()->SetTitle("L1-Obj. p^{(1)}_{T} / (Offline p^{(1)}_{T} )");
-   leg_Trig_ov_off->AddEntry(h_ratio_l1,"All Flavors","p");
-   leg_Trig_ov_off->AddEntry(h_ratio_l1_b,"bFlavors","p");
-   TH1D * ratio_l1off = (TH1D*)	ratio.DrawRatio(h_ratio_l1,h_ratio_l1_b,can_ratio_of_pt1,leg_Trig_ov_off);
+   TH1D * ratio_l1off = (TH1D*)	ratio.DrawRatio(h_ratio_l1,h_ratio_l1_b,can_ratio_of_pt1);
 
    TCanvas *can_ratio_of_pt1_l2 = new TCanvas("can_ratio_of_pt1_l2","can_ratio_of_pt_l2",1000,800);
    TH1D *h_ratio_l2		= (TH1D*) BgMC->Get("distributions/onlobject_turnOn_L2ovOff_pt1");
@@ -287,8 +281,7 @@ int Distributions(){
    h_ratio_l2_b->Scale(1./h_ratio_l2_b->Integral());
    h_ratio_l2_b->SetMarkerStyle(22);
    h_ratio_l2_b->SetMarkerColor(2);
-   h_ratio_l2->GetXaxis()->SetTitle("L2-Obj. p^{(1)}_{T} / (Offline p^{(1)}_{T} )");
-   TH1D * ratio_l2off = (TH1D*)	ratio.DrawRatio(h_ratio_l2,h_ratio_l2_b,can_ratio_of_pt1_l2,leg_Trig_ov_off);
+   TH1D * ratio_l2off = (TH1D*)	ratio.DrawRatio(h_ratio_l2,h_ratio_l2_b,can_ratio_of_pt1_l2);
 
    TCanvas *can_ratio_of_pt1_l3 = new TCanvas("can_ratio_of_pt1_l3","can_ratio_of_pt_l3",1000,800);
    TH1D *h_ratio_l3		= (TH1D*) BgMC->Get("distributions/onlobject_turnOn_L3ovOff_pt1");
@@ -299,8 +292,7 @@ int Distributions(){
    h_ratio_l3_b->Scale(1./h_ratio_l3_b->Integral());
    h_ratio_l3_b->SetMarkerStyle(22);
    h_ratio_l3_b->SetMarkerColor(2);
-   h_ratio_l3->GetXaxis()->SetTitle("L3-Obj. p^{(1)}_{T} / (Offline p^{(1)}_{T} )");
-   TH1D * ratio_l3off = (TH1D*)	ratio.DrawRatio(h_ratio_l3,h_ratio_l3_b,can_ratio_of_pt1_l3,leg_Trig_ov_off);
+   TH1D * ratio_l3off = (TH1D*)	ratio.DrawRatio(h_ratio_l3,h_ratio_l3_b,can_ratio_of_pt1_l3);
 
 /*
 

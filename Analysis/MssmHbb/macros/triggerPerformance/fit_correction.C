@@ -1,5 +1,6 @@
 #include "Analysis/MssmHbb/macros/Drawer/HbbStyle.cc"
 #include "Analysis/MssmHbb/macros/Drawer/RatioPlots.cpp"
+#include "Analysis/MssmHbb/src/utilLib.cpp"
 #include "TEfficiency.h"
 #include "TPaveStats.h"
 #include "TVirtualFitter.h"
@@ -31,8 +32,8 @@ double ratio_finale(double *x,double *par);
 
 
 int fit_correction(){
-	gStyle->SetOptStat(1111);
-	gStyle->SetOptFit(1111);
+	gStyle->SetOptStat(0000);
+	gStyle->SetOptFit(0000);
 	// Set stat options
 	gStyle->SetStatY(0.5);
 	// Set y-position (fraction of pad size)
@@ -43,28 +44,31 @@ int fit_correction(){
 //	ROOT::Math::MinimizerOptions::SetDefaultPrecision(1e-06);
 
 	TH1::SetDefaultSumw2();
+	const auto cmsswBase = static_cast<std::string>(gSystem->Getenv("CMSSW_BASE"));
 
-	TFile *fDataLowM = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_Run2015D-16Dec2015-v1.root");
-	TFile *fDataHighM = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_highM_Run2015D-16Dec2015-v1.root");
+	TFile *fDataLowM = new TFile( ( cmsswBase + "/src/Analysis/MssmHbb/output/TriggerEff_Data2016_ReReco.root").c_str());
+	CheckZombie(*fDataLowM);
+//	TFile *fDataHighM = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_highM_Run2015D-16Dec2015-v1.root");
 
    //BG MC:
-   TFile *BgMC = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_lowM_QCD.root");
-   TFile *BgMC_high = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_highM_QCD.root");
+   TFile *BgMC = new TFile( ( cmsswBase + "/src/Analysis/MssmHbb/output/TriggerEff_ReReco_lowM_QCD_Pt.root").c_str());
+   CheckZombie(*BgMC);
+//   TFile *BgMC_high = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/TriggerEff_highM_QCD.root");
 
    //Setup style
-   HbbStyle style;
-   style.set(PRIVATE);
    TH1::SetDefaultSumw2();
 
    //Setup Ratio
    RatioPlots ratio(PRIVATE);
    ratio.SetRatioRange(0.5,1.5);
    ratio.SetRatioTitle("Data/MC");
+//   ratio.set(PRIVATE);
    TH1 *nullH = nullptr;
 
    /****************************LOW M*************************/
   TPaveText *eta_def[3];
-  TLegend *leg_low_m = new TLegend(0.3,0.5,0.5,0.7);
+//  TLegend *leg_low_m = (TLegend*) ratio.legend("bottom,right",3,0.6);
+  TLegend *leg_low_m = new TLegend(0.65,0.3,0.9,0.45);
   TH2D *h_lowM_pt_eta_num 		= (TH2D*)	BgMC->Get("TriggerEfficiencies/KinTrigEff_Num_2D_PF60_PF100_pt1eta1");
   TH2D *h_lowM_pt_eta_num_data 	= (TH2D*)	fDataLowM->Get("TriggerEfficiencies/KinTrigEff_Num_2D_PF60_PF100_pt1eta1");
   TH2D *h_lowM_pt_eta_den 		= (TH2D*)	BgMC->Get("TriggerEfficiencies/KinTrigEff_Den_2D_PF60_PF100_pt1eta1");
@@ -81,12 +85,24 @@ int fit_correction(){
   std::string eta_bins[3]={"0-0.6","0.6-1.7","1.7-2.2"};
 
   double *num_x;
+  double xMin = 50;
+  double xMax = 500;
+  double yMin = 0;//total->GetMinimum();
+  double yMax = 1.2;
   for(int i = 0; i<3;++i){
 	  can_lowM_pt_slice[i] = new TCanvas(("can_lowM_pt_slice_"+std::to_string(i)).c_str(),"canv",1000,800);
-	  pad_lowM_fit_top[i] = new TPad(("pad_lowM_fit_top"+std::to_string(i+1)).c_str(),"pad1",0,0.3,1,1);
-	  pad_lowM_fit_top[i] -> SetBottomMargin(0.01);
+	  pad_lowM_fit_top[i] = new TPad(("pad_lowM_fit_top"+std::to_string(i+1)).c_str(),"pad1",0,0.1,1,1);
+	  pad_lowM_fit_top[i] -> SetBottomMargin(0.21);
+	  pad_lowM_fit_top[i] -> SetRightMargin(0.05);
+	  pad_lowM_fit_top[i] -> SetLeftMargin(0.16);
 	  pad_lowM_fit_top[i] -> Draw();
 	  pad_lowM_fit_top[i] -> cd();
+
+	  //Frame to adjust drawing style!
+	  TH2F *frame = new TH2F("frame","",2,xMin,xMax,2,yMin,yMax);
+	  frame->SetTitle(";p^{(1)}_{T}, [GeV]; #epsilon");
+	  ratio.SetTopStyle(frame);
+	  frame->Draw();
 
 	  h_lowM_pt_num_slice[i] = (TH1D*)  h_lowM_pt_eta_num->ProjectionX(("Slice_num_"+std::to_string(i)).c_str(),i+1,i+1,"E");
 	  h_lowM_pt_den_slice[i] = (TH1D*)  h_lowM_pt_eta_den->ProjectionX(("Slice_den_"+std::to_string(i)).c_str(),i+1,i+1,"E");
@@ -102,11 +118,11 @@ int fit_correction(){
 	  eff_lowM_pt_slice_data[i]->SetMarkerColor(1);
 	  eff_lowM_pt_slice_data[i]->SetMarkerStyle(20);
 	  eff_lowM_pt_slice[i]->SetTitle(";p^{(1)}_{T}, [GeV]; #epsilon");
-	  eta_def[i] = new TPaveText(0.7,0.7,0.9,0.8,"NDC");
+	  eta_def[i] = new TPaveText(0.7,0.6,0.9,0.68,"NDC");
 	  eta_def[i]->SetFillColor(0);
 	  eta_def[i]->SetBorderSize(0);
 	  eta_def[i]->AddText(("|#eta| = "+eta_bins[i]).c_str());
-	  eff_lowM_pt_slice[i]->Draw("AP");
+	  eff_lowM_pt_slice[i]->Draw("Psame");
 	  eff_lowM_pt_slice_data[i]->Draw("P same");
 
 	  gPad->Update();
@@ -114,20 +130,20 @@ int fit_correction(){
 	  gr_lowM_eff[i] = (TGraphAsymmErrors*) eff_lowM_pt_slice[i]->GetPaintedGraph();
 	  gr_lowM_eff[i]->GetYaxis()->SetRangeUser(0.,1.1);
 	  gr_lowM_eff[i]->GetXaxis()->SetTitleOffset(1.1);
-	  gr_lowM_eff[i]->Draw("AP");
+	  gr_lowM_eff[i]->Draw("Psame");
 	  gr_lowM_eff_data[i]->Draw("P same");
-	  style.drawStandardTitle();
+	  ratio.drawStandardTitle();
 	  eta_def[i]->Draw();
 
 	  lowm_fit_sigmoid2[i] = new TF1(("fit_"+std::to_string(i+1)).c_str(),sigmoid_sigmoid,100,500,4);
-//	  lowm_fit_sigmoid2[i] = new TF1(("fit_"+std::to_string(i+1)).c_str(),test_fcn,100,500,7);
 	  lowm_fit_sigmoid2[i]->SetParameters(0.99,100.,0.99,100.);
 	  lowm_fit_sigmoid2[i]->SetLineColor(1);
 	  gr_lowM_eff_data[i]->Fit(("fit_"+std::to_string(i+1)).c_str(),"R EX0");
-//	  lowm_fit_sigmoid2[i]->SetParameters(lowm_fit_sigmoid2[i]->GetParameters());
-//	  gr_lowM_eff_data[i]->Fit(("fit_"+std::to_string(i+1)).c_str(),"R EX0");
 	  can_lowM_pt_slice[i]->Modified();
 	  can_lowM_pt_slice[i]->Update();
+
+	  //Uncomment if stat boxes are needed!!!!!
+
 	  st_data[i] = (TPaveStats*)(gr_lowM_eff_data[i]->GetListOfFunctions()->FindObject("stats"));
 	  if(st_data[i]){
 		  st_data[i]->SetX1NDC(0.6);
@@ -138,14 +154,10 @@ int fit_correction(){
 	  pad_lowM_fit_top[i]->Modified();
 	  pad_lowM_fit_top[i]->Update();
 
-//
-//	  lowm_fit_sigmoid2_mc[i] = new TF1(("fit_mc_"+std::to_string(i+1)).c_str(),sigmoid_sigmoid,100,500,4);
 	  lowm_fit_sigmoid2_mc[i] = new TF1(("fit_mc_"+std::to_string(i+1)).c_str(),test_fcn,100,500,7);
 	  lowm_fit_sigmoid2_mc[i]->SetParameters(4.01543e+01,-108.4,0.1182,108,0.99,-66.06,84.45);
 	  lowm_fit_sigmoid2_mc[i]->SetLineColor(2);
 	  gr_lowM_eff[i]->Fit(lowm_fit_sigmoid2_mc[i],"+R EX0");
-//	  lowm_fit_sigmoid2_mc[i]->SetParameters(lowm_fit_sigmoid2_mc[i]->GetParameters());
-//	  gr_lowM_eff[i]->Fit(lowm_fit_sigmoid2_mc[i],"+R EX0");
 	  pad_lowM_fit_top[i]->Modified();
 	  pad_lowM_fit_top[i]->Update();
 	  st[i] = (TPaveStats*)(gr_lowM_eff[i]->GetListOfFunctions()->FindObject("stats"));
@@ -158,18 +170,30 @@ int fit_correction(){
 		  pad_lowM_fit_top[i]->Update();
 	  }
 
+
 	  if(i == 0 ){
-		  leg_low_m->AddEntry(eff_lowM_pt_slice_data[i],"JetHT, 2015D","pl");
+		  leg_low_m->AddEntry(eff_lowM_pt_slice_data[i],"JetHT, 2016","pl");
 		  leg_low_m->AddEntry(eff_lowM_pt_slice[i],"QCD, #hat{p_{T}}","pl");
 	  }
 	  leg_low_m->Draw();
 	  ///////////////Pad2////////////////////
 	  can_lowM_pt_slice[i]->cd();
-	  pad_lowM_fit_bot[i] = new TPad("pad2","pad2",0,0.0,1,0.3);
+	  pad_lowM_fit_bot[i] = new TPad("pad2","pad2",0,0.0,1,0.265);
 	  pad_lowM_fit_bot[i] -> SetTopMargin(0.0);
-	  pad_lowM_fit_bot[i] -> SetBottomMargin(0.35);
+	  pad_lowM_fit_bot[i] -> SetLeftMargin( pad_lowM_fit_top[i]->GetLeftMargin());
+	  pad_lowM_fit_bot[i] -> SetRightMargin( pad_lowM_fit_top[i]->GetRightMargin());
+	  pad_lowM_fit_bot[i] -> SetBottomMargin(0.28);
 	  pad_lowM_fit_bot[i] -> Draw();
 	  pad_lowM_fit_bot[i] -> cd();
+
+	  TH2F *frame2 = new TH2F("frame2","",2,xMin,xMax,2,0.5,1.5);
+	  frame2->SetTitle("");
+	  frame2->GetXaxis()->SetTitle(frame->GetXaxis()->GetTitle());
+	  frame2->GetXaxis()->SetTickLength(frame->GetXaxis()->GetTickLength()*3);
+	  ratio.SetBottomStyle(frame2);
+	  frame2->SetMinimum(0.5);
+	  frame2->SetMaximum(1.5);
+	  frame2->Draw();
 
 	  gr_lowM_data_vs_fit[i] = (TGraphAsymmErrors*) gr_lowM_eff_data[i]->Clone(("gr_lowM_data_vs_fit_"+std::to_string(i+1)).c_str());
 	  gr_lowM_mc_vs_fit[i] = (TGraphAsymmErrors*) gr_lowM_eff[i]->Clone(("gr_lowM_mc_vs_fit_"+std::to_string(i+1)).c_str());
@@ -202,7 +226,7 @@ int fit_correction(){
 	  gr_lowM_data_vs_fit[i]->GetListOfFunctions()->RemoveAll();
 	  gr_lowM_mc_vs_fit[i]->GetListOfFunctions()->RemoveAll();
 	  ratio.SetBottomStyle(gr_lowM_data_vs_fit[i]);
-	  gr_lowM_data_vs_fit[i] -> Draw("AP");
+	  gr_lowM_data_vs_fit[i] -> Draw("Psame");
 	  gr_lowM_data_vs_fit[i] -> GetYaxis() -> SetTitle("Val./Fit");
 	  gr_lowM_data_vs_fit[i] -> GetXaxis() -> SetTitle(gr_lowM_eff[i]->GetXaxis()->GetTitle());
 	  gr_lowM_data_vs_fit[i] -> GetXaxis() -> SetTitleOffset(gr_lowM_eff[i]->GetXaxis()->GetTitleOffset());
@@ -216,6 +240,7 @@ int fit_correction(){
 
   //Draw All 3 eta bins fit at 1 plot
   TCanvas *can3in1_fits_lowM_data = new TCanvas("can3in1_fits_lowM_data","can3in1_fits in DATA",1000,800);
+  ratio.drawStandardTitle();
   TH1D *ax_plot = new TH1D("ax_plot","",10,60.,500.);
   ax_plot->GetYaxis()->SetRangeUser(0.,1.1);
   ax_plot->GetXaxis()->SetRangeUser(60.,500.);
@@ -232,11 +257,12 @@ int fit_correction(){
   lowm_fit_sigmoid2[2]->SetLineStyle(9);
   lowm_fit_sigmoid2[2]->Draw("same");
 
-  leg3in1_leg_data->SetHeader("JetHT lowM, 2015D");
+  leg3in1_leg_data->SetHeader("JetHT lowM, ReReco-2016");
   leg3in1_leg_data->AddEntry(lowm_fit_sigmoid2[0],"0<|#eta|<0.6","l");
   leg3in1_leg_data->AddEntry(lowm_fit_sigmoid2[1],"0.6<|#eta|<1.7","l");
   leg3in1_leg_data->AddEntry(lowm_fit_sigmoid2[2],"1.7<|#eta|<2.2","l");
   leg3in1_leg_data->Draw();
+  ratio.drawStandardTitle();
   can3in1_fits_lowM_data->Print("../pictures/TriggerPerformance/FittedTriggerEff_lowM_Data_AllEta_fits_PF60_PF100_pt1_eta1.pdf");
 
   TCanvas *can3in1_fits_mc = new TCanvas("can3in1_fits_mc","can3in1_fits in MC",1000,800);
@@ -256,7 +282,7 @@ int fit_correction(){
   leg3in1_leg_mc->AddEntry(lowm_fit_sigmoid2_mc[1],"0.6<|#eta|<1.7","l");
   leg3in1_leg_mc->AddEntry(lowm_fit_sigmoid2_mc[2],"1.7<|#eta|<2.2","l");
   leg3in1_leg_mc->Draw("same");
-  style.drawStandardTitle();
+  ratio.drawStandardTitle();
   can3in1_fits_mc->Print("../pictures/TriggerPerformance/FittedTriggerEff_lowM_MC_AllEta_fits_PF60_PF100_pt1_eta1.pdf");
 
   //Finale
@@ -270,7 +296,7 @@ int fit_correction(){
   	ratio_lowM_pt_slice[i]->GetXaxis()->SetTitle("p^{(1)}_{T}, [GeV]");
   	ratio_lowM_pt_slice[i]->Draw("AP");
   	eta_def[i]->Draw();
-  	style.drawStandardTitle();
+  	ratio.drawStandardTitle();
 
   	f1_ratio_lowM_sigmoid2[i]= new TF1(("ratio_sigmoid2_"+std::to_string(i+1)).c_str(),ratio_finale,100,500,11);
   	f1_ratio_lowM_sigmoid2[i]->SetParameters(lowm_fit_sigmoid2[i]->GetParameter(0),
@@ -299,6 +325,7 @@ int fit_correction(){
   /************************************************************/
 
   /**************************high M****************************/
+  /*
   TLegend *leg_highM = new TLegend(0.3,0.5,0.5,0.7);
   TH2D *h_highM_pt_eta_num 		= (TH2D*)	BgMC_high->Get("TriggerEfficiencies/KinTrigEff_Num_2D_PF80_PF160_pt1eta1");
   TH2D *h_highM_pt_eta_num_data 	= (TH2D*)	fDataHighM->Get("TriggerEfficiencies/KinTrigEff_Num_2D_PF80_PF160_pt1eta1");
@@ -348,7 +375,7 @@ int fit_correction(){
 	  gr_highM_eff[i]->GetXaxis()->SetTitleOffset(1.1);
 	  gr_highM_eff[i]->Draw("AP");
 	  gr_highM_eff_data[i]->Draw("P same");
-	  style.drawStandardTitle();
+	  ratio.drawStandardTitle();
 	  eta_def[i]->Draw();
 
 	  highM_fit_sigmoid2[i] = new TF1(("fit_highM_"+std::to_string(i+1)).c_str(),sigmoid_sigmoid,160,500,4);
@@ -468,7 +495,7 @@ int fit_correction(){
   leg3in1_highM_leg_data->AddEntry(highM_fit_sigmoid2[1],"0.6<|#eta|<1.7","l");
   leg3in1_highM_leg_data->AddEntry(highM_fit_sigmoid2[2],"1.7<|#eta|<2.2","l");
   leg3in1_highM_leg_data->Draw();
-  style.drawStandardTitle();
+  ratio.drawStandardTitle();
   can3in1_highM_fits_highM_data->Print("../pictures/TriggerPerformance/FittedTriggerEff_highM_Data_AllEta_fits_PF80_PF160_pt1_eta1.pdf");
 
   TCanvas *can3in1_highM_fits_mc = new TCanvas("can3in1_highM_fits_mc","can3in1_highM_fits in MC",1000,800);
@@ -488,12 +515,12 @@ int fit_correction(){
   leg3in1_highM_leg_mc->AddEntry(highM_fit_sigmoid2_mc[1],"0.6<|#eta|<1.7","l");
   leg3in1_highM_leg_mc->AddEntry(highM_fit_sigmoid2_mc[2],"1.7<|#eta|<2.2","l");
   leg3in1_highM_leg_mc->Draw("same");
-  style.drawStandardTitle();
+  ratio.drawStandardTitle();
   can3in1_highM_fits_mc->Print("../pictures/TriggerPerformance/FittedTriggerEff_highM_MC_AllEta_fits_PF80_PF160_pt1_eta1.pdf");
 
   //Finale
   TF1 *f1_ratio_highM_erf[3], *f1_ratio_highM_sigmoid[3], *f1_ratio_highM_sigmoid2[3];
-  style.drawStandardTitle();
+  ratio.drawStandardTitle();
 
   TCanvas *can_highM_correction_funct[3];
   for(int i=0;i<3;++i){
@@ -504,7 +531,7 @@ int fit_correction(){
   	ratio_highM_pt_slice[i]->GetXaxis()->SetTitle("p^{(1)}_{T}, [GeV]");
   	ratio_highM_pt_slice[i]->Draw("AP");
   	eta_def[i]->Draw();
-  	style.drawStandardTitle();
+  	ratio.drawStandardTitle();
 
   	f1_ratio_highM_sigmoid2[i]= new TF1(("ratio_sigmoid2_"+std::to_string(i+1)).c_str(),ratio_finale,160,500,11);
   	f1_ratio_highM_sigmoid2[i]->SetParameters(highM_fit_sigmoid2[i]->GetParameter(0),

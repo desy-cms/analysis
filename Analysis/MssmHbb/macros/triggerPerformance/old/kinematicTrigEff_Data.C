@@ -9,9 +9,10 @@ double dEtaFitFunction(double *x, double *par);
 int kinematicTrigEff_Data(){
 
 	TH1::SetDefaultSumw2();
+	const auto cmsswBase = static_cast<std::string>(gSystem->Getenv("CMSSW_BASE"));
 
-	TFile *fDataLowM = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/TriggerEff_lowM_Run2015D-16Dec2015-v1.root");
-	TFile *fDataHighM = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/TriggerEff_highM_Run2015D-16Dec2015-v1.root");
+	TFile *fDataLowM = new TFile( ( cmsswBase + "/src/Analysis/MssmHbb/output/TriggerEff_Data2016_ReReco.root").c_str());
+//	TFile *fDataHighM = new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3/src/Analysis/MssmHbb/output/TriggerEff_highM_Run2015D-16Dec2015-v1.root");
 
 //	TFile *outputLow 	= new TFile("TwoDPtLowMassEfficiency.root","recreate");
 //	TFile *outputHigh 	= new TFile("TwoDPtHighMassEfficiency.root","recreate");
@@ -30,7 +31,7 @@ int kinematicTrigEff_Data(){
 	auto dEtaCan = new TCanvas("dEtaCan","dEta Trig Eff",1000,800);
 	style.standardTitle(PRIVATE);
 
-	TH1D *dEtaEff = (TH1D*) fDataLowM->Get("TriggerEfficiencies/KinTrigEff_1D_Pf60_Pf100_dEta");
+	TH1D *dEtaEff = (TH1D*) fDataLowM->Get("TriggerEfficiencies/KinTrigEff_1D_PF60_PF100_dEta");
 	dEtaEff->SetMarkerStyle(20);
 	dEtaEff->SetTitle(";#Delta #eta;#epsilon");
 
@@ -40,11 +41,11 @@ int kinematicTrigEff_Data(){
 	ratiodEta->Draw();
 	dEtaCan->SaveAs("../pictures/TriggerPerformance/dEtaEff_lowM.pdf");
 
-	
+	/*
 
 	TCanvas *oneDFitLowM = new TCanvas("oneDFitLowM","Factor Low M",1000,800);
-//	TH1D *pf100Effpt2 = (TH1D*) fDataLowM->Get("TriggerEfficiencies/KinTrigEff_1D_Pf80_Pf100_pt2");
-	TH1D *pf100Eff = (TH1D*) fDataLowM->Get("TriggerEfficiencies/KinTrigEff_1D_Pf80_Pf100_pt1");
+//	TH1D *pf100Effpt2 = (TH1D*) fDataLowM->Get("TriggerEfficiencies/KinTrigEff_1D_PF80_PF100_pt2");
+	TH1D *pf100Eff = (TH1D*) fDataLowM->Get("TriggerEfficiencies/KinTrigEff_1D_PF80_PF100_pt1");
 	style.standardTitle(PRIVATE);
 	pf100Eff->SetTitle(";leading jet p_{T}, [GeV]; #epsilon");
 	pf100Eff->SetMarkerStyle(20);
@@ -56,8 +57,8 @@ int kinematicTrigEff_Data(){
 	oneDFitLowM->Print("../pictures/TriggerPerformance/1DEff_PF80_LowM.pdf");
 
 	TCanvas *twoDplotLowM = new TCanvas("twoDplotLowM","Two dimensional Efficiency");
-	TH2D *TwoDEff_Num = (TH2D*) fDataLowM->Get("TriggerEfficiencies/KinTrigEff_2D_Pf80_Pf100_pt1vspt2");
-    TH2D *TwoDEff_NumSym = (TH2D*) fDataLowM->Get("TriggerEfficiencies/KinTrigEff_2D_Pf80_Pf100_pt2vspt1");
+	TH2D *TwoDEff_Num = (TH2D*) fDataLowM->Get("TriggerEfficiencies/KinTrigEff_2D_PF80_PF100_pt1vspt2");
+    TH2D *TwoDEff_NumSym = (TH2D*) fDataLowM->Get("TriggerEfficiencies/KinTrigEff_2D_PF80_PF100_pt2vspt1");
 	TwoDEff_Num->SetTitle(";sub-leading jet p_{T}, [GeV]; leading jet p_{T}, [GeV]; #epsilon");
 	style.standardTitle(PRIVATE);
     for(int binx = 1; binx <= TwoDEff_NumSym->GetNbinsX(); binx++)
@@ -205,7 +206,7 @@ int kinematicTrigEff_Data(){
 	//............................	HIGH M ....................................
 
 //	TCanvas *oneDFitHighM = new TCanvas("oneDFitHighM","Factor Low M",1000,800);
-//	TH1D *pf160Eff = (TH1D*) fDataHighM->Get("TriggerEfficiencies/KinTrigEff_1D_Pf80_Pf160_pt1");
+//	TH1D *pf160Eff = (TH1D*) fDataHighM->Get("TriggerEfficiencies/KinTrigEff_1D_PF80_PF160_pt1");
 //	pf160Eff->SetMarkerStyle(20);
 //	pf160Eff->Draw("E1");
 //	TF1 *fit1DHighM = new TF1("fit1DHighM",finaleFunction,160,500,4);
@@ -216,29 +217,29 @@ int kinematicTrigEff_Data(){
 //
 //	TCanvas *twoDplotHighM = new TCanvas("twoDplotHighM","Two dimensional Efficiency");
 //
-//	TH2D *TwoDEffPf160_Num = (TH2D*) fDataHighM->Get("TriggerEfficiencies/KinTrigEff_2D_Pf80_Pf160_pt1vspt2");
-//    TH2D *TwoDEffPf160_NumSym = (TH2D*) fDataHighM->Get("TriggerEfficiencies/KinTrigEff_2D_Pf80_Pf160_pt2vspt1");
-//    for(int binx = 1; binx <= TwoDEffPf160_NumSym->GetNbinsX(); binx++)
+//	TH2D *TwoDEffPF160_Num = (TH2D*) fDataHighM->Get("TriggerEfficiencies/KinTrigEff_2D_PF80_PF160_pt1vspt2");
+//    TH2D *TwoDEffPF160_NumSym = (TH2D*) fDataHighM->Get("TriggerEfficiencies/KinTrigEff_2D_PF80_PF160_pt2vspt1");
+//    for(int binx = 1; binx <= TwoDEffPF160_NumSym->GetNbinsX(); binx++)
 //    {
-//    	for(int biny = 1; biny <= TwoDEffPf160_NumSym->GetNbinsX(); biny++)
+//    	for(int biny = 1; biny <= TwoDEffPF160_NumSym->GetNbinsX(); biny++)
 //    	{
 //    		if(binx == biny){
-//    			TwoDEffPf160_NumSym->SetBinContent(binx,biny,0);
-//    			TwoDEffPf160_NumSym->SetBinError(binx,biny,0);
+//    			TwoDEffPF160_NumSym->SetBinContent(binx,biny,0);
+//    			TwoDEffPF160_NumSym->SetBinError(binx,biny,0);
 //    		}
 //    	}
 //    }
-//    TwoDEffPf160_Num->Add(TwoDEffPf160_NumSym);
+//    TwoDEffPF160_Num->Add(TwoDEffPF160_NumSym);
 //
-//	TwoDEffPf160_Num ->SetMarkerStyle(20);
-//	TwoDEffPf160_Num ->SetTitle("2D Efficiency;sub-leading jet p_{T};leading jet p_{T}; #epsilon");
+//	TwoDEffPF160_Num ->SetMarkerStyle(20);
+//	TwoDEffPF160_Num ->SetTitle("2D Efficiency;sub-leading jet p_{T};leading jet p_{T}; #epsilon");
 //    gPad->SetRightMargin(0.15);
-//    TwoDEffPf160_Num->GetZaxis()->SetTitleOffset(0.8);
-//    TwoDEffPf160_Num->GetXaxis()->SetTitleOffset(1.1);
-//	TwoDEffPf160_Num->Draw("E");
+//    TwoDEffPF160_Num->GetZaxis()->SetTitleOffset(0.8);
+//    TwoDEffPF160_Num->GetXaxis()->SetTitleOffset(1.1);
+//	TwoDEffPF160_Num->Draw("E");
 //
 //	TCanvas *canSave_high;
-//	TwoDEffPf160_Num->Draw("COLZ");
+//	TwoDEffPF160_Num->Draw("COLZ");
 //	canSave_high->Print("../pictures/TriggerPerformance/2DEff_PF80_PF160_HighM.pdf");
 
 	//.................................f(pt,eta).....................................//
