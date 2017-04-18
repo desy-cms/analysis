@@ -103,7 +103,6 @@ public:
     } else {
       leg = legendTR(nEntries,relWidth);
     }
-    std::cout<<position<<std::endl;
     return leg;
   }
   // Same but explicitly state position on pad
@@ -284,9 +283,9 @@ TPaveText* HbbStyle::label(const int nEntries, const double relWidth, const bool
 
 // --------------------------------------------------------------
 TPaveText* HbbStyle::title(const TString& txt) {
-  double x0 = gStyle->GetPadLeftMargin();
+  double x0 = gStyle->GetPadLeftMargin()*1.2;
   double x1 = 1.-gStyle->GetPadRightMargin();
-  double y0 = 1.-gStyle->GetPadTopMargin()+0.01;
+  double y0 = 1.-gStyle->GetPadTopMargin()+0.005;
   double y1 = 1.;
   TPaveText* theTitle = new TPaveText(x0,y0,x1,y1,"NDC");
   theTitle->SetBorderSize(0);
@@ -304,7 +303,7 @@ TPaveText* HbbStyle::title(const TString& txt) {
 
 // --------------------------------------------------------------
 TString HbbStyle::header(const PublicationStatus status) {
-  TString txt = "36.62 fb^{-1} (13 TeV)";
+  TString txt = "35.7 fb^{-1} (13 TeV)";
   if( status == INTERNAL_SIMULATION ) {
     txt = "Simulation (8 TeV)";
   } else if( status == PRELIMINARY ) {
@@ -361,8 +360,8 @@ void HbbStyle::set(const PublicationStatus status) {
   gStyle->SetFrameFillStyle(0);
   gStyle->SetFrameLineColor(kBlack);
   gStyle->SetFrameLineStyle(0);
-  gStyle->SetFrameLineWidth(2);
-  gStyle->SetLineWidth(3);
+  gStyle->SetFrameLineWidth(1);
+  gStyle->SetLineWidth((Width_t) 1.);
     
   //  For the Pad
   gStyle->SetPadBorderMode(0);
@@ -382,9 +381,10 @@ void HbbStyle::set(const PublicationStatus status) {
   //  For the histo:
   gStyle->SetHistLineColor(kBlack);
   gStyle->SetHistLineStyle(0);
-  gStyle->SetHistLineWidth(3);
-  gStyle->SetMarkerSize(1.);
-  gStyle->SetEndErrorSize(4);
+//  gStyle->SetHistLineWidth(3);
+  gStyle->SetMarkerSize(1.25);
+  gStyle->SetMarkerStyle(20);
+//  gStyle->SetEndErrorSize(4);
   gStyle->SetHatchesLineWidth(1);
 
   //  For the statistics box:
@@ -406,7 +406,7 @@ void HbbStyle::set(const PublicationStatus status) {
   gStyle->SetLabelSize(0.05,"XYZ");
   gStyle->SetTitleFont(42,"XYZ");
   gStyle->SetTitleSize(0.06,"XYZ");
-  gStyle->SetTitleXOffset(1.5);
+  gStyle->SetTitleXOffset(1.2);
   gStyle->SetTitleYOffset(1.4);
 
 

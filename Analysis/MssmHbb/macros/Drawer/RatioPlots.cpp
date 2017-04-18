@@ -19,13 +19,17 @@
 #include "TPaveText.h"
 #include "TLatex.h"
 #include "TExec.h"
+#include "TF1.h"
+
+#include "Analysis/MssmHbb/macros/Drawer/HbbStyle.cc"
 
 class RatioPlots: public HbbStyle {
 public:
 	RatioPlots(const PublicationStatus status);
+	RatioPlots();
 	virtual ~RatioPlots();
 
-	TH1 *DrawRatio(TH1 *numerator, TH1 *denumerator, TCanvas *can = nullptr, TLegend *leg = nullptr, TH1 *systErr = nullptr);
+	TH1 *DrawRatio(TH1 *numerator, TH1 *denumerator, TCanvas *can = nullptr, TLegend *leg = nullptr, TH1 *systErr = nullptr, TH1 *mc_stat_err = nullptr);
 	TH1 *DrawRatio(TH1 *histo, TF1 *fit, std::string fitName, TCanvas *can = 0);
 	TH1 *DrawRatio(TH1 *numerator, TH1 *denumerator, TGraphAsymmErrors *systErr = nullptr, TLegend *leg = nullptr, TCanvas *can = nullptr);
 	TGraphAsymmErrors *DrawRatio(TGraphAsymmErrors *numerator, TGraphAsymmErrors *denumerator, TCanvas *can = nullptr, TLegend *leg = nullptr, TGraphAsymmErrors *systErr = nullptr);
@@ -43,6 +47,7 @@ public:
 	TPad *GetTopPad();
 	TPad *GetBottomPad();
 	void SetBottomStyle(TH1*);
+	void SetTopStyle(TH1*);
 	void SetBottomStyle(TGraph*);
 
 private:
@@ -74,6 +79,14 @@ RatioPlots::RatioPlots(const PublicationStatus status) {
 	er_1 = new TExec("er_1","gStyle->SetErrorX(0.5)");
 	// Setup style file
 	TH1::SetDefaultSumw2();
+}
+
+RatioPlots::RatioPlots() {
+	// TODO Auto-generated constructor stub
+	er_0 = new TExec("er_0","gStyle->SetErrorX(0)");
+	er_1 = new TExec("er_1","gStyle->SetErrorX(0.5)");
+	// Setup style file
+	TH1::SetDefaultSumw2();
 
 }
 
@@ -95,78 +108,125 @@ TGraphAsymmErrors * RatioPlots::CreateSystTGraph(TH1 *central, TH1 *up, TH1* dow
 	return result;
 }
 
-TH1* RatioPlots::DrawRatio(TH1 *numerator, TH1 *denumerator, TCanvas *can, TLegend *leg, TH1 *systErr){
+TH1* RatioPlots::DrawRatio(TH1 *numerator, TH1 *denumerator, TCanvas *can, TLegend *leg, TH1 *systErr, TH1 *mc_stat_err){
 
 	TH1::SetDefaultSumw2();
 	//Create Top pad for this canva
-	pad1_ = new TPad("pad1","pad1",0,0.3,1,1);
-	pad1_ -> SetBottomMargin(0.0);
+	pad1_ = new TPad("pad1","pad1",0,0.1,1,1);
+	pad1_ -> SetBottomMargin(0.2);
+	pad1_ -> SetRightMargin(0.05);
+	pad1_ -> SetLeftMargin(0.16);
 	pad1_ -> Draw();
 	pad1_ -> cd();
 
 	numerator -> SetMarkerStyle(20);
-
-	denumerator->SetMarkerStyle(21);
-	denumerator->SetMarkerColor(2);
+	numerator -> SetMarkerSize(gStyle->GetMarkerSize());
 
 	if(!FindMaximum(numerator,denumerator))
 	{
 		if(systErr) numerator->SetMaximum(denumerator->GetMaximum() + .2* denumerator->GetMaximum());
 		else numerator->SetMaximum(denumerator->GetMaximum() + .1* denumerator->GetMaximum());
 	}
+
+	numerator->SetMaximum(numerator->GetMaximum()*1.1);
+	numerator->GetXaxis()->SetNdivisions(505);
+	numerator->GetYaxis()->SetNdivisions(206);
+	numerator->GetYaxis()->SetTitleOffset(1.1);
+	numerator->GetXaxis()->SetTitleOffset(999);
+	numerator->GetXaxis()->SetLabelOffset(999);
+	numerator->GetYaxis()->SetTitleSize(0.048);
+	numerator->SetStats(0);
 	numerator -> Draw("E");
 
 	if(systErr){
-	systErr->SetLineColor(2);
-	systErr->SetLineWidth(2);
-//	systErr->SetLineStyle(3);
-	systErr->SetFillColor(kMagenta-10);
-	systErr->SetFillStyle(1001);
-//	systErr -> Draw("E1 same");
-	er_1->Draw();
-	systErr -> Draw("E2 same");
-	er_0->Draw();
+		denumerator->SetMarkerStyle(21);
+		denumerator->SetMarkerColor(2);
+		systErr->SetLineColor(2);
+		systErr->SetLineWidth(2);
+		systErr->SetFillColor(kMagenta-10);
+		systErr->SetFillStyle(1001);
+		er_1->Draw();
+		systErr -> Draw("E2 same");
+		er_0->Draw();
 	}
 
-	er_1->Draw();
-	denumerator -> Draw("same");
-	er_0->Draw();
+	if(systErr) er_1->Draw();
+	denumerator -> Draw("hist same");
+	if(systErr) er_0->Draw();
+
+	//Create stat. MC errors:
+	if(mc_stat_err){
+		mc_stat_err->SetLineColor(kBlack);
+		mc_stat_err->SetFillColor(kBlack);
+		mc_stat_err->SetFillStyle(3013); //3002
+		er_1->Draw();
+		mc_stat_err->Draw("E2 same");
+		er_0->Draw();
+	}
+
 	numerator -> Draw("Esame");
 
 	if(leg) leg->Draw();
-//	style_.standardTitle()->Draw();
 
 	can->cd();
-	pad2_ = new TPad("pad2","pad2",0,0.0,1,0.3);
-	pad2_ -> SetTopMargin(0.0);
-	pad2_ -> SetBottomMargin(0.35);
+	pad2_ = new TPad("pad2","pad2",0,0.0,1,0.265);
+	pad2_ -> SetTopMargin(0);
+	pad2_ -> SetLeftMargin(pad1_->GetLeftMargin());
+	pad2_ -> SetRightMargin(pad1_->GetRightMargin());
+	pad2_ -> SetBottomMargin(0.28);
 	pad2_ -> Draw();
 	pad2_ -> cd();
 
 	TH1 * hRatio = (TH1*)numerator->Clone("hRatio");
 	hRatio -> Sumw2();
-	hRatio -> Divide(denumerator);
+	for(int i = 0; i  < numerator->GetNbinsX(); ++i){
+		if(denumerator->GetBinContent(i+1) != 0){
+			hRatio->SetBinContent(i+1, hRatio->GetBinContent(i+1) / denumerator->GetBinContent(i + 1));
+			hRatio->SetBinError(i+1, hRatio->GetBinError(i+1) / denumerator->GetBinContent(i + 1));
+		}
+		else {
+			hRatio->SetBinContent(i+1,0);
+			hRatio->SetBinError(i+1,0);
+		}
+	}
+//	hRatio -> Divide(denumerator);
+
+	hRatio->GetXaxis()->SetTitle(numerator->GetXaxis()->GetTitle());
+	hRatio->GetXaxis()->SetTickLength(numerator->GetXaxis()->GetTickLength()*3);
+	SetBottomStyle(hRatio);
 	hRatio -> Draw();
 
-	TLine *horizLine = new TLine(numerator->GetXaxis()->GetXmin(),1,numerator->GetXaxis()->GetXmax(),1);
+	//MC stat errors:
+	TH1 *hRatio_MCStat;
+	if(mc_stat_err){
+		hRatio_MCStat = (TH1*) mc_stat_err->Clone("hRatio_MCStat");
+//		hRatio_MCStat->Divide(mc_stat_err);
+		//Set proper errors:
+		for(int i = 0; i<mc_stat_err->GetNbinsX();++i){
+			hRatio_MCStat->SetBinContent(i+1,1);
+			hRatio_MCStat->SetBinError(i+1, mc_stat_err->GetBinError(i+1) / mc_stat_err->GetBinContent(i+1));
+			if(mc_stat_err->GetBinContent(i+1) == 0) hRatio_MCStat->SetBinError(i+1,999.);
+			if(mc_stat_err->GetBinContent(i+1) == 0 && numerator->GetBinContent(i+1) == 0) hRatio_MCStat->SetBinError(i+1,0);
+		}
+		er_1->Draw();
+		hRatio_MCStat->Draw("E2 same");
+		er_0->Draw();
+	}
+
+	TLine *horizLine = new TLine(hRatio->GetXaxis()->GetXmin(),1,hRatio->GetXaxis()->GetXmax(),1);
 	horizLine -> SetLineStyle(2);
 	horizLine -> Draw();
 
-	SetBottomStyle(hRatio);
-
-	hRatio -> GetYaxis() -> SetRangeUser(ratioRange_.first,ratioRange_.second);
-	hRatio -> GetYaxis() -> SetTitle(ratioTitle_.c_str());
-	hRatio -> GetXaxis() -> SetTitle(numerator->GetXaxis()->GetTitle());
 	//Add Systematic errors:
 	if(systErr){
 	TH1 *RatioSyst = (TH1*) systErr->Clone("RatioSyst");
-	RatioSyst->Divide(numerator,RatioSyst);
-	RatioSyst->SetFillColor(kMagenta-10);
-	RatioSyst->SetFillStyle(1001);
+		RatioSyst->Divide(numerator,RatioSyst);
+		RatioSyst->SetFillColor(kMagenta-10);
+		RatioSyst->SetFillStyle(1001);
 
-	RatioSyst->Draw("E5 same");
-	hRatio->Draw("same");
-	horizLine -> Draw();
+		RatioSyst->Draw("E5 same");
+		hRatio->Draw("same");
+		horizLine -> Draw();
 	}
 
 	pad1_ -> cd();
@@ -289,7 +349,7 @@ TH1* RatioPlots::DrawRatio(TH1 *numerator, TH1 *denumerator, TGraphAsymmErrors *
 	return hRatio;
 }
 
-TGraphAsymmErrors * RatioPlots::DrawRatio(TGraphAsymmErrors *numerator, TGraphAsymmErrors *denumerator, TCanvas *can = nullptr,TLegend *leg = nullptr, TGraphAsymmErrors *systErr = nullptr){
+TGraphAsymmErrors * RatioPlots::DrawRatio(TGraphAsymmErrors *numerator, TGraphAsymmErrors *denumerator, TCanvas *can,TLegend *leg, TGraphAsymmErrors *systErr){
 	TH1::SetDefaultSumw2();
 	//Create Top pad for this canva
 	pad1_ = new TPad("pad1","pad1",0,0.3,1,1);
@@ -319,7 +379,7 @@ TGraphAsymmErrors * RatioPlots::DrawRatio(TGraphAsymmErrors *numerator, TGraphAs
 
 	double *num_x = numerator->GetX();
 	double *num_y = numerator->GetY();
-	double *den_x = denumerator->GetX();
+//	double *den_x = denumerator->GetX();
 	double *den_y = denumerator->GetY();
 	for( int i = 0; i < numerator->GetN(); ++i){
 	
@@ -363,34 +423,31 @@ bool RatioPlots::FindMaximum(TGraphAsymmErrors* first, TGraphAsymmErrors *second
 
 void RatioPlots::SetBottomStyle(TH1 *hRatio){
 
-	/*
-   hRatio -> GetYaxis() -> SetNdivisions(505);
-   hRatio -> GetYaxis() -> SetTitleSize(0.13);
-//   hRatio -> GetYaxis() -> SetTitleFont(60);
-   hRatio -> GetYaxis() -> SetTitleOffset(0.7);
-   hRatio -> GetYaxis() -> SetLabelFont(43); // Absolute font size in pixel (precision 3)
-   hRatio -> GetYaxis() -> SetLabelSize(23);
+	hRatio->GetXaxis()->SetTitleSize(0.13);
+	hRatio->GetXaxis()->SetTitleOffset(0.93);
+	hRatio->GetXaxis()->SetLabelOffset(0.010);
+	hRatio->GetXaxis()->SetNdivisions(505);
+	hRatio->GetYaxis()->CenterTitle(kTRUE);
+	hRatio->GetYaxis()->SetTitleSize(0.14);
+	hRatio->GetYaxis()->SetTitleOffset(0.4);
+	hRatio->GetYaxis()->SetNdivisions(206);
+	hRatio->GetYaxis()->SetLabelSize(0.115);
+	hRatio->GetYaxis()->SetLabelOffset(0.011);
+	hRatio->GetXaxis()->SetLabelSize(0.115);
 
-   // X axis ratio plot settings
-   hRatio -> GetXaxis() -> SetTitleSize(0.13);
-   hRatio -> GetXaxis() -> SetTitleOffset(0.85);
-   hRatio -> GetXaxis() -> SetLabelFont(43); // Absolute font size in pixel (precision 3)
-   hRatio -> GetXaxis() -> SetLabelSize(23);
-   */
 
-	hRatio -> SetNdivisions(505,"YZ");
-	hRatio -> SetNdivisions(510,"X");
-	hRatio -> SetTickLength(0.04,"YZ");
-	hRatio -> SetTickLength(0.07,"X");
-	hRatio -> SetTitleSize(0.06*7/3,"XYZ");
-	hRatio -> SetTitleFont(42,"XYZ");
+}
 
-	hRatio -> SetLabelFont(42,"XYZ");
-	hRatio -> SetLabelSize(0.05*7/3,"XYZ");
-	hRatio -> SetLabelOffset(0.01,"XYZ");
+void RatioPlots::SetTopStyle(TH1 *numerator){
 
-	hRatio -> GetYaxis() -> SetTitleOffset(0.6);
-	hRatio -> GetXaxis() -> SetTitleOffset(1.);
+	numerator->SetMaximum(numerator->GetMaximum()*1.1);
+	numerator->GetXaxis()->SetNdivisions(505);
+	numerator->GetYaxis()->SetNdivisions(206);
+	numerator->GetYaxis()->SetTitleOffset(1.1);
+	numerator->GetXaxis()->SetTitleOffset(999);
+	numerator->GetXaxis()->SetLabelOffset(999);
+	numerator->GetYaxis()->SetTitleSize(0.048);
+	numerator->SetStats(0);
 
 
 }
