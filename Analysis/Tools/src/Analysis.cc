@@ -57,6 +57,9 @@ Analysis::Analysis(const std::string & inputFilelist, const std::string & evtinf
    it = std::find(branches.begin(),branches.end(),"nPileup");      if ( it != branches.end() ) t_event_  -> SetBranchAddress( (*it).c_str(), &n_pu_);
    it = std::find(branches.begin(),branches.end(),"nTruePileup");  if ( it != branches.end() ) t_event_  -> SetBranchAddress( (*it).c_str(), &n_true_pu_);
    
+   it = std::find(branches.begin(),branches.end(),"lumiPileup");   if ( it != branches.end() ) t_event_  -> SetBranchAddress( (*it).c_str(), &lumi_pu_);
+   it = std::find(branches.begin(),branches.end(),"instantLumi");  if ( it != branches.end() ) t_event_  -> SetBranchAddress( (*it).c_str(), &inst_lumi_);
+   
    it = std::find(branches.begin(),branches.end(),"genWeight");    if ( it != branches.end() ) t_event_  -> SetBranchAddress( (*it).c_str(), &genWeight_);
    it = std::find(branches.begin(),branches.end(),"genScale");     if ( it != branches.end() ) t_event_  -> SetBranchAddress( (*it).c_str(), &genScale_);
    it = std::find(branches.begin(),branches.end(),"pdfid1");       if ( it != branches.end() ) t_event_  -> SetBranchAddress( (*it).c_str(), &pdf_.id.first);

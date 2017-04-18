@@ -58,9 +58,10 @@ void ProbabilityDensityFunctions::setPdf(const std::string& function, const std:
 	    throw std::runtime_error(msg.str());
 	  }
 
-	if 		(function == "novosibirsk") getNovosibirsk(name);			//Novosibirsk (3)
+	if (function == "novosibirsk") getNovosibirsk(name);			//Novosibirsk (3)
 	else if (function == "novopsprod") getNovoPSProd(name);		//PS x Novosibirsk (3)
 	else if (function == "novoeffprod") getNovoEffProd(name);             //Eff x Novosibirsk (5)
+        else if (function == "novoefffixprod") getNovoEfffixProd(name);
 	else if (function == "novopshighMpol4") getNovoPSHighMPol4(name);	//PS x Novosibirsk (3) HighM Poly[4]
 	else if (function == "crystalball") getCrystalBall(name);
 	else if (function == "crystalpsprod") getCrystalPSProd(name);		//PS x CrystalBall (4)
@@ -71,17 +72,24 @@ void ProbabilityDensityFunctions::setPdf(const std::string& function, const std:
 	else if (function == "dijetv1psprod") getDijetv1PSProd(name);         //PS x Dijet (3)
 	else if (function == "dijetv2") getDijetv2(name); 			//Dijet X(750) (3)
 	else if (function == "dijetv2psprod") getDijetv2PSProd(name);		//PS x Dijet (3)
-	else if (function == "expgausexp") getExpGausExp(name);
+	else if (function == "dijetv3") getDijetv3(name);			//version 2 without ps term
+	else if (function == "dijetv3effprod") getDijetv3EffProd(name);
+	else if (function == "dijetv3logprod") getDijetv3LogisticProd(name);
+	else if (function == "dijetv4") getDijetv4(name);			//version 3 with extended
+	else if (function == "dijetv4logprod") getDijetv4LogisticProd(name);
+ 	else if (function == "expgausexp") getExpGausExp(name);
 	else if (function == "gausexp") getGausExp(name);
 	else if (function == "doublegausexp") getDoubleGausExp(name);
 	else if (function == "triplegausexp") getTripleGausExp(name);
 	else if (function == "gausexppsprod") getGausExpPSProd(name);		//PS x GausExp (3)
+	else if (function == "gausexpeffprod") getGausExpEffProd(name);		//Eff x GausExp (5)
 	else if (function == "expbwexp") getExpBWExp(name);
 	else if (function == "bukin") getBukin(name);
 	else if (function == "bukinpsprod") getBukinPSProd(name);		//PS x Bukin (5)
 	else if (function == "bernstein") getBernstein(name, numCoeffs);
 	else if (function == "chebychev") getChebychev(name, numCoeffs);
 	else if (function == "berneffprod") getBernEffProd(name, numCoeffs);
+	else if (function == "bernefffixprod") getBernEfffixProd(name, numCoeffs);
 	else if (function == "bernpsprod") getBernPSProd(name, numCoeffs);
 	else if (function == "chebeffprod") getChebEffProd(name, numCoeffs);
 	else if (function == "breitwigner") getBreitWigner(name);
@@ -91,8 +99,11 @@ void ProbabilityDensityFunctions::setPdf(const std::string& function, const std:
 	else if (function == "mynovopsprod") getMyNovoPSProd(name);
 	else if (function == "extnovosibirsk") getExtNovosibirsk(name);
 	else if (function == "extnovopsprod") getExtNovoPSProd(name);
-//	else if (function == "doublegausexp") getDoubleGausExp(name);
 	else if (function == "extnovoeffprod") getExtNovoEffProd(name);
+	else if (function == "extnovoefffixprod") getExtNovoEfffixProd(name);
+	else if (function == "extnovologprod") getExtNovoLogisticProd(name);
+	else if (function == "extnovoextlogprod") getExtNovoExtLogisticProd(name);
+	else if (function == "extnovohypertanprod") getExtNovoHypertanProd(name);
 	else {
 		std::stringstream msg;
 		msg << "Model '" << function
@@ -104,25 +115,23 @@ void ProbabilityDensityFunctions::setPdf(const std::string& function, const std:
 
 void ProbabilityDensityFunctions::getNovosibirsk(const std::string& name){
 	RooRealVar& var = *workspace_->var(var_.c_str());
-	RooRealVar peak = RooRealVar("peak", "peak", getPeakStart(), 50.0, 500.0, "GeV");
-	RooRealVar width = RooRealVar("width", "width", 50.0, 5.0, var.getMax()/2.0, "GeV");
-	RooRealVar tail = RooRealVar("tail", "tail", -0.1, -1.0, 1.0);
+	//RooRealVar peak = RooRealVar("peak1", "peak", getPeakStart(), 50.0, 500.0, "GeV");
+	RooRealVar peak = RooRealVar("peak1", "peak", getPeakStart(), 50.0, 1000.0, "GeV");	//only for subrange 3 
+	RooRealVar width = RooRealVar("width1", "width", 50.0, 5.0, var.getMax()/2.0, "GeV");
+	//RooRealVar tail = RooRealVar("tail1", "tail", -0.1, -1.0, 1.0);			
+        RooRealVar tail("tail", "tail", -0.1, -10.0, 10.0); 					//only for subrange 3	
 	RooNovosibirsk novo(name.c_str(),(name + "_novosibirsk").c_str(),var,peak,width,tail);
 
 	workspace_->import(novo);
 }
-void ProbabilityDensityFunctions::getNovosibirsk(const std::string& name, const std::string& title, RooRealVar& peak
-																							, RooRealVar& width
-																							, RooRealVar& tail){
+
+void ProbabilityDensityFunctions::getNovosibirsk(const std::string& name, const std::string& title, RooRealVar& peak, RooRealVar& width, RooRealVar& tail){
 	RooRealVar& var = *workspace_->var(var_.c_str());
 	RooNovosibirsk novo2(name.c_str(),title.c_str(),var,peak,width,tail);
 	workspace_->import(novo2);
 }
 
-void ProbabilityDensityFunctions::getNovoPSProd(const std::string& name,const std::string& title, RooRealVar& peak
-																							, RooRealVar& width
-																							, RooRealVar& tail
-																							, RooFormulaVar& PS){
+void ProbabilityDensityFunctions::getNovoPSProd(const std::string& name,const std::string& title, RooRealVar& peak, RooRealVar& width, RooRealVar& tail, RooFormulaVar& PS){
 	getNovosibirsk((name + "_novo").c_str(),(name + "_novo").c_str(),peak,width,tail);
 	RooNovosibirsk& novo = (RooNovosibirsk&) *workspace_->pdf((name + "_novo").c_str());
 	RooEffProd novopsprod(name.c_str(), title.c_str(), novo, PS);
@@ -152,6 +161,19 @@ void ProbabilityDensityFunctions::getNovoEffProd(const std::string& name){
 	workspace_->import(novoEffProd);
 }
 
+void ProbabilityDensityFunctions::getNovoEfffixProd(const std::string& name){
+        std::string novo_name = name + "_novosibirsk";
+        getNovosibirsk(novo_name);
+        RooNovosibirsk& novo = (RooNovosibirsk&) *workspace_->pdf(novo_name.c_str());
+
+        std::string ps_name = name + "_ps";
+        getEfficiencyFix(ps_name);
+        RooFormulaVar& ps = (RooFormulaVar&) *workspace_->function(ps_name.c_str());
+
+        RooEffProd novoEfffixprod(name.c_str(),(name + "_novoefffixprod").c_str(),novo,ps);
+        workspace_->import(novoEfffixprod);
+}
+
 void ProbabilityDensityFunctions::getNovoPSHighMPol4(const std::string& name){
 	std::string novo_name = name + "_novosibirsk";
 	getNovosibirsk(novo_name);
@@ -170,8 +192,9 @@ void ProbabilityDensityFunctions::getCrystalBall(const std::string& name){
 
 	  RooRealVar m0("m0", "m0",getPeakStart(), 50.0, 500.0, "GeV");
 	  RooRealVar sigma("sigma", "sigma", 35.0, 10.0, 100.0, "GeV");
-	  RooRealVar alpha("alpha", "alpha", -5.0, -0.1);
-	  RooRealVar n("n", "n", 20.0, 0.0, 100.0);
+	  //RooRealVar alpha("alpha", "alpha", -1.0, -0.1);
+	  RooRealVar alpha("alpha", "alpha", -5.0, -0.001);
+	  RooRealVar n("n", "n", 20.0, 3.0, 100.0);
 	  RooCBShape cb(name.c_str(), (name + "_crystalball").c_str(),
 	                var, m0, sigma, alpha, n);
 	  workspace_->import(cb);
@@ -261,9 +284,9 @@ void ProbabilityDensityFunctions::getDijetv1PSProd(const std::string& name){
 void ProbabilityDensityFunctions::getDijetv2(const std::string& name){
 	RooRealVar& var = *workspace_->var(var_.c_str());
 	std::string var_name = var.GetName();
-	RooRealVar par_a("par_a", "par_a", 8.0, 0.0, 10.0);
-	RooRealVar par_b("par_b", "par_b", 0.06, 0.02, 0.08);
-	RooRealVar par_c("par_c", "par_c", 70., 65., 100.);			//control non-zero values when start mbb > 200 GeV
+	RooRealVar par_a("par_a", "par_a", 8.0, 0.0, 50.0);
+	RooRealVar par_b("par_b", "par_b", 0.06, 0.001, 0.1);
+	RooRealVar par_c("par_c", "par_c", 70., 40., 300.);		//control non-zero values when start mbb > 200 GeV
 	RooGenericPdf dijet(name.c_str(),				//(-1+cx)e^-alnx(1+blnx)
 	                     (name + "_dijet").c_str(),
 	                     ("TMath::Exp(-par_a * TMath::Log(" + var_name + "/13000.) - par_b*par_a*(pow(TMath::Log(" + var_name + "/13000.),2)))*(-1+par_c*(" + var_name + "/13000.))").c_str(),
@@ -283,6 +306,74 @@ void ProbabilityDensityFunctions::getDijetv2PSProd(const std::string& name){
 	RooEffProd dijetpsprod(name.c_str(),
 	                        (name + "_dijetpsprod").c_str(), dijet, ps);
 	workspace_->import(dijetpsprod);
+}
+
+void ProbabilityDensityFunctions::getDijetv3(const std::string& name){
+	RooRealVar& var = *workspace_->var(var_.c_str());
+	std::string var_name = var.GetName();
+	RooRealVar par_a("par_a", "par_a", 10.0, 1.0, 50.0);
+	RooRealVar par_b("par_b", "par_b", 0.1, 0.001, 1.0);
+	RooRealVar mean("mean", "mean", 150.0, 0., 199.0, "GeV");
+	RooGenericPdf dijet(name.c_str(),
+			     (name + "_dijet").c_str(),
+			     ("TMath::Exp(-par_a * TMath::Log((" + var_name + "- mean)/13000.) - par_b*par_a*(pow(TMath::Log((" + var_name + "- mean)/13000.),2)))").c_str(),
+			     RooArgList(var,par_a,par_b,mean));
+	workspace_->import(dijet);
+}
+
+void ProbabilityDensityFunctions::getDijetv3EffProd(const std::string& name){
+	std::string di_name = name + "_dijet";
+	getDijetv3(di_name);
+	RooGenericPdf& dijet = (RooGenericPdf&) *workspace_->pdf(di_name.c_str());
+
+	std::string eff_name = name + "_eff";
+	getEfficiency(eff_name);
+        RooFormulaVar& eff = (RooFormulaVar&) *workspace_->function(eff_name.c_str());
+
+	RooEffProd dijetEffProd(name.c_str(),(name + "_dijeteffprod").c_str(), dijet, eff);
+	workspace_->import(dijetEffProd);
+}	
+
+void ProbabilityDensityFunctions::getDijetv3LogisticProd(const std::string& name){
+	std::string di_name = name + "_dijet";
+	getDijetv3(di_name);
+	RooGenericPdf& dijet = (RooGenericPdf&) *workspace_->pdf(di_name.c_str());
+
+        std::string eff_name = name + "_eff";
+        getLogistic(eff_name);
+        RooFormulaVar& eff = (RooFormulaVar&) *workspace_->function(eff_name.c_str());
+
+        RooEffProd dijetEffProd(name.c_str(),(name + "_dijeteffprod").c_str(), dijet, eff);
+        workspace_->import(dijetEffProd);
+}
+
+void ProbabilityDensityFunctions::getDijetv4(const std::string& name){
+	RooRealVar& var = *workspace_->var(var_.c_str());
+	std::string var_name = var.GetName();
+	RooRealVar par_a("par_a", "par_a", 10.0, 1.0, 50.0);
+	RooRealVar par_b("par_b", "par_b", 0.1, 0.001, 1.0);
+	RooRealVar par_c("par_c", "par_c", -0.001, -0.1, 0.0);
+	RooRealVar mean("mean", "mean", 150.0, 0., 199.0, "GeV");
+	//RooGenericPdf dijet(name.c_str(),
+	//		     (name + "_dijet").c_str(),
+	//("TMath::Exp(-(par_a*TMath::Log(("+var_name+"- mean)/13000.)*(1+par_b*TMath::Log(("+var_name+"- mean)/13000.)+par_c*TMath::Sqrt(TMath::Abs(TMath::Log(("+var_name+"- mean)/13000.))) )))").c_str(),
+	//		     RooArgList(var,par_a,par_b,par_c,mean));
+	RooPolyDijet dijet(name.c_str(),(name + "_dijet").c_str(),var,mean,par_a,par_b,par_c);
+
+	workspace_->import(dijet);
+}
+
+void ProbabilityDensityFunctions::getDijetv4LogisticProd(const std::string& name){
+        std::string di_name = name + "_dijet";
+        getDijetv4(di_name);
+        RooPolyDijet& dijet = (RooPolyDijet&) *workspace_->pdf(di_name.c_str());
+
+        std::string eff_name = name + "_eff";
+        getLogistic(eff_name);
+        RooFormulaVar& eff = (RooFormulaVar&) *workspace_->function(eff_name.c_str());
+
+        RooEffProd dijetEffProd(name.c_str(),(name + "_dijeteffprod").c_str(), dijet, eff);
+        workspace_->import(dijetEffProd);
 }
 
 void ProbabilityDensityFunctions::getExpGausExp(const std::string& name){
@@ -373,6 +464,20 @@ void ProbabilityDensityFunctions::getGausExpPSProd(const std::string& name){
 	workspace_->import(gausExppsprod);
 }
 
+void ProbabilityDensityFunctions::getGausExpEffProd(const std::string& name){
+        std::string ge_name = name + "_gausexp";
+        getGausExp(ge_name);
+        RooGausExp& gausExp = (RooGausExp&) *workspace_->pdf(ge_name.c_str());
+
+        std::string eff_name = name + "_eff";
+        getEfficiency(eff_name);
+        RooFormulaVar& eff = (RooFormulaVar&) *workspace_->function(eff_name.c_str());
+
+        RooEffProd gausExpEffprod(name.c_str(),
+                                  (name + "_gausExpeffprod").c_str(), gausExp, eff);
+        workspace_->import(gausExpEffprod);
+}
+
 void ProbabilityDensityFunctions::getExpBWExp(const std::string& name){
 	RooRealVar& var = *workspace_->var(var_.c_str());
 	RooRealVar peak("peak", "peak", getPeakStart(), 50.0, 500.0, "GeV");
@@ -387,11 +492,6 @@ void ProbabilityDensityFunctions::getExpBWExp(const std::string& name){
 
 void ProbabilityDensityFunctions::getBukin(const std::string& name){
 	RooRealVar& var = *workspace_->var(var_.c_str());
-//	RooRealVar Xp("Xp", "Xp", getPeakStart(), 50.0, 350.0, "GeV");
-//	RooRealVar sigp("sigp", "sigp", 20.0, 85.0, "GeV");
-//	RooRealVar xi("xi", "xi", 0.0, 0.55);
-//	RooRealVar rho1("rho1", "rho1", 0.05, -0.1, 0.1);
-//	RooRealVar rho2("rho2", "rho2", -0.05, -0.07, 0.045);
 	RooRealVar Xp("Xp", "Xp", getPeakStart(), 00.0, 1800.0, "GeV");
 	RooRealVar sigp("sigp", "sigp", 100,20.0, 200.0, "GeV");
 	RooRealVar xi("xi", "xi", 0.2,-10.0, 10.0);
@@ -466,6 +566,20 @@ void ProbabilityDensityFunctions::getBernEffProd(const std::string& name, const 
 	workspace_->import(bernEffProd);
 }
 
+void ProbabilityDensityFunctions::getBernEfffixProd(const std::string& name,const int& numCoeffs){
+        std::string bern_name = name + "_bern";
+        getBernstein(bern_name,numCoeffs);
+        RooBernstein& bern = (RooBernstein&) *workspace_->pdf(bern_name.c_str());
+
+        std::string ps_name = name + "_ps";
+        getEfficiencyFix(ps_name);
+        RooFormulaVar& ps = (RooFormulaVar&) *workspace_->function(ps_name.c_str());
+
+        RooEffProd bernPSProd(name.c_str(),
+                        (name+"_bernPSProd").c_str(), bern, ps);
+        workspace_->import(bernPSProd);
+}
+
 void ProbabilityDensityFunctions::getBernPSProd(const std::string& name,const int& numCoeffs){
 	std::string bern_name = name + "_bern";
 	getBernstein(bern_name,numCoeffs);
@@ -516,6 +630,11 @@ void ProbabilityDensityFunctions::getExtNovosibirsk(const std::string& name){
         RooRealVar width("width", "width", 50.0, 5.0, var.getMax()/2.0, "GeV");
         RooRealVar tail("tail", "tail", -0.1, -1.0, 1.0);
 	RooRealVar par4("par4", "par4", -0.0001, -1.0, 1.0);
+
+	//RooRealVar peak("peak", "peak", getPeakStart(), 50.0, 5000.0, "GeV");
+	//RooRealVar width("width", "width", 50.0, 0.0, 1000.0, "GeV");
+	//RooRealVar tail("tail", "tail", -0.1, -5.0, 5.0);
+	//RooRealVar par4("par4", "par4", -0.0001, -100.0, 100.0);
 	RooExtendNovosibirsk novo(name.c_str(),(name + "_extnovosibirsk").c_str(),var,peak, width, tail, par4);
 
 	workspace_->import(novo);
@@ -547,6 +666,58 @@ void ProbabilityDensityFunctions::getExtNovoEffProd(const std::string& name){
 	workspace_->import(novoEffProd);
 }
 
+void ProbabilityDensityFunctions::getExtNovoEfffixProd(const std::string& name){
+        std::string novo_name = name + "_extnovosibirsk";
+        getExtNovosibirsk(novo_name);
+        RooExtendNovosibirsk& novo = (RooExtendNovosibirsk&) *workspace_->pdf(novo_name.c_str());
+
+        std::string ps_name = name + "_ps";
+        getEfficiencyFix(ps_name);
+        RooFormulaVar& ps = (RooFormulaVar&) *workspace_->function(ps_name.c_str());
+
+        RooEffProd novoEfffixprod(name.c_str(),(name + "_extnovopsprod").c_str(),novo,ps);
+        workspace_->import(novoEfffixprod);
+}
+
+void ProbabilityDensityFunctions::getExtNovoLogisticProd(const std::string& name){
+	std::string novo_name = name + "_extnovosibirsk";
+	getExtNovosibirsk(novo_name);
+	RooExtendNovosibirsk& novo = (RooExtendNovosibirsk&) *workspace_->pdf(novo_name.c_str());
+
+	std::string eff_name = name + "_eff";
+	getLogistic(eff_name);
+	RooFormulaVar& eff = (RooFormulaVar&) *workspace_->function(eff_name.c_str());
+	
+	RooEffProd novoEffProd(name.c_str(),(name + "_extnovoeffprod").c_str(),novo,eff);
+	workspace_->import(novoEffProd);
+}
+
+void ProbabilityDensityFunctions::getExtNovoExtLogisticProd(const std::string& name){
+	std::string novo_name = name + "_extnovosibirsk";
+	getExtNovosibirsk(novo_name);
+	RooExtendNovosibirsk& novo = (RooExtendNovosibirsk&) *workspace_->pdf(novo_name.c_str());
+	
+	std::string eff_name = name + "_eff";
+	getLogistic_ext1(eff_name);
+	RooFormulaVar& eff = (RooFormulaVar&) *workspace_->function(eff_name.c_str());
+
+	RooEffProd novoEffProd(name.c_str(),(name + "_extnovoeffprod").c_str(),novo,eff);
+	workspace_->import(novoEffProd);
+}
+
+void ProbabilityDensityFunctions::getExtNovoHypertanProd(const std::string& name){
+	std::string novo_name = name + "_extnovosibirsk";
+	getExtNovosibirsk(novo_name);
+	RooExtendNovosibirsk& novo = (RooExtendNovosibirsk&) *workspace_->pdf(novo_name.c_str());
+	
+	std::string eff_name = name + "_eff";
+	getHyperbolictan(eff_name);
+	RooFormulaVar& eff = (RooFormulaVar&) *workspace_->function(eff_name.c_str());
+	
+	RooEffProd novoEffProd(name.c_str(),(name + "_extnovoeffprod").c_str(),novo,eff);
+        workspace_->import(novoEffProd);
+}
+
 void ProbabilityDensityFunctions::getRelBreitWigner(const std::string& name){
 	RooRealVar& var = *workspace_->var(var_.c_str());
 	RooRealVar mean("mean","mean",getPeakStart(),200.,1500.,"GeV");
@@ -567,14 +738,6 @@ void ProbabilityDensityFunctions::getRooQuadGausExp(const std::string& name){
 	RooRealVar tail_sigma("tail_sigma", "tail_sigma", 0.5*getPeakStart(), 0.5, 1500.0, "GeV");
 	RooRealVar norm_g1("norm_g1", "norm_g1", 0.5, 0, 1);
 	RooRealVar norm_g2("norm_g2", "norm_g2", 0.5, 0, 1);
-
-//	RooFormulaVar sigmaR2("sigmaR2","sigmaR2","@0",RooArgSet(sigmaL2));
-//	RooFormulaVar sigmaR1("sigmaR1","sigmaR1","@0",RooArgSet(sigmaL1));
-//	RooFormulaVar norm_g2("norm_g2","norm_g2","@0",RooArgList(norm_g1));
-
-//	norm_g2.setVal(0.);
-//	norm_g2.setConstant();
-
 	RooQuadGausExp quadgexp(name.c_str(),(name + "_quadgexp").c_str(),var,mean,sigmaL1,sigmaL2,sigmaR1,sigmaR2,tail_shift,tail_sigma,norm_g1,norm_g2);
 	workspace_->import(quadgexp);
 }
@@ -594,8 +757,67 @@ void ProbabilityDensityFunctions::getEfficiency(const std::string& name){
 	RooRealVar turnon_novoeff("turnon_novoeff", "turnon_novoeff",var.getMin()+ 5.0, var.getMin(), var.getMax());
 	RooFormulaVar eff((name).c_str(),("0.5*(TMath::Erf(slope_novoeff*(" + var_name + "-turnon_novoeff)) + 1)").c_str(),
 	                    RooArgSet(var, slope_novoeff, turnon_novoeff));
+	
+	//slope_novoeff.setConstant(kTRUE);
+	//turnon_novoeff.setConstant(kTRUE);
 	workspace_->import(eff);
 }
+
+void ProbabilityDensityFunctions::getEfficiencyFix(const std::string& name){
+        RooRealVar& var = *workspace_->var(var_.c_str());
+        std::string var_name = var.GetName();
+        RooFormulaVar phasespace((name).c_str(),
+                                  ("0.5*(TMath::Erf(0.0159765*(" + var_name + "- 223.027)) + 1)").c_str(),RooArgList(var));	// for G4 ExtNovo new WP
+				  //("0.5*(TMath::Erf(0.0161701*(" + var_name + "- 218.191)) + 1)").c_str(),RooArgList(var));	// for old WP
+				  //("0.5*(TMath::Erf(0.0166748*(" + var_name + "- 245.507)) + 1)").c_str(),RooArgList(var));	// for G7 Novosibirsk
+				  //("0.5*(TMath::Erf(0.0127066*(" + var_name + "- 280.87)) + 1)").c_str(),RooArgList(var));	// QCD bEnriched
+
+        workspace_->import(phasespace);
+}
+
+void ProbabilityDensityFunctions::getLogistic(const std::string& name){
+	RooRealVar& var = *workspace_->var(var_.c_str());
+        std::string var_name = var.GetName();
+	RooRealVar slope("slope", "slope", 0.1, 0.0, 0.5);
+	RooRealVar turnon("turnon", "turnon", var.getMin()+ 5.0, var.getMin()- 50., var.getMax());
+	RooFormulaVar eff((name).c_str(),("1/(1+TMath::Exp(-slope*(" + var_name + "-turnon)))").c_str(),
+			    RooArgSet(var, slope, turnon));
+	workspace_->import(eff);
+}
+
+void ProbabilityDensityFunctions::getLogistic_ext1(const std::string& name){
+	RooRealVar& var = *workspace_->var(var_.c_str());
+	std::string var_name = var.GetName();
+	RooRealVar slope("slope", "slope", 0.1, 0.0, 0.5);
+	RooRealVar turnon("turnon", "turnon", var.getMin()+ 5.0, var.getMin()- 50., var.getMax());
+	RooRealVar par3("par3", "par3", 0.5, 0.0, 1.0);
+	RooFormulaVar eff((name).c_str(),("1/(1 + TMath::Exp(-slope*("+ var_name +"-turnon)) + par3*TMath::Exp(-slope*("+ var_name +"-turnon))*TMath::Exp(-slope*("+ var_name +"-turnon)) )").c_str(),
+			    RooArgSet(var, slope, turnon, par3));
+	workspace_->import(eff);
+}
+
+void ProbabilityDensityFunctions::getHyperbolictan(const std::string& name){
+	RooRealVar& var = *workspace_->var(var_.c_str());
+        std::string var_name = var.GetName();
+	RooRealVar slope("slope", "slope", 0.1, 0.0, 1.0);		
+	RooRealVar turnon("turnon", "turnon", var.getMin()+ 5.0, var.getMin()- 50., var.getMax());
+	RooFormulaVar eff((name).c_str(),("0.5*(1 + TMath::TanH(slope*("+ var_name +"-turnon)) )").c_str(),
+			    RooArgSet(var, slope, turnon));
+	workspace_->import(eff);
+}
+
+/*
+void ProbabilityDensityFunctions::getHyperbolictan_ext1(const std::string& name){
+	RooRealVar& var = *workspace_->var(var_.c_str());
+	std::string var_name = var.GetName();
+	RooRealVar slope("slope", "slope", 0.1, 0.0, 0.5);
+	RooRealVar turnon("turnon", "turnon", var.getMin()+ 5.0, var.getMin()- 50., var.getMax());
+	RooRealVar par3("par3", "par3", 0.5, 0.0, 1.0);
+	RooFormulaVar eff((name).c_str(),("(1/(2*(1+par3)) * (1 + TMath::TanH(slope*("+ var_name +"-turnon)) + par3*(1+TMath::TanH(slope*("+ var_name +"-turnon)))*(1+TMath::TanH(slope*("+ var_name +"-turnon))) )").c_str(),
+			   RooArgSet(var, slope, turnon, par3));
+	workspace_->import(eff);
+}
+*/
 
 void ProbabilityDensityFunctions::getExp(const std::string& name,const std::string& name1){
 	RooRealVar& var = *workspace_->var(var_.c_str());
@@ -630,6 +852,7 @@ const std::vector<std::string> ProbabilityDensityFunctions::availableModels_ =
   {"novosibirsk",
    "novopsprod",
    "novoeffprod",
+   "novoefffixprod",
    "novopshighMpol4",
    "crystalball",
    "crystalpsprod",
@@ -641,15 +864,24 @@ const std::vector<std::string> ProbabilityDensityFunctions::availableModels_ =
    "dijetv1psprod",
    "dijetv2",
    "dijetv2psprod",
+   "dijetv3",
+   "dijetv3effprod",
+   "dijetv3logprod",
+   "dijetv4",
+   "dijetv4logprod",
    "expgausexp",
    "gausexp",
+   "doublegausexp",
+   "triplegausexp",
    "gausexppsprod",
+   "gausexpeffprod",
    "expbwexp",
    "bukin",
    "bukinpsprod",
    "bernstein",
    "chebychev",
    "berneffprod",
+   "bernefffixprod",
    "bernpsprod",
    "chebeffprod",
    "breitwigner",
@@ -658,6 +890,10 @@ const std::vector<std::string> ProbabilityDensityFunctions::availableModels_ =
    "extnovosibirsk",
    "extnovopsprod",
    "extnovoeffprod",
+   "extnovoefffixprod",
+   "extnovologprod",
+   "extnovoextlogprod",
+   "extnovohypertanprod",
    "relbreitwigner",
    "doublegausexp",
    "quadgausexp"};
