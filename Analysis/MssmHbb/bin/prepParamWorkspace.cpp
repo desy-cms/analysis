@@ -64,7 +64,7 @@ typedef unique_ptr<TFile> pTFile;
 typedef map<string, map<string, pair<string,string> > > myMap;
 
 void setup_bg(const string& in_path,const string& out_path, TH1& data_obs);
-void setup_bg(const string& in_path,const string& out_path, RooDataSet& data_obs);
+void setup_bg(const string& in_path,const string& out_path, const bool& generate_asimov = true);
 void setup_signal(const string& in_path, const vector<string>& syst);
 string SignalModel(const vector<string>& parameters);
 string GetDirName(const string& filename);
@@ -76,15 +76,15 @@ int main(int argc, char ** argv){
 		//list of the inputs:
 		const string cmsswBase = getenv("CMSSW_BASE");
 		vector<string> input_signal = {
-				cmsswBase + "/src/Analysis/MssmHbb/output/4xBins_ReReco_signal_M-300",
-				cmsswBase + "/src/Analysis/MssmHbb/output/4xBins_ReReco_signal_M-350",
-				cmsswBase + "/src/Analysis/MssmHbb/output/4xBins_ReReco_signal_M-400",
-				cmsswBase + "/src/Analysis/MssmHbb/output/4xBins_ReReco_signal_M-500",
-				cmsswBase + "/src/Analysis/MssmHbb/output/4xBins_ReReco_signal_M-600",
-				cmsswBase + "/src/Analysis/MssmHbb/output/4xBins_ReReco_signal_M-700",
-				cmsswBase + "/src/Analysis/MssmHbb/output/4xBins_ReReco_signal_M-900",
-				cmsswBase + "/src/Analysis/MssmHbb/output/4xBins_ReReco_signal_M-1100",
-				cmsswBase + "/src/Analysis/MssmHbb/output/4xBins_ReReco_signal_M-1300",
+				cmsswBase + "/src/Analysis/MssmHbb/output/ReReco_signal_M-300",
+				cmsswBase + "/src/Analysis/MssmHbb/output/ReReco_signal_M-350",
+				cmsswBase + "/src/Analysis/MssmHbb/output/ReReco_signal_M-400",
+				cmsswBase + "/src/Analysis/MssmHbb/output/ReReco_signal_M-500",
+				cmsswBase + "/src/Analysis/MssmHbb/output/ReReco_signal_M-600",
+				cmsswBase + "/src/Analysis/MssmHbb/output/ReReco_signal_M-700",
+				cmsswBase + "/src/Analysis/MssmHbb/output/ReReco_signal_M-900",
+				cmsswBase + "/src/Analysis/MssmHbb/output/ReReco_signal_M-1100",
+				cmsswBase + "/src/Analysis/MssmHbb/output/ReReco_signal_M-1300",
 								};
 		vector<string> input_background = {
 				cmsswBase + "/src/Analysis/MssmHbb/output/ReReco_bg_fit/sr1/FitContainer_workspace_SR1.root",
@@ -144,8 +144,7 @@ int main(int argc, char ** argv){
 //				TClass *cl = gROOT->GetClass(key->GetClassName());
 //				if (!cl->InheritsFrom("RooDataSet")) continue;
 				try {
-//					setup_bg(input_background.at(i),GetDirName(data_obs.at(i)),*((RooDataSet*) key->ReadObj()));
-//					setup_bg(input_background.at(i),GetDirName(data_obs.at(i)),*((RooDataSet*) ((RooWorkspace*)temp.Get("workspace"))->data("data_obs")));
+					setup_bg(input_background.at(i),GetDirName(data_obs.at(i)),false);
 //					setup_bg(input_background.at(i),GetDirName(data_obs.at(i)),*((TH1D*) temp.Get("data_obs")));
 				} catch (exception& e) {
 					cerr<<e.what()<<endl;
@@ -157,7 +156,7 @@ int main(int argc, char ** argv){
 		//Create signal workspace
 		for(const auto& in : input_signal){
 			try {
-				setup_signal(in,systematics);
+				setup_signal(in + "_NormToTanB30",systematics);
 			} catch (exception& e) {
 				cerr<<e.what()<<endl;
 				return ERROR_SIGNAL_WORKSPACE;
@@ -169,6 +168,61 @@ int main(int argc, char ** argv){
 		return ERROR_UNHANDLED_EXCEPTION;
 	}
 	return SUCCESS;
+}
+
+void setup_bg(const string& in_path,const string& out_path, const bool& generate_asimov){
+	if(gSystem->AccessPathName(in_path.c_str()) ) throw invalid_argument("Error: no bg file " + in_path);
+	TFile fIn(in_path.c_str(),"read");
+	// Number of bins in daat_obs:
+	int nbins = 5000;
+	//Input workspace
+	RooWorkspace& w = *( (RooWorkspace*)fIn.Get("workspace") );
+	//Input RooDataSet:
+	RooAbsData& roo_data = *w.data("data_obs");
+	RooRealVar& mbb = *w.var("mbb");
+	mbb.setBins(nbins);
+
+	//Prepare Bg normalisation variable!!!
+	string bg_pdf_name = "background";
+	if(w.pdf(bg_pdf_name.c_str()) == nullptr) throw invalid_argument("Error: no <background> pdf has been found in bg workspace");
+	RooRealVar bg_norm((bg_pdf_name+"_norm").c_str(),"background_norm",roo_data.sumEntries());
+	bg_norm.setConstant();
+
+	std::string add_name = "";
+	//RooDataHist with data_obs
+	TH1 *h;
+	if(generate_asimov){
+		h = w.pdf(bg_pdf_name.c_str())->createHistogram("QCD",mbb,RooFit::Binning(nbins,mbb.getMin(),mbb.getMax()));
+	}
+	else{
+		h = roo_data.createHistogram("QCD", mbb, RooFit::Binning(nbins,mbb.getMin(),mbb.getMax()));
+		add_name = "_RealBBnB";
+	}
+
+	h->Scale(roo_data.sumEntries()/h->Integral());
+	h->SetTitle("data_obs");
+	h->SetName("data_obs");
+	RooDataHist h_data("data_obs","data_obs",mbb,RooFit::Import(*h));
+
+	//Output workspace
+	RooWorkspace wOut("workspace");
+	wOut.import(*(RooAbsPdf*)w.pdf(bg_pdf_name.c_str()));
+	wOut.import(h_data);
+	wOut.import(bg_norm);
+
+	/*
+	 * Trying to fix Turn-on for the first sub-range
+	 */
+	if(out_path.find("sr1") != std::string::npos){
+		wOut.var("slope_novoeff")->setConstant();
+		wOut.var("turnon_novoeff")->setConstant();
+		add_name += "_TurnOnFix";
+	}
+
+	add_name += "_" + std::to_string(nbins) + "bins";
+	wOut.Print("v");
+	wOut.writeToFile((out_path + "/background_workspace" + add_name + ".root").c_str());
+
 }
 
 void setup_bg(const string& in_path,const string& out_path, TH1& data_obs){
@@ -223,42 +277,6 @@ void setup_bg(const string& in_path,const string& out_path, TH1& data_obs){
 //	add_name += "_inBins";
 	wOut.Print("v");
 	wOut.writeToFile((out_path + "/background_workspace" + add_name + ".root").c_str());
-}
-
-void setup_bg(const string& in_path,const string& out_path, RooDataSet& data_obs){
-	if(gSystem->AccessPathName(in_path.c_str()) ) throw invalid_argument("Error: no bg file " + in_path);
-	//Read input file
-	TFile fIn(in_path.c_str(),"read");
-	RooWorkspace& w = *( (RooWorkspace*)fIn.Get("workspace") );
-	//Prepare Bg normalisation variable WARNING - can be wrong!!!
-	string bg_pdf_name = "background";
-	if(w.pdf(bg_pdf_name.c_str()) == nullptr) throw invalid_argument("Error: no <background> pdf has been found in bg workspace");
-	RooRealVar bg_norm((bg_pdf_name+"_norm").c_str(),"background_norm",data_obs.sumEntries());
-	bg_norm.setConstant();
-	data_obs.SetName("data_obs");
-	//Output workspace:
-	//RooWorkspace wOut("workspace");
-	//wOut.import(*(RooAbsPdf*)w.pdf(bg_pdf_name.c_str()));
-	//wOut.import(data_obs);
-	//wOut.import(bg_norm);
-	//wOut.Print("v");
-	//wOut.writeToFile((out_path + "/background_workspace_roodataset.root").c_str());
-	w.import(data_obs);
-	w.import(bg_norm);
-
-
-	/*
-	 * Trying to fix Turn-on for the first sub-range
-	 */
-	std::string add_name = "";
-	if(out_path.find("sr1") != std::string::npos){
-		w.var("slope_novoeff")->setConstant();
-		w.var("turnon_novoeff")->setConstant();
-		add_name = "_TurnOnFix";
-	}
-	w.Print("v");
-	w.writeToFile((out_path + "/background_workspace_roodataset" + add_name +".root").c_str());
-
 }
 
 void setup_signal(const string& in_folder, const vector<string>& syst){
