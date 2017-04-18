@@ -281,8 +281,8 @@ void DataMcComparison::histoToFill(const std::string & syst, const std::string &
 		(histo_.getHisto())["jet_b_dR13"+syst+variation]->Fill(jet1_.deltaR(jet3_),weight);
 		(histo_.getHisto())["jet_b_deta13"+syst+variation]->Fill(jet1_.eta()-jet3_.eta(),weight);
 		(histo_.getHisto())["jet_b_deta23"+syst+variation]->Fill(jet2_.eta()-jet3_.eta(),weight);
-		(histo_.getHisto())["jet_b_dphi13"+syst+variation]->Fill(jet1_.phi() - jet3_.phi(),weight);
-		(histo_.getHisto())["jet_b_dphi23"+syst+variation]->Fill(jet2_.phi() - jet3_.phi(),weight);
+		(histo_.getHisto())["jet_b_dphi13"+syst+variation]->Fill( acos(cos(jet1_.phi() - jet3_.phi())),weight);
+		(histo_.getHisto())["jet_b_dphi23"+syst+variation]->Fill( acos(cos(jet2_.phi() - jet3_.phi())),weight);
 
 	}
 

@@ -71,11 +71,11 @@ void Histograms::Make(const int &size, const bool & lowM) {
 	histo_["jet_btag_cmva3"]	=  new TH1D("jet_btag_cmva3","btag_{cmva} discr. third Leading Jet; Leading Jet btag_{cmva} discr.",size,0.3,1.);
 
 	histo_["jet_deta12"]		=  new TH1D("jet_deta12","#Delta #eta between Leading and sub-Leading jets;#Delta #eta_{12}",(int)size/2,-1.* TMath::Pi(),TMath::Pi());
-	histo_["jet_dphi12"]		=  new TH1D("jet_dphi12","#Delta #phi between Leading and sub-Leading jets;#Delta #phi_{12}",(int)size/2,-1.* TMath::Pi(),TMath::Pi());
+	histo_["jet_dphi12"]		=  new TH1D("jet_dphi12","#Delta #phi between Leading and sub-Leading jets;#Delta #phi_{12}",(int)size/2,0,TMath::Pi());
 	histo_["jet_deta13"]		=  new TH1D("jet_deta13","#Delta #eta between Leading and third-Leading jets;#Delta #eta_{13}",(int)size/2,-1.* TMath::Pi(),TMath::Pi());
-	histo_["jet_dphi13"]		=  new TH1D("jet_dphi13","#Delta #phi between Leading and third-Leading jets;#Delta #phi_{13}",(int)size/2,-1.* TMath::Pi(),TMath::Pi());
+	histo_["jet_dphi13"]		=  new TH1D("jet_dphi13","#Delta #phi between Leading and third-Leading jets;#Delta #phi_{13}",(int)size/2,0,TMath::Pi());
 	histo_["jet_deta23"]		=  new TH1D("jet_deta23","#Delta #eta between sub-Leading and third-Leading jets;#Delta #eta_{23}",(int)size/2,-1.* TMath::Pi(),TMath::Pi());
-	histo_["jet_dphi23"]		=  new TH1D("jet_dphi23","#Delta #phi between sub-Leading and third-Leading jets;#Delta #phi_{23}",(int)size/2,-1.* TMath::Pi(),TMath::Pi());
+	histo_["jet_dphi23"]		=  new TH1D("jet_dphi23","#Delta #phi between sub-Leading and third-Leading jets;#Delta #phi_{23}",(int)size/2,0,TMath::Pi());
 
 	histo_["jet_dR12"]			=  new TH1D("jet_dR12","#Delta R between Leading and sub-Leading jets;#Delta R_{12}",size,0,5);
 	histo_["jet_dR13"]			=  new TH1D("jet_dR13","#Delta R between Leading and third-Leading jets;#Delta R_{13}",size,0,5);
@@ -90,13 +90,15 @@ void Histograms::Make(const int &size, const bool & lowM) {
 	histo_["diJet_pt"]			=  new TH1D("diJet_pt","p_{T} of the di-Jet object;di-Jet p_{T}, [GeV]",size,0.,1500.);
 	histo_["diJet_eta"]			=  new TH1D("diJet_eta","#eta of the di-Jet object; di-Jet #eta",(int)size/2,-2.5,2.5);
 	histo_["diJet_phi"]			=  new TH1D("diJet_phi","#phi of the di-Jet object; di-Jet #phi",(int)size/2,0,2.*TMath::Pi());
-	histo_["diJet_m"]			=  new TH1D("diJet_m","M_{12} of the di-Jet object; di-Jet M_{12}, [GeV]",size,0.,1700);
-	histo_["diJet_m_bb"]		=  new TH1D("diJet_m_bb","M_{12} of the di-Jet object; di-Jet M_{12}, [GeV]",size,0.,1700);
-	histo_["diJet_m_cc"]		=  new TH1D("diJet_m_cc","M_{12} of the di-Jet object; di-Jet M_{12}, [GeV]",size,0.,1700);
-	histo_["diJet_m_ll"]		=  new TH1D("diJet_m_ll","M_{12} of the di-Jet object; di-Jet M_{12}, [GeV]",size,0.,1700);
-	histo_["diJet_m_bc"]		=  new TH1D("diJet_m_bc","M_{12} of the di-Jet object; di-Jet M_{12}, [GeV]",size,0.,1700);
-	histo_["diJet_m_cl"]		=  new TH1D("diJet_m_cl","M_{12} of the di-Jet object; di-Jet M_{12}, [GeV]",size,0.,1700);
-	histo_["diJet_m_bl"]		=  new TH1D("diJet_m_bl","M_{12} of the di-Jet object; di-Jet M_{12}, [GeV]",size,0.,1700);
+	histo_["diJet_m"]			=  new TH1D("diJet_m","M_{12} of the di-Jet object; di-Jet M_{12}, [GeV]",170,0.,1700);
+	histo_["diJet_m_5GeV"]			=  new TH1D("diJet_m_5GeV","M_{12} of the di-Jet object; di-Jet M_{12}, [GeV]",340,0.,1700);
+	histo_["diJet_m_20GeV"]			=  new TH1D("diJet_m_20GeV","M_{12} of the di-Jet object; di-Jet M_{12}, [GeV]",85,0.,1700);
+	histo_["diJet_m_bb"]		=  new TH1D("diJet_m_bb","M_{12} of the di-Jet object; di-Jet M_{12}, [GeV]",170,0.,1700);
+	histo_["diJet_m_cc"]		=  new TH1D("diJet_m_cc","M_{12} of the di-Jet object; di-Jet M_{12}, [GeV]",170,0.,1700);
+	histo_["diJet_m_ll"]		=  new TH1D("diJet_m_ll","M_{12} of the di-Jet object; di-Jet M_{12}, [GeV]",170,0.,1700);
+	histo_["diJet_m_bc"]		=  new TH1D("diJet_m_bc","M_{12} of the di-Jet object; di-Jet M_{12}, [GeV]",170,0.,1700);
+	histo_["diJet_m_cl"]		=  new TH1D("diJet_m_cl","M_{12} of the di-Jet object; di-Jet M_{12}, [GeV]",170,0.,1700);
+	histo_["diJet_m_bl"]		=  new TH1D("diJet_m_bl","M_{12} of the di-Jet object; di-Jet M_{12}, [GeV]",170,0.,1700);
 
 	/***********************Trigger Object Parameters*********************/
 	histo_["onlobject_L1_pt1"]	= new TH1D("onlobject_L1_pt1","p_{T} of the L1 Obj. matched to the first Leading Jet; L1-Obj. p^{(1)}_{T}, [GeV]",size,0.,1500.);
@@ -507,11 +509,11 @@ void Histograms::DeclareDataMCHistograms(const int &size){
 	histo_["jet_b_btag_cmva3"]	=  new TH1D( ("jet_b_btag_cmva3"),"btag_{cmva} discr. third Leading Jet; third-Leading Jet btag_{cmva} discr.",60,0.,1.);
 
 	histo_["jet_b_deta12"]		=  new TH1D( ("jet_b_deta12"),"#Delta #eta between Leading and sub-Leading jets;#Delta #eta_{12}",20,-1.6,1.6);
-	histo_["jet_b_dphi12"]		=  new TH1D("jet_b_dphi12","#Delta #phi between Leading and sub-Leading jets;#Delta #phi_{12}",20,-1.* TMath::Pi(),TMath::Pi());
+	histo_["jet_b_dphi12"]		=  new TH1D("jet_b_dphi12","#Delta #phi between Leading and sub-Leading jets;#Delta #phi_{12}",20,0,TMath::Pi());
 	histo_["jet_b_deta13"]		=  new TH1D("jet_b_deta13","#Delta #eta between Leading and third-Leading jets;#Delta #eta_{13}",(int)size/2,-1.* TMath::Pi(),TMath::Pi());
-	histo_["jet_b_dphi13"]		=  new TH1D("jet_b_dphi13","#Delta #phi between Leading and third-Leading jets;#Delta #phi_{13}",(int)size/2,-1.* TMath::Pi(),TMath::Pi());
+	histo_["jet_b_dphi13"]		=  new TH1D("jet_b_dphi13","#Delta #phi between Leading and third-Leading jets;#Delta #phi_{13}",(int)size/2,0,TMath::Pi());
 	histo_["jet_b_deta23"]		=  new TH1D("jet_b_deta23","#Delta #eta between sub-Leading and third-Leading jets;#Delta #eta_{23}",(int)size/2,-1.* TMath::Pi(),TMath::Pi());
-	histo_["jet_b_dphi23"]		=  new TH1D("jet_b_dphi23","#Delta #phi between sub-Leading and third-Leading jets;#Delta #phi_{23}",(int)size/2,-1.* TMath::Pi(),TMath::Pi());
+	histo_["jet_b_dphi23"]		=  new TH1D("jet_b_dphi23","#Delta #phi between sub-Leading and third-Leading jets;#Delta #phi_{23}",(int)size/2,0,TMath::Pi());
 
 	histo_["jet_b_dR12"]			=  new TH1D( ("jet_b_dR12"),"#Delta R between Leading and sub-Leading jets;#Delta R_{12}",30,1,3.6);
 	histo_["jet_b_dR13"]			=  new TH1D( ("jet_b_dR13"),"#Delta R between Leading and third-Leading jets;#Delta R_{13}",30,1,3.6);
@@ -563,11 +565,11 @@ void Histograms::DeclareDataMCHistograms(const int &size){
 			histo_["jet_b_btag_cmva3" + s + v]	=  new TH1D( ("jet_b_btag_cmva3" + s + v).c_str(),"btag_{cmva} discr. third Leading Jet; Leading Jet btag_{cmva} discr.",60,0.,1.);
 
 			histo_["jet_b_deta12" + s + v]		=  new TH1D( ("jet_b_deta12" + s + v).c_str(),"#Delta #eta between Leading and sub-Leading jets;#Delta #eta_{12}",20,-1.6,1.6);
-			histo_["jet_b_dphi12" + s + v]		=  new TH1D( ("jet_b_dphi12" + s + v).c_str(),"#Delta #phi between Leading and sub-Leading jets;#Delta #phi_{12}",20,-1.* TMath::Pi(),TMath::Pi());
+			histo_["jet_b_dphi12" + s + v]		=  new TH1D( ("jet_b_dphi12" + s + v).c_str(),"#Delta #phi between Leading and sub-Leading jets;#Delta #phi_{12}",20,0,TMath::Pi());
 			histo_["jet_b_deta13" + s + v]		=  new TH1D( ("jet_b_deta13" + s + v).c_str(),"#Delta #eta between Leading and third-Leading jets;#Delta #eta_{13}",(int)size/2,-1.* TMath::Pi(),TMath::Pi());
-			histo_["jet_b_dphi13" + s + v]		=  new TH1D( ("jet_b_dphi13" + s + v).c_str(),"#Delta #phi between Leading and third-Leading jets;#Delta #phi_{13}",(int)size/2,-1.* TMath::Pi(),TMath::Pi());
+			histo_["jet_b_dphi13" + s + v]		=  new TH1D( ("jet_b_dphi13" + s + v).c_str(),"#Delta #phi between Leading and third-Leading jets;#Delta #phi_{13}",(int)size/2,0,TMath::Pi());
 			histo_["jet_b_deta23" + s + v]		=  new TH1D( ("jet_b_deta23" + s + v).c_str(),"#Delta #eta between sub-Leading and third-Leading jets;#Delta #eta_{23}",(int)size/2,-1.* TMath::Pi(),TMath::Pi());
-			histo_["jet_b_dphi23" + s + v]		=  new TH1D( ("jet_b_dphi23" + s + v).c_str(),"#Delta #phi between sub-Leading and third-Leading jets;#Delta #phi_{23}",(int)size/2,-1.* TMath::Pi(),TMath::Pi());
+			histo_["jet_b_dphi23" + s + v]		=  new TH1D( ("jet_b_dphi23" + s + v).c_str(),"#Delta #phi between sub-Leading and third-Leading jets;#Delta #phi_{23}",(int)size/2,0,TMath::Pi());
 
 			histo_["jet_b_dR12" + s + v]		=  new TH1D( ("jet_b_dR12" + s + v).c_str(),"#Delta R between Leading and sub-Leading jets;#Delta R_{12}",30,1,3.6);
 			histo_["jet_b_dR13" + s + v]		=  new TH1D( ("jet_b_dR13" + s + v).c_str(),"#Delta R between Leading and sub-sub-Leading jets;#Delta R_{13}",30,1,3.6);
@@ -598,6 +600,5 @@ void Histograms::MakeM12Templates(const std::size_t& nbins, const double& xmin, 
 		std::string name = "template_" + h;
 		if(histo_[name] != nullptr) throw std::invalid_argument("Histogram: " + name + " already exists. Check spelling");
 		histo_[name] = new TH1D( name.c_str(),"",nbins,xmin,xmax);
-//		histo_[name + "_2xBins"] = new TH1D( (name + "_2xBins").c_str(),"",nbins*2,xmin,xmax);
 	}
 }

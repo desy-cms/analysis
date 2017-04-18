@@ -12,6 +12,7 @@
 #include <memory>
 #include <string>
 #include <map>
+#include <array>
 
 #include "Analysis/MssmHbb/interface/JetAnalysisBase.h"
 #include "Analysis/MssmHbb/interface/DataMcComparison.h"
@@ -28,6 +29,10 @@ namespace analysis{
 
 				//Overwrite Leading jet selection from JetAnalysisBase class
 				const bool leadingJetSelection(const std::shared_ptr<tools::Collection<tools::Jet> > & offlineJets);
+				//Overwrite BTag SFs
+				void combineBTagSFs(const std::array< std::vector<BTagScaleFactor::ScaleFactor> , 3 >& sfs, const std::vector<double>& lumis, const double& lumi_tot);
+				//Overwrite weight assignment
+				const double assignWeight();
 
 			protected:
 

@@ -188,8 +188,8 @@ std::pair<double,double> Weights::BTagTriggerEfficiency(const double &pt, const 
 	double SF = 0;
 	double eSF = 0;
 	//Lumis
-	double Lumi_GtoH = 16382;
-	double Lumi_BtoF = 20233;
+	double Lumi_GtoH = 15956;//16382;
+	double Lumi_BtoF = 19717;//20233;
 	double Lumi_tot = Lumi_GtoH + Lumi_BtoF;
 //	if(Lumi_tot != lumi_data){
 //		std::cerr<<"Error: in Weights::BTagTriggerEfficiency wrong LUMI!!!!!"<<std::endl;
@@ -399,5 +399,29 @@ double Weights::HtWeight(TH1 * histo, const double &Ht){
 	return weight;
 }
 
+double Weights::dRWeight(const double& dR){
+	/*
+	 * Experimental weight
+	 */
+	double weight = 1.33441e+00 + (-8.19299e-01)*dR + 4.53292e-01 * dR * dR + (-7.19293e-02) * dR * dR * dR;
+	return weight;
+}
+
+double Weights::M12Weight(const double& m12){
+	double weight = 1;
+	if(m12 < 400) weight= 1./(1.+exp( -0.0540249 * (m12 - 188.762) ));
+
+	return weight;
+}
+double Weights::Ht_bbxWeight(TH1& h, const double& Ht){
+	double weight = 0;
+	if(Ht < 2600){
+		weight = h.Interpolate(Ht);
+	}
+	else {
+		weight = h.Interpolate(2550);
+	}
+	return weight;
+}
 //.............Functions...................
 

@@ -141,16 +141,26 @@ void selectionDoubleB::fillHistograms(const std::shared_ptr<Collection<Jet> > &o
 	(histo_.getHisto())["diJet_eta"]->Fill(obj12.Eta(),weight);
 	(histo_.getHisto())["diJet_phi"]->Fill(obj12.Phi(),weight);
 	(histo_.getHisto())["diJet_m"]->Fill(obj12.M(),weight);
+	(histo_.getHisto())["diJet_m_5GeV"]->Fill(obj12.M(),weight);
+	(histo_.getHisto())["diJet_m_20GeV"]->Fill(obj12.M(),weight);
 
-	(histo_.getHisto())["template_Mbb"]->Fill(obj12.M(),weight);
-	(histo_.getHisto())["template_Mbb_17GeV"]->Fill(obj12.M(),weight);
+	//Flavour composition
+	if(isMC()){
+		if(jet1.flavour() == 5 && jet2.flavour() == 5) (histo_.getHisto())["diJet_m_bb"]->Fill(obj12.M(),weight);
+		else if ((jet1.flavour() == 5 && jet2.flavour() == 4) || (jet2.flavour() == 5 && jet1.flavour() == 4)) (histo_.getHisto())["diJet_m_bc"]->Fill(obj12.M(),weight);
+		else if ((jet1.flavour() == 5 && jet2.flavour() == 0) || (jet2.flavour() == 5 && jet1.flavour() == 0)) (histo_.getHisto())["diJet_m_bl"]->Fill(obj12.M(),weight);
+		else if (jet1.flavour() == 0 && jet2.flavour() == 0) (histo_.getHisto())["diJet_m_ll"]->Fill(obj12.M(),weight);
+		else if (jet1.flavour() == 4 && jet2.flavour() == 4) (histo_.getHisto())["diJet_m_cc"]->Fill(obj12.M(),weight);
+		else if ((jet1.flavour() == 4 && jet2.flavour() == 0) || (jet2.flavour() == 4 && jet1.flavour() == 0)) (histo_.getHisto())["diJet_m_cl"]->Fill(obj12.M(),weight);
+		else std::logic_error("Undefined flavours at: selectionDoubleB::fillHistograms");
+	}
 
 }
 
 const double selectionDoubleB::assignWeight(){
 	double weight = 1;
 	if(isMC()) {
-		weight = weight_["Lumi"] * weight_["PtEff_central"] * weight_["PU_central"] * weight_["SFb_central"] * weight_["SFl_central"];
+		weight = weight_["PtEff_central"] * weight_["PU_central"] * weight_["SFb_central"] * weight_["SFl_central"];
 	}
 	return weight;
 }

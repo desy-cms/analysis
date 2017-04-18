@@ -35,3 +35,13 @@ void CheckZombieObjectInTFile(const TFile& file, const std::string& name){
 		throw std::invalid_argument("ERROR: Object: " + name + " is not in TFile " + std::string(file.GetName()));
 }
 
+RooWorkspace* GetRooWorkspace(const std::string& path_to_file, const std::string& workspace_name){
+	/*
+	 * Function to get RooWorkspace from TFile
+	 */
+	TFile f(path_to_file.c_str(),"READ");
+	CheckZombie(f);
+	CheckZombieObjectInTFile(f,workspace_name);
+	RooWorkspace *w = (RooWorkspace*) f.Get(workspace_name.c_str());
+	return std::move(w);
+}

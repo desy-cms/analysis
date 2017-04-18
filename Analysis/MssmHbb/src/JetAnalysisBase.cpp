@@ -214,8 +214,8 @@ void JetAnalysisBase::applySelection(){
 	double totWeight = 0;
 	TLorentzVector diJetObject;
 	double Ht = 0;
-	std::vector<double> lumis = {20233, //  B-F
-								 16382}; // G-H
+	std::vector<double> lumis = {19717, //  B-F
+								 15956}; // G-H
 	//Event loop:
 
 //	Instance of BTagScaleFactor lib:
@@ -410,6 +410,13 @@ void JetAnalysisBase::applySelection(){
 	    	weight_["SFb_up"] = 1;
 	    	weight_["SFb_down"] = 1;
 
+	    	weight_["dR"] = 1;
+	    	if(baseOutputName_ == "bbx") {
+	    		weight_["dR"] = pWeight_->dRWeight(LeadJet[0].deltaR(LeadJet[1]));
+	    		weight_["M12"] = pWeight_->M12Weight((LeadJet[0].p4() + LeadJet[1].p4()).M());
+	    		weight_["Ht_bbx"] = pWeight_->Ht_bbxWeight(*hCorrections1D_["hHtWeight_bbx"],Ht);
+	    	}
+
 	    	combineBTagSFs(BTagSFs,lumis,dataLumi_);
 
 //	    	double Lumi_GtoH = 16382;
@@ -453,6 +460,7 @@ void JetAnalysisBase::applySelection(){
 //        	  }
 
 	    }
+//	    weight_["M12"] = pWeight_->M12Weight(*hCorrections1D_["hM12Weight_bbx"],(LeadJet[0].p4() + LeadJet[1].p4()).M());
 
 	    ++NumberOfEventsAfterSelection;
 
@@ -466,7 +474,7 @@ void JetAnalysisBase::applySelection(){
 	if(isMC()){
 		if(!signalMC_) {
 			xsection = this->crossSection();
-			if(file_name.find("bEnriched") != std::string::npos || file_name.find("BGenFilter") != std::string::npos)
+			if(file_name.find("bEnriched") != std::string::npos || file_name.find("BGenFilter") != std::string::npos || file_name.find("TTJets") != std::string::npos)
 				xsection = this->crossSection("myCrossSection");
 		}
 		else {
@@ -591,6 +599,8 @@ void JetAnalysisBase::loadCorrections(){
 	std::vector<std::string> csvv2 = {defaultInputDir_ + "bin/input_corrections/CSVv2_Moriond17_B_F.csv",
 									  defaultInputDir_ + "bin/input_corrections/CSVv2_Moriond17_G_H.csv"};//{defaultInputDir_ + "bin/input_corrections/SFbLib.csv"};//
 	if(isMC()) BTagLib_.Setup("csvv2",csvv2);
+
+	//TEST weights for bbx
 }
 
 const bool JetAnalysisBase::leadingJetSelection(const std::shared_ptr<tools::Collection<tools::Jet> > & offlineJets){

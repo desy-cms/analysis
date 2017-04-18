@@ -52,6 +52,11 @@ public:
 	// Luminosity normalisation
 	double LumiWeight(const double & data_lumi, const double & mc_lumi);
 
+	//Experimental weights
+	double dRWeight(const double& dR);
+	double M12Weight(const double& m12);
+	double Ht_bbxWeight(TH1& h, const double& Ht);
+
 private:
 	const bool lowM_;
 	double NVertex_mc_;

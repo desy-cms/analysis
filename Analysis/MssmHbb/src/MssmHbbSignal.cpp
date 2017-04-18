@@ -171,6 +171,7 @@ void MssmHbbSignal::writeHistograms(){
 		if(h.first.find("template") != std::string::npos){
 			full_name = constructTemplateName(h.first);
 			if(h.first.find("VIS") != std::string::npos) outputFile_->cd("templates");
+			h.second->SetName(full_name.c_str());
 			h.second->Write(full_name.c_str());
 			outputFile_->cd("");
 		}
@@ -360,6 +361,7 @@ void MssmHbbSignal::makeM12Templates(const bool& subranges){
 			min = 200;
 			max = 1700;
 		}
+//		nbins *= 4;
 		histo_.MakeM12Templates(nbins,min,max);
 	}
 }

@@ -12,6 +12,9 @@
 #include <algorithm>
 #include "TFile.h"
 
+#include "RooFit.h"
+#include "RooWorkspace.h"
+
 //namespace myUtil {
 
 template <typename T1, typename T2>
@@ -47,6 +50,9 @@ void CheckZombie(const TFile& name);
 //Function to get TFile:
 const TFile& OpenTFile(const std::string& name);
 void CheckZombieObjectInTFile(const TFile& file, const std::string& name);
+
+//Function to get a Pointer to the workspace in the TFile
+RooWorkspace* GetRooWorkspace(const std::string& path_to_file, const std::string& workspace_name = "workspace");
 
 int returnMassPoint(const std::string& name);
 
