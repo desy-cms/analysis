@@ -34,7 +34,8 @@ def SetupDics(mass, model):
              900: '1.026',
              1100:'1.024',
              1300:'1.024'}
-    if model == '':
+    
+    if 'indep' in model:
         for key in pdfas.keys():
             pdfas[key] = ''
         for key in scale.keys():
@@ -46,8 +47,9 @@ def SetupDics(mass, model):
     dictionary = {#200 : {'OBSERVATION' : obs_sub_r1, 'SIGNAL_SHAPE_WS' : signal_path + 'ReReco_signal_M-300', 'BG_SHAPE_WS' : signal_path + 'ReReco_signal_M-300', 'DATA_SHAPE_WS' : signal_path + 'signal_M-300'},
 #                  250 : {'OBSERVATION' : obs_sub_r1, 'SIGNAL_SHAPE_WS' : signal_path + 'signal_M-300', 'BG_SHAPE_WS' : signal_path + 'signal_M-300', 'DATA_SHAPE_WS' : signal_path + 'signal_M-300'},
                   300 : {'OBSERVATION'     : obs_sub_r1,
-                         'SIGNAL_SHAPE_WS' : signal_path + 'current_ReReco_signal_M-300/workspace/signal_workspace.root',
+                         'SIGNAL_SHAPE_WS' : signal_path + 'ReReco_signal_M-300/workspace/signal_workspace.root',
                          'BG_SHAPE_WS'     : signal_path + 'ReReco_bg_fit/sr1/background_workspace_TurnOnFix_5000bins.root',
+                         'BIAS_SHAPE_WS'   : signal_path + 'ReReco_signal_M-300/workspace/signal_bias_workspace.root',
                          'DATA_SHAPE_WS'   : signal_path + 'ReReco_bg_fit/sr1/background_workspace_TurnOnFix_5000bins.root',
                          'OFFLINE_SFL' : '1.0002',
                          'ONLINE_SFB'   : '1.0167',
@@ -59,10 +61,12 @@ def SetupDics(mass, model):
                          'SHAPE_BG3'    : 'width          flatParam',
                          'SHAPE_BG4'    : 'par4           flatParam',
                          'SHAPE_BG5'    : 'slope_novoeff  flatParam',#'',#'slope_novoeff  flatParam',#
-                         'SHAPE_BG6'    : 'turnon_novoeff flatParam'},#''},#'turnon_novoeff flatParam'},#
+                         'SHAPE_BG6'    : 'turnon_novoeff flatParam',
+                         'BIAS_ERR'     :  '7.058975'},#''},#'turnon_novoeff flatParam'},#
                   350 : {'OBSERVATION' : obs_sub_r1,
-                         'SIGNAL_SHAPE_WS' : signal_path + 'current_ReReco_signal_M-350/workspace/signal_workspace.root',
+                         'SIGNAL_SHAPE_WS' : signal_path + 'ReReco_signal_M-350/workspace/signal_workspace.root',
                          'BG_SHAPE_WS' : signal_path   + 'ReReco_bg_fit/sr1/background_workspace_TurnOnFix_5000bins.root',
+                         'BIAS_SHAPE_WS'   : signal_path + 'ReReco_signal_M-350/workspace/signal_bias_workspace.root',
                          'DATA_SHAPE_WS' : signal_path + 'ReReco_bg_fit/sr1/background_workspace_TurnOnFix_5000bins.root', 
                          'OFFLINE_SFL' : '1.00022',
                          'ONLINE_SFB'   : '1.016',
@@ -74,10 +78,12 @@ def SetupDics(mass, model):
                          'SHAPE_BG3'    : 'width          flatParam',
                          'SHAPE_BG4'    : 'par4           flatParam',
                          'SHAPE_BG5'    : 'slope_novoeff  flatParam',#'',#'slope_novoeff  flatParam',
-                         'SHAPE_BG6'    : 'turnon_novoeff flatParam'},#''},#'turnon_novoeff flatParam'},
+                         'SHAPE_BG6'    : 'turnon_novoeff flatParam',
+                         'BIAS_ERR'     :  '4.131545'},#''},#'turnon_novoeff flatParam'},
                   400 : {'OBSERVATION' : obs_sub_r1, 
-                         'SIGNAL_SHAPE_WS' : signal_path + 'current_ReReco_signal_M-400/workspace/signal_workspace.root', 
-                         'BG_SHAPE_WS' : signal_path + 'ReReco_bg_fit/sr1/background_workspace_TurnOnFix_5000bins.root', 
+                         'SIGNAL_SHAPE_WS' : signal_path + 'ReReco_signal_M-400/workspace/signal_workspace.root', 
+                         'BG_SHAPE_WS' : signal_path + 'ReReco_bg_fit/sr1/background_workspace_TurnOnFix_5000bins.root',
+                         'BIAS_SHAPE_WS'   : signal_path + 'ReReco_signal_M-400/workspace/signal_bias_workspace.root', 
                          'DATA_SHAPE_WS' : signal_path + 'ReReco_bg_fit/sr1/background_workspace_TurnOnFix_5000bins.root', 
                          'OFFLINE_SFL' : '1.00042',
                          'ONLINE_SFB'   : '1.0154',
@@ -89,10 +95,12 @@ def SetupDics(mass, model):
                          'SHAPE_BG3'    : 'width          flatParam',
                          'SHAPE_BG4'    : 'par4           flatParam',
                          'SHAPE_BG5'    : 'slope_novoeff  flatParam',#'',#'slope_novoeff  flatParam',
-                         'SHAPE_BG6'    : 'turnon_novoeff flatParam'},#''},#'turnon_novoeff flatParam'},
+                         'SHAPE_BG6'    : 'turnon_novoeff flatParam',
+                         'BIAS_ERR'     :  '2.324525'},#''},#'turnon_novoeff flatParam'},
                   500 : {'OBSERVATION' : obs_sub_r1, 
-                         'SIGNAL_SHAPE_WS' : signal_path + 'current_ReReco_signal_M-500/workspace/signal_workspace.root', 
-                         'BG_SHAPE_WS' : signal_path + 'ReReco_bg_fit/sr1/background_workspace_TurnOnFix_5000bins.root', 
+                         'SIGNAL_SHAPE_WS' : signal_path + 'ReReco_signal_M-500/workspace/signal_workspace.root', 
+                         'BG_SHAPE_WS' : signal_path + 'ReReco_bg_fit/sr1/background_workspace_TurnOnFix_5000bins.root',
+                         'BIAS_SHAPE_WS'   : signal_path + 'ReReco_signal_M-500/workspace/signal_bias_workspace.root', 
                          'DATA_SHAPE_WS' : signal_path + 'ReReco_bg_fit/sr1/background_workspace_TurnOnFix_5000bins.root', 
                          'OFFLINE_SFL' : '1.0006',
                          'ONLINE_SFB'   : '1.0149',
@@ -104,10 +112,12 @@ def SetupDics(mass, model):
                          'SHAPE_BG3'    : 'width          flatParam',
                          'SHAPE_BG4'    : 'par4           flatParam',
                          'SHAPE_BG5'    : 'slope_novoeff  flatParam',#'',#'slope_novoeff  flatParam',
-                         'SHAPE_BG6'    : 'turnon_novoeff flatParam'},#''},#'turnon_novoeff flatParam'},
+                         'SHAPE_BG6'    : 'turnon_novoeff flatParam',
+                         'BIAS_ERR'     :  '1.66481'},#''},#'turnon_novoeff flatParam'},
                   600 : {'OBSERVATION' : obs_sub_r2, 
-                         'SIGNAL_SHAPE_WS' : signal_path + 'current_ReReco_signal_M-600/workspace/signal_workspace.root', 
-                         'BG_SHAPE_WS' : signal_path + 'ReReco_bg_fit/sr2/background_workspace_5000bins.root', 
+                         'SIGNAL_SHAPE_WS' : signal_path + 'ReReco_signal_M-600/workspace/signal_workspace.root', 
+                         'BG_SHAPE_WS' : signal_path + 'ReReco_bg_fit/sr2/background_workspace_5000bins.root',
+                         'BIAS_SHAPE_WS'   : signal_path + 'ReReco_signal_M-600/workspace/signal_bias_workspace.root', 
                          'DATA_SHAPE_WS' : signal_path + 'ReReco_bg_fit/sr2/background_workspace_5000bins.root', 
                          'OFFLINE_SFL' : '1.0009',
                          'ONLINE_SFB'   : '1.0153',
@@ -119,10 +129,12 @@ def SetupDics(mass, model):
                          'SHAPE_BG3'    : 'width1          flatParam',
                          'SHAPE_BG4'    : '',
                          'SHAPE_BG5'    : '',
-                         'SHAPE_BG6'    : ''},
+                         'SHAPE_BG6'    : '',
+                         'BIAS_ERR'     :  '0.2604903'},
                   700 : {'OBSERVATION' : obs_sub_r2, 
-                         'SIGNAL_SHAPE_WS' : signal_path + 'current_ReReco_signal_M-700/workspace/signal_workspace.root', 
-                         'BG_SHAPE_WS' : signal_path + 'ReReco_bg_fit/sr2/background_workspace_5000bins.root', 
+                         'SIGNAL_SHAPE_WS' : signal_path + 'ReReco_signal_M-700/workspace/signal_workspace.root', 
+                         'BG_SHAPE_WS' : signal_path + 'ReReco_bg_fit/sr2/background_workspace_5000bins.root',
+                         'BIAS_SHAPE_WS'   : signal_path + 'ReReco_signal_M-700/workspace/signal_bias_workspace.root', 
                          'DATA_SHAPE_WS' : signal_path + 'ReReco_bg_fit/sr2/background_workspace_5000bins.root', 
                          'OFFLINE_SFL' : '1.0012',
                          'ONLINE_SFB'   : '1.0164',
@@ -134,10 +146,12 @@ def SetupDics(mass, model):
                          'SHAPE_BG3'    : 'width1          flatParam',
                          'SHAPE_BG4'    : '',
                          'SHAPE_BG5'    : '',
-                         'SHAPE_BG6'    : ''},
+                         'SHAPE_BG6'    : '',
+                         'BIAS_ERR'     :  '0.040444285'},
                   900 : {'OBSERVATION' : obs_sub_r2, 
-                         'SIGNAL_SHAPE_WS' : signal_path + 'current_ReReco_signal_M-900/workspace/signal_workspace.root', 
-                         'BG_SHAPE_WS' : signal_path + 'ReReco_bg_fit/sr2/background_workspace_5000bins.root', 
+                         'SIGNAL_SHAPE_WS' : signal_path + 'ReReco_signal_M-900/workspace/signal_workspace.root', 
+                         'BG_SHAPE_WS' : signal_path + 'ReReco_bg_fit/sr2/background_workspace_5000bins.root',
+                         'BIAS_SHAPE_WS'   : signal_path + 'ReReco_signal_M-900/workspace/signal_bias_workspace.root', 
                          'DATA_SHAPE_WS' : signal_path + 'ReReco_bg_fit/sr2/background_workspace_5000bins.root', 
                          'OFFLINE_SFL' : '1.0016',
                          'ONLINE_SFB'   : '1.0196',
@@ -149,10 +163,12 @@ def SetupDics(mass, model):
                          'SHAPE_BG3'    : 'width1          flatParam',
                          'SHAPE_BG4'    : '',
                          'SHAPE_BG5'    : '',
-                         'SHAPE_BG6'    : ''},
+                         'SHAPE_BG6'    : '',
+                         'BIAS_ERR'     : '0.05047'},
                   1100: {'OBSERVATION' : obs_sub_r3, 
-                         'SIGNAL_SHAPE_WS' : signal_path + 'current_ReReco_signal_M-1100/workspace/signal_workspace.root', 
-                         'BG_SHAPE_WS' : signal_path + 'ReReco_bg_fit/sr3/background_workspace_5000bins.root', 
+                         'SIGNAL_SHAPE_WS' : signal_path + 'ReReco_signal_M-1100/workspace/signal_workspace.root', 
+                         'BG_SHAPE_WS' : signal_path + 'ReReco_bg_fit/sr3/background_workspace_5000bins.root',
+                         'BIAS_SHAPE_WS'   : signal_path + 'ReReco_signal_M-1100/workspace/signal_bias_workspace.root', 
                          'DATA_SHAPE_WS' : signal_path + 'ReReco_bg_fit/sr3/background_workspace_5000bins.root', 
                          'OFFLINE_SFL' : '1.0024',
                          'ONLINE_SFB'   : '1.0231',
@@ -164,10 +180,12 @@ def SetupDics(mass, model):
                          'SHAPE_BG3'    : 'width1          flatParam',
                          'SHAPE_BG4'    : '',
                          'SHAPE_BG5'    : '',
-                         'SHAPE_BG6'    : ''},
+                         'SHAPE_BG6'    : '',
+                         'BIAS_ERR'     : '0.17487718'},
                   1300: {'OBSERVATION' : obs_sub_r3, 
-                         'SIGNAL_SHAPE_WS' : signal_path + 'current_ReReco_signal_M-1300/workspace/signal_workspace.root', 
+                         'SIGNAL_SHAPE_WS' : signal_path + 'ReReco_signal_M-1300/workspace/signal_workspace.root', 
                          'BG_SHAPE_WS' : signal_path + 'ReReco_bg_fit/sr3/background_workspace_5000bins.root', 
+                         'BIAS_SHAPE_WS'   : signal_path + 'ReReco_signal_M-1300/workspace/signal_bias_workspace.root',
                          'DATA_SHAPE_WS' : signal_path + 'ReReco_bg_fit/sr3/background_workspace_5000bins.root', 
                          'OFFLINE_SFL' : '1.0025',
                          'ONLINE_SFB'   : '1.0272',
@@ -179,7 +197,8 @@ def SetupDics(mass, model):
                          'SHAPE_BG3'    : 'width1          flatParam',
                          'SHAPE_BG4'    : '',
                          'SHAPE_BG5'    : '',
-                         'SHAPE_BG6'    : ''}}
+                         'SHAPE_BG6'    : '',
+                         'BIAS_ERR'     : '0.056281895'}}
     
     if dictionary[mass] != None:
         return dictionary[mass]
@@ -250,7 +269,7 @@ if __name__ == '__main__':
     add_path ='/src/Analysis/MssmHbb/datacards/'
     
     model = 'mssm'
-    selection = '201702/14/mssm/'
+    selection = '201703/08/asymptotic/mssm/'
     path_to_dir = ( CMSSW_BASE + add_path + selection )
     # Make dir if it doesn't exist
     MakeDir(path_to_dir)
@@ -269,4 +288,5 @@ if __name__ == '__main__':
         # Get dictionary for particular mass:
         current_dic = SetupDics(m,model)
         AdjustDatacard(path_to_datacard,current_dic)
+        print(path_to_datacard + ': DONE')
 
