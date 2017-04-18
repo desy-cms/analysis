@@ -65,46 +65,45 @@ FitContainer::FitContainer(const std::string& outputDir) :
 		obs_(259399.) //SR1-259399, SR2-105053, SR3-26760
 {}
 
-// Overwrite defauilt copy constructor
-FitContainer::FitContainer(const FitContainer& cont){                                   |  FitContainer::FitContainer(const FitContainer& cont){                                   |  FitContainer::FitContainer(const TH1* data, const std::string& outputDir)
-          initialized_    = cont.initialized_;                                            |          initialized_    = cont.initialized_;                                            |  //              const std::string & type) : FitContainer(outputDir)
-          written_                = cont.written_;                                        |          written_                = cont.written_;                                        |                          : FitContainer(outputDir)
-          splitrange_             = cont.splitrange_;                                     |          splitrange_             = cont.splitrange_;                                     |  {
-          outputDir_              = cont.outputDir_;                                      |          outputDir_              = cont.outputDir_;                                      |          bkg_ = "";
-          plotDir_                = cont.plotDir_;                                        |          plotDir_                = cont.plotDir_;                                        |          signal_ = "";
-          workspaceDir_   = cont.workspaceDir_;                                           |          workspaceDir_   = cont.workspaceDir_;                                           |          RooRealVar mbb(mbb_.c_str(), "M_{12}",
-          fullRangeId_    = cont.fullRangeId_;                                            |          fullRangeId_    = cont.fullRangeId_;                                            |                   data->GetXaxis()->GetXmin(), data->GetXaxis()->GetXmax(), "GeV");
-          fitRangeId_             = cont.fitRangeId_;                                     |          fitRangeId_             = cont.fitRangeId_;                                     |          fitRangeMin_ = mbb.getMin();
-          fitRangeLowId_  = cont.fitRangeLowId_;                                          |          fitRangeLowId_  = cont.fitRangeLowId_;                                          |          fitRangeMax_ = mbb.getMax();
-          fitRangeHighId_ = cont.fitRangeHighId_;                                         |          fitRangeHighId_ = cont.fitRangeHighId_;                                         |          workspace_.import(mbb);
-          fitSplRangeId_  = cont.fitSplRangeId_;                                          |          fitSplRangeId_  = cont.fitSplRangeId_;                                          |          nbins_ = data->GetNbinsX();
-          fitRangeMin_    = cont.fitRangeMin_;                                            |          fitRangeMin_    = cont.fitRangeMin_;                                            |          RooDataHist dataContainer(data_.c_str(), data_.c_str(), mbb, data);
-          fitRangeMax_    = cont.fitRangeMax_;                                            |          fitRangeMax_    = cont.fitRangeMax_;                                            |          workspace_.import(dataContainer);
-          blind_lowEdge_  = cont.blind_lowEdge_;                                          |          blind_lowEdge_  = cont.blind_lowEdge_;                                          |  /*
-          blind_highEdge_ = cont.blind_highEdge_;                                         |          blind_highEdge_ = cont.blind_highEdge_;                                         |          if(type == "background") {
-          verbosity_              = cont.verbosity_;                                      |          verbosity_              = cont.verbosity_;                                      |                  RooDataHist bkgContainer(bkg_.c_str(), bkg_.c_str(), mbb, data);
-          workspace_              = cont.workspace_;                                      |          workspace_              = cont.workspace_;                                      |                  workspace_.import(bkgContainer);
-          outRootFileName_= cont.outRootFileName_;                                        |          outRootFileName_= cont.outRootFileName_;                                        |  ----------------------------------------------------------------------------------------
-          mbb_                    = cont.mbb_;                                            |          mbb_                    = cont.mbb_;                                            |  ----------------------------------------------------------------------------------------
-          weight_                 = cont.weight_;                                         |          weight_                 = cont.weight_;                                         |  ----------------------------------------------------------------------------------------
-          data_                   = cont.data_;                                           |          data_                   = cont.data_;                                           |          }
-          signal_                 = cont.signal_;                                         |          signal_                 = cont.signal_;                                         |          else if (type == "signal") {
-          bkg_                    = cont.bkg_;
-  //      Workaround to copy TTree
-  //      Original idea by Gregor Mittag
-  //      TODO: Implement it. DOesn't work out of the box
-  //      bkgOnlyFit_(((TTree&) cont.bkgOnlyFit_).CloneTree(0));
-  //      bkgOnlyFit_.SetDirectory(0);
-  //      bkgOnlyFit_.CopyEntries(cont.bkgOnlyFit_);
-  //      bkgOnlyFit_             = cont.bkgOnlyFit_;
-          chi2BkgOnly_    = cont.chi2BkgOnly_;                                            |          chi2BkgOnly_    = cont.chi2BkgOnly_;                                            |                  workspace_.import(signalContainer);
-          normChi2BkgOnly_= cont.normChi2BkgOnly_;                                        |          normChi2BkgOnly_= cont.normChi2BkgOnly_;                                        |                  RooDataHist dataContainer(signal_.c_str(), signal_.c_str(), mbb, data);
-          ndfBkgOnly_             = cont.ndfBkgOnly_;                                     |          ndfBkgOnly_             = cont.ndfBkgOnly_;                                     |                  workspace_.import(dataContainer);
-          nbins_                  = cont.nbins_;
-}
+//FitContainer::FitContainer(const FitContainer& cont){
+//	initialized_ 	= cont.initialized_;
+//	written_		= cont.written_;
+//	splitrange_		= cont.splitrange_;
+//	outputDir_		= cont.outputDir_;
+//	plotDir_		= cont.plotDir_;
+//	workspaceDir_	= cont.workspaceDir_;
+//	fullRangeId_	= cont.fullRangeId_;
+//	fitRangeId_		= cont.fitRangeId_;
+//	fitRangeLowId_	= cont.fitRangeLowId_;
+//	fitRangeHighId_ = cont.fitRangeHighId_;
+//	fitSplRangeId_ 	= cont.fitSplRangeId_;
+//	fitRangeMin_	= cont.fitRangeMin_;
+//	fitRangeMax_	= cont.fitRangeMax_;
+//	blind_lowEdge_	= cont.blind_lowEdge_;
+//	blind_highEdge_	= cont.blind_highEdge_;
+//	verbosity_		= cont.verbosity_;
+//	workspace_		= cont.workspace_;
+//	outRootFileName_= cont.outRootFileName_;
+//	mbb_			= cont.mbb_;
+//	weight_			= cont.weight_;
+//	data_			= cont.data_;
+//	signal_			= cont.signal_;
+//	bkg_			= cont.bkg_;
+////	Workaround to copy TTree
+////	Original idea by Gregor Mittag
+////	TODO: Implement it. DOesn't work out of the box
+////	bkgOnlyFit_(((TTree&) cont.bkgOnlyFit_).CloneTree(0));
+////	bkgOnlyFit_.SetDirectory(0);
+////	bkgOnlyFit_.CopyEntries(cont.bkgOnlyFit_);
+////	bkgOnlyFit_		= cont.bkgOnlyFit_;
+//	chi2BkgOnly_	= cont.chi2BkgOnly_;
+//	normChi2BkgOnly_= cont.normChi2BkgOnly_;
+//	ndfBkgOnly_		= cont.ndfBkgOnly_;
+//	nbins_			= cont.nbins_;
+//}
 
 
-FitContainer::FitContainer(const TH1* data, const std::string& outputDir,
+FitContainer::FitContainer(const TH1* data, const std::string& outputDir, const std::string & type) : FitContainer(outputDir)
 {
 	RooRealVar mbb(mbb_.c_str(), "M_{12}",
                  data->GetXaxis()->GetXmin(), data->GetXaxis()->GetXmax(), "GeV");
@@ -283,10 +282,9 @@ void FitContainer::initialize() {
   bkgOnlyFit_.Branch("eigenVector", eigenVector_, "eigenVector[400]/D");
 
   for(int i = 0; i < 400; i++)
-  {   	covMatrix_[i] = -100.;
-	eigenVector_[i] = -100.;
-  {   	covMatrix_[i] = -100.;
-	eigenVector_[i] = -100.;
+  {
+	  covMatrix_[i] = -100.;
+	  eigenVector_[i] = -100.;
   }	
   initialized_ = true;
 }

@@ -54,8 +54,8 @@ namespace analysis {
 
       FitContainer(const TH1* data, const TH1* signal, const TH1* background,
 		   const std::string& outputDir = defaultOutputDir_);
-      //FitContainer(const TH1* data, const std::string& outputDir = defaultOutputDir_, const std::string & type = "background");
-      FitContainer(const TH1* data, const std::string& outputDir = defaultOutputDir_);
+      FitContainer(const TH1* data, const std::string& outputDir = defaultOutputDir_, const std::string & type = "data");
+//      FitContainer(const TH1* data, const std::string& outputDir = defaultOutputDir_);
       FitContainer(TTree& data, const std::string& outputDir = defaultOutputDir_);
       FitContainer(const HistContainer& container,
 		   const std::string& outputDir = defaultOutputDir_);
