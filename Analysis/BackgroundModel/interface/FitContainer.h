@@ -77,8 +77,8 @@ namespace analysis {
       void setModel(const Type& type, const std::string& model);
       void setModel(const Type& type, const std::string& model,
                     const std::vector<ParamModifier>& modifiers);
-      std::unique_ptr<RooFitResult> backgroundOnlyFit(const std::string& model);
-      std::unique_ptr<RooFitResult> FitSignal(const std::string & model);
+      std::unique_ptr<RooFitResult> backgroundOnlyFit(const std::string& model, const bool& plot_params = 0);
+      std::unique_ptr<RooFitResult> FitSignal(const std::string & model, const bool& plot_params = 0);
 
       void profileModel(const Type& type);
       void showModels() const;

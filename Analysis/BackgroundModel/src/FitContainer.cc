@@ -301,7 +301,7 @@ void FitContainer::setModel(const Type& type, const std::string& name,
   applyModifiers_(*(workspace_.pdf(toString(type).c_str())), modifiers);
 }
 
-std::unique_ptr<RooFitResult> FitContainer::FitSignal(const std::string & name) {
+std::unique_ptr<RooFitResult> FitContainer::FitSignal(const std::string & name, const bool& plot_params) {
 	if(!initialized_) initialize();
 
 	RooAbsPdf& Pdf = *(workspace_.pdf(toString(Type::signal).c_str()));
@@ -348,10 +348,12 @@ std::unique_ptr<RooFitResult> FitContainer::FitSignal(const std::string & name) 
 	               RooFit::Range(fitRangeId_.c_str()),
 	               RooFit::Normalization(signal.sumEntries("1", fitRangeId_.c_str()),
 	                                     RooAbsReal::NumEvent));
-//	  double par_xmin = 0.65, par_xmax = 0.9, par_ymax = 0.6;
-//	  par_xmin = 0.2; par_xmax = 0.45; par_ymax = 0.9;
-//	  Pdf.paramOn(frame.get(),RooFit::Layout(par_xmin,par_xmax,par_ymax));//0.98-pad1->GetRightMargin(),0.83-pad1->GetTopMargin()));
-//	  frame->getAttText()->SetTextSize(0.03);
+	  if(plot_params){
+		  double par_xmin = 0.65, par_xmax = 0.9, par_ymax = 0.6;
+	//	  par_xmin = 0.2; par_xmax = 0.45; par_ymax = 0.9;
+		  Pdf.paramOn(frame.get(),RooFit::Layout(par_xmin,par_xmax,par_ymax));//0.98-pad1->GetRightMargin(),0.83-pad1->GetTopMargin()));
+		  frame->getAttText()->SetTextSize(0.03);
+	  }
 
 	    int nPars = fitResult->floatParsFinal().getSize();
 
@@ -428,7 +430,7 @@ std::unique_ptr<RooFitResult> FitContainer::FitSignal(const std::string & name) 
 	    latex.DrawLatexNDC(pad1->GetLeftMargin(), 1.02-canvas.GetTopMargin(),
 	    //                   "CMS Preliminary #sqrt{s} = 13 TeV, L = 2.69 fb^{-1}");
 	    //		     "CMS Preliminary #sqrt{s} = 13 TeV, L = 12.89 fb^{-1}");
-			    "CMS Preliminary #sqrt{s} = 13 TeV, L = 36.62 fb^{-1}");
+			    "CMS Preliminary #sqrt{s} = 13 TeV, L = 35.7 fb^{-1}");
 	    latex.SetTextSize(15);
 	    latex.SetTextAlign(33);
 	    latex.SetTextColor(kBlue+2);
@@ -480,7 +482,7 @@ std::unique_ptr<RooFitResult> FitContainer::FitSignal(const std::string & name) 
 }
 
 
-std::unique_ptr<RooFitResult> FitContainer::backgroundOnlyFit(const std::string& name) {
+std::unique_ptr<RooFitResult> FitContainer::backgroundOnlyFit(const std::string& name, const bool& plot_params) {
   if (!initialized_) initialize();
 
   RooAbsPdf& bkg = *(workspace_.pdf(toString(Type::background).c_str()));
@@ -491,6 +493,7 @@ std::unique_ptr<RooFitResult> FitContainer::backgroundOnlyFit(const std::string&
   // get the objects from the workspace:
   RooAbsData& data = *workspace_.data(data_.c_str());
   RooRealVar& mbb = *workspace_.var(mbb_.c_str());
+  RooFit::SumW2Error(kTRUE);
 
   //RooDataHist datahist("data_curve","data_curve", mbb, data);  
 
@@ -537,6 +540,13 @@ std::unique_ptr<RooFitResult> FitContainer::backgroundOnlyFit(const std::string&
              RooFit::Range(fitRangeId_.c_str()),
              RooFit::Normalization(data.sumEntries("1", fitRangeId_.c_str()),
                                    RooAbsReal::NumEvent));
+
+  if(plot_params){
+	  double par_xmin = 0.65, par_xmax = 0.9, par_ymax = 0.6;
+//	  par_xmin = 0.2; par_xmax = 0.45; par_ymax = 0.9;
+	  bkg.paramOn(frame.get(),RooFit::Layout(par_xmin,par_xmax,par_ymax));//0.98-pad1->GetRightMargin(),0.83-pad1->GetTopMargin()));
+	  frame->getAttText()->SetTextSize(0.03);
+  }
 
   int nPars = fitResult->floatParsFinal().getSize();
  
@@ -626,7 +636,7 @@ std::unique_ptr<RooFitResult> FitContainer::backgroundOnlyFit(const std::string&
   latex.SetTextAlign(11);
   latex.DrawLatexNDC(pad1->GetLeftMargin(), 1.02-canvas.GetTopMargin(),
   //                   "CMS Preliminary #sqrt{s} = 13 TeV, L = 2.69 fb^{-1}");
-		     "CMS Preliminary #sqrt{s} = 13 TeV, L = 12.89 fb^{-1}");
+		  "CMS Preliminary #sqrt{s} = 13 TeV, L = 35.7 fb^{-1}");
   latex.SetTextSize(15);
   latex.SetTextAlign(33);
   latex.SetTextColor(kBlue+2);
