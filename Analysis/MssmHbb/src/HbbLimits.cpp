@@ -18,16 +18,18 @@ namespace mssmhbb {
 bool is_empty(std::ifstream&);
 
 HbbLimits::HbbLimits() : blindData_(true), boson_("both"), TEST_(false) {
-	HbbStylesNew* style = new HbbStylesNew();
-	style->SetStyle();
-	gStyle->SetOptFit(0000);
-	gStyle->SetErrorX(0.5);
+//	HbbStyle* style = new HbbStyle();
+	style_.set(PRIVATE);
+//	style->SetStyle();
+//	gStyle->SetOptFit(0000);
+//	gStyle->SetErrorX(0.5);
 };
 HbbLimits::HbbLimits(const bool& blindData, const bool& test) : blindData_(blindData), TEST_(test) {
-	HbbStylesNew* style = new HbbStylesNew();
-	style->SetStyle();
-	gStyle->SetOptFit(0000);
-	gStyle->SetErrorX(0.5);
+	style_.set(PRIVATE);
+//	HbbStyle* style = new HbbStyle();
+//	style->set(PRIVATE);
+//	gStyle->SetOptFit(0000);
+//	gStyle->SetErrorX(0.5);
 };
 
 HbbLimits::HbbLimits(const bool& blindData, const std::string& boson, const bool& test) : blindData_(blindData), boson_(boson), TEST_(test) {
@@ -37,10 +39,11 @@ HbbLimits::HbbLimits(const bool& blindData, const std::string& boson, const bool
 	 * A or H or both
 	 */
 	CheckHiggsBoson();
-	HbbStylesNew* style = new HbbStylesNew();
-	style->SetStyle();
-	gStyle->SetOptFit(0000);
-	gStyle->SetErrorX(0.5);
+	style_.set(PRIVATE);
+//	HbbStyle* style = new HbbStyle();
+//	style->set(PRIVATE);
+//	gStyle->SetOptFit(0000);
+//	gStyle->SetErrorX(0.5);
 };
 
 HbbLimits::~HbbLimits() {
@@ -66,7 +69,7 @@ std::vector<Limit> HbbLimits::ReadCombineLimits(const std::string& file_name){
 	return GxBr_limits;
 }
 
-const std::vector<Limit> HbbLimits::GetMSSMLimits(const std::vector<Limit>& GxBR_limits, const std::string& benchmark_path, const std::string& uncert, const bool& UP){
+const std::vector<Limit> HbbLimits::GetMSSMLimits(const std::vector<Limit>& GxBR_limits, const std::string& benchmark_path, const std::string& uncert, const bool& UP, const std::string& benchmark_ref_path, const double& tanBref){
 	/*
 	 * Method to get MSSM interpretation of GxBR limits
 	 */
@@ -78,12 +81,12 @@ const std::vector<Limit> HbbLimits::GetMSSMLimits(const std::vector<Limit>& GxBR
 //		Set Mass point
 		tan_b_limit.setX(gxbr_limit.getX());
 //		Set limits
-		tan_b_limit.setMinus2G(double(MSSMTanBeta(benchmark_path,tan_b_limit.getX(),gxbr_limit.getMinus2G(),uncert,UP)));
-		tan_b_limit.setMinus1G(double(MSSMTanBeta(benchmark_path,tan_b_limit.getX(),gxbr_limit.getMinus1G(),uncert,UP)));
-		tan_b_limit.setMedian(double(MSSMTanBeta(benchmark_path,tan_b_limit.getX(),gxbr_limit.getMedian(),uncert,UP)));
-		tan_b_limit.setPlus1G(double(MSSMTanBeta(benchmark_path,tan_b_limit.getX(),gxbr_limit.getPlus1G(),uncert,UP)));
-		tan_b_limit.setPlus2G(double(MSSMTanBeta(benchmark_path,tan_b_limit.getX(),gxbr_limit.getPlus2G(),uncert,UP)));
-		tan_b_limit.setObserved(double(MSSMTanBeta(benchmark_path,tan_b_limit.getX(),gxbr_limit.getObserved(),uncert,UP)));
+		tan_b_limit.setMinus2G(double(MSSMTanBeta(benchmark_path,tan_b_limit.getX(),gxbr_limit.getMinus2G(),uncert,UP,benchmark_ref_path,tanBref)));
+		tan_b_limit.setMinus1G(double(MSSMTanBeta(benchmark_path,tan_b_limit.getX(),gxbr_limit.getMinus1G(),uncert,UP,benchmark_ref_path,tanBref)));
+		tan_b_limit.setMedian(double(MSSMTanBeta(benchmark_path,tan_b_limit.getX(),gxbr_limit.getMedian(),uncert,UP,benchmark_ref_path,tanBref)));
+		tan_b_limit.setPlus1G(double(MSSMTanBeta(benchmark_path,tan_b_limit.getX(),gxbr_limit.getPlus1G(),uncert,UP,benchmark_ref_path,tanBref)));
+		tan_b_limit.setPlus2G(double(MSSMTanBeta(benchmark_path,tan_b_limit.getX(),gxbr_limit.getPlus2G(),uncert,UP,benchmark_ref_path,tanBref)));
+		tan_b_limit.setObserved(double(MSSMTanBeta(benchmark_path,tan_b_limit.getX(),gxbr_limit.getObserved(),uncert,UP,benchmark_ref_path,tanBref)));
 
 		limits.push_back(tan_b_limit);
 	}
@@ -356,7 +359,7 @@ void HbbLimits::LimitPlotter(const std::vector<Limit>& limits,
 
 
 	if(limits.size() == 0) {
-		std::cerr<<"Error: No limits with this name. Please check spelling";
+		std::cerr<<"Error in HbbLimits::LimitPlotter: No limits with this name. Please check spelling";
 		exit(-1);
 	}
 
@@ -463,10 +466,10 @@ void HbbLimits::LimitPlotter(const std::vector<Limit>& limits,
 //		atlas_zhll.Draw("PLsame");
 //	}
 
-	std::string entry_comp;
+	std::string entry_comp = "Prev. version";
 	if(compare_limits) {
 		if(Lumi.find("24.6") != std::string::npos) entry_comp = "Expected 7 + 8 TeV";
-		else if (Lumi.find("19.7") != std::string::npos) entry_comp = "Expected 8 TeV";
+		else if (Lumi.find("19.7") != std::string::npos) entry_comp = "Expected 13 TeV";
 		else if (Lumi.find("2.62") != std::string::npos) entry_comp = "Expected 2015";
 		leg.AddEntry(differ_exp,entry_comp.c_str(),"l");
 	}
@@ -477,17 +480,18 @@ void HbbLimits::LimitPlotter(const std::vector<Limit>& limits,
 	leg.AddEntry(outerBand,"#pm2#sigma Expected","f");
 
 	TPad * pad = (TPad*)canv->GetPad(0);
-	Luminosity lum;
-	lum.writeExtraText = true;
-	lum.lumi_13TeV = Lumi;
-	lum.extraText = "Private Work";
-	int offs = 33;
-	if(ytitle.find("tan") != std::string::npos) offs = 11;
-	lum.CMS_lumi(pad,4,offs);
+//	Luminosity lum;
+//	lum.writeExtraText = true;
+//	lum.lumi_13TeV = Lumi;
+//	lum.extraText = "Private Work";
+//	int offs = 33;
+//	if(ytitle.find("tan") != std::string::npos) offs = 11;
+//	lum.CMS_lumi(pad,4,offs);
 
 	pad->RedrawAxis();
 
 	leg.Draw();
+	style_.drawStandardTitle();
 
 	if(logY) canv->SetLogy();
 	canv->Update();
@@ -529,7 +533,7 @@ const Limit HbbLimits::ReadCombineLimit(const std::string& tfile_name, const boo
 
     tree.GetEntry(5);
     limit.setObserved(double(LIMIT));
-    if(blindData) limit.setObserved(limit.getExpected());
+//    if(blindData) limit.setObserved(limit.getExpected());
 
     return limit;
 }
@@ -552,11 +556,17 @@ void HbbLimits::Write(const std::vector<Limit>& limits, const std::string& name)
 	std::cout<<"File: "<<name + ".txt"<<" has been written."<<std::endl;
 }
 
-double HbbLimits::MSSMTanBeta(const std::string& benchmark_path, double mA, double xsection, const std::string& uncert, const bool& UP){
+double HbbLimits::MSSMTanBeta(const std::string& benchmark_path, double mA, double xsection, const std::string& uncert, const bool& UP, const std::string& benchmark_ref_path, const double& tanBref){
 	/*
 	 * Method to translate GxBR value to tanBeta for MSSM
 	 */
 	mssm_xs_tools my(benchmark_path.c_str(),true,0);
+	//for combination - check reference path:
+	bool combination = false;
+	mssm_xs_tools ref(benchmark_ref_path.c_str(),true,0);
+	if(benchmark_ref_path != ""){
+		combination = true;
+	}
 	double minimalDifference = 1e+10;
 	bool rangeExceeded = true;
 	double tanBetaTarget = -1;
@@ -589,6 +599,10 @@ double HbbLimits::MSSMTanBeta(const std::string& benchmark_path, double mA, doub
 	    BrHbb = my.br_Hbb(mA,tanBeta);
 
 	    totXSec = sigmaBBA*BrAbb + sigmaBBH*BrHbb;
+	    // for the combination of 7 + 8 + 13 TeV crosssection should be divided by the xsection at reference tanB
+	    if(combination){
+	    	totXSec /= (ref.bbH5F_A(mA, tanBref) * ref.br_Abb(mA, tanBref) + ref.bbH5F_H(mA, tanBref) *  ref.br_Hbb(mA, tanBref));
+	    }
 	    difference = TMath::Abs(totXSec-xsection);
 
 	    if (difference<minimalDifference) {

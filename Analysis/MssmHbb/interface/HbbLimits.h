@@ -10,7 +10,7 @@
 #include <map>
 
 #include "Analysis/MssmHbb/interface/Luminosity.h"
-#include "Analysis/MssmHbb/macros/Drawer/HbbStylesNew.C"
+#include "Analysis/MssmHbb/macros/Drawer/HbbStyle.cc"
 
 #include "TH3.h"
 #include <TH2.h>
@@ -67,7 +67,7 @@ public:
 	void SetHiggsBoson(const std::string& boson);
 
 //	Method to get tanBeta limits according to theoretical Br and Sigma
-	const std::vector<Limit> GetMSSMLimits(const std::vector<Limit>& GxBR_limits, const std::string& benchmark_path, const std::string& uncert = "", const bool& UP = false);
+	const std::vector<Limit> GetMSSMLimits(const std::vector<Limit>& GxBR_limits, const std::string& benchmark_path, const std::string& uncert = "", const bool& UP = false, const std::string& benchmark_ref_path = "", const double& tanBref = -1);
 
 //	Method to get 2HDM 3D GxBR
 	TH3D Get2HDM_GxBR_3D(const std::string& benchmark_path);
@@ -85,7 +85,7 @@ public:
 	void Write(const std::vector<Limit>& limits, const std::string& name);
 
 	//	Method to receive tanBeta value from Sigma x BR in MSSM interpretation
-	double MSSMTanBeta(const std::string& benchmark_path, double mA, double xsection, const std::string& uncert = "", const bool& UP = false);
+	double MSSMTanBeta(const std::string& benchmark_path, double mA, double xsection, const std::string& uncert = "", const bool& UP = false, const std::string& benchmark_ref_path = "", const double& tanBref = -1);
 	// Method to receive tanBeta value for 1D Siga x BR in 2HDMinterpretation
 	double THDMTanBeta(const TH2& GxBR_2hdm, double mA, double xsection);
 
@@ -116,6 +116,7 @@ private:
 	bool blindData_;
 	std::string boson_;
 	bool TEST_;
+	HbbStyle style_;
 
 protected:
 	void CheckHiggsBoson();

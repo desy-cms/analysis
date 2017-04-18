@@ -11,64 +11,117 @@
 
 #include "Analysis/MssmHbb/interface/HbbLimits.h"
 #include "Analysis/MssmHbb/interface/Limit.h"
+#include "Analysis/MssmHbb/macros/Drawer/HbbStyle.cc"
 
 using namespace std;
 using namespace analysis::mssmhbb;
 
-TGraph getLine( TH2& );
+void Draw2HDM_2D_Limits(const std::string& output, HbbLimits::THDMScan& scan);
+HbbStyle style;
 
 int main(){
 
 	HbbLimits limits(true,true);
-//	string path2015 = "/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/datacards/201612/20/2015_shape/Novosibirsk/Hbb.limits";
-//	string path2015 = "/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_8_0_20_patch1/src/Analysis/MssmHbb/datacards/201701/26/finale/Hbb.limits";
-	string path2015 = "/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_8_0_20_patch1/src/Analysis/MssmHbb/datacards/201702/13/4xBins/Hbb.limits";
-	string path2016 = "/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_8_0_20_patch1/src/Analysis/MssmHbb/datacards/201702/13/1sxBins/Hbb.limits";
-//	string path2016 = "/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_8_0_20_patch1/src/Analysis/MssmHbb/datacards/201702/03/5000bins/finale_SFb/Hbb.limits";
+	style.set(PRIVATE);
+	string path2016 = "/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_8_0_20_patch1/src/Analysis/MssmHbb/datacards/201703/06/asymptotic/indep/";//mssm/Hbb.limits
 	string thdm_production = "production_cosB_A_-1_1_tanB_0p5-100_COMBINATION"; //production_corseBins_cosB_A_-1_1_tanB_1-100 //
 	string thdm_type = "type3";
 	string thdm_scans = "/nfs/dust/cms/user/shevchen/SusHiScaner/output/" + thdm_production + "/rootFiles/Histograms3D_" + thdm_type + "_mA_mH.root";
-	string output = "/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_8_0_20_patch1/src/Analysis/MssmHbb/macros/pictures/ParametricLimits/";
-
-	vector<Limit> GBR2015 = limits.ReadCombineLimits(path2015);
-	vector<Limit> GBR2016 = limits.ReadCombineLimits(path2016);
-	vector<Limit> TanB_2HDM_Limits;
-	TGraph obs_line;
-	HbbLimits::THDMScan scan, scan_old;
-	TH3D GxBR_2hdm_3D;
-	TH2D GxBR_2hdm_mA;
-	TH2D GxBR_2hdm_cB_A;
-	vector<Limit> null_vec;
-	double mass =300;
-	double cB_A = 0.1;
+//	double mass = 300;
+//	double cB_A = 0.1;
 	string boson = "both";
-	limits.SetHiggsBoson(boson);
-	vector<Limit> THDM_limits;
-	for(const auto& l : GBR2016){
-		cout<<"M: "<<l.getX()<<" exp = "<<l.getMedian()<<" 1G = "<<l.getPlus1G()<<endl;
-		if(l.getX() == mass){
-			GxBR_2hdm_3D = limits.Get2HDM_GxBR_3D(thdm_scans);
-			GxBR_2hdm_mA = limits.Get2HDM_GxBR_2D(GxBR_2hdm_3D,mass,"x");
-			scan = limits.Get2HDMmuScan(GxBR_2hdm_mA,l);
-			GxBR_2hdm_mA.GetXaxis()->SetRangeUser(-0.99,0.99);
-			if(thdm_type!="type1" && thdm_type!="type4") THDM_limits = limits.Get2HDM_Limits(GxBR_2hdm_mA,l);
-		}
-	}
-	GxBR_2hdm_cB_A = limits.Get2HDM_GxBR_2D(GxBR_2hdm_3D,cB_A,"z");
-	TanB_2HDM_Limits = limits.Get2HDM_1D_Limits(GxBR_2hdm_cB_A,GBR2016);
-	limits.Write(GBR2016,path2016);
+	vector<Limit> null_vec;
+	string output = "/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_8_0_20_patch1/src/Analysis/MssmHbb/macros/pictures/ParametricLimits/20170306/bias/";
 
-	// 2015 vs 2016 Limits
-	TLegend leg_GxBR(0.62,0.55,0.85,0.75);
-	leg_GxBR.SetFillColor(0);
-	leg_GxBR.SetTextSize(0.035);
-	leg_GxBR.SetBorderSize(0);
-	string output_independet_limits = output + "Hbb_Limits_2016_vs_2015";
-	limits.LimitPlotter(GBR2016,GBR2015,leg_GxBR,output_independet_limits,0.1,30,200,1300,"36.62(2016) vs 2.62(2015)","M_{#Phi} [GeV]","95%C.L. limit on #sigma x BR [pb]",true);
+	limits.SetHiggsBoson(boson);
+
+	TLegend legenda(0.62,0.55,0.85,0.75);
+	legenda.SetFillColor(0);
+	legenda.SetTextSize(0.035);
+	legenda.SetBorderSize(0);
+
+	string path_to_compare = path2016 + "no_bias/Hbb.limits";
+	vector<Limit> GBR_to_compare = limits.ReadCombineLimits(path_to_compare);
+	limits.Write(GBR_to_compare,path_to_compare);
 
 	/*
-	 *
+	 * Model independent limits should be calculated with differ from model-dep. datacards
 	 */
+	string path2016_indep = path2016 + "no_bias/Hbb.limits";
+	vector<Limit> GBR2016 = limits.ReadCombineLimits(path2016_indep);
+	limits.Write(GBR2016,path2016_indep);
+	string output_independet_limits = output + "Hbb_Limits_2016";
+	limits.LimitPlotter(GBR2016,null_vec,legenda,output_independet_limits,0.1,30,200,1300,"35.7(2016)","M_{#Phi} [GeV]","95%C.L. limit on #sigma x BR [pb]",true);
+//
+//	/*
+//	 * MSSM limits
+//	 */
+//	string path2016_mssm = path2016 + "mssm/Hbb.limits";
+//	vector<Limit> GBR2016_mssm = limits.ReadCombineLimits(path2016_mssm);
+//	vector<Limit> mssm_limits = limits.GetMSSMLimits(GBR2016,"/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_8_0_20_patch1/src/Analysis/MssmHbb/macros/signal/mhmodp_mu200_13TeV.root");
+//	legenda.SetX1NDC(0.65);	legenda.SetX2NDC(0.92);
+//	legenda.SetY1NDC(0.17);	legenda.SetY2NDC(0.44);
+//	legenda.Clear();
+//	string output_mssm_tanB_limits = output + boson + "_MSSM_tanB_brazil";
+//	limits.LimitPlotter(mssm_limits,null_vec,legenda,output_mssm_tanB_limits,0,60,200,900,"35.7(2016)","M_{#Phi} [GeV]","tan(#beta)",false);
+//	/*
+//	 * 2HDM limits
+//	 */
+//	string path2016_2hdm = path2016 + "mssm/Hbb.limits";
+//	vector<Limit> GBR2016_2hdm = limits.ReadCombineLimits(path2016_2hdm);
+//	vector<Limit> TanB_2HDM_Limits;
+//	HbbLimits::THDMScan scan;
+//	TH3D GxBR_2hdm_3D;
+//	TH2D GxBR_2hdm_mA;
+//	TH2D GxBR_2hdm_cB_A;
+//	vector<Limit> THDM_limits;
+//	for(const auto& l : GBR2016_2hdm){
+//		if(l.getX() == mass){
+//			GxBR_2hdm_3D = limits.Get2HDM_GxBR_3D(thdm_scans);
+//			GxBR_2hdm_mA = limits.Get2HDM_GxBR_2D(GxBR_2hdm_3D,mass,"x");
+//			scan = limits.Get2HDMmuScan(GxBR_2hdm_mA,l);
+////			GxBR_2hdm_mA.GetXaxis()->SetRangeUser(-1,1);
+//			if(thdm_type!="type1" && thdm_type!="type4") THDM_limits = limits.Get2HDM_Limits(GxBR_2hdm_mA,l);
+//		}
+//	}
+//
+//	GxBR_2hdm_cB_A = limits.Get2HDM_GxBR_2D(GxBR_2hdm_3D,cB_A,"z");
+//	TanB_2HDM_Limits = limits.Get2HDM_1D_Limits(GxBR_2hdm_cB_A,GBR2016_2hdm);
+//
+//	/*
+//	 * 2D limits
+//	 */
+//	string output_2hdm_2D = output + boson + "_2HDM_" + thdm_type + "_Limits_mA" + to_string((int)mass);
+//	Draw2HDM_2D_Limits(output_2hdm_2D,scan);
+
+
+	//	vector<Limit> GBR2015 = limits.ReadCombineLimits(path2015);
+	//	vector<Limit> GBR2016 = limits.ReadCombineLimits(path2016);
+	//	vector<Limit> TanB_2HDM_Limits;
+	//	TGraph obs_line;
+	//	HbbLimits::THDMScan scan, scan_old;
+	//	TH3D GxBR_2hdm_3D;
+	//	TH2D GxBR_2hdm_mA;
+	//	TH2D GxBR_2hdm_cB_A;
+	//	vector<Limit> null_vec;
+	//	double mass =300;
+	//	double cB_A = 0.1;
+	//	string boson = "both";
+	//	limits.SetHiggsBoson(boson);
+	//	vector<Limit> THDM_limits;
+	//	for(const auto& l : GBR2016){
+	//		cout<<"M: "<<l.getX()<<" exp = "<<l.getMedian()<<" 1G = "<<l.getPlus1G()<<endl;
+	//		if(l.getX() == mass){
+	//			GxBR_2hdm_3D = limits.Get2HDM_GxBR_3D(thdm_scans);
+	//			GxBR_2hdm_mA = limits.Get2HDM_GxBR_2D(GxBR_2hdm_3D,mass,"x");
+	//			scan = limits.Get2HDMmuScan(GxBR_2hdm_mA,l);
+	//			GxBR_2hdm_mA.GetXaxis()->SetRangeUser(-0.99,0.99);
+	//			if(thdm_type!="type1" && thdm_type!="type4") THDM_limits = limits.Get2HDM_Limits(GxBR_2hdm_mA,l);
+	//		}
+	//	}
+	//	GxBR_2hdm_cB_A = limits.Get2HDM_GxBR_2D(GxBR_2hdm_3D,cB_A,"z");
+	//	TanB_2HDM_Limits = limits.Get2HDM_1D_Limits(GxBR_2hdm_cB_A,GBR2016);
+	//	limits.Write(GBR2016,path2016);
 /*
 	obs_line = getLine(scan.expected);
 	TCanvas can("can","",800,600);
@@ -127,27 +180,20 @@ int main(){
 	return 0;
 }
 
-TGraph getLine( TH2& hIn){
-	TGraph out;
-
-	double tanB_Target = -100;
-	double cosB_A_Target = -100;
-	int npoints = 0;
-	for(int binx = 1; binx <= hIn.GetNbinsX(); ++binx){
-		double cosB_A = hIn.GetXaxis()->GetBinCenter(binx);
-		for(int biny = 1; biny <= hIn.GetNbinsY(); ++biny){
-			double tanB = hIn.GetYaxis()->GetBinCenter(biny);
-			double GxBR_obs_vs_GxBR_pred = hIn.GetBinContent(binx,biny);
-			double difference = std::abs(GxBR_obs_vs_GxBR_pred - 1.);
-
-			if(difference < 0.1){
-				++npoints;
-				tanB_Target = tanB;
-				cosB_A_Target = cosB_A;
-				out.SetPoint(npoints,cosB_A_Target,tanB_Target);
-			}
-		}
-	}
-
-	return out;
+void Draw2HDM_2D_Limits(const std::string& output, HbbLimits::THDMScan& scan){
+	/*
+	 * Draw 2D 2HDM limits
+	 */
+	TCanvas can("can","can",800,600);
+	gPad->SetLogz();
+	gPad->SetLogy();
+	double mu = 1;
+	scan.expected.GetXaxis()->SetRangeUser(-1.,1.);
+	scan.expected.SetStats(kFALSE);
+	scan.expected.DrawCopy("COLZ");
+	scan.expected.SetContour(1,&mu);
+	scan.expected.SetLineColor(2);
+	scan.expected.SetLineStyle(2);
+	scan.expected.DrawCopy("cont3 same");
+	can.Print( (output + ".pdf").c_str());
 }
