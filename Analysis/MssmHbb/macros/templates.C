@@ -4,8 +4,9 @@
 #include "TFile.h"
 #include "TExec.h"
 #include "Analysis/MssmHbb/macros/Drawer/HbbStyle.cc"
+#include "Analysis/MssmHbb/macros/Drawer/RatioPlots.cpp"
 
-HbbStyle style;
+RatioPlots style;
 
 template <typename T> struct point{
 	point(const T& Nominal,const T& Up, const T& Down) : nominal(Nominal), up(Up), down(Down) {};
@@ -46,24 +47,17 @@ void templates()
    TExec *er_0 = new TExec("er_0","gStyle->SetErrorX(0)");
    TExec *er_1 = new TExec("er_1","gStyle->SetErrorX(0.5)");
    const auto cmsswBase = static_cast<std::string>(gSystem->Getenv("CMSSW_BASE"));
+   std::string samples_name_2016 = "ReReco_35673fb";//"ReReco_PU_test_subrange_presc";//
 
-//   inF[100] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-100_TuneCUETP8M1_13TeV-pythia8.root");
-//   inF[120] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-120_TuneCUETP8M1_13TeV-pythia8.root");
-//   inF[160] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-160_TuneCUETP8M1_13TeV-pythia8.root");
-//   inF[200] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-200_TuneCUETP8M1_13TeV-pythia8.root");
-//   inF[250] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-250_TuneCUETP8M1_13TeV-pythia8.root");
-   inF[250] 	= new TFile((cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_test_2016_lowM_clange-SUSYGluGluToBBHToBB_NarrowWidth_M-250_TuneCUETP8M1_13TeV-pythia8_MiniAODv2_80X-b773ac922eef67f3b5600ed596c9ce54.root").c_str());
-   inF[300] 	= new TFile((cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_test_2016_lowM_clange-SUSYGluGluToBBHToBB_NarrowWidth_M-300_TuneCUETP8M1_13TeV-pythia8_MiniAODv2_80X-b773ac922eef67f3b5600ed596c9ce54.root").c_str());
-   inF[350] 	= new TFile((cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_test_2016_lowM_clange-SUSYGluGluToBBHToBB_NarrowWidth_M-350_TuneCUETP8M1_13TeV-pythia8_MiniAODv2_80X-b773ac922eef67f3b5600ed596c9ce54.root").c_str());
-   inF[400] 	= new TFile((cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_test_2016_lowM_clange-SUSYGluGluToBBHToBB_NarrowWidth_M-400_TuneCUETP8M1_13TeV-pythia8_MiniAODv2_80X-b773ac922eef67f3b5600ed596c9ce54.root").c_str());
-   inF[500]		= new TFile((cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_test_2016_lowM_clange-SUSYGluGluToBBHToBB_NarrowWidth_M-500_TuneCUETP8M1_13TeV-pythia8_MiniAODv2_80X-b773ac922eef67f3b5600ed596c9ce54.root").c_str());
-   inF[600]		= new TFile((cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_test_2016_lowM_clange-SUSYGluGluToBBHToBB_NarrowWidth_M-600_TuneCUETP8M1_13TeV-pythia8_MiniAODv2_80X-b773ac922eef67f3b5600ed596c9ce54.root").c_str());
-   inF[700] 	= new TFile((cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_test_2016_lowM_clange-SUSYGluGluToBBHToBB_NarrowWidth_M-700_TuneCUETP8M1_13TeV-pythia8_MiniAODv2_80X-b773ac922eef67f3b5600ed596c9ce54.root").c_str());
-   inF[750] 	= new TFile((cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_test_2016_lowM_clange-SUSYGluGluToBBHToBB_NarrowWidth_M-750_TuneCUETP8M1_13TeV-pythia8_MiniAODv2_80X-b773ac922eef67f3b5600ed596c9ce54.root").c_str());
-   inF[800] 	= new TFile((cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_test_2016_lowM_clange-SUSYGluGluToBBHToBB_NarrowWidth_M-800_TuneCUETP8M1_13TeV-pythia8_MiniAODv2_80X-b773ac922eef67f3b5600ed596c9ce54.root").c_str());
-   inF[900] 	= new TFile((cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_test_2016_lowM_clange-SUSYGluGluToBBHToBB_NarrowWidth_M-900_TuneCUETP8M1_13TeV-pythia8_MiniAODv2_80X-b773ac922eef67f3b5600ed596c9ce54.root").c_str());
-   inF[1100] 	= new TFile((cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_test_2016_lowM_clange-SUSYGluGluToBBHToBB_NarrowWidth_M-1100_TuneCUETP8M1_13TeV-pythia8_MiniAODv2_80X-b773ac922eef67f3b5600ed596c9ce54.root").c_str());
-   inF[1300] 	= new TFile((cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_test_2016_lowM_clange-SUSYGluGluToBBHToBB_NarrowWidth_M-1300_TuneCUETP8M1_13TeV-pythia8_MiniAODv2_80X-b773ac922eef67f3b5600ed596c9ce54.root").c_str());
+   inF[300] 	= new TFile((cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_" + samples_name_2016 + "_lowM_SUSYGluGluToBBHToBB_NarrowWidth_M-300_TuneCUETP8M1_13TeV-pythia8.root").c_str());
+   inF[350] 	= new TFile((cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_" + samples_name_2016 + "_lowM_SUSYGluGluToBBHToBB_NarrowWidth_M-350_TuneCUETP8M1_13TeV-pythia8.root").c_str());
+   inF[400] 	= new TFile((cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_" + samples_name_2016 + "_lowM_SUSYGluGluToBBHToBB_NarrowWidth_M-400_TuneCUETP8M1_13TeV-pythia8.root").c_str());
+   inF[500]		= new TFile((cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_" + samples_name_2016 + "_lowM_SUSYGluGluToBBHToBB_NarrowWidth_M-500_TuneCUETP8M1_13TeV-pythia8.root").c_str());
+   inF[600]		= new TFile((cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_" + samples_name_2016 + "_lowM_SUSYGluGluToBBHToBB_NarrowWidth_M-600_TuneCUETP8M1_13TeV-pythia8.root").c_str());
+   inF[700] 	= new TFile((cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_" + samples_name_2016 + "_lowM_SUSYGluGluToBBHToBB_NarrowWidth_M-700_TuneCUETP8M1_13TeV-pythia8.root").c_str());
+   inF[900] 	= new TFile((cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_" + samples_name_2016 + "_lowM_SUSYGluGluToBBHToBB_NarrowWidth_M-900_TuneCUETP8M1_13TeV-pythia8.root").c_str());
+   inF[1100] 	= new TFile((cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_" + samples_name_2016 + "_lowM_SUSYGluGluToBBHToBB_NarrowWidth_M-1100_TuneCUETP8M1_13TeV-pythia8.root").c_str());
+   inF[1300] 	= new TFile((cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_" + samples_name_2016 + "_lowM_SUSYGluGluToBBHToBB_NarrowWidth_M-1300_TuneCUETP8M1_13TeV-pythia8.root").c_str());
 
 //   inF[500]		= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-500_TuneCUETP8M1_13TeV-pythia8.root");
 //   inF[600]		= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-600_TuneCUETP8M1_13TeV-pythia8.root");
@@ -96,16 +90,18 @@ void templates()
 //   allInOne(inF,"lowM");
 //   allInOne(highMF,"highM");
 
-   sistTemp(inF,"lowM");
-//   sistTemp(highMF,"highM");
+//   sistTemp(inF,"lowM");
 
    //Wide templates
    std::vector<int> Wide_points = {700,900,1100,1300};
    //Narrow peaks:
-   std::vector<int> Narrow_points = {250,300,350,400};
+   std::vector<int> Narrow_points = {300,350,400};
+   // Just some selection of the points
+   std::vector<int> Selected_points = {300,500,700,1100,1300};
 
-   selectedTemplates(inF,"Wide peaks",Wide_points);
-   selectedTemplates(inF,"Narrow peaks",Narrow_points);
+   selectedTemplates(inF,"Wide peaks low",Wide_points);
+   selectedTemplates(inF,"Narrow peaks low",Narrow_points);
+   selectedTemplates(inF,"low",Selected_points);
 
 
 /**/
@@ -142,10 +138,12 @@ void selectedTemplates(const std::map<int,TFile*> & inF,const std::string &regim
 	double legXMax = 0.95;
 	double legYMin = 0.4;
 	double legYMax = 0.85;
-	TLegend *leg = new TLegend(0.69,0.4,0.92,0.85);
+	TLegend *leg = (TLegend*) style.legend("top,right",points.size()+2,0.45);
+//	TLegend *leg = new TLegend(0.69,0.4,0.92,0.85);
 	leg->SetEntrySeparation(0.01);
 	leg->SetLineColor(0);
 	float Xmax = xmax, Xmin = xmin;
+	float ymax = -1000.;
 	if(xmax == -1) Xmax = 1700;
 
 	TH1D *h[15];
@@ -157,11 +155,12 @@ void selectedTemplates(const std::map<int,TFile*> & inF,const std::string &regim
 		h[i-1] = (TH1D*) it->second->Get("templates/bbH_Mbb_VIS");
 		h[i-1]->SetLineColor(colors.at(i-1));
 		h[i-1]->SetLineWidth(3.5);
+		if(ymax <= h[i-1]->GetMaximum()) ymax = 1.1 * h[i-1]->GetMaximum();
 		if(i==1){
 			h[i-1]->GetYaxis()->SetTitle("a.u.");
 			h[i-1]->SetTitle("");
-			if(lowM) h[i-1]->SetAxisRange(0.,9.,"y");
-			else h[i-1]->SetAxisRange(0.,9.,"y");
+			if(lowM) h[i-1]->SetAxisRange(0.,60.,"y");
+			else h[i-1]->SetAxisRange(0.,60.,"y");
 			if(xmin == -1) Xmin = h[i-1]->GetXaxis()->GetXmin();
 			h[i-1]->SetAxisRange(Xmin,Xmax,"x");
 			h[i-1]->Draw("hist");
@@ -169,6 +168,7 @@ void selectedTemplates(const std::map<int,TFile*> & inF,const std::string &regim
 		else h[i-1]->Draw("hist same");
 		leg->AddEntry(h[i-1], (std::to_string(point) + " GeV").c_str(),"l" );
 	}
+	h[0]->SetAxisRange(0,ymax,"y");
 	std::string legHeader;
 	if(lowM) legHeader = "Low Mass Scenario";
 	else legHeader = "High Mass Scenario";
@@ -203,6 +203,9 @@ void allInOne(const std::map<int,TFile*> & inF,const std::string & regime){
 		   histo.push_back((TH1D*) f.second->Get("templates/bbH_Mbb_CMS_PU_VIS_13TeVUp"));
 		   histo.push_back((TH1D*) f.second->Get("templates/bbH_Mbb_CMS_PtEff_VIS_13TeVDown"));
 		   histo.push_back((TH1D*) f.second->Get("templates/bbH_Mbb_CMS_PtEff_VIS_13TeVUp"));
+		   histo.push_back((TH1D*) f.second->Get("templates/bbH_Mbb_CMS_BTagEff_VIS_13TeVDown"));
+		   histo.push_back((TH1D*) f.second->Get("templates/bbH_Mbb_CMS_BTagEff_VIS_13TeVUp"));
+
 		   c1[i-1] = new TCanvas();
 		   for(const auto & h : histo){
 			   ++j;
@@ -232,131 +235,6 @@ void allInOne(const std::map<int,TFile*> & inF,const std::string & regime){
 	   }
 }
 
-//void sistTemp(const std::map<int,TFile*> & inF,const std::string & regime){
-//
-//	map<string, point<TH1D> > hSyst;
-//	map<string,vector<pair<int,point<double> > > > lnN;
-//	map<string,vector<pair<int,point<double> > > > elnN;
-//	//coordinates for TLegend
-//	double lxmin = 0.6, lxmax = 0.9, lymin = 0.7, lymax = 0.9;
-//
-//	   int i = 0, j =0, k=0;
-//	   for(const auto & f : inF){
-//		   ++i;
-//		   TH1D& centralH = *(TH1D*) f.second->Get("templates/bbH_Mbb_VIS");
-//		   centralH.SetTitle((std::to_string(f.first) + "-M mass point").c_str());
-//		   centralH.SetLineWidth(2);
-//		   hSyst["SFb"]    		= point<TH1D>((TH1D&) *f.second->Get("templates/bbH_Mbb_CMS_SFb_VIS_13TeVUp"),  (TH1D&) *f.second->Get("templates/bbH_Mbb_CMS_SFb_VIS_13TeVDown"));
-//		   hSyst["SFudsg"] 		= point<TH1D>((TH1D&) *f.second->Get("templates/bbH_Mbb_CMS_SFl_VIS_13TeVUp"),  (TH1D&) *f.second->Get("templates/bbH_Mbb_CMS_SFl_VIS_13TeVDown"));
-//		   hSyst["JER"] 		= point<TH1D>((TH1D&) *f.second->Get("templates/bbH_Mbb_CMS_JER_VIS_13TeVUp"),  (TH1D&) *f.second->Get("templates/bbH_Mbb_CMS_JER_VIS_13TeVDown"));
-//		   hSyst["JES"] 		= point<TH1D>((TH1D&) *f.second->Get("templates/bbH_Mbb_CMS_JES_VIS_13TeVUp"),  (TH1D&) *f.second->Get("templates/bbH_Mbb_CMS_JES_VIS_13TeVDown"));
-//		   hSyst["PU"] 			= point<TH1D>((TH1D&) *f.second->Get("templates/bbH_Mbb_CMS_PU_VIS_13TeVUp"),   (TH1D&) *f.second->Get("templates/bbH_Mbb_CMS_PU_VIS_13TeVDown"));
-//		   hSyst["pT trig Eff"] = point<TH1D>((TH1D&) *f.second->Get("templates/bbH_Mbb_CMS_PtEff_VIS_13TeVUp"),(TH1D&) *f.second->Get("templates/bbH_Mbb_CMS_PtEff_VIS_13TeVDown"));
-//		   for(const auto & p: hSyst){
-//			   ++j;
-//
-//			   TCanvas can();
-//			   std::string name2 = "box1_" + std::to_string(i) + "_" + std::to_string(j);
-//			   //Top TPad with templates: nominal, up and down
-//			   TPad cPad(name2.c_str(),"",0.,0.35,1,1);
-//			   cPad.SetBottomMargin(0.0);
-//			   cPad.SetLeftMargin(0.16);
-//			   cPad.SetRightMargin(0.05);
-//			   cPad.Draw();
-//			   cPad.cd();
-//			   if(f.first > 900) {lxmin = 0.25; lxmax = 0.55;}
-//			   TLegend legenda(lxmin,lymin,lxmax,lymax);
-//			   (p.second).up.SetTitle((std::to_string(f.first)+ " GeV mass point, " + p.first+" variation").c_str());
-//
-//			   (p.second).down.SetMarkerColor(kRed);
-//			   (p.second).up.SetMarkerColor(kBlue);
-//			   (p.second).down.SetMarkerStyle(20);
-//			   (p.second).up.SetMarkerStyle(20);
-//
-//			   (p.second).second->Draw();
-//			   (p.second).first->Draw("same");
-//			   first->Draw("hist same");
-//
-//			   legenda.AddEntry((p.second).first,("-2#sigma variation " + p.first).c_str(),"p");
-//			   legenda.AddEntry((p.second).second,("+2#sigma variation " + p.first).c_str(),"p");
-//			   legenda.Draw();
-//
-//			   singleC.cd();
-//			   name2 = "box2_" + std::to_string(i) + "_" + std::to_string(j);
-//			   uPad[i-1][j-1]		= new TPad(name2.c_str(),"",0.,0.21,1,0.35);
-//			   uPad.SetBottomMargin(0.0);
-//			   uPad.SetTopMargin(0.);
-//			   uPad.SetLeftMargin(cPad.GetLeftMargin());
-//			   uPad.SetRightMargin(cPad.GetRightMargin());
-//			   uPad.Draw();
-//			   uPad.cd();
-//
-//			   TH1D *centrU = (TH1D*) first->Clone("centrU");
-//			   double int_e_u = 0, int_e_c = 0;
-//			   double int_u = 0, int_c = 0;
-////			   centrU->IntegralAndError(centrU->FindFirstBinAbove(0),centrU->FindLastBinAbove(0),elnN[i-1][j-1].second);
-////			   lnN[i-1][j-1].first = centrU->Integral() / (p.second).first -> Integral();
-//			   int_u = centrU->IntegralAndError(centrU->FindFirstBinAbove(0),centrU->FindLastBinAbove(0),int_e_u);
-//			   int_c = (p.second).second->IntegralAndError((p.second).second->FindFirstBinAbove(0),(p.second).second->FindLastBinAbove(0),int_e_c);
-//			   lnN[i-1][j-1].second = int_u / int_c;
-////			   elnN[i-1][j-1].second =
-//			   centrU->Divide((p.second).second);
-//			   centrU->SetTitle("");
-//			   centrU->SetMarkerStyle(20);
-//			   SetBottomStyle(centrU);
-//
-//			   centrU->Draw();
-//
-//			   TLine *horizLine = new TLine(centrU->GetXaxis()->GetXmin(),1,centrU->GetXaxis()->GetXmax(),1);
-//			   horizLine -> SetLineStyle(2);
-//			   horizLine -> Draw();
-//
-//			   singleC.cd();
-//			   name2 = "box3_" + std::to_string(i) + "_" + std::to_string(j);
-//			   dPad[i-1][j-1]		= new TPad(name2.c_str(),"",0.,0.,1,0.21);
-//			   dPad.SetBottomMargin(0.33);
-//			   dPad.SetTopMargin(0.);
-//			   dPad.SetLeftMargin(cPad.GetLeftMargin());
-//			   dPad.SetRightMargin(cPad.GetRightMargin());
-//			   dPad.Draw();
-//			   dPad.cd();
-//
-//			   TH1D *centrD = (TH1D*) first->Clone("centrD");
-//			   int_u = centrU->IntegralAndError(centrD->FindFirstBinAbove(0),centrD->FindLastBinAbove(0),int_e_u);
-//			   int_c = (p.second).first->IntegralAndError((p.second).first->FindFirstBinAbove(0),(p.second).first->FindLastBinAbove(0),int_e_c);
-//			   lnN[i-1][j-1].first = int_u / int_c;
-//			   elnN[i-1][j-1].first =
-////			   lnN[i-1][j-1].second = centrD->Integral() / (p.second).first -> Integral();
-//			   centrD->IntegralAndError(centrD->FindFirstBinAbove(0),centrD->FindLastBinAbove(0),elnN[i-1][j-1].second);
-//			   centrD->Divide((p.second).first);
-//			   centrD->SetTitle("");
-//			   centrD->SetMarkerStyle(20);
-//			   SetBottomStyle(centrD);
-//			   centrD->Draw();
-//
-//			   TLine *horizLine2 = new TLine(centrD->GetXaxis()->GetXmin(),1,centrD->GetXaxis()->GetXmax(),1);
-//			   horizLine2 -> SetLineStyle(2);
-//			   horizLine2 -> Draw();
-//
-//			   cPad.cd();
-//			   double xmin = 0.6, ymin = 0.5, xmax = 0.9, ymax = 0.7;
-//			   if (f.first > 900) {xmin = 0.25; xmax = 0.55;}
-//			   text[i-1][j-1]		= new TPaveText  (xmin,ymin,xmax,ymax,"NDC");
-//			   text.SetFillColor(0);
-//			   text.SetShadowColor(0);
-//			   text.AddText(("lnN +2#sigma: " + std::to_string(lnN[i-1][j-1].second)).c_str());
-//			   text.AddText(("lnN -2#sigma: " + std::to_string(lnN[i-1][j-1].first)).c_str());
-//			   text.AddText(("lnN #pm1#sigma: " + std::to_string(1. + std::abs((lnN[i-1][j-1].first - lnN[i-1][j-1].second)/4.))).c_str());
-////			   text.AddText(("lnN #pm1#sigma: " + std::to_string(1. + std::abs((lnN[i-1][j-1].first - lnN[i-1][j-1].second)/4.))).c_str());
-//			   //("lnN +2\sigma: " + std::to_string(lnN[i-1][j-1].first) + " \pm " + std::to_string(elnN[i-1][j-1].first)  + " \splitline lnN -2#sigma: " + std::to_string(lnN[i-1][j-1].second) + " #pm " + std::to_string(elnN[i-1][j-1].second)).c_str());
-//			   text.Draw();
-//			   std::string name = "pictures/"+std::to_string(f.first)+ "_GeV" + "_mass_point_" +regime + "_" + p.first+"_variation.pdf";
-//			   singleC.SaveAs(name.c_str());
-//		   }
-//		   j=0;
-//	   }
-//}
-
 void sistTemp(const std::map<int,TFile*> & inF,const std::string & regime){
 	//One by one
 	map<string,map<int,pair<double,double> > > lnN;
@@ -374,45 +252,63 @@ void sistTemp(const std::map<int,TFile*> & inF,const std::string & regime){
 		++i;
 		TH1D * first = (TH1D*) f.second->Get("templates/bbH_Mbb_VIS");
 		f.second->SetTitle((std::to_string(f.first) + "-M mass point").c_str());
-		first->SetLineWidth(2);
+//		first->SetLineWidth(2);
+		first->SetLineColor(kRed-9);
+		first->SetFillColor(kRed-10);
+		first->SetFillStyle(3002);
+		first->GetYaxis()->SetTitle("a.u.");
+
 		singleH["SFb"] = std::make_pair((TH1D*) f.second->Get("templates/bbH_Mbb_CMS_SFb_VIS_13TeVDown"),(TH1D*) f.second->Get("templates/bbH_Mbb_CMS_SFb_VIS_13TeVUp"));
 		singleH["SFl"] = std::make_pair((TH1D*) f.second->Get("templates/bbH_Mbb_CMS_SFl_VIS_13TeVDown"),(TH1D*) f.second->Get("templates/bbH_Mbb_CMS_SFl_VIS_13TeVUp"));
 		singleH["JER"] = std::make_pair((TH1D*) f.second->Get("templates/bbH_Mbb_CMS_JER_VIS_13TeVDown"),(TH1D*) f.second->Get("templates/bbH_Mbb_CMS_JER_VIS_13TeVUp"));
 		singleH["JES"] = std::make_pair((TH1D*) f.second->Get("templates/bbH_Mbb_CMS_JES_VIS_13TeVDown"),(TH1D*) f.second->Get("templates/bbH_Mbb_CMS_JES_VIS_13TeVUp"));
 		singleH["PU"] = std::make_pair((TH1D*) f.second->Get("templates/bbH_Mbb_CMS_PU_VIS_13TeVDown"),(TH1D*) f.second->Get("templates/bbH_Mbb_CMS_PU_VIS_13TeVUp"));
+		singleH["BTagEff"] = std::make_pair((TH1D*) f.second->Get("templates/bbH_Mbb_CMS_BTagEff_VIS_13TeVDown"),(TH1D*) f.second->Get("templates/bbH_Mbb_CMS_BTagEff_VIS_13TeVUp"));
 		singleH["pT trig Eff"] = std::make_pair((TH1D*) f.second->Get("templates/bbH_Mbb_CMS_PtEff_VIS_13TeVDown"),(TH1D*) f.second->Get("templates/bbH_Mbb_CMS_PtEff_VIS_13TeVUp"));
 		for(const auto & p: singleH){
 			++j;
 			TCanvas can("can","can");
 
 			std::string name2 = "box1_" + std::to_string(i) + "_" + std::to_string(j);
-			TPad cPad(name2.c_str(),"",0.,0.35,1,1);
-			cPad.SetBottomMargin(0.0);
+			TPad cPad(name2.c_str(),"",0.,0.1,1,1);
+			cPad.SetBottomMargin(0.2);
 			cPad.SetLeftMargin(0.16);
 			cPad.SetRightMargin(0.05);
 			cPad.Draw();
 			cPad.cd();
-			if(f.first > 900) {lxmin = 0.25; lxmax = 0.55;}
-			TLegend legend(lxmin,lymin,lxmax,lymax);
+			string leg_position = "top,right";
+			double leg_width = 0.47;
+			if(f.first > 900) {
+				leg_position = "top,left";
+				leg_width    = 0.28;
+			}
+
+			TLegend legend = (TLegend&)* style.legend(leg_position,3,leg_width);
+//			TLegend legend(lxmin,lymin,lxmax,lymax);
 			(p.second).second->SetTitle((std::to_string(f.first)+ " GeV mass point, " + p.first+" variation").c_str());
 
 			(p.second).first->SetMarkerColor(kRed);
 			(p.second).second->SetMarkerColor(kBlue);
 			(p.second).first->SetMarkerStyle(20);
 			(p.second).second->SetMarkerStyle(20);
+			(p.second).second->GetYaxis()->SetTitle("a.u.");
+			(p.second).second->SetMinimum(0.);
 
+			style.SetTopStyle((p.second).second);
 			(p.second).second->Draw();
-			(p.second).first->Draw("same");
 			first->Draw("hist same");
+			(p.second).first->Draw("same");
+			gPad->RedrawAxis();
 
-			legend.AddEntry((p.second).first,("-2#sigma variation " + p.first).c_str(),"p");
-			legend.AddEntry((p.second).second,("+2#sigma variation " + p.first).c_str(),"p");
+			legend.AddEntry(first,"central","fl");
+			legend.AddEntry((p.second).first, (" -2#sigma, " + p.first).c_str(),"p");
+			legend.AddEntry((p.second).second,("+2#sigma, " + p.first).c_str(),"p");
 			legend.Draw();
 
 			can.cd();
 			name2 = "box2_" + std::to_string(i) + "_" + std::to_string(j);
-			TPad uPad(name2.c_str(),"",0.,0.21,1,0.35);
-			uPad.SetBottomMargin(0.0);
+			TPad uPad(name2.c_str(),"",0.,0.,1,0.265);
+			uPad.SetBottomMargin(0.28);
 			uPad.SetTopMargin(0.);
 			uPad.SetLeftMargin(cPad.GetLeftMargin());
 			uPad.SetRightMargin(cPad.GetRightMargin());
@@ -420,6 +316,7 @@ void sistTemp(const std::map<int,TFile*> & inF,const std::string & regime){
 			uPad.cd();
 
 			TH1D *centrU = (TH1D*) first->Clone("centrU");
+			TH1D *centrD = (TH1D*) first->Clone("centrD");
 			double cVal, uVal, dVal, ecVal, euVal, edVal;
 			cVal = centrU->IntegralAndError(centrU->FindFirstBinAbove(0),centrU->FindLastBinAbove(0),ecVal);
 			uVal = (p.second).second->IntegralAndError((p.second).second->FindFirstBinAbove(0),(p.second).second->FindLastBinAbove(0),euVal);
@@ -427,60 +324,79 @@ void sistTemp(const std::map<int,TFile*> & inF,const std::string & regime){
 			double err_u;
 			for(auto i = 0; i < centrU->GetNbinsX(); ++i){
 				err_u = correlatedDivision(first->GetBinContent(i+1),first->GetBinError(i+1),(p.second).second->GetBinContent(i+1),(p.second).second->GetBinError(i+1));
-				centrU->SetBinError(i+1,err_u);
+				centrU->SetBinError(i+1,0);
 			}
-			centrU->SetTitle("");
-			centrU->SetMarkerStyle(20);
-			SetBottomStyle(centrU);
 
-			centrU->Draw();
+			double err_d;
+			centrD->Divide((p.second).first);
+			for(auto i = 0; i < centrD->GetNbinsX(); ++i){
+				err_d = correlatedDivision(first->GetBinContent(i+1),first->GetBinError(i+1),(p.second).first->GetBinContent(i+1),(p.second).first->GetBinError(i+1));
+				centrD->SetBinError(i+1,0);
+			}
+
+			centrD->SetTitle("");
+			centrD->GetYaxis()->SetTitle("#frac{central}{down(up)}");
+			centrD->SetLineColor(kRed);
+			centrD->SetMarkerColor(kRed);
+			centrD->SetMinimum(0.5);
+			centrD->SetMaximum(1.5);
+			centrD->SetMarkerStyle(20);
+			style.SetBottomStyle(centrD);
+			centrD->GetXaxis()->SetTickLength((p.second).first->GetXaxis()->GetTickLength()*3);
+			centrD->Draw("P");
+
+			centrU->SetTitle("");
+			centrU->SetLineColor(kBlue);
+			centrU->SetMarkerColor(kBlue);
+			centrU->SetMarkerStyle(20);
+			centrU->Draw("Psame");
 
 			TLine *horizLine = new TLine(centrU->GetXaxis()->GetXmin(),1,centrU->GetXaxis()->GetXmax(),1);
 			horizLine -> SetLineStyle(2);
 			horizLine -> Draw();
 
-			can.cd();
-			name2 = "box3_" + std::to_string(i) + "_" + std::to_string(j);
-			TPad dPad(name2.c_str(),"",0.,0.,1,0.21);
-			dPad.SetBottomMargin(0.33);
-			dPad.SetTopMargin(0.);
-			dPad.SetLeftMargin(cPad.GetLeftMargin());
-			dPad.SetRightMargin(cPad.GetRightMargin());
-			dPad.Draw();
-			dPad.cd();
-
-			TH1D *centrD = (TH1D*) first->Clone("centrD");
-			dVal = (p.second).first->IntegralAndError((p.second).first->FindFirstBinAbove(0),(p.second).first->FindLastBinAbove(0),edVal);
-			lnN[p.first][f.first] = make_pair(cVal/dVal,uVal/cVal);
-			elnN[p.first][f.first] = make_pair(correlatedDivision(cVal,ecVal,dVal,edVal),correlatedDivision(uVal,euVal,cVal,ecVal));
-			av_lnN[p.first][f.first] = 1. + std::abs((lnN[p.first][f.first].second + lnN[p.first][f.first].first - 2)/4.);
-			av_elnN[p.first][f.first] = 0.25 * sqrt(elnN[p.first][f.first].second * elnN[p.first][f.first].second + elnN[p.first][f.first].first * elnN[p.first][f.first].first - 2*elnN[p.first][f.first].second*elnN[p.first][f.first].first);
-			//calculate errors of division:
-			double err_d;
-			centrD->Divide((p.second).first);
-			for(auto i = 0; i < centrD->GetNbinsX(); ++i){
-				err_d = correlatedDivision(first->GetBinContent(i+1),first->GetBinError(i+1),(p.second).first->GetBinContent(i+1),(p.second).first->GetBinError(i+1));
-				centrD->SetBinError(i+1,err_d);
-			}
-			centrD->SetTitle("");
-			centrD->SetMarkerStyle(20);
-			SetBottomStyle(centrD);
-			centrD->Draw();
-
-			TLine *horizLine2 = new TLine(centrD->GetXaxis()->GetXmin(),1,centrD->GetXaxis()->GetXmax(),1);
-			horizLine2 -> SetLineStyle(2);
-			horizLine2 -> Draw();
-
-			cPad.cd();
-			if (f.first > 900) {xmin = 0.25; xmax = 0.55;}
-			TPaveText text(xmin,ymin,xmax,ymax,"NDC");
-			text.SetFillColor(0);
-			text.SetShadowColor(0);
-			text.AddText(("lnN +2#sigma: " + std::to_string(lnN[p.first][f.first].second)).c_str());
-			text.AddText(("lnN -2#sigma: " + std::to_string(1. / lnN[p.first][f.first].first)).c_str());
-			text.AddText(("lnN #pm1#sigma: " + std::to_string(av_lnN[p.first][f.first])).c_str());
-			//("lnN +2\sigma: " + std::to_string(lnN[i-1][j-1].first) + " \pm " + std::to_string(elnN[i-1][j-1].first)  + " \splitline lnN -2#sigma: " + std::to_string(lnN[i-1][j-1].second) + " #pm " + std::to_string(elnN[i-1][j-1].second)).c_str());
-			text.Draw();
+//			can.cd();
+//			name2 = "box3_" + std::to_string(i) + "_" + std::to_string(j);
+//			TPad dPad(name2.c_str(),"",0.,0.,1,0.2);
+//			dPad.SetBottomMargin(0.33);
+//			dPad.SetTopMargin(0.);
+//			dPad.SetLeftMargin(cPad.GetLeftMargin());
+//			dPad.SetRightMargin(cPad.GetRightMargin());
+//			dPad.Draw();
+//			dPad.cd();
+//
+//			TH1D *centrD = (TH1D*) first->Clone("centrD");
+//			dVal = (p.second).first->IntegralAndError((p.second).first->FindFirstBinAbove(0),(p.second).first->FindLastBinAbove(0),edVal);
+//			lnN[p.first][f.first] = make_pair(cVal/dVal,uVal/cVal);
+//			elnN[p.first][f.first] = make_pair(correlatedDivision(cVal,ecVal,dVal,edVal),correlatedDivision(uVal,euVal,cVal,ecVal));
+//			av_lnN[p.first][f.first] = 1. + std::abs((lnN[p.first][f.first].second + lnN[p.first][f.first].first - 2)/4.);
+//			av_elnN[p.first][f.first] = 0.25 * sqrt(elnN[p.first][f.first].second * elnN[p.first][f.first].second + elnN[p.first][f.first].first * elnN[p.first][f.first].first - 2*elnN[p.first][f.first].second*elnN[p.first][f.first].first);
+//			//calculate errors of division:
+//			double err_d;
+//			centrD->Divide((p.second).first);
+//			for(auto i = 0; i < centrD->GetNbinsX(); ++i){
+//				err_d = correlatedDivision(first->GetBinContent(i+1),first->GetBinError(i+1),(p.second).first->GetBinContent(i+1),(p.second).first->GetBinError(i+1));
+//				centrD->SetBinError(i+1,err_d);
+//			}
+//			centrD->SetTitle("");
+//			centrD->SetMarkerStyle(20);
+//			SetBottomStyle(centrD);
+//			centrD->Draw();
+//
+//			TLine *horizLine2 = new TLine(centrD->GetXaxis()->GetXmin(),1,centrD->GetXaxis()->GetXmax(),1);
+//			horizLine2 -> SetLineStyle(2);
+//			horizLine2 -> Draw();
+//
+//			cPad.cd();
+//			if (f.first > 900) {xmin = 0.25; xmax = 0.55;}
+//			TPaveText text(xmin,ymin,xmax,ymax,"NDC");
+//			text.SetFillColor(0);
+//			text.SetShadowColor(0);
+//			text.AddText(("lnN +2#sigma: " + std::to_string(lnN[p.first][f.first].second)).c_str());
+//			text.AddText(("lnN -2#sigma: " + std::to_string(1. / lnN[p.first][f.first].first)).c_str());
+//			text.AddText(("lnN #pm1#sigma: " + std::to_string(av_lnN[p.first][f.first])).c_str());
+//			//("lnN +2\sigma: " + std::to_string(lnN[i-1][j-1].first) + " \pm " + std::to_string(elnN[i-1][j-1].first)  + " \splitline lnN -2#sigma: " + std::to_string(lnN[i-1][j-1].second) + " #pm " + std::to_string(elnN[i-1][j-1].second)).c_str());
+//			text.Draw();
 			std::string name = "pictures/"+std::to_string(f.first)+ "_GeV" + "_mass_point_" +regime + "_" + p.first+"_variation.pdf";
 			can.SaveAs(name.c_str());
 		}
@@ -493,6 +409,151 @@ void sistTemp(const std::map<int,TFile*> & inF,const std::string & regime){
 		calcLnN(s,av_lnN[s],av_elnN[s]);
 	}
 }
+
+
+//void sistTemp(const std::map<int,TFile*> & inF,const std::string & regime){
+//	//One by one
+//	map<string,map<int,pair<double,double> > > lnN;
+//	map<string,map<int,pair<double,double> > > elnN;
+//	map<string,map<int,double> > av_lnN;
+//	map<string,map<int,double> > av_elnN;
+//	std::map<std::string,std::pair<TH1D*, TH1D*> > singleH;
+//	//coordinates for TLegend
+//	double lxmin = 0.6, lxmax = 0.9, lymin = 0.7, lymax = 0.9;
+//	//coordinates for pavetext
+//	double xmin = 0.6, ymin = 0.5, xmax = 0.9, ymax = 0.7;
+//
+//	int i = 0, j =0, k=0;
+//	for(const auto & f : inF){
+//		++i;
+//		TH1D * first = (TH1D*) f.second->Get("templates/bbH_Mbb_VIS");
+//		f.second->SetTitle((std::to_string(f.first) + "-M mass point").c_str());
+////		first->SetLineWidth(2);
+//		first->SetLineColor(kRed-9);
+//		first->SetFillColor(kRed-10);
+//		first->SetFillStyle(3002);
+//
+//		singleH["SFb"] = std::make_pair((TH1D*) f.second->Get("templates/bbH_Mbb_CMS_SFb_VIS_13TeVDown"),(TH1D*) f.second->Get("templates/bbH_Mbb_CMS_SFb_VIS_13TeVUp"));
+////		singleH["SFl"] = std::make_pair((TH1D*) f.second->Get("templates/bbH_Mbb_CMS_SFl_VIS_13TeVDown"),(TH1D*) f.second->Get("templates/bbH_Mbb_CMS_SFl_VIS_13TeVUp"));
+////		singleH["JER"] = std::make_pair((TH1D*) f.second->Get("templates/bbH_Mbb_CMS_JER_VIS_13TeVDown"),(TH1D*) f.second->Get("templates/bbH_Mbb_CMS_JER_VIS_13TeVUp"));
+////		singleH["JES"] = std::make_pair((TH1D*) f.second->Get("templates/bbH_Mbb_CMS_JES_VIS_13TeVDown"),(TH1D*) f.second->Get("templates/bbH_Mbb_CMS_JES_VIS_13TeVUp"));
+////		singleH["PU"] = std::make_pair((TH1D*) f.second->Get("templates/bbH_Mbb_CMS_PU_VIS_13TeVDown"),(TH1D*) f.second->Get("templates/bbH_Mbb_CMS_PU_VIS_13TeVUp"));
+////		singleH["BTagEff"] = std::make_pair((TH1D*) f.second->Get("templates/bbH_Mbb_CMS_BTagEff_VIS_13TeVDown"),(TH1D*) f.second->Get("templates/bbH_Mbb_CMS_BTagEff_VIS_13TeVUp"));
+////		singleH["pT trig Eff"] = std::make_pair((TH1D*) f.second->Get("templates/bbH_Mbb_CMS_PtEff_VIS_13TeVDown"),(TH1D*) f.second->Get("templates/bbH_Mbb_CMS_PtEff_VIS_13TeVUp"));
+//		for(const auto & p: singleH){
+//			++j;
+//			TCanvas can("can","can");
+//
+//			std::string name2 = "box1_" + std::to_string(i) + "_" + std::to_string(j);
+//			TPad cPad(name2.c_str(),"",0.,0.37,1,1);
+//			cPad.SetBottomMargin(0.0);
+//			cPad.SetLeftMargin(0.16);
+//			cPad.SetRightMargin(0.05);
+//			cPad.Draw();
+//			cPad.cd();
+//			if(f.first > 900) {lxmin = 0.25; lxmax = 0.55;}
+//			TLegend legend(lxmin,lymin,lxmax,lymax);
+//			(p.second).second->SetTitle((std::to_string(f.first)+ " GeV mass point, " + p.first+" variation").c_str());
+//
+//			(p.second).first->SetMarkerColor(kRed);
+//			(p.second).second->SetMarkerColor(kBlue);
+//			(p.second).first->SetMarkerStyle(20);
+//			(p.second).second->SetMarkerStyle(20);
+//
+//			(p.second).second->Draw();
+//			first->Draw("hist same");
+//			(p.second).first->Draw("same");
+//			gPad->RedrawAxis();
+//
+//			legend.AddEntry(first,"central","fl");
+//			legend.AddEntry((p.second).first,("-2#sigma variation " + p.first).c_str(),"p");
+//			legend.AddEntry((p.second).second,("+2#sigma variation " + p.first).c_str(),"p");
+//			legend.Draw();
+//
+//			can.cd();
+//			name2 = "box2_" + std::to_string(i) + "_" + std::to_string(j);
+//			TPad uPad(name2.c_str(),"",0.,0.22,1,0.35);
+//			uPad.SetBottomMargin(0.0);
+//			uPad.SetTopMargin(0.);
+//			uPad.SetLeftMargin(cPad.GetLeftMargin());
+//			uPad.SetRightMargin(cPad.GetRightMargin());
+//			uPad.Draw();
+//			uPad.cd();
+//
+//			TH1D *centrU = (TH1D*) first->Clone("centrU");
+//			double cVal, uVal, dVal, ecVal, euVal, edVal;
+//			cVal = centrU->IntegralAndError(centrU->FindFirstBinAbove(0),centrU->FindLastBinAbove(0),ecVal);
+//			uVal = (p.second).second->IntegralAndError((p.second).second->FindFirstBinAbove(0),(p.second).second->FindLastBinAbove(0),euVal);
+//			centrU->Divide((p.second).second);
+//			double err_u;
+//			for(auto i = 0; i < centrU->GetNbinsX(); ++i){
+//				err_u = correlatedDivision(first->GetBinContent(i+1),first->GetBinError(i+1),(p.second).second->GetBinContent(i+1),(p.second).second->GetBinError(i+1));
+//				centrU->SetBinError(i+1,err_u);
+//			}
+//			centrU->SetTitle("");
+//			centrU->SetMarkerStyle(20);
+//			SetBottomStyle(centrU);
+//
+//			centrU->Draw();
+//
+//			TLine *horizLine = new TLine(centrU->GetXaxis()->GetXmin(),1,centrU->GetXaxis()->GetXmax(),1);
+//			horizLine -> SetLineStyle(2);
+//			horizLine -> Draw();
+//
+//			can.cd();
+//			name2 = "box3_" + std::to_string(i) + "_" + std::to_string(j);
+//			TPad dPad(name2.c_str(),"",0.,0.,1,0.2);
+//			dPad.SetBottomMargin(0.33);
+//			dPad.SetTopMargin(0.);
+//			dPad.SetLeftMargin(cPad.GetLeftMargin());
+//			dPad.SetRightMargin(cPad.GetRightMargin());
+//			dPad.Draw();
+//			dPad.cd();
+//
+//			TH1D *centrD = (TH1D*) first->Clone("centrD");
+//			dVal = (p.second).first->IntegralAndError((p.second).first->FindFirstBinAbove(0),(p.second).first->FindLastBinAbove(0),edVal);
+//			lnN[p.first][f.first] = make_pair(cVal/dVal,uVal/cVal);
+//			elnN[p.first][f.first] = make_pair(correlatedDivision(cVal,ecVal,dVal,edVal),correlatedDivision(uVal,euVal,cVal,ecVal));
+//			av_lnN[p.first][f.first] = 1. + std::abs((lnN[p.first][f.first].second + lnN[p.first][f.first].first - 2)/4.);
+//			av_elnN[p.first][f.first] = 0.25 * sqrt(elnN[p.first][f.first].second * elnN[p.first][f.first].second + elnN[p.first][f.first].first * elnN[p.first][f.first].first - 2*elnN[p.first][f.first].second*elnN[p.first][f.first].first);
+//			//calculate errors of division:
+//			double err_d;
+//			centrD->Divide((p.second).first);
+//			for(auto i = 0; i < centrD->GetNbinsX(); ++i){
+//				err_d = correlatedDivision(first->GetBinContent(i+1),first->GetBinError(i+1),(p.second).first->GetBinContent(i+1),(p.second).first->GetBinError(i+1));
+//				centrD->SetBinError(i+1,err_d);
+//			}
+//			centrD->SetTitle("");
+//			centrD->SetMarkerStyle(20);
+//			SetBottomStyle(centrD);
+//			centrD->Draw();
+//
+//			TLine *horizLine2 = new TLine(centrD->GetXaxis()->GetXmin(),1,centrD->GetXaxis()->GetXmax(),1);
+//			horizLine2 -> SetLineStyle(2);
+//			horizLine2 -> Draw();
+//
+//			cPad.cd();
+//			if (f.first > 900) {xmin = 0.25; xmax = 0.55;}
+//			TPaveText text(xmin,ymin,xmax,ymax,"NDC");
+//			text.SetFillColor(0);
+//			text.SetShadowColor(0);
+//			text.AddText(("lnN +2#sigma: " + std::to_string(lnN[p.first][f.first].second)).c_str());
+//			text.AddText(("lnN -2#sigma: " + std::to_string(1. / lnN[p.first][f.first].first)).c_str());
+//			text.AddText(("lnN #pm1#sigma: " + std::to_string(av_lnN[p.first][f.first])).c_str());
+//			//("lnN +2\sigma: " + std::to_string(lnN[i-1][j-1].first) + " \pm " + std::to_string(elnN[i-1][j-1].first)  + " \splitline lnN -2#sigma: " + std::to_string(lnN[i-1][j-1].second) + " #pm " + std::to_string(elnN[i-1][j-1].second)).c_str());
+//			text.Draw();
+//			std::string name = "pictures/"+std::to_string(f.first)+ "_GeV" + "_mass_point_" +regime + "_" + p.first+"_variation.pdf";
+//			can.SaveAs(name.c_str());
+//		}
+//		j=0;
+//	}
+//
+//	//Make plot and fit to lnN of different mass points
+//	std::vector<string> Syst = {"SFb","SFl","PU"};
+//	for(const auto& s : Syst){
+//		calcLnN(s,av_lnN[s],av_elnN[s]);
+//	}
+//}
 /**/
 void calcLnN(const std::string& sys, const std::map<int,double > & lnN, const std::map<int,double > & elnN){
 	gStyle->SetOptFit(1111);

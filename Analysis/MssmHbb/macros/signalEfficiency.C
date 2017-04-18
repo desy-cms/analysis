@@ -3,54 +3,59 @@
 #include <iostream>
 #include "TFile.h"
 #include "TGraph.h"
+#include "TLegend.h"
 #include "Drawer/HbbStyle.cc"
 
 double xsection(const int & point);
+void efficiency(const  std::vector<std::map<int,TFile* > >& files,const std::vector<std::string>& legenda);
 
-void signalEfficiency()
-{
+const auto cmsswBase = static_cast<std::string>(gSystem->Getenv("CMSSW_BASE"));
+
+void signalEfficiency(){
    gStyle->SetOptStat(0);
    TH1::SetDefaultSumw2();
-
-   const auto cmsswBase = static_cast<std::string>(gSystem->Getenv("CMSSW_BASE"));
 
    std::map<int,TFile* > inFlowM;
    std::map<int,TFile* > inFhighM;
 
-//   inFlowM[100] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-100_TuneCUETP8M1_13TeV-pythia8.root");
-//   inFlowM[120] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-120_TuneCUETP8M1_13TeV-pythia8.root");
-//   inFlowM[160] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-160_TuneCUETP8M1_13TeV-pythia8.root");
-   inFlowM[200] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-200_TuneCUETP8M1_13TeV-pythia8.root");
-   inFlowM[250] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-250_TuneCUETP8M1_13TeV-pythia8.root");
-   inFlowM[300] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-300_TuneCUETP8M1_13TeV-pythia8.root");
-   inFlowM[350] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-350_TuneCUETP8M1_13TeV-pythia8.root");
-   inFlowM[400] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-400_TuneCUETP8M1_13TeV-pythia8.root");
-   inFlowM[500]		= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_clange-SUSYGluGluToBBHToBB_M-500_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root");
-   inFlowM[600]		= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_clange-SUSYGluGluToBBHToBB_M-600_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root");
-   inFlowM[700] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_chayanit-SUSYGluGluToBBHToBB_M-700_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root");
-   inFlowM[900] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_chayanit-SUSYGluGluToBBHToBB_M-900_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root");
-   inFlowM[1100] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_chayanit-SUSYGluGluToBBHToBB_M-1100_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root");
-   inFlowM[1300] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_clange-SUSYGluGluToBBHToBB_M-1300_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root");
+   inFlowM[300] 	= new TFile((cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_ReReco_lowM_clange-SUSYGluGluToBBHToBB_NarrowWidth_M-300_TuneCUETP8M1_13TeV-pythia8_MiniAODv2_80X-b773ac922eef67f3b5600ed596c9ce54.root").c_str());
+   inFlowM[350] 	= new TFile((cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_ReReco_lowM_clange-SUSYGluGluToBBHToBB_NarrowWidth_M-350_TuneCUETP8M1_13TeV-pythia8_MiniAODv2_80X-b773ac922eef67f3b5600ed596c9ce54.root").c_str());
+   inFlowM[400] 	= new TFile((cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_ReReco_lowM_clange-SUSYGluGluToBBHToBB_NarrowWidth_M-400_TuneCUETP8M1_13TeV-pythia8_MiniAODv2_80X-b773ac922eef67f3b5600ed596c9ce54.root").c_str());
+   inFlowM[500]		= new TFile((cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_ReReco_lowM_clange-SUSYGluGluToBBHToBB_NarrowWidth_M-500_TuneCUETP8M1_13TeV-pythia8_MiniAODv2_80X-b773ac922eef67f3b5600ed596c9ce54.root").c_str());
+   inFlowM[600]		= new TFile((cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_ReReco_lowM_clange-SUSYGluGluToBBHToBB_NarrowWidth_M-600_TuneCUETP8M1_13TeV-pythia8_MiniAODv2_80X-b773ac922eef67f3b5600ed596c9ce54.root").c_str());
+   inFlowM[700] 	= new TFile((cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_ReReco_lowM_clange-SUSYGluGluToBBHToBB_NarrowWidth_M-700_TuneCUETP8M1_13TeV-pythia8_MiniAODv2_80X-b773ac922eef67f3b5600ed596c9ce54.root").c_str());
+   inFlowM[900] 	= new TFile((cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_ReReco_lowM_clange-SUSYGluGluToBBHToBB_NarrowWidth_M-900_TuneCUETP8M1_13TeV-pythia8_MiniAODv2_80X-b773ac922eef67f3b5600ed596c9ce54.root").c_str());
+   inFlowM[1100] 	= new TFile((cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_ReReco_lowM_clange-SUSYGluGluToBBHToBB_NarrowWidth_M-1100_TuneCUETP8M1_13TeV-pythia8_MiniAODv2_80X-b773ac922eef67f3b5600ed596c9ce54.root").c_str());
+   inFlowM[1300] 	= new TFile((cmsswBase + "/src/Analysis/MssmHbb/output/MssmHbbSignal_ReReco_lowM_clange-SUSYGluGluToBBHToBB_NarrowWidth_M-1300_TuneCUETP8M1_13TeV-pythia8_MiniAODv2_80X-b773ac922eef67f3b5600ed596c9ce54.root").c_str());
 
 //   inFhighM[100] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_highM_SUSYGluGluToBBHToBB_M-100_TuneCUETP8M1_13TeV-pythia8.root");
 //   inFhighM[120] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_highM_SUSYGluGluToBBHToBB_M-120_TuneCUETP8M1_13TeV-pythia8.root");
 //   inFhighM[160] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_highM_SUSYGluGluToBBHToBB_M-160_TuneCUETP8M1_13TeV-pythia8.root");
-   inFhighM[200] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_highM_SUSYGluGluToBBHToBB_M-200_TuneCUETP8M1_13TeV-pythia8.root");
-   inFhighM[250] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_highM_SUSYGluGluToBBHToBB_M-250_TuneCUETP8M1_13TeV-pythia8.root");
-   inFhighM[300] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_highM_SUSYGluGluToBBHToBB_M-300_TuneCUETP8M1_13TeV-pythia8.root");
-   inFhighM[350] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_highM_SUSYGluGluToBBHToBB_M-350_TuneCUETP8M1_13TeV-pythia8.root");
-   inFhighM[400] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_highM_SUSYGluGluToBBHToBB_M-400_TuneCUETP8M1_13TeV-pythia8.root");
-   inFhighM[500]	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_highM_clange-SUSYGluGluToBBHToBB_M-500_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root");
-   inFhighM[600]	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_highM_clange-SUSYGluGluToBBHToBB_M-600_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root");
-   inFhighM[700] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_highM_chayanit-SUSYGluGluToBBHToBB_M-700_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root");
-   inFhighM[900] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_highM_chayanit-SUSYGluGluToBBHToBB_M-900_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root");
-   inFhighM[1100] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_highM_chayanit-SUSYGluGluToBBHToBB_M-1100_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root");
-   inFhighM[1300] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_highM_clange-SUSYGluGluToBBHToBB_M-1300_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root");
+//   inFhighM[200] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_highM_SUSYGluGluToBBHToBB_M-200_TuneCUETP8M1_13TeV-pythia8.root");
+//   inFhighM[250] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_highM_SUSYGluGluToBBHToBB_M-250_TuneCUETP8M1_13TeV-pythia8.root");
+//   inFhighM[300] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_highM_SUSYGluGluToBBHToBB_M-300_TuneCUETP8M1_13TeV-pythia8.root");
+//   inFhighM[350] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_highM_SUSYGluGluToBBHToBB_M-350_TuneCUETP8M1_13TeV-pythia8.root");
+//   inFhighM[400] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_highM_SUSYGluGluToBBHToBB_M-400_TuneCUETP8M1_13TeV-pythia8.root");
+//   inFhighM[500]	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_highM_clange-SUSYGluGluToBBHToBB_M-500_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root");
+//   inFhighM[600]	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_highM_clange-SUSYGluGluToBBHToBB_M-600_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root");
+//   inFhighM[700] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_highM_chayanit-SUSYGluGluToBBHToBB_M-700_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root");
+//   inFhighM[900] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_highM_chayanit-SUSYGluGluToBBHToBB_M-900_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root");
+//   inFhighM[1100] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_highM_chayanit-SUSYGluGluToBBHToBB_M-1100_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root");
+//   inFhighM[1300] 	= new TFile("/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_7_6_3_patch2/src/Analysis/MssmHbb/output/MssmHbbSignal_highM_clange-SUSYGluGluToBBHToBB_M-1300_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root");
 
    HbbStyle style;
    style.set(PRIVATE);
    style.drawStandardTitle();
    gStyle->SetTitleXOffset(1.);
+
+   std::vector<std::map<int,TFile* > > datasets;
+   datasets.push_back(inFlowM);
+   std::vector<std::string> legends;
+   legends.push_back("PromptReco MC");
+
+   efficiency(datasets,legends);
+
+/*
    //LowM
    TGraphErrors *Eff = new TGraphErrors(inFlowM.size());
    Eff->SetMarkerStyle(20);
@@ -58,11 +63,11 @@ void signalEfficiency()
    Eff->SetTitle("Signal Efficiency; di-jet M, [GeV]; #epsilon");
 
    //highM
-   TGraphErrors *EffhighM = new TGraphErrors(inFhighM.size());
-   EffhighM->SetMarkerStyle(20);
-   EffhighM->SetMarkerColor(2);
-   EffhighM->SetMarkerSize(1.1);
-   EffhighM->SetTitle("; di-jet M, [GeV]; #epsilon");
+//   TGraphErrors *EffhighM = new TGraphErrors(inFhighM.size());
+//   EffhighM->SetMarkerStyle(20);
+//   EffhighM->SetMarkerColor(2);
+//   EffhighM->SetMarkerSize(1.1);
+//   EffhighM->SetTitle("; di-jet M, [GeV]; #epsilon");
 
    TCanvas * c1 = new TCanvas("c1","",700,800);
    TLegend *leg = new TLegend(0.25,0.7,0.45,0.85);
@@ -75,7 +80,7 @@ void signalEfficiency()
 	   double low_border = f.first*0.8;
 	   double up_border	 = f.first*1.2;
 
-	   TH1* denum =  (TH1*) f.second->Get("distributions/NumberOfGenEvents_afterMHat");
+	   TH1* denum =  (TH1*) f.second->Get("distributions/NumberOfGenEvents_afterMHat_rewPU");
 	   if(denum->GetMean() == 0){
 		   denum = (TH1*) f.second->Get("distributions/TotalNumberOfGenEvents");
 	   }
@@ -84,27 +89,28 @@ void signalEfficiency()
    }
    i=0;
 
-   for(const auto & f : inFhighM){
-	   ++i;
-
-	   double low_border = f.first*0.8;
-	   double up_border	 = f.first*1.2;
-
-	   TH1* denum =  (TH1*) f.second->Get("distributions/NumberOfGenEvents_afterMHat");
-	   if(denum->GetMean() == 0){
-		   denum = (TH1*) f.second->Get("distributions/TotalNumberOfGenEvents");
-	   }
-	   TH1 *integ = (TH1*) f.second->Get("bbH_Mbb");
-	   EffhighM->SetPoint(i,f.first,(double) integ->Integral(integ->FindBin(low_border),integ->FindBin(up_border))/denum->GetMean());
-   }
-   EffhighM->Draw("AP");
-   Eff->Draw("Psame");
+//   for(const auto & f : inFhighM){
+//	   ++i;
+//
+//	   double low_border = f.first*0.8;
+//	   double up_border	 = f.first*1.2;
+//
+//	   TH1* denum =  (TH1*) f.second->Get("distributions/NumberOfGenEvents_afterMHat");
+//	   if(denum->GetMean() == 0){
+//		   denum = (TH1*) f.second->Get("distributions/TotalNumberOfGenEvents");
+//	   }
+//	   TH1 *integ = (TH1*) f.second->Get("bbH_Mbb");
+//	   EffhighM->SetPoint(i,f.first,(double) integ->Integral(integ->FindBin(low_border),integ->FindBin(up_border))/denum->GetMean());
+//   }
+//   EffhighM->Draw("AP");
+   Eff->Draw("AP");
    style.drawStandardTitle();
    
    leg->AddEntry(Eff,"Low Mass","p");
-   leg->AddEntry(EffhighM,"High Mass","p");
+//   leg->AddEntry(EffhighM,"High Mass","p");
    leg->Draw();
 
+   /*
    //Sensitivity
    TH1D	*hBgLowM = (TH1D*) inFlowM[500]->Get("QCD_Mbb");
    TH1D	*hBgHighM = (TH1D*) inFhighM[500]->Get("QCD_Mbb");
@@ -224,4 +230,46 @@ double xsection(const int &point){
 			std::cerr<<"No such mass point in the list of xsections"<<std::endl;
 			exit(-1);
 	}
+}
+
+void efficiency(const  std::vector<std::map<int,TFile* > >& files,const std::vector<std::string>& legenda){
+	std::vector<short int> colours = {1,2,3,4,6,9,12,28,46};
+	std::vector<TGraphErrors> Efficiencies;
+	TCanvas can("can","",700,800);
+	TLegend leg(0.25,0.7,0.45,0.85);
+	//Loop  over the datasets:
+	int j =0;
+	for(const auto& set : files){
+		//Create efficiency plot
+		TGraphErrors *eff = new TGraphErrors(set.size());
+		eff->SetMarkerStyle(20);
+		eff->SetMarkerSize(1.1);
+		eff->SetLineColor(colours.at(j));
+		eff->SetTitle("Signal Efficiency; di-jet M, [GeV]; #epsilon");
+		int i = 0;
+		for(const auto& f : set){
+			++i;
+			double low_border = f.first*0.8;
+			double up_border	 = f.first*1.2;
+
+			TH1* denum =  (TH1*) f.second->Get("distributions/TotalNumberOfGenEvents");
+			TH1 *integ = (TH1*) f.second->Get("bbH_Mbb");
+			double value = integ->Integral(integ->FindBin(low_border),integ->FindBin(up_border))/denum->GetMean();
+			eff->SetPoint(i,f.first,value);
+			std::cout<<"M12 = "<<f.first<<" Eff. = "<<value<<" Tot = "<<denum->GetMean()<<" Sel. = "<<integ->Integral(integ->FindBin(low_border),integ->FindBin(up_border))<<std::endl;
+		}
+		i = 0;
+		++j;
+		Efficiencies.push_back(*eff);
+	}
+
+	for(unsigned int i = 0; i != Efficiencies.size(); ++i){
+		TGraphErrors& eff = Efficiencies.at(i);
+		if(i==0) eff.Draw("AP");
+		else eff.Draw("Psame");
+
+		leg.AddEntry(&eff,(legenda.at(i)).c_str(),"p");
+	}
+	leg.Draw();
+	can.Print( (cmsswBase + "/src/Analysis/MssmHbb/macros/pictures/SignalEfficiency.pdf").c_str());
 }
