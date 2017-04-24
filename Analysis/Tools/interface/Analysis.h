@@ -336,6 +336,14 @@ namespace analysis {
       inline bool  Analysis::isMC()         { return is_mc_ ;    }
       
       inline int   Analysis::nPileup()      { return n_pu_;      }
+      inline float Analysis::nTruePileup()  { return n_true_pu_; }
+      
+      inline float Analysis::lumiPileup()   { return lumi_pu_;   }
+      inline float Analysis::instantLumi()  { return inst_lumi_;}
+      
+      inline double Analysis::genWeight()   { return genWeight_; }
+      inline double Analysis::genScale()    { return genScale_;  }
+      inline PDF    Analysis::pdf()         { return pdf_;       }
       
       inline void Analysis::btagEfficienciesAlgo(const std::string & algo )      { btageff_algo_    = algo; }
       inline void Analysis::btagEfficienciesFlavour(const std::string & flavour) { btageff_flavour_ = flavour; }
@@ -343,6 +351,7 @@ namespace analysis {
       inline std::string Analysis::fileFullName()     { return std::string(t_event_ -> GetFile() -> GetName()) ;    }
       
 //      inline std::string Analysis::getGenParticleCollection() { return genParticleCollection_; }
+
    }
 }
 

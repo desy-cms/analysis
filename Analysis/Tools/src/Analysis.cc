@@ -236,9 +236,7 @@ void Analysis::crossSections(const std::string & path)
 
 double Analysis::crossSection()
 {
-//	if( xsections_["myCrossSection"] != -1  && xsections_["myCrossSection"] != 1) return xsections_["myCrossSection"];
-//	else return this -> crossSection("crossSection");
-	return this -> crossSection("crossSection");
+   return this -> crossSection("crossSection");
 }
 double Analysis::crossSection(const std::string & xs)
 {
@@ -248,16 +246,13 @@ double Analysis::crossSection(const std::string & xs)
 
 double Analysis::luminosity()
 {
-//	if( xsections_["myCrossSection"] != -1 && xsections_["myCrossSection"] != 1 ) return (evtfilter_.total / this -> crossSection("myCrossSection") );
-//	else return (evtfilter_.total / this -> crossSection() );
-	return (evtfilter_.total / this -> crossSection() );
-
+	return (nevents_ / this -> crossSection() );
 }
 
 double Analysis::luminosity(const std::string & xs)
 {
 	if ( t_xsection_ == NULL ) return -1.;
-	return (evtfilter_.total / this -> crossSection(xs));
+	return (nevents_ / this -> crossSection(xs));
 }
 
 float Analysis::scaleLuminosity(const float & lumi)
@@ -346,22 +341,8 @@ void Analysis::listGeneratorFilter()
 
 }
 
-FilterResults Analysis::eventFilter(const std::string & path,const std::string &mHatPath)
+FilterResults Analysis::eventFilter(const std::string & path)
 {
-	if(mHatPath != ""){
-		std::shared_ptr<TChain> mHatTree = std::make_shared<TChain>(mHatPath.c_str());
-		mHatTree->AddFileInfoList(fileList_);
-		unsigned int nmhatfiltered;
-		unsigned int sumMHatFiltered = 0;
-		mHatTree -> SetBranchAddress("nEventsFiltered", &nmhatfiltered);
-		for( int i = 0; i < mHatTree->GetEntries(); ++i ){
-			mHatTree -> GetEntry(i);
-			sumMHatFiltered += nmhatfiltered;
-		}
-		evtfilter_.mHatFiltered = sumMHatFiltered;
-	}
-	else evtfilter_.mHatFiltered = 0;
-
    t_evtfilter_  = new TChain(path.c_str());
    t_evtfilter_ -> AddFileInfoList(fileList_);
 
@@ -388,30 +369,7 @@ FilterResults Analysis::eventFilter(const std::string & path,const std::string &
    return evtfilter_;
 }
 
-void Analysis::listEventFilter()
-{
-   std::cout << "=======================================================" << std::endl;
-   std::cout << "  EVENT FILTER" << std::endl;
-   std::cout << "=======================================================" << std::endl;
-   if ( t_evtfilter_ == NULL )
-   {
-      std::cout << "No event tree has been declared." << std::endl;
-      std::cout << "=======================================================" << std::endl;
-      std::cout << std::endl;
-      std::cout << std::endl;
-      return;
-   }
-   std::cout << "Total events            = " << evtfilter_.total << std::endl;
-   std::cout << "Filtered events         = " << evtfilter_.filtered << std::endl;
-   std::cout << "Filtered only by mHat   = " << evtfilter_.mHatFiltered << std::endl;
-   std::cout << "Event Filter Efficiency = " << evtfilter_.efficiency << std::endl;
 
-   std::cout << "=======================================================" << std::endl;
-   std::cout << std::endl;
-   std::cout << std::endl;
-
-
-}
 
 void Analysis::processJsonFile(const std::string & fileName)
 {
@@ -541,3 +499,4 @@ std::string Analysis::fileName()
    filename = boost::filesystem::basename(this->fileFullName())+boost::filesystem::extension(this->fileFullName());
    return filename ;
 }
+
