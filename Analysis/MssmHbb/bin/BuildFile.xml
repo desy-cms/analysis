@@ -49,3 +49,5 @@
 
 #Background and Bias
 <bin   name="Bias_study_binned"         file="Bias_study_binned.cpp"></bin>
+<bin   name="FitBG_study"				file="FitBG_study.cpp"></bin>
+<bin   name="FitTestDraw"				file="../macros/Background/FitTest.cpp"></bin>

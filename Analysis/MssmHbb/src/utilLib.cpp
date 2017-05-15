@@ -1,6 +1,6 @@
 #include "Analysis/MssmHbb/interface/utilLib.h"
 
-const bool findStrings(const std::string & input, const std::string & needful)
+bool findStrings(const std::string & input, const std::string & needful)
 {
 	std::string input1 = input;
 	std::string input2 = needful;
@@ -42,6 +42,18 @@ RooWorkspace* GetRooWorkspace(const std::string& path_to_file, const std::string
 	TFile f(path_to_file.c_str(),"READ");
 	CheckZombie(f);
 	CheckZombieObjectInTFile(f,workspace_name);
-	RooWorkspace *w = (RooWorkspace*) f.Get(workspace_name.c_str());
-	return std::move(w);
+	RooWorkspace *w = static_cast<RooWorkspace*>( f.Get(workspace_name.c_str()));
+	return w;
+}
+
+void CheckOutputDir(const std::string& oDir){
+	/*
+	 * Function to check an output path
+	 * and create a dir if doesn't exist
+	 */
+	boost::filesystem::path opath(oDir);
+	if(!boost::filesystem::exists(opath)) {
+		std::cout << "Creating output directory : " << oDir << std::endl;
+		boost::filesystem::create_directory(opath);
+	}
 }

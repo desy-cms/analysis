@@ -11,11 +11,14 @@
 #include <cctype>
 #include <algorithm>
 #include "TFile.h"
+#include "TTree.h"
 
 #include "RooFit.h"
 #include "RooWorkspace.h"
 
-//namespace myUtil {
+
+//include boost
+#include <boost/filesystem.hpp>
 
 template <typename T1, typename T2>
 struct less_second {
@@ -44,11 +47,9 @@ std::string to_string_with_precision(const T a_value, const int n = 6)
 // Function to check whether file exists or not
 inline bool file_exists(const std::string&name);
 
-const bool findStrings(const std::string & input, const std::string & needful);
+bool findStrings(const std::string & input, const std::string & needful);
 //Function to check whether root file isSombie or not
 void CheckZombie(const TFile& name);
-//Function to get TFile:
-const TFile& OpenTFile(const std::string& name);
 void CheckZombieObjectInTFile(const TFile& file, const std::string& name);
 
 //Function to get a Pointer to the workspace in the TFile
@@ -56,12 +57,25 @@ RooWorkspace* GetRooWorkspace(const std::string& path_to_file, const std::string
 
 int returnMassPoint(const std::string& name);
 
-//}  // namespace myUtil
+//Function to check an output path and create a dir if doesn't exist
+void CheckOutputDir(const std::string& oDir);
 
 inline bool file_exists(const std::string&name){
 	struct stat buffer;
 	return (stat (name.c_str(), &buffer) == 0);
 }
 
+//Function to Get something from the TFile. Exception safety:
+template <typename T> T* GetFromTFile(TFile& file, const std::string& obj_name){
+	auto *obj = static_cast<T*>(file.Get(obj_name.c_str()));
+	if(!obj) throw std::invalid_argument("Invalid TObject name: " + obj_name);
+	return obj;
+}
+template <typename T> T* GetFromTFile(const std::string& file_name, const std::string& obj_name){
+	TFile f(file_name.c_str(),"READ");
+	CheckZombie(f);
+	auto *obj =  GetFromTFile<T>(f,obj_name);
+	return obj;
+}
 
 #endif

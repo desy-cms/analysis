@@ -7,16 +7,20 @@
 import os,sys, shutil
 from subprocess import Popen,call
 
+#user includes
+from bias_config import *
+
 __author__ = "Rostyslav Shevchenko"
 __maintainer__ = "Rostyslav Shevchenko"
 __email__ = "rostyslav.shevchenko@desy.de"
 
-def PrepareSubmissionCommand(m,signal_strength,n_observed,n_toys,pdf,alternative,bg_only,parallel,parallel_job):
+def PrepareSubmissionCommand(m,signal_strength,n_observed,n_toys,pdf,alternative,bg_only,fix_turnon,parallel,parallel_job):
     """Function to prepare command for submission
     
     """
     command = macro + ' -m ' + str(m) + ' -n ' + str(n_observed) + ' -r ' + str(signal_strength) + ' -t ' + str(n_toys) + ' -f ' + pdf + ' -g ' + alternative
     if(bg_only): command += ' --bg_only'
+    if(fix_turnon): command += ' --fix_turnon '
     if(parallel): 
         command += ' -o part' + str(parallel_job)
         if parallel_job == 0: command += ' --plots'
@@ -95,27 +99,8 @@ def UpdateSubmissionCsh(command, cshFile):
 
 if __name__ == '__main__':
 
-    #list of mass points
-    mass = [300,350,400,500,600,700,900,1100,1300]#[300,350,400,500]#[300,350,400,500,600,700,900,1100,1300]#[300]#[300]#,600,700,900,1100,1300]#
-    #number of toys
-    n_toys = 5000
-    #to speedup
-    n_jobs = 500
-    #signal strength to be uaed
-    signal_strengths = [0,2]
-    #sanity check falg. If yes - alternative = pdf will be used
-    sanity_check = True
-    #bg only?
-    bg_only = False
     #log file path:
     log_file_path = '/nfs/dust/cms/user/shevchen/output/bias/'
-    #functions to be used
-    pdf = { 'sr1' : 'extnovoeffprod_G4_R1', 'sr2' : 'novosibirsk_G4_R2', 'sr3' : 'novosibirsk_G4_R3' }
-    alternative = { 'sr1' : 'dijetv3logprod_G4_R1', 'sr2' : 'dijetexp_G4_R2', 'sr3' : 'dijetexp_G4_R3'}
-#     alternative = { 'sr1' : 'berneffprod9par_G4_R1', 'sr2' : 'dijetexp_G4_R2', 'sr3' : 'dijetexp_G4_R3'}
-#     pdf = { 'sr1' : 'dijetv3logprod_G4_R1', 'sr2' : 'dijetexp_G4_R2', 'sr3' : 'dijetexp_G4_R3'}
-    #number of events accroding to the sub-ranges
-    n_observed = {'sr1' : '259399', 'sr2' : '105053', 'sr3' : '26760'}
     #command to run BiasTest:
     macro = 'Bias_study_binned'
     
@@ -131,9 +116,12 @@ if __name__ == '__main__':
                 sub_jobs = False
                 if n_jobs != 1: 
                     sub_jobs = True
-                command = PrepareSubmissionCommand(m, signal_strength, n_observed[sub_range], ntoys_pjob, pdf[sub_range], alternative[sub_range], bg_only, sub_jobs, job)
+                command = PrepareSubmissionCommand(m, signal_strength, n_observed[sub_range], ntoys_pjob, pdf[sub_range], alternative[sub_range], bg_only,fix_turnon, sub_jobs, job)
 
-                cshFile = CreateCshFile(macro + '_m' + str(m) + '_r_' + str(signal_strength) + '_F_' + pdf[sub_range] + '_G_' + alternative[sub_range] + '_part_' + str(job),dir)
+                cshFile_name  = macro + '_m' + str(m) + '_r_' + str(signal_strength) + '_F_' + pdf[sub_range] + '_G_' + alternative[sub_range]
+                if fix_turnon: cshFile_name += '_fixedTurnOn'
+                cshFile_name += '_part_' + str(job)
+                cshFile = CreateCshFile(cshFile_name,dir)
                 UpdateSubmissionCsh(command,cshFile)
                 submit(cshFile,'naf',log_file_path)
 #             print(command)

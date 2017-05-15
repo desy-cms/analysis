@@ -268,8 +268,8 @@ if __name__ == '__main__':
     CMSSW_BASE = os.environ['CMSSW_BASE']
     add_path ='/src/Analysis/MssmHbb/datacards/'
     
-    model = 'mssm'
-    selection = '201703/08/asymptotic/mssm/'
+    model = 'indep'
+    selection = '201705/15/mll_fotBias/'
     path_to_dir = ( CMSSW_BASE + add_path + selection )
     # Make dir if it doesn't exist
     MakeDir(path_to_dir)

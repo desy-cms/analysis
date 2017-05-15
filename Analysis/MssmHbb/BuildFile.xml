@@ -6,6 +6,7 @@
 <use name="rootmath"/>
 <use name="rootgraphics"/>
 <use name="boost" />
+<use name="roofit" />
 <use name="Analysis/Tools"/>
 <use name="boost_program_options" />
 <export>

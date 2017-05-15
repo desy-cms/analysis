@@ -30,22 +30,27 @@
 #include "RooAddPdf.h"
 #include "RooDataHist.h"
 #include "RooHist.h"
-
+#include "RooNumIntConfig.h"
+#include "RooMinimizer.h"
+#include "RooMinuit.h"
+#include "Math/Math.h"
+#include "Math/MinimizerOptions.h"
 //include boost
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
-//#include <boost/algorithm/string.hpp>
+
+#include "Analysis/MssmHbb/interface/utilLib.h"
+#include "Analysis/Tools/interface/RooFitUtils.h"
+#include "Analysis/MssmHbb/src/namespace_mssmhbb.cpp"
 
 namespace fs = boost::filesystem;
 using namespace boost::program_options;
+using namespace analysis;
 
 using namespace std;
 using namespace RooFit;
 
-void Bias_study(const int & mass_point, const int & n_obs_, int & signal_strength, const int & toy_max, const std::string & pdf, const std::string & generator, const std::string & output, const bool& bg_only = false, const bool & test = false,const bool & store_plots = true);
-
-const bool findStrings(const std::string & input, const std::string & needful);
-
+void Bias_study(const int & mass_point, const int & n_obs_, int & signal_strength, const int & toy_max, const std::string & pdf, const std::string & generator, const std::string & output, const bool& bg_only = false, const bool & test = false,const bool & store_plots = true, const bool& fix_turnon = false);
 void make_Plot(RooPlot &xframe1, RooPlot &xframe2, const int& i, const std::string & output);
 
 const boost::program_options::variables_map ParseUserInput(const int& argc, const char* argv[]);
@@ -54,6 +59,10 @@ const std::string SetupOutputDir(const variables_map& user_input);
 double AssignNSignalGen(const int& mass);
 double GetEffectiveNSignal(const double& n_gen, const int& signal_strength);
 
+double GetGausRandomisation(TRandom3& r, const double& mean, const double&sigma, const double& max, const double& min);
+void RandomiseVarsInWorkspace(RooWorkspace &w, const std::vector<RooRealVar>& init_vars, const int& nsigma);
+void FixTurnOn(RooWorkspace &w, const std::string& pdf_type);
+void UnFixTurnOn(RooWorkspace &w, const std::string& pdf_type);
 class Printer{
 
 public:
@@ -109,11 +118,7 @@ private:
 
 std::string GetPdfPath(const std::string & pdf, const Printer& p, int & npars);
 std::string GetPdfPath(const std::string & pdf, const Printer& p);
-void CheckZombie(const TFile& file);
-void CheckZombieObjectInTFile(const TFile& file, const std::string& name);
-RooWorkspace* GetRooWorkspace(const std::string& path_to_file, const std::string& workspace_name = "workspace");
 std::vector<RooRealVar> GetRooRealVars(RooWorkspace& w, const std::vector<std::string>& names);
-
 RooRealVar* AdjustMbbVariable(RooWorkspace& w, const double& mass, const std::string& name = "mbb");
 void AddOutBranches(TTree &outtree,
 		int&    minuit_status,
@@ -135,9 +140,9 @@ void AddOutBranches(TTree &outtree,
 		double *esg_pars,
 		vector<string>& bg_par_names,
 		double *bg_pars,
-		double *ebg_pars
+		double *ebg_pars,
+		double& ntot
 );
-RooAbsPdf* GetPdfFromWorkspace(RooWorkspace& w, const std::string& name);
 void SetPoissonBins(TH1 & h);
 vector<string> GetRooRealVarNames(RooWorkspace & w);
 void FillArrayOfPdfPars(const vector<string>& names, RooWorkspace & w, double *pars, double *epars);
@@ -164,8 +169,9 @@ int main(int argc, const char * argv[])
 	bool bg_only	= user_input["bg_only"].as<bool>();
 	bool test_		= user_input["test"].as<bool>();
 	bool plots_     = user_input["plots"].as<bool>();
+	auto fix_turnon_= user_input["fix_turnon"].as<bool>();
 
-	Bias_study(mass_,n_obs_,signal_strength_,toy_max_,pdf_,generator_,output_file,bg_only,test_,plots_);
+	Bias_study(mass_,n_obs_,signal_strength_,toy_max_,pdf_,generator_,output_file,bg_only,test_,plots_,fix_turnon_);
 
 	return  0;
 }
@@ -179,10 +185,16 @@ void Bias_study(const int & mass,
 				const std::string & output,
 				const bool& bg_only,
 				const bool & test,
-				const bool & store_plots){
+				const bool & store_plots,
+				const bool & fix_turnon){
 	/*
 	 * Function to perform a bias study.
 	 */
+//	RooAbsPdf::defaultIntegratorConfig()->setEpsRel(1e-10) ;
+//	RooAbsPdf::defaultIntegratorConfig()->setEpsAbs(1e-10) ;
+//	ROOT::Math::MinimizerOptions::SetDefaultTolerance(1e-05);
+//	ROOT::Math::MinimizerOptions::SetDefaultPrintLevel(3);
+
 	std::cout << std::fixed;
 	TH1::SetDefaultSumw2();
 	Printer p(test);
@@ -209,7 +221,7 @@ void Bias_study(const int & mass,
 	TFile outputFile((output+ "/" + output + ".root").c_str(), "RECREATE");
 	TTree outtree("Toys","Toys");
 
-	double nbg_prefit = n_obs, nbg_postfit = 0 ,ns_postfit=0.,ns_err_postfit=0.,nbg_err_postfit=0.,chi_2=0.,bias=0., dN_post_pre = 0;
+	double nbg_prefit = n_obs, nbg_postfit = 0 ,ns_postfit=0.,ns_err_postfit=0.,nbg_err_postfit=0.,chi_2=0.,bias=0., dN_post_pre = 0, ntot = 0;
 	double edm = -100, minNLL = 100;
 	int minuit_status = -100;
 	double signal_pars[10], esignal_pars[10], bg_pars[10], ebg_pars[10];
@@ -221,11 +233,11 @@ void Bias_study(const int & mass,
 	vector<RooRealVar> bg_roovars = GetRooRealVars(wPDF,bg_par_names);
 	vector<RooRealVar> sg_roovars = GetRooRealVars(wSignal,sg_par_names);
 	//Output branches
-	AddOutBranches(outtree,minuit_status,edm,minNLL,nbg_prefit,nbg_postfit,nbg_err_postfit,ns_prefit,ns_postfit,ns_err_postfit,n_signal_generated,signal_strength,chi_2,bias,dN_post_pre,sg_par_names,signal_pars,esignal_pars,bg_par_names,bg_pars,ebg_pars);
+	AddOutBranches(outtree,minuit_status,edm,minNLL,nbg_prefit,nbg_postfit,nbg_err_postfit,ns_prefit,ns_postfit,ns_err_postfit,n_signal_generated,signal_strength,chi_2,bias,dN_post_pre,sg_par_names,signal_pars,esignal_pars,bg_par_names,bg_pars,ebg_pars,ntot);
 	//pdfs to be used
-	RooAbsPdf &pdf_bkg_fit = *GetPdfFromWorkspace(wPDF,"background");
-	RooAbsPdf &pdf_bkg_alt = *GetPdfFromWorkspace(wGenerator,"background");
-	RooAbsPdf &pdf_sgn = *GetPdfFromWorkspace(wSignal,"signal");
+	auto &pdf_bkg_fit 	= *GetFromRooWorkspace<RooAbsPdf>(wPDF,"background");
+	auto &pdf_bkg_alt 	= *GetFromRooWorkspace<RooAbsPdf>(wGenerator,"background");
+	auto &pdf_sgn 		= *GetFromRooWorkspace<RooAbsPdf>(wSignal,"signal");
 
 	//S+Bg pdf
 
@@ -242,55 +254,76 @@ void Bias_study(const int & mass,
 
 		//Reset Vars
 		SetVarsInWorkspace(wPDF, bg_roovars);
+		if(fix_turnon) FixTurnOn(wPDF,pdf);
 		SetVarsInWorkspace(wSignal, sg_roovars);
 
 		TH1D &data_toy = *(TH1D*) pdf_bkg_alt.createHistogram( ("data_toy" + toy_number).c_str(), mbb);
 		data_toy.Scale(n_obs/data_toy.Integral());
 		TH1D &data_toy_sgn = *(TH1D*) pdf_sgn.createHistogram( ("data_toy_sgn" + toy_number).c_str(), mbb);
 		data_toy_sgn.Scale(ns_prefit/data_toy_sgn.Integral());
+
+//		SetPoissonBins(data_toy);
+		nbg_prefit = data_toy.Integral();
+		RooDataHist data_bg_toy( ("data_bg_toy"+toy_number).c_str(),"data_bg_toy", mbb, RooFit::Import(data_toy));
 		data_toy.Add(&data_toy_sgn); //Sumup
 		SetPoissonBins(data_toy);
 		RooDataHist data_toy_sb( ("data_toy_sb_"+toy_number).c_str(),"data_toy_sb", mbb, RooFit::Import(data_toy));
-		RooFitResult *fitResult;
+
+		RooFitResult *fitResult;//, *bgFitResult;
 
 		//Set vars
-//		RooRealVar roo_nsignal  ("roo_nsignal","roo_nsignal",ns_prefit,-5*n_signal_generated*(signal_strength+1),5*n_signal_generated*(signal_strength+1));
-		RooRealVar roo_nsignal  ("roo_nsignal","roo_nsignal",ns_prefit);
-		roo_nsignal.setConstant(false);
-		RooRealVar roo_ntot     ("roo_ntot","roo_ntot",data_toy.Integral()); roo_ntot.setConstant();
-//		RooRealVar roo_nbkg             ("roo_nbkg","roo_nbkg",roo_ntot.getValV() - roo_nsignal.getValV(),0.5 * roo_ntot.getValV(), 1.5 * roo_ntot.getValV()); roo_nbkg.setConstant(0);
+		RooRealVar roo_nsignal  ("roo_nsignal","roo_nsignal",ns_prefit); roo_nsignal.setConstant(false);
+		RooRealVar roo_ntot     ("roo_ntot","roo_ntot",data_toy.Integral()); roo_ntot.setConstant(true);
 		RooFormulaVar roo_nbkg ("roo_nbkg","roo_nbkg","roo_ntot - roo_nsignal",RooArgList(roo_ntot,roo_nsignal));
 
 		RooAddPdf  pdf_SpBg             ("pdf_SpBg","pdf_SpBg",RooArgList(pdf_sgn,pdf_bkg_fit),RooArgList(roo_nsignal,roo_nbkg));
 
-		//chi2 before the fit
-//		TCanvas can("can","can",800,600);
-//		RooPlot &xframe0 = *mbb.frame(Title("Bias Test0"));
-//		data_toy_sb.plotOn(&xframe0, RooFit::Name("data_curve"), RooFit::MarkerSize(0.1));
-//		pdf_SpBg.plotOn(&xframe0, RooFit::Name("fit_curve"));
-//		xframe0.Draw();
-//		chi_2 = xframe0.chiSquare("fit_curve", "data_curve", npars_pdf + 1);
-//  		RooHist &hpull = *xframe0.pullHist();
-//  		hpull.SetMarkerSize(0.1);
-//  		RooPlot &xframe02 = *mbb.frame();
-//  		xframe02.addPlotable(&hpull,"P");
-//  		xframe02.SetMinimum(-5.);
-//  		xframe02.SetMaximum(+5.);
-//
-//  		pdf_bkg_fit.plotOn(&xframe0, RooFit::Name("bkg_init"), LineStyle(kDashed), LineColor(kBlue), LineWidth(4));
-//  		pdf_SpBg.plotOn(&xframe0, RooFit::Name("bkg"), Components("background"), LineStyle(kDashed), LineColor(kRed), LineWidth(4));
-//  		pdf_SpBg.plotOn(&xframe0, RooFit::Name("sgn"), Components("signal"), LineStyle(kDashed), LineColor(kGreen+2), LineWidth(4));
-//
-//  		make_Plot(xframe0,xframe02,i,output);
-//		std::cout << "Chi^2 BEFORE the fit = " << chi_2 << std::endl;
-//		cout<<"Before: nBg = "<<roo_nbkg.getValV()<<" nsg = "<<roo_nsignal.getValV()<<" n_tot = "<<roo_ntot.getValV()<<endl;
-
 		if(!bg_only){
-			fitResult = pdf_SpBg.fitTo(data_toy_sb, RooFit::Save(), RooFit::PrintLevel(3), RooFit::Verbose(1), RooFit::Minimizer("Minuit2", "migrad"), RooFit::Hesse(1) , RooFit::Offset(1) );
-//			fitResult = pdf_SpBg.fitTo(data_toy_sb, RooFit::Save(), RooFit::PrintLevel(3), RooFit::Verbose(1), RooFit::Minimizer("Minuit2", "migradimproved"), RooFit::Minos(1));
+			//try Bg only fit before the S+Bg one:
+//			if(fix_turnon) UnFixTurnOn(wPDF,pdf);
+//			bgFitResult = pdf_bkg_fit.fitTo(data_bg_toy, RooFit::Save(), RooFit::PrintLevel(0), RooFit::Verbose(0), RooFit::Minimizer("Minuit2", "migrad"), RooFit::Hesse(1), RooFit::Offset(1));
+//			p.PrintRooFitResults(*bgFitResult);
+//			roo_ntot.Print(); roo_nsignal.Print(); roo_nbkg.Print();
+//			if(fix_turnon) FixTurnOn(wPDF,pdf);
+//			fitResult = pdf_SpBg.fitTo(data_toy_sb, RooFit::Save(), RooFit::PrintLevel(3), RooFit::Verbose(1), RooFit::Minimizer("Minuit2", "migrad"), RooFit::Hesse(1) , RooFit::Offset(1) );
+
+			/*
+			//RooMinimizer fit
+			//bg fit
+//			if(fix_turnon) UnFixTurnOn(wPDF,pdf);
+			RooAbsReal &nll_bg = *pdf_bkg_fit.createNLL(data_bg_toy);
+			RooMinimizer m_bg(nll_bg);
+			m_bg.setMinimizerType("Minuit2");
+			m_bg.setOffsetting(true);
+			m_bg.setPrintLevel(3);
+//			m_bg.setWarnLevel(3);
+			m_bg.setVerbose(kTRUE);
+			m_bg.setEps(1e-09);
+			m_bg.optimizeConst(kTRUE);
+			m_bg.minimize("Minuit2","Migrad") ;
+			m_bg.hesse();
+			bgFitResult = m_bg.save();
+			p.PrintRooFitResults(*bgFitResult);
+//			if(fix_turnon) FixTurnOn(wPDF,pdf);
+			 */
+
+			//s+bg fit
+			RooAbsReal &nll = *pdf_SpBg.createNLL(data_toy_sb);
+			RooMinimizer m(nll);
+			m.setMinimizerType("Minuit2");
+			m.setOffsetting(true);
+			m.setPrintLevel(3);
+//			m.setWarnLevel(3);
+			m.setVerbose(kTRUE);
+			m.setEps(1e-09);
+			m.optimizeConst(kTRUE);
+			m.minimize("Minuit2","Migrad") ;
+			m.hesse();
+			fitResult = m.save();
+//			p.PrintRooFitResults(*fitResult);
 		}
 		else {
-			fitResult = pdf_bkg_fit.fitTo(data_toy_sb, RooFit::Save(), RooFit::PrintLevel(1), RooFit::Verbose(1), RooFit::Minimizer("Minuit2", "migrad"), RooFit::Hesse(1));
+			fitResult = pdf_bkg_fit.fitTo(data_toy_sb, RooFit::Save(), RooFit::PrintLevel(1), RooFit::Verbose(1), RooFit::Minimizer("Minuit2", "migrad"), RooFit::Hesse(1), RooFit::Offset(1));
 		}
 	  	p.PrintRooFitResults(*fitResult);
 	  	minuit_status = fitResult->status();
@@ -315,6 +348,7 @@ void Bias_study(const int & mass,
 		dN_post_pre = ns_postfit - ns_prefit;
 		edm = fitResult->edm();
 		minNLL = fitResult->minNll();
+		ntot =  roo_ntot.getValV();
 
 		std::cout << "ns_prefit      = " << ns_prefit << std::endl; 	// number of signal before the fit
 		std::cout << "nbg_prefit     = " << roo_ntot.getValV() - ns_prefit<< std::endl;
@@ -355,15 +389,6 @@ void Bias_study(const int & mass,
 	outputFile.Close();
 	cout << "End of code :)" << endl;
 
-}
-
-const bool findStrings(const std::string & input, const std::string & needful){
-	std::string input1 = input;
-	std::string input2 = needful;
-	std::transform(input1.begin(),input1.end(),input1.begin(),::tolower);
-	std::transform(input2.begin(),input2.end(),input2.begin(),::tolower);
-	if(input1.find(input2) != std::string::npos) return true;
-	else return false;
 }
 
 void make_Plot(RooPlot &xframe1, RooPlot &xframe2, const int& i, const std::string & output){
@@ -458,7 +483,9 @@ const boost::program_options::variables_map ParseUserInput(const int& argc, cons
 			("pdf,f",value<std::string>()->required(),"Select nominal PDF to fit toys data: \n"
 			" \textnovoeffprod_G4_R1;\n"
 			" \tberneffprod9par_G4_R1;\n"
+			" \tberneffprod8par_G4_R1;\n"
 			" \tdijetv3logprod_G4_R1;\n"
+			" \tsuperdijeteffprod2_G4_R1;\n"
 			" \tnovoeffprod_G7_R1;\n"
 			" \tberneffprod7par_G7_R1;\n"
 			" \tnovosibirsk_G4_R2;\n"
@@ -472,7 +499,9 @@ const boost::program_options::variables_map ParseUserInput(const int& argc, cons
 			("generator,g",value<std::string>()->required(),"Select alternative PDF to produce toys data: \n"
 			" \textnovoeffprod_G4_R1;\n"
 			" \tberneffprod9par_G4_R1;\n"
+			" \tberneffprod8par_G4_R1;\n"
 			" \tdijetv3logprod_G4_R1;\n"
+			" \tsuperdijeteffprod2_G4_R1;\n"
 			" \tnovoeffprod_G7_R1;\n"
 			" \tberneffprod7par_G7_R1;\n"
 			" \tnovosibirsk_G4_R2;\n"
@@ -485,7 +514,9 @@ const boost::program_options::variables_map ParseUserInput(const int& argc, cons
 			" \tdijetexp_G7_R3;\n")
 			("output_file,o", value<std::string>()->default_value(""), "Output file name, if not specified will be created automatically")
 			("plots,p", bool_switch()->default_value(false),"if specified - no plots will be stored")
-			("bg_only",bool_switch()->default_value(false),"if specified - background only fit would be performed");//value<bool>()->default_value(0),"if ");
+			("bg_only",bool_switch()->default_value(false),"if specified - background only fit would be performed")//value<bool>()->default_value(0),"if ");
+			("fix_turnon", bool_switch()->default_value(false),"if specified - Turn-on parameters will be fixed")
+		;
 
 
         // Hidden options, will be allowed both on command line and
@@ -530,24 +561,22 @@ const std::string SetupOutputDir(const variables_map& user_input){
 	 * Setup is done according to the user input AND
 	 * defined template
 	 */
-	const string user_path = user_input["output_file"].as<string>();
-	std::string oDir = user_path;
-//	if(user_path == "") {
-		//Pre-defined template is used
-		std::string generator_  = user_input["generator"].as<std::string>();
-		std::string pdf_ 	= user_input["pdf"].as<std::string>();
-		int mass_ 		= user_input["mass_point"].as<int>();
-		int signal_strength_ 	= user_input["signal_strength"].as<int>();
+	const string user_path 	= user_input["output_file"].as<string>();
+	auto fix_turnon 		= user_input["fix_turnon"].as<bool>();
+	auto bg_only			= user_input["bg_only"].as<bool>();
+	std::string generator_  = user_input["generator"].as<std::string>();
+	std::string pdf_ 		= user_input["pdf"].as<std::string>();
+	int mass_ 				= user_input["mass_point"].as<int>();
+	int signal_strength_ 	= user_input["signal_strength"].as<int>();
 
-		oDir = "BiasTest_toy"+generator_+"_fit"+pdf_+"_"+std::to_string(mass_)+"GeV_r"+std::to_string(signal_strength_);
-		if(user_input["bg_only"].as<bool>()) oDir += "_BGonly";
-		if(user_path != "") oDir = user_path + "_" + oDir;
-		fs::path opath(oDir);
-		if(!exists(opath)) {
-			std::cout << "Creating output directory : " << oDir << std::endl;
-			boost::filesystem::create_directory(opath);
-	    	}
-//	}
+
+	std::string oDir 		= user_path;
+		//Pre-defined template is used
+	oDir = "BiasTest_toy"+generator_+"_fit"+pdf_+"_"+std::to_string(mass_)+"GeV_r"+std::to_string(signal_strength_);
+	if(bg_only) oDir += "_BGonly";
+	if(fix_turnon) oDir += "_fixedTurnOn";
+	if(user_path != "") oDir = user_path + "_" + oDir;
+	CheckOutputDir(oDir);
 	std::cout << "Writing results to " << oDir << std::endl;
 	return oDir;
 }
@@ -589,43 +618,12 @@ double GetEffectiveNSignal(const double& n_gen, const int& signal_strength){
 	return signal_strength*n_gen;
 }
 
-void CheckZombie(const TFile& file){
-	/*
-	 * Function to check whether TFile exists or not
-	 */
-	if(file.IsZombie()){
-		throw invalid_argument("TFile " + std::string(file.GetName()) + " is Zombie");
-	}
-}
-
-void CheckZombieObjectInTFile(const TFile& file, const std::string& name){
-	/*
-	 * Function to check whether object in TFile exists or not
-	 */
-	if(! file.GetListOfKeys()->Contains(name.c_str()))
-		throw invalid_argument("Object: " + name + " is not in TFile " + std::string(file.GetName()));
-}
-
-RooWorkspace* GetRooWorkspace(const std::string& path_to_file, const std::string& workspace_name){
-	/*
-	 * Function to get RooWorkspace from TFile
-	 */
-	TFile f(path_to_file.c_str(),"READ");
-	CheckZombie(f);
-	CheckZombieObjectInTFile(f,workspace_name);
-	RooWorkspace *w = (RooWorkspace*) f.Get(workspace_name.c_str());
-	return move(w);
-}
-
-RooRealVar* AdjustMbbVariable(RooWorkspace& w, const double& mass, const std::string& name){
+RooRealVar* AdjustMbbVariable(RooWorkspace& w, const double& mass, const std::string& mbb_name){
 	/*
 	 * Function to adjust Mbb x-variable
 	 */
 	int nbins = 500;
-	RooRealVar *mbb = w.var(name.c_str());
-	if(!mbb){
-		throw invalid_argument("Invalid argument name: " + name + " in a signal workspace");
-	}
+	auto *mbb = GetFromRooWorkspace<RooRealVar>(w,mbb_name);
 	if(mass == 1100 || mass == 1300){
 		mbb->setRange(500,1700);
 	}
@@ -643,7 +641,7 @@ RooRealVar* AdjustMbbVariable(RooWorkspace& w, const double& mass, const std::st
 			string class_name = s_var->ClassName();
 			string name = s_var->GetName();
 			if(class_name == "RooRealVar"){
-				RooRealVar &var = *w.var(name.c_str());
+				auto &var = *GetFromRooWorkspace<RooRealVar>(w,name);
 				if(name != "mbb"){
 					var.setConstant();
 					}
@@ -651,7 +649,7 @@ RooRealVar* AdjustMbbVariable(RooWorkspace& w, const double& mass, const std::st
 			s_var = s_iter.Next();
 		}
 
-	return move(mbb);
+	return mbb;
 }
 
 std::string GetPdfPath(const std::string & pdf, const Printer& p){
@@ -670,92 +668,108 @@ std::string GetPdfPath(const std::string & pdf, const Printer& p, int & npar){
 //	int npar = -1;
 	if(findStrings(pdf,"extnovoeffprod_G4_R1")){
 		npar = 6;
-		outname = "../../BackgroundModel/test/extnovoeffprod_200to650_10GeV_G4/workspace/FitContainer_workspace.root";
+		outname = mssmhbb::cmsswBase + "/src/Analysis/BackgroundModel/test/extnovoeffprod_200to650_10GeV_G4/workspace/FitContainer_workspace.root";
+	}
+	else if (findStrings(pdf,"extnovoeffprod_R1")){
+		npar = 6;
+		outname = mssmhbb::cmsswBase + "/src/Analysis/BackgroundModel/test/fullBBnB/extnovoeffprod_200to650_10GeV__45bins/workspace/FitContainer_workspace.root";
 	}
 	else if(findStrings(pdf,"berneffprod9par_G4_R1")) {
-                npar = 11;
-                outname = "../../BackgroundModel/test/berneffprod9par_200to650_10GeV_G4/workspace/FitContainer_workspace.root";
+		npar = 11;
+		outname = mssmhbb::cmsswBase + "/src/Analysis/BackgroundModel/test/Prescale_v5/berneff9_200_to_650_10GeV_G4/workspace/FitContainer_workspace.root";
 	}
+	else if(findStrings(pdf,"berneffprod8par_G4_R1")){
+		npar = 8;
+		outname = mssmhbb::cmsswBase + "/src/Analysis/BackgroundModel/test/Prescale_v5/berneff8_200_to_650_10GeV/workspace/FitContainer_workspace.root";
+	}
+	else if(findStrings(pdf,"berneffprod8par_R1")){
+			npar = 8;
+			outname = mssmhbb::cmsswBase + "/src/Analysis/BackgroundModel/test/fullBBnB/berneffprod,8_200to650_10GeV__45bins/workspace/FitContainer_workspace.root";
+		}
 	else if(findStrings(pdf,"dijetv3logprod_G4_R1")) {
 		npar = 5;
-		outname = "../../BackgroundModel/test/dijetv3logprod_200to650_10GeV_G4/workspace/FitContainer_workspace_corr.root";
+		outname = mssmhbb::cmsswBase + "/src/Analysis/BackgroundModel/test/dijetv3logprod_200to650_10GeV_G4/workspace/FitContainer_workspace_corr.root";
 	}
-	else if(findStrings(pdf,"novoeffprod_G7_R1")) {
-		npar = 5;
-		outname = "novoeffprod_200to650_10GeV_G7/workspace/FitContainer_workspace.root";
+	else if(findStrings(pdf,"superdijeteffprod2_G4_R1")){
+		npar = 7;
+		outname = mssmhbb::cmsswBase + "/src/Analysis/BackgroundModel/test/Prescale_v5/superdijeteffprod2_200_to_650_10GeV_G4/workspace/FitContainer_workspace.root";
 	}
-        else if(findStrings(pdf,"berneffprod7par_G7_R1")) {
-                npar = 9;
-                outname = "../../BackgroundModel/test/berneffprod7par_200to650_10GeV_G7/workspace/FitContainer_workspace.root";
+	else if(findStrings(pdf,"superdijeteffprod2_R1")){
+			npar = 7;
+			outname = mssmhbb::cmsswBase + "/src/Analysis/BackgroundModel/test/fullBBnB/superdijeteffprod,2_200to650_10GeV__45bins/workspace/FitContainer_workspace.root";
+		}
+	else if(findStrings(pdf,"berneffprod7par_G7_R1")) {
+		npar = 9;
+		outname = mssmhbb::cmsswBase + "/src/Analysis/BackgroundModel/test/berneffprod7par_200to650_10GeV_G7/workspace/FitContainer_workspace.root";
         }
 	else if(findStrings(pdf,"novosibirsk_G4_R2")) {
 		npar = 3;
-		outname = "../../BackgroundModel/test/novosibirsk_350to1190_20GeV_G4/workspace/FitContainer_workspace.root";
+		outname = mssmhbb::cmsswBase + "/src/Analysis/BackgroundModel/test/novosibirsk_350to1190_20GeV_G4/workspace/FitContainer_workspace.root";
 	}
 	else if(findStrings(pdf,"dijetexp_G4_R2")) {
-                npar = 3;
-                outname = "../../BackgroundModel/test/dijetv2_350to1190_20GeV_G4/workspace/FitContainer_workspace.root";
+		npar = 3;
+		outname = mssmhbb::cmsswBase + "/src/Analysis/BackgroundModel/test/dijetv2_350to1190_20GeV_G4/workspace/FitContainer_workspace.root";
         }
 	else if(findStrings(pdf,"novosibirsk_G7_R2")) {
-                npar = 3;
-                outname = "../../BackgroundModel/test/novosibirsk_350to1190_20GeV_G7/workspace/FitContainer_workspace.root";
+		npar = 3;
+		outname = mssmhbb::cmsswBase + "/src/Analysis/BackgroundModel/test/novosibirsk_350to1190_20GeV_G7/workspace/FitContainer_workspace.root";
         }
 	else if(findStrings(pdf,"dijetexp_G7_R2")) {
-                npar = 3;
-                outname = "../../BackgroundModel/test/dijetv2_350to1190_20GeV_G7/workspace/FitContainer_workspace.root";
+		npar = 3;
+		outname = mssmhbb::cmsswBase + "/src/Analysis/BackgroundModel/test/dijetv2_350to1190_20GeV_G7/workspace/FitContainer_workspace.root";
         }
 
 	else if(findStrings(pdf,"novosibirsk_G4_R3")) {
 		npar = 3;
-		outname = "../../BackgroundModel/test/novosibirsk_500to1700_25GeV_G4/workspace/FitContainer_workspace.root";
+		outname = mssmhbb::cmsswBase + "/src/Analysis/BackgroundModel/test/novosibirsk_500to1700_25GeV_G4/workspace/FitContainer_workspace.root";
 	}
 	else if(findStrings(pdf,"dijetexp_G4_R3")) {
 		npar = 3;
-		outname = "../../BackgroundModel/test/dijetv2_500to1700_25GeV_G4/workspace/FitContainer_workspace.root";
+		outname = mssmhbb::cmsswBase + "/src/Analysis/BackgroundModel/test/dijetv2_500to1700_25GeV_G4/workspace/FitContainer_workspace.root";
 	}
 	else if(findStrings(pdf,"novosibirsk_G7_R3")) {
-                npar = 3;
-                outname = "../../BackgroundModel/test/novosibirsk_500to1700_25GeV_G7/workspace/FitContainer_workspace.root";
+		npar = 3;
+		outname = mssmhbb::cmsswBase + "/src/Analysis/BackgroundModel/test/novosibirsk_500to1700_25GeV_G7/workspace/FitContainer_workspace.root";
         }
 	else if(findStrings(pdf,"dijetexp_G7_R3")) {
-                npar = 3;
-                outname = "../../BackgroundModel/test/dijetv2_500to1700_25GeV_G7/workspace/FitContainer_workspace.root";
+		npar = 3;
+		outname = mssmhbb::cmsswBase + "/src/Analysis/BackgroundModel/test/dijetv2_500to1700_25GeV_G7/workspace/FitContainer_workspace.root";
         }
 	else if(pdf == "300" ) {
 		npar = 5;
-		outname = "../output/ReReco_signal_M-300/workspace/FitContainer_workspace.root";
+		outname = mssmhbb::cmsswBase + "/src/Analysis/MssmHbb/output/ReReco_signal_M-300/workspace/FitContainer_workspace.root";
 	}
 	else if(pdf == "350" ) {
 		npar = 5;
-		outname = "../output/ReReco_signal_M-350/workspace/FitContainer_workspace.root";
+		outname = mssmhbb::cmsswBase + "/src/Analysis/MssmHbb/output/ReReco_signal_M-350/workspace/FitContainer_workspace.root";
 	}
 	else if(pdf == "400" ) {
 		npar = 5;
-		outname = "../output/ReReco_signal_M-400/workspace/FitContainer_workspace.root";
+		outname = mssmhbb::cmsswBase + "/src/Analysis/MssmHbb/output/ReReco_signal_M-400/workspace/FitContainer_workspace.root";
 	}
 	else if(pdf == "500" ) {
 		npar = 5;
-		outname = "../output/ReReco_signal_M-500/workspace/FitContainer_workspace.root";
+		outname = mssmhbb::cmsswBase + "/src/Analysis/MssmHbb/output/ReReco_signal_M-500/workspace/FitContainer_workspace.root";
 	}
 	else if(pdf == "600" ) {
 		npar = 5;
-		outname = "../output/ReReco_signal_M-600/workspace/FitContainer_workspace.root";
+		outname = mssmhbb::cmsswBase + "/src/Analysis/MssmHbb/output/ReReco_signal_M-600/workspace/FitContainer_workspace.root";
 	}
 	else if(pdf == "700") {
 		npar = 5;
-		outname = "../output/ReReco_signal_M-700/workspace/FitContainer_workspace.root";
+		outname = mssmhbb::cmsswBase + "/src/Analysis/MssmHbb/output/ReReco_signal_M-700/workspace/FitContainer_workspace.root";
 	}
 	else if(pdf == "900" ) {
 		npar = 5;
-		outname = "../output/ReReco_signal_M-900/workspace/FitContainer_workspace.root";
+		outname = mssmhbb::cmsswBase + "/src/Analysis/MssmHbb/output/ReReco_signal_M-900/workspace/FitContainer_workspace.root";
 	}
 	else if(pdf == "1100" ) {
 		npar = 5;
-		outname = "../output/ReReco_signal_M-1100/workspace/FitContainer_workspace.root";
+		outname = mssmhbb::cmsswBase + "/src/Analysis/MssmHbb/output/ReReco_signal_M-1100/workspace/FitContainer_workspace.root";
 	}
 	else if(pdf == "1300" ) {
 		npar = 5;
-		outname = "../output/ReReco_signal_M-1300/workspace/FitContainer_workspace.root";
+		outname = mssmhbb::cmsswBase + "/src/Analysis/MssmHbb/output/ReReco_signal_M-1300/workspace/FitContainer_workspace.root";
 	}
 	else{
 		throw invalid_argument("Invalid pdf: " + pdf + " has been provided.");
@@ -785,7 +799,8 @@ void AddOutBranches(TTree &outtree,
 					double *esg_pars,
 					vector<string>& bg_par_names,
 					double *bg_pars,
-					double *ebg_pars
+					double *ebg_pars,
+					double& ntot
 					){
 	/*
 	 * Function to add special branches to the TTree
@@ -794,6 +809,7 @@ void AddOutBranches(TTree &outtree,
 	outtree.Branch("edm",				&edm,				"edm/D");
 	outtree.Branch("minNLL",			&minNLL,			"minNLL/D");
 	outtree.Branch("nbg_prefit",		&nbg_prefit,		"nbg_prefit/D");
+	outtree.Branch("ntot",				&ntot,				"ntot/D");
 	outtree.Branch("nbg_postfit", 		&nbg_postfit, 		"nbg_postfit/D");
 	outtree.Branch("nbg_err_postfit",	&nbg_err_postfit,	"nbg_err_postfit/D");
 	outtree.Branch("signal_strength",	&r,					"signal_strength/I");
@@ -811,18 +827,6 @@ void AddOutBranches(TTree &outtree,
 	lambda_e(outtree,sg_par_names,esg_pars);
 	lambda_n(outtree,bg_par_names,bg_pars);
 	lambda_e(outtree,bg_par_names,ebg_pars);
-}
-
-RooAbsPdf* GetPdfFromWorkspace(RooWorkspace& w, const std::string& name){
-	/*
-	 * Function to get PDF from workspace
-	 *
-	 * proper exception treatment
-	 */
-	RooAbsPdf *pdf = w.pdf(name.c_str());
-	if(!pdf) throw invalid_argument("Invalid pdf name: " + name);
-
-	return move(pdf);
 }
 
 void SetPoissonBins(TH1 & h){
@@ -890,12 +894,15 @@ void SetVarsInWorkspace(RooWorkspace &w, const std::vector<RooRealVar>& vars){
 	/*
 	 * Function to set vars in the workspace according to vars
 	 */
+	std::cout<<"\nWorkspace content: "<<w.GetName()<<" VARS"<<std::endl;
+	w.Print("v");
 	for(const auto& v : vars){
 		RooRealVar &init = *w.var(v.GetName());
 		init.setVal(v.getValV());
 		init.setError(v.getError());
 		init.setMax(v.getMax());
 		init.setMin(v.getMin());
+		init.Print();
 	}
 }
 
@@ -906,22 +913,102 @@ void ChangeParameterRange(RooWorkspace &w, const std::string& pdf_name){
 	 */
 	if(pdf_name == "extnovoeffprod_G4_R1"){
 		w.var("tail")->setRange(-10, 10);
-		w.var("turnon_novoeff")->setConstant();
-		w.var("slope_novoeff")->setConstant();
 	}
 	else if (pdf_name == "novosibirsk_G4_R2"){
 		w.var("tail1")->setRange(-10, 10);
 	}
 	else if (pdf_name == "berneffprod9par_G4_R1"){
-		for(const string& s : {"0","1","2","3","4","5","6","7","8"}){
-			w.var( ("bernstein_coefficient_0" + s).c_str())->setRange(-20, 20);
-		}
-		w.var("slope_novoeff")->setConstant();
-		w.var("turnon_novoeff")->setConstant();
-
+//		for(const string& s : {"0","1","2","3","4","5","6","7","8"}){
+//			w.var( ("bernstein_coefficient_0" + s).c_str())->setRange(-20, 20);
+//		}
+	}
+	else if (pdf_name == "berneffprod8par_G4_R1"){
 	}
 	else if (pdf_name == "dijetv3logprod_G4_R1"){
-		w.var("slope_bg")->setConstant();
-		w.var("turnon_bg")->setConstant();
+	}
+	else if (pdf_name == "superdijeteffprod2_G4_R1"){
+		w.var("parb_dijet")->setRange(-1,1);
 	}
 }
+
+void FixTurnOn(RooWorkspace &w, const std::string& pdf_name){
+	/*
+	 * Function to fix turn-on curve
+	 */
+	if(pdf_name == "extnovoeffprod_G4_R1" || pdf_name == "extnovoeffprod_R1"){
+		w.var("turnon_novoeff")->setConstant();
+		w.var("slope_novoeff")->setConstant();
+	}
+	else if (pdf_name == "novosibirsk_G4_R2"){
+	}
+	else if (pdf_name == "berneffprod9par_G4_R1" || pdf_name == "berneffprod9par_R1"){
+		w.var("slope_novoeff")->setConstant();
+		w.var("turnon_novoeff")->setConstant();
+	}
+	else if (pdf_name == "berneffprod8par_G4_R1" || pdf_name == "berneffprod8par_R1"){
+		w.var("slope_novoeff")->setConstant();
+		w.var("turnon_novoeff")->setConstant();
+	}
+	else if (pdf_name == "dijetv3logprod_G4_R1"){
+	}
+	else if (pdf_name == "superdijeteffprod2_G4_R1" || pdf_name == "superdijeteffprod2_R1"){
+		w.var("slope_novoeff")->setConstant();
+		w.var("turnon_novoeff")->setConstant();
+	}
+	else throw invalid_argument("Wrong pdf name: " + pdf_name + " at FixTurnOn::FixTurnOn");
+}
+
+void UnFixTurnOn(RooWorkspace &w, const std::string& pdf_name){
+	/*
+	 * Function to un-fix turn-on curve
+	 */
+	if(pdf_name == "extnovoeffprod_G4_R1" || pdf_name == "extnovoeffprod_R1"){
+		w.var("turnon_novoeff")->setConstant(0);
+		w.var("slope_novoeff")->setConstant(0);
+	}
+	else if (pdf_name == "novosibirsk_G4_R2"){
+	}
+	else if (pdf_name == "berneffprod9par_G4_R1" || pdf_name == "berneffprod9par_R1"){
+		w.var("slope_novoeff")->setConstant(0);
+		w.var("turnon_novoeff")->setConstant(0);
+	}
+	else if (pdf_name == "berneffprod8par_G4_R1" || pdf_name == "berneffprod8par_R1"){
+		w.var("slope_novoeff")->setConstant(0);
+		w.var("turnon_novoeff")->setConstant(0);
+	}
+	else if (pdf_name == "dijetv3logprod_G4_R1"){
+	}
+	else if (pdf_name == "superdijeteffprod2_G4_R1" || pdf_name == "superdijeteffprod2_R1"){
+		w.var("slope_novoeff")->setConstant(0);
+		w.var("turnon_novoeff")->setConstant(0);
+	}
+	else throw invalid_argument("Wrong pdf name: " + pdf_name + " at FixTurnOn::FixTurnOn");
+}
+
+double GetGausRandomisation(TRandom3& r, const double& mean, const double&sigma, const double& max, const double& min){
+	/*
+	 * Gaus randomisation within the limits
+	 */
+	double res = r.Gaus(mean,sigma);
+	if(res >= max || res <= min) res = GetGausRandomisation(r,mean,sigma,max,min);
+	return res;
+}
+
+void RandomiseVarsInWorkspace(RooWorkspace &w, const std::vector<RooRealVar>& init_vars, const int& nsigma){
+	/*
+	 * Function to randomise vars in workspace
+	 */
+	TRandom3 r(0);
+	for(const auto& v : init_vars){
+		auto init_val = v.getValV();
+		auto init_err = v.getError();
+		auto up_range = v.getMax();
+		auto low_range= v.getMin();
+
+		auto &var = *GetFromRooWorkspace<RooRealVar>(w,v.GetName());
+		var.setVal(GetGausRandomisation(r,init_val,init_err * nsigma, up_range, low_range));
+		cout<<"Randomise var: "<<var.GetName()<<" ";
+		var.Print();
+	}
+}
+
