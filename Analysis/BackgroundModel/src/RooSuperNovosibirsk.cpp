@@ -63,9 +63,10 @@ double RooSuperNovosibirsk::evaluate() const {
 	double arg = 1.0 - pre_arg;
 	RooFIter it = coefList_.fwdIterator();
 	RooAbsReal* c;
-	int i = 1;
+	int i = 2;
 	while ((c = (RooAbsReal*) it.next())) {
-		arg -= c->getVal() * TMath::Power(pre_arg,i);
+		//arg -= c->getVal() * TMath::Power(pre_arg,i);
+		arg -= c->getVal() * TMath::Power( ( x_ - peak_ ) ,i) * tail_ / width_;
 		++i;
 	}
 
