@@ -368,6 +368,7 @@ void HbbLimits::LimitPlotter(const std::vector<Limit>& limits,
 	gStyle->SetPadRightMargin(0.05);
 
 	//Write value of limits in file
+//	CheckOutputDir(output);
 	Write(limits,output);
 
 	int nPointsX = limits.size();
@@ -466,7 +467,7 @@ void HbbLimits::LimitPlotter(const std::vector<Limit>& limits,
 //		atlas_zhll.Draw("PLsame");
 //	}
 
-	std::string entry_comp = "Prev. version";
+	std::string entry_comp = "No Bias";//"Prev. version";
 	if(compare_limits) {
 		if(Lumi.find("24.6") != std::string::npos) entry_comp = "Expected 7 + 8 TeV";
 		else if (Lumi.find("19.7") != std::string::npos) entry_comp = "Expected 13 TeV";

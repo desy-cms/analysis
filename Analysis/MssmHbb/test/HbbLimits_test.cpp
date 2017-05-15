@@ -23,7 +23,7 @@ int main(){
 
 	HbbLimits limits(true,true);
 	style.set(PRIVATE);
-	string path2016 = "/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_8_0_20_patch1/src/Analysis/MssmHbb/datacards/201703/06/asymptotic/indep/";//mssm/Hbb.limits
+	string path2016 = "/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_8_0_20_patch1/src/Analysis/MssmHbb/datacards/201705/15/Asymptotic/";//mssm/Hbb.limits
 	string thdm_production = "production_cosB_A_-1_1_tanB_0p5-100_COMBINATION"; //production_corseBins_cosB_A_-1_1_tanB_1-100 //
 	string thdm_type = "type3";
 	string thdm_scans = "/nfs/dust/cms/user/shevchen/SusHiScaner/output/" + thdm_production + "/rootFiles/Histograms3D_" + thdm_type + "_mA_mH.root";
@@ -31,7 +31,8 @@ int main(){
 //	double cB_A = 0.1;
 	string boson = "both";
 	vector<Limit> null_vec;
-	string output = "/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_8_0_20_patch1/src/Analysis/MssmHbb/macros/pictures/ParametricLimits/20170306/bias/";
+	string modification_to_name = "Bernstein8_Bias/";
+	string output = "/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_8_0_20_patch1/src/Analysis/MssmHbb/macros/pictures/ParametricLimits/20170515/" + modification_to_name;
 
 	limits.SetHiggsBoson(boson);
 
@@ -40,30 +41,34 @@ int main(){
 	legenda.SetTextSize(0.035);
 	legenda.SetBorderSize(0);
 
-	string path_to_compare = path2016 + "no_bias/Hbb.limits";
+	string path_to_compare = path2016 + "No_Bias/Hbb.limits";
 	vector<Limit> GBR_to_compare = limits.ReadCombineLimits(path_to_compare);
 	limits.Write(GBR_to_compare,path_to_compare);
 
 	/*
 	 * Model independent limits should be calculated with differ from model-dep. datacards
 	 */
-	string path2016_indep = path2016 + "no_bias/Hbb.limits";
+	string path2016_indep = path2016 + modification_to_name + "Hbb.limits";
 	vector<Limit> GBR2016 = limits.ReadCombineLimits(path2016_indep);
 	limits.Write(GBR2016,path2016_indep);
 	string output_independet_limits = output + "Hbb_Limits_2016";
-	limits.LimitPlotter(GBR2016,null_vec,legenda,output_independet_limits,0.1,30,200,1300,"35.7(2016)","M_{#Phi} [GeV]","95%C.L. limit on #sigma x BR [pb]",true);
-//
-//	/*
-//	 * MSSM limits
-//	 */
-//	string path2016_mssm = path2016 + "mssm/Hbb.limits";
-//	vector<Limit> GBR2016_mssm = limits.ReadCombineLimits(path2016_mssm);
-//	vector<Limit> mssm_limits = limits.GetMSSMLimits(GBR2016,"/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_8_0_20_patch1/src/Analysis/MssmHbb/macros/signal/mhmodp_mu200_13TeV.root");
-//	legenda.SetX1NDC(0.65);	legenda.SetX2NDC(0.92);
-//	legenda.SetY1NDC(0.17);	legenda.SetY2NDC(0.44);
-//	legenda.Clear();
-//	string output_mssm_tanB_limits = output + boson + "_MSSM_tanB_brazil";
-//	limits.LimitPlotter(mssm_limits,null_vec,legenda,output_mssm_tanB_limits,0,60,200,900,"35.7(2016)","M_{#Phi} [GeV]","tan(#beta)",false);
+	limits.LimitPlotter(GBR2016,GBR_to_compare,legenda,output_independet_limits,0.1,30,200,1300,"35.7(2016)","M_{#Phi} [GeV]","95%C.L. limit on #sigma x BR [pb]",true);
+
+	/*
+	 * MSSM limits
+	 */
+	string path2016_mssm = path2016 + "mssm/" + modification_to_name + "Hbb.limits";
+	vector<Limit> GBR2016_mssm = limits.ReadCombineLimits(path2016_mssm);
+	vector<Limit> mssm_limits = limits.GetMSSMLimits(GBR2016,"/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_8_0_20_patch1/src/Analysis/MssmHbb/macros/signal/mhmodp_mu200_13TeV.root");
+	legenda.SetX1NDC(0.65);	legenda.SetX2NDC(0.92);
+	legenda.SetY1NDC(0.17);	legenda.SetY2NDC(0.44);
+	legenda.Clear();
+	string output_mssm_tanB_limits = output + boson + "_MSSM_tanB_brazil";
+
+	path_to_compare = path2016 + "mssm/No_Bias/Hbb.limits";
+	vector<Limit> GBR2016_mssm_co_compare = limits.ReadCombineLimits(path_to_compare);
+	vector<Limit> mssm_limits_to_compare  = limits.GetMSSMLimits(GBR2016_mssm_co_compare,"/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_8_0_20_patch1/src/Analysis/MssmHbb/macros/signal/mhmodp_mu200_13TeV.root");
+	limits.LimitPlotter(mssm_limits,mssm_limits_to_compare,legenda,output_mssm_tanB_limits,0,60,200,900,"35.7(2016)","M_{#Phi} [GeV]","tan(#beta)",false);
 //	/*
 //	 * 2HDM limits
 //	 */
