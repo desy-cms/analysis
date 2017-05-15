@@ -7,11 +7,12 @@
 
 echo "combine -M Asymptotic -m MASS hbb_mbb*_mssm-13TeV.txt"
 
-cd ../datacards/
+cd ../datacards/20161013/binned/
 
 limit_file=Hbb.limits
 [[ -f "$limit_file" ]] && rm "$limit_file"
 
+#declare -a points=(100 120 160 200 250 300 350 400 500 600 700 900 1100 1300)
 declare -a points=(200 250 300 350 400 500 600 700 900 1100 1300)
 
 for i in "${points[@]}"; do

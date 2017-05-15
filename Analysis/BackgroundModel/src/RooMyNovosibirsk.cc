@@ -58,7 +58,7 @@ double RooMyNovosibirsk::evaluate() const {
 }
 */
 
-double RooMyNovosibirsk::evaluate() const
+Double_t RooMyNovosibirsk::evaluate() const
 { 
   if (TMath::Abs(tail_) < 1.e-7) {
      return TMath::Exp( -0.5 * TMath::Power( ( (x_ - peak_) / width_ ), 2 ));
@@ -80,4 +80,127 @@ double RooMyNovosibirsk::evaluate() const
      
   return TMath::Exp(exponent) ;
 }
+
+/*
+Int_t RooNovosibirsk::getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* ) const
+{
+  if (matchArgs(allVars,analVars,x)) return 1 ;
+  if (matchArgs(allVars,analVars,peak)) return 2 ;
+     
+  //The other two integrals over tali and width are not integrable
+     
+  return 0 ;
+}
+
+Double_t RooNovosibirsk::analyticalIntegral(Int_t code, const char* rangeName) const
+{
+  assert(code==1 || code==2) ;
+  
+  //The range is defined as [A,B]
+ 
+  //Numerical values need for the evaluation of the integral
+  static const Double_t sqrt2 = 1.4142135623730950; // Sqrt(2)
+  static const Double_t sqlog2 = 0.832554611157697756; //Sqrt( Log(2) )
+  static const Double_t sqlog4 = 1.17741002251547469; //Sqrt( Log(4) )
+  static const Double_t log4 = 1.38629436111989062; //Log(2)
+  static const Double_t rootpiby2 = 1.2533141373155003; // Sqrt(pi/2)
+  static const Double_t sqpibylog2 = 2.12893403886245236; //Sqrt( pi/Log(2) )
+    
+  if (code==1) {
+    Double_t A = x.min(rangeName);
+    Double_t B = x.max(rangeName);
+        
+    Double_t result = 0;
+
+        
+    //If tail==0 the function becomes gaussian, thus we return a gassian integral
+    if (TMath::Abs(tail) < 1.e-7) {
+
+      Double_t xscale = sqrt2*width;
+            
+      result = rootpiby2*width*(TMath::Erf((B-peak)/xscale)-TMath::Erf((A-peak)/xscale));
+            
+      return result;
+            
+    }
+        
+    // If the range is not defined correctly the function becomes complex
+    Double_t log_argument_A = ( (peak - A)*tail + width ) / width ;
+    Double_t log_argument_B = ( (peak - B)*tail + width ) / width ;
+        
+    //lower limit
+    if ( log_argument_A < 1.e-7) {
+      log_argument_A = 1.e-7;
+    }
+        
+    //upper limit
+    if ( log_argument_B < 1.e-7) {
+      log_argument_B = 1.e-7;
+    }
+        
+    Double_t term1 =  TMath::ASinH( tail * sqlog4 );
+    Double_t term1_2 =  term1 * term1;
+        
+    //Calculate the error function arguments
+    Double_t erf_termA = ( term1_2 - log4 * TMath::Log( log_argument_A ) ) / ( 2 * term1 * sqlog2 );
+    Double_t erf_termB = ( term1_2 - log4 * TMath::Log( log_argument_B ) ) / ( 2 * term1 * sqlog2 );
+        
+    result = 0.5 / tail * width * term1 * ( TMath::Erf(erf_termB) - TMath::Erf(erf_termA)) * sqpibylog2;
+        
+    return result;
+        
+  } else if (code==2) {
+    Double_t A = x.min(rangeName);
+    Double_t B = x.max(rangeName);
+        
+    Double_t result = 0;
+        
+        
+    //If tail==0 the function becomes gaussian, thus we return a gassian integral
+    if (TMath::Abs(tail) < 1.e-7) {
+            
+      Double_t xscale = sqrt2*width;
+            
+      result = rootpiby2*width*(TMath::Erf((B-x)/xscale)-TMath::Erf((A-x)/xscale));
+            
+      return result;
+            
+    }
+        
+    // If the range is not defined correctly the function becomes complex
+    Double_t log_argument_A = ( (A - x)*tail + width ) / width;
+    Double_t log_argument_B = ( (B - x)*tail + width ) / width;
+        
+    //lower limit
+    if ( log_argument_A < 1.e-7) {
+      log_argument_A = 1.e-7;
+    }
+        
+    //upper limit
+    if ( log_argument_B < 1.e-7) {
+      log_argument_B = 1.e-7;
+    }
+        
+    Double_t term1 =  TMath::ASinH( tail * sqlog4 );
+    Double_t term1_2 =  term1 * term1;
+        
+    //Calculate the error function arguments
+    Double_t erf_termA = ( term1_2 - log4 * TMath::Log( log_argument_A ) ) / ( 2 * term1 * sqlog2 );
+    Double_t erf_termB = ( term1_2 - log4 * TMath::Log( log_argument_B ) ) / ( 2 * term1 * sqlog2 );
+        
+    result = 0.5 / tail * width * term1 * ( TMath::Erf(erf_termB) - TMath::Erf(erf_termA)) * sqpibylog2;
+        
+    return result;
+        
+  }
+
+  // Emit fatal error
+  coutF(Eval) << "Error in RooNovosibirsk::analyticalIntegral" << std::endl;  
+
+  // Put dummy return here to avoid compiler warnings
+  return 1.0 ;
+}
+*/
+
+
 

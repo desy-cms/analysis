@@ -15,22 +15,22 @@ selectionDoubleB::selectionDoubleB(const std::string & inputFilelist, const doub
 JetAnalysisBase(inputFilelist,dataLumi,lowM,test) {
 	nJets_ = 2;
         if(lowM){
-                triggerLogicName_ = "HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v";
-                triggerObjectName_ = {"hltL1sL1DoubleJetC100","hltDoubleJetsC100","hltDoublePFJetsC100","hltDoubleBTagCSV0p9","hltDoublePFJetsC100MaxDeta1p6"};
-                pt1_ = 100.; pt2_ = 100.; pt3_ = 40;
-                eta1_ = 2.2; eta2_ = 2.2; eta3_ = 2.2;
-                btag1_ = 0.8; btag2_ = 0.8; btag3_ = 0.8;
-                btagOP1_ = 1; btagOP2_ = 1; btagOP3_ = 1;
-                dR_ = 1; dEta_ = 1.55; mHat_ = 0.7;
+        	triggerLogicName_ = "HLT_DoubleJetsC100_DoubleBTagCSV_p014_DoublePFJetsC100MaxDeta1p6_v";
+        	triggerObjectName_ = {"hltL1sDoubleJetC100","hltDoubleJetsC100","hltBTagCaloCSVp014DoubleWithMatching","hltDoublePFJetsC100","hltDoublePFJetsC100MaxDeta1p6"};
+        	pt1_ = 100.; pt2_ = 100.; pt3_ = 40;
+        	eta1_ = 2.2; eta2_ = 2.2; eta3_ = 2.2;
+        	btag1_ = 0.8; btag2_ = 0.8; btag3_ = 0.8;
+        	btagOP1_ = 1; btagOP2_ = 1; btagOP3_ = 1;
+        	dR_ = 1; dEta_ = 1.55; mHat_ = 0.7;
         }
         else {
-                triggerLogicName_ = "HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v";
-                triggerObjectName_ = {"hltL1sL1DoubleJetC100","hltDoubleJetsC100","hltDoubleBTagCSV0p85","hltDoublePFJetsC160"};
-                pt1_ = 160.; pt2_ = 160.; pt3_ = 40;
-                eta1_ = 2.2; eta2_ = 2.2; eta3_ = 2.2;
-                btag1_ = 0.8; btag2_ = 0.8; btag3_ = 0.8;
-                btagOP1_ = 1; btagOP2_ = 1; btagOP3_ = 1;
-                dR_ = 1; dEta_ = 100.; mHat_ = 0.7;
+        	triggerLogicName_ = "HLT_DoubleJetsC100_DoubleBTagCSV_p026_DoublePFJetsC160_v";
+        	triggerObjectName_ = {"hltL1sDoubleJetC100","hltDoubleJetsC100","hltBTagCaloCSVp026DoubleWithMatching","hltDoublePFJetsC160"};
+        	pt1_ = 160.; pt2_ = 160.; pt3_ = 40;
+        	eta1_ = 2.2; eta2_ = 2.2; eta3_ = 2.2;
+        	btag1_ = 0.8; btag2_ = 0.8; btag3_ = 0.8;
+        	btagOP1_ = 1; btagOP2_ = 1; btagOP3_ = 1;
+        	dR_ = 1; dEta_ = 100.; mHat_ = 0.7;
         }
 	baseOutputName_ = "DoubleB";
 }
@@ -86,7 +86,12 @@ void selectionDoubleB::fillHistograms(const std::shared_ptr<Collection<Jet> > &o
 	Jet jet1 = offlineJets->at(0);
 	Jet jet2 = offlineJets->at(1);
 
-	(histo_.getHisto())["NumberOfJets"]->Fill(offlineJets->size());
+	int njets = 0;
+	for (int iJet = 0; iJet < offlineJets -> size(); ++iJet){
+		if(offlineJets->at(iJet).pt() > 20) ++njets;
+	}
+	(histo_.getHisto())["NumberOfJets"]->Fill(njets);
+//	(histo_.getHisto())["NumberOfJets"]->Fill(offlineJets->size());
 
 	(histo_.getHisto())["jet_pt1"]->Fill(jet1.pt(),weight);
 	(histo_.getHisto())["jet_pt2"]->Fill(jet2.pt(),weight);
@@ -136,16 +141,26 @@ void selectionDoubleB::fillHistograms(const std::shared_ptr<Collection<Jet> > &o
 	(histo_.getHisto())["diJet_eta"]->Fill(obj12.Eta(),weight);
 	(histo_.getHisto())["diJet_phi"]->Fill(obj12.Phi(),weight);
 	(histo_.getHisto())["diJet_m"]->Fill(obj12.M(),weight);
+	(histo_.getHisto())["diJet_m_5GeV"]->Fill(obj12.M(),weight);
+	(histo_.getHisto())["diJet_m_20GeV"]->Fill(obj12.M(),weight);
 
-	(histo_.getHisto())["template_Mbb"]->Fill(obj12.M(),weight);
-	(histo_.getHisto())["template_Mbb_17GeV"]->Fill(obj12.M(),weight);
+	//Flavour composition
+	if(isMC()){
+		if(jet1.flavour() == 5 && jet2.flavour() == 5) (histo_.getHisto())["diJet_m_bb"]->Fill(obj12.M(),weight);
+		else if ((jet1.flavour() == 5 && jet2.flavour() == 4) || (jet2.flavour() == 5 && jet1.flavour() == 4)) (histo_.getHisto())["diJet_m_bc"]->Fill(obj12.M(),weight);
+		else if ((jet1.flavour() == 5 && jet2.flavour() == 0) || (jet2.flavour() == 5 && jet1.flavour() == 0)) (histo_.getHisto())["diJet_m_bl"]->Fill(obj12.M(),weight);
+		else if (jet1.flavour() == 0 && jet2.flavour() == 0) (histo_.getHisto())["diJet_m_ll"]->Fill(obj12.M(),weight);
+		else if (jet1.flavour() == 4 && jet2.flavour() == 4) (histo_.getHisto())["diJet_m_cc"]->Fill(obj12.M(),weight);
+		else if ((jet1.flavour() == 4 && jet2.flavour() == 0) || (jet2.flavour() == 4 && jet1.flavour() == 0)) (histo_.getHisto())["diJet_m_cl"]->Fill(obj12.M(),weight);
+		else std::logic_error("Undefined flavours at: selectionDoubleB::fillHistograms");
+	}
 
 }
 
 const double selectionDoubleB::assignWeight(){
 	double weight = 1;
 	if(isMC()) {
-		weight = weight_["Lumi"] * weight_["PtEff_central"] * weight_["PU_central"] * weight_["SFb_central"] * weight_["SFl_central"];
+		weight = weight_["PtEff_central"] * weight_["PU_central"] * weight_["SFb_central"] * weight_["SFl_central"];
 	}
 	return weight;
 }

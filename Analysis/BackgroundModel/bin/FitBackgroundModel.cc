@@ -44,6 +44,7 @@ int main(int argc, char* argv[]) {
      "Directory where the output is stored.")
     ("fit_min", po::value<float>(), "Lower bound of the fit range.")
     ("fit_max", po::value<float>(), "Upper bound of the fit range.")
+    ("nbins", po::value<int>(), "Number of bins in the fit range.")
     ("modify_param,m", po::value<std::vector<std::string> >()->composing()
      ->default_value(std::vector<std::string>(), ""),
      "Modify parameters as follows: "
@@ -51,10 +52,9 @@ int main(int argc, char* argv[]) {
      "[constant,] [floating]\"")
     ;
   po::variables_map vm;
+//  po::store(po::command_line_parser( argc, argv ).options(cmdLineOptions).run(), vm);
   po::store(po::command_line_parser(argc, argv).options(cmdLineOptions)
             .allow_unregistered().run(), vm);
-  po::notify(vm);
-
 
   // now add required options
   po::options_description requiredOptions("Required arguments");
@@ -66,10 +66,13 @@ int main(int argc, char* argv[]) {
     ;
   po::store(po::command_line_parser(argc, argv).options(requiredOptions)
             .allow_unregistered().run(), vm);
+//  po::store(po::command_line_parser(argc, argv).options(requiredOptions).run(), vm);
 
 
   po::options_description allOptions("Allowed arguments");
   allOptions.add(cmdLineOptions).add(requiredOptions);
+
+  po::notify(vm);
 
   // check for help flag before checking for required options
   if (vm.count("help")) {
@@ -140,6 +143,7 @@ int main(int argc, char* argv[]) {
 int backgroundOnlyFit(ab::FitContainer& fitter, po::variables_map& vm) {
   if (!vm["fit_min"].empty()) fitter.fitRangeMin(vm["fit_min"].as<float>());
   if (!vm["fit_max"].empty()) fitter.fitRangeMax(vm["fit_max"].as<float>());
+  if (!vm["nbins"].empty())   fitter.setNBins(vm["nbins"].as<int>());
   std::vector<ab::ParamModifier> bkgModifiers =
     ab::parseModifiers(vm["modify_param"].as<std::vector<std::string> >());
   fitter.setModel(ab::FitContainer::Type::background,

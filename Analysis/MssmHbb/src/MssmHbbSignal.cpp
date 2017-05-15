@@ -18,22 +18,22 @@ MssmHbbSignal::MssmHbbSignal(const std::string & inputFilelist,const double & da
 {
 	nJets_ = 3;
         if(lowM){
-                triggerLogicName_ = "HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v";
-                triggerObjectName_ = {"hltL1sL1DoubleJetC100","hltDoubleJetsC100","hltDoublePFJetsC100","hltDoubleBTagCSV0p9","hltDoublePFJetsC100MaxDeta1p6"};
-                pt1_ = 100.; pt2_ = 100.; pt3_ = 40;
-                eta1_ = 2.2; eta2_ = 2.2; eta3_ = 2.2;
-                btag1_ = 0.8; btag2_ = 0.8; btag3_ = 0.8;
-                btagOP1_ = 1; btagOP2_ = 1; btagOP3_ = 1;
-                dR_ = 1; dEta_ = 1.55; mHat_ = 0.7;
+        	triggerLogicName_ = "HLT_DoubleJetsC100_DoubleBTagCSV_p014_DoublePFJetsC100MaxDeta1p6_v";
+        	triggerObjectName_ = {"hltL1sDoubleJetC100","hltDoubleJetsC100","hltBTagCaloCSVp014DoubleWithMatching","hltDoublePFJetsC100","hltDoublePFJetsC100MaxDeta1p6"};
+        	pt1_ = 100.; pt2_ = 100.; pt3_ = 40;
+        	eta1_ = 2.2; eta2_ = 2.2; eta3_ = 2.2;
+        	btag1_ = 0.8484; btag2_ = 0.8484; btag3_ = 0.8484;
+        	btagOP1_ = 1; btagOP2_ = 1; btagOP3_ = 1;
+        	dR_ = 1; dEta_ = 1.55; mHat_ = 0.7;
         }
         else {
-                triggerLogicName_ = "HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v";
-                triggerObjectName_ = {"hltL1sL1DoubleJetC100","hltDoubleJetsC100","hltDoubleBTagCSV0p85","hltDoublePFJetsC160"};
-                pt1_ = 160.; pt2_ = 160.; pt3_ = 40;
-                eta1_ = 2.2; eta2_ = 2.2; eta3_ = 2.2;
-                btag1_ = 0.8; btag2_ = 0.8; btag3_ = 0.8;
-                btagOP1_ = 1; btagOP2_ = 1; btagOP3_ = 1;
-                dR_ = 1; dEta_ = 100.; mHat_ = 0.7;
+        	triggerLogicName_ = "HLT_DoubleJetsC100_DoubleBTagCSV_p026_DoublePFJetsC160_v";
+        	triggerObjectName_ = {"hltL1sDoubleJetC100","hltDoubleJetsC100","hltBTagCaloCSVp026DoubleWithMatching","hltDoublePFJetsC160"};
+        	pt1_ = 160.; pt2_ = 160.; pt3_ = 40;
+        	eta1_ = 2.2; eta2_ = 2.2; eta3_ = 2.2;
+        	btag1_ = 0.8484; btag2_ = 0.8484; btag3_ = 0.8484;
+        	btagOP1_ = 1; btagOP2_ = 1; btagOP3_ = 1;
+        	dR_ = 1; dEta_ = 100.; mHat_ = 0.7;
         }
 	baseOutputName_ = "MssmHbbSignal";
 }
@@ -118,6 +118,9 @@ void MssmHbbSignal::fillHistograms(const std::shared_ptr<Collection<Jet> > &offl
 			(histo_.getHisto())["template_PtEff_up"]->Fill(obj12.M(),weight/weight_["PtEff_central"] * weight_["PtEff_up"]);
 			(histo_.getHisto())["template_PtEff_down"]->Fill(obj12.M(),weight/weight_["PtEff_central"] * weight_["PtEff_down"]);
 
+			(histo_.getHisto())["template_BTagEff_up"]->Fill(obj12.M(),weight/weight_["BTagEff_central"] * weight_["BTagEff_up"]);
+			(histo_.getHisto())["template_BTagEff_down"]->Fill(obj12.M(),weight/weight_["BTagEff_central"] * weight_["BTagEff_down"]);
+
 			//visualisation
 			(histo_.getHisto())["template_Mbb_VIS"]->Fill(obj12.M(),weight);
 			(histo_.getHisto())["template_SFb_VIS_up"]->Fill(obj12.M(),weight/weight_["SFb_central"] * weight_["SFb_up"]);
@@ -131,6 +134,9 @@ void MssmHbbSignal::fillHistograms(const std::shared_ptr<Collection<Jet> > &offl
 
 			(histo_.getHisto())["template_PtEff_VIS_up"]->Fill(obj12.M(),weight/weight_["PtEff_central"] * weight_["PtEff_up"]);
 			(histo_.getHisto())["template_PtEff_VIS_down"]->Fill(obj12.M(),weight/weight_["PtEff_central"] * weight_["PtEff_down"]);
+
+			(histo_.getHisto())["template_BTagEff_VIS_up"]->Fill(obj12.M(),weight/weight_["BTagEff_central"] * weight_["BTagEff_up"]);
+			(histo_.getHisto())["template_BTagEff_VIS_down"]->Fill(obj12.M(),weight/weight_["BTagEff_central"] * weight_["BTagEff_down"]);
 		}
 	}
 	else if (JESshift_ < 0 && JERshift_ == 0){
@@ -165,6 +171,7 @@ void MssmHbbSignal::writeHistograms(){
 		if(h.first.find("template") != std::string::npos){
 			full_name = constructTemplateName(h.first);
 			if(h.first.find("VIS") != std::string::npos) outputFile_->cd("templates");
+			h.second->SetName(full_name.c_str());
 			h.second->Write(full_name.c_str());
 			outputFile_->cd("");
 		}
@@ -180,7 +187,9 @@ void MssmHbbSignal::writeHistograms(){
 const double MssmHbbSignal::assignWeight(){
 double weight = 1;
 	if(isMC()) {
+//		weight = weight_["SFb_central"] * weight_["SFl_central"];
 		weight = weight_["PtEff_central"] * weight_["PU_central"] * weight_["SFb_central"] * weight_["SFl_central"];// * weight_["Signal_Shape"];
+		weight *= weight_["BTagEff_central"];
 	}
 	//std::cout<<" weight = "<<weight<<" "<<weight_["dEta"]<<" "<<weight_["Lumi"]<<" "<<weight_["2DPt"]<<" "<<weight_["BTag"]<<" "<<weight_["PU_central"]<<" "<<weight_["SFb_central"]<<" "<<weight_["SFl_central"]<<std::endl;
 	return weight;
@@ -221,12 +230,14 @@ std::shared_ptr<tools::Collection<tools::Jet> > MssmHbbSignal::modifyJetCollecti
 	return initialJets;
 }
 
-void MssmHbbSignal::runAnalysis(const std::string &json, const std::string &output, const int &size){
-
+void MssmHbbSignal::runAnalysis(const std::string &json, const std::string &output, const bool& subranges){
+	if(TEST) std::cout<<"I'm in MssmHbbSignal::runAnalysis"<<std::endl;
 	this->SetupStandardOutputFile(output);
 	this->setupAnalysis(json);
 	std::cout<<"Total number of events: "<<this->size()<<std::endl;
-	this->makeHistograms(size);
+	this->makeHistograms(100);
+	makeM12Templates(subranges);
+
 
 	if(signalMC_){
 		for(int i = 0; i < 3 ; ++i){
@@ -241,7 +252,6 @@ void MssmHbbSignal::runAnalysis(const std::string &json, const std::string &outp
 
 			this->applySelection();
 		}
-
 		for(int i = 1; i < 3; ++i){
 			JESshift_ = 0;
 			if (i == 1){
@@ -321,3 +331,37 @@ void MssmHbbSignal::addStatErrorsTemplates(const int & nbins){
 
 }
 
+void MssmHbbSignal::makeM12Templates(const bool& subranges){
+	if(TEST) std::cout<<"I'm in MssmHbbSignal::makeM12Templates"<<std::endl;
+	if(!signalMC_) histo_.MakeM12Templates();
+	else {
+		std::size_t nbins;
+		double max;
+		double min;
+		double mass = returnMassPoint();
+		if(subranges){
+			if(mass == 300 || mass == 350 || mass == 400 || mass == 500){
+				nbins = 45;
+				min = 200;
+				max = 650;
+			}
+			else if (mass == 600 || mass == 700 || mass == 900){
+				nbins = 42;
+				min = 350;
+				max = 1190;
+			}
+			else{
+				nbins = 48;
+				min = 500.;
+				max = 1700;
+			}
+		}
+		else {
+			nbins = 73;
+			min = 200;
+			max = 1700;
+		}
+//		nbins *= 4;
+		histo_.MakeM12Templates(nbins,min,max);
+	}
+}

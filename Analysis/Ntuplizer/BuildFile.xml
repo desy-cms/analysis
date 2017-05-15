@@ -1,5 +1,6 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
+<use name="PhysicsTools/PatAlgos/producersLayer1/jetUpdater_cff"/>
 <use name="CommonTools/UtilAlgos"/>
 <use name="CommonTools/Utils"/>
 <use name="FWCore/ServiceRegistry"/>
@@ -17,6 +18,7 @@
 <use name="root"/>
 <use name="rootmath"/>
 <use name="boost" />
+<use name="JetMETCorrections/Modules"/>
 <export>
   <lib name="1"/>
 </export>

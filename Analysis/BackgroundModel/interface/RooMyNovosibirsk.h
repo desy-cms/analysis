@@ -5,6 +5,8 @@
 #include "RooRealProxy.h"
 #include "RooAbsReal.h"
 
+class RooRealVar;
+class RooAbsReal;
 
 namespace analysis {
   namespace backgroundmodel {
@@ -22,7 +24,7 @@ namespace analysis {
       inline virtual ~RooMyNovosibirsk() = default;
 
     protected:
-      double evaluate() const ;
+      Double_t evaluate() const ;
 
       RooRealProxy x_ ;
       RooRealProxy peak_ ;
@@ -37,3 +39,5 @@ namespace analysis {
 }
 
 #endif  // Analysis_BackgroundModel_RooMyNovosibirsk_h
+
+

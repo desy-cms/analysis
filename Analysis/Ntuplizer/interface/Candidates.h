@@ -77,14 +77,12 @@ namespace analysis {
             std::vector<T> candidates_;
             std::string configParameter_;
             edm::InputTag input_collection_;
-            
             std::string jecRecord_;
             std::string jecFile_;
             std::unique_ptr<JetCorrectionUncertainty> jecUnc_;
             std::string jerRecord_;
             std::string jerFile_;
             std::string jersfFile_;
-
             
             // particles kinematics for the ntuple
             int   n_;
@@ -109,7 +107,6 @@ namespace analysis {
             // Jet energy resolution and scale correction
             float jecUncert_[maxCandidates];
             edm::InputTag rho_collection_;
-            double rho_;
             float jerResolution_[maxCandidates];
             float jerSF_[maxCandidates];
             float jerSFUp_[maxCandidates];
@@ -121,6 +118,11 @@ namespace analysis {
             int status_[maxCandidates];
             bool lastcopy_[maxCandidates];
             bool higgs_dau_[maxCandidates];
+            double x1_;
+            double x2_;
+            double mHat_;
+            double rho_;
+            edm::EDGetTokenT<double> RhoToken_;
             
             // met specifics
             float sigxx_[maxCandidates];

@@ -16,7 +16,8 @@ namespace analysis {
                     RooAbsReal& x,
                     RooAbsReal& mean,
                     RooAbsReal& sigma,
-                    RooAbsReal& right);
+                    RooAbsReal& tail_shift,
+					RooAbsReal& tail_sigma);
       RooGausExp(const RooGausExp& other, const char* name=0) ;
       virtual TObject* clone(const char* newname) const;
       inline virtual ~RooGausExp() = default;
@@ -27,7 +28,8 @@ namespace analysis {
       RooRealProxy x_ ;
       RooRealProxy mean_ ;
       RooRealProxy sigma_ ;
-      RooRealProxy right_ ;
+      RooRealProxy tail_shift_ ;
+      RooRealProxy tail_sigma_ ;
 
     private:
       ClassDef(RooGausExp,1)

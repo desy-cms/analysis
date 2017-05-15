@@ -6,6 +6,7 @@
 #include <memory>
 #include <iostream>
 #include <boost/program_options.hpp>
+#include <boost/filesystem.hpp>
 #include <boost/algorithm/string/join.hpp>
 #include "TSystem.h"
 #include "TMatrixD.h"
@@ -34,6 +35,10 @@
 #include "Analysis/BackgroundModel/interface/ProbabilityDensityFunctions.h"
 #include "Analysis/BackgroundModel/interface/RooQuadGausExp.h"
 
+//style file
+#include "Analysis/MssmHbb/macros/Drawer/HbbStyle.cc"
+HbbStyle style;
+
 #include "Analysis/MssmHbb/interface/utilLib.h"
 
 // hi my name is Rostyslav and I like bananas
@@ -55,28 +60,32 @@ void setParameters(RooWorkspace& w, const RooWorkspace& central);
 
 int main(int argc, char* argv[]) {
   const auto cmsswBase = static_cast<std::string>(gSystem->Getenv("CMSSW_BASE"));
+  style.set(PRIVATE);
+  gStyle->SetTitleXOffset(1.3);
+  gStyle->SetTitleYOffset(1.15);
+  gStyle->SetTitleSize(0.04,"XYZ");
 
 	std::map<int,std::string> signal;
-	signal[700] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_chayanit-SUSYGluGluToBBHToBB_M-700_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root";
-	signal[900] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_chayanit-SUSYGluGluToBBHToBB_M-900_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root";
-	signal[1100]= "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_chayanit-SUSYGluGluToBBHToBB_M-1100_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root";
-	signal[1300]= "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_clange-SUSYGluGluToBBHToBB_M-1300_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root";
-	signal[500] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_clange-SUSYGluGluToBBHToBB_M-500_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root";
-	signal[600] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_clange-SUSYGluGluToBBHToBB_M-600_cfg_GEN_DIGI76X_RECO76X_MiniAODv2_76X-17d438ff51ec6b3cada9e499a5a978e0.root";
-	signal[200] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-200_TuneCUETP8M1_13TeV-pythia8.root";
-	signal[250] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-250_TuneCUETP8M1_13TeV-pythia8.root";
-	signal[300] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-300_TuneCUETP8M1_13TeV-pythia8.root";
-	signal[350] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-350_TuneCUETP8M1_13TeV-pythia8.root";
-	signal[400] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_lowM_SUSYGluGluToBBHToBB_M-400_TuneCUETP8M1_13TeV-pythia8.root";
+	string selection = "ReReco_35673fb";//"ReReco_36615fb_SFb";//
+	string mssm_normTanB = "_NormToTanB30";
+	signal[300] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_" + selection + "_lowM_SUSYGluGluToBBHToBB_NarrowWidth_M-300_TuneCUETP8M1_13TeV-pythia8" + mssm_normTanB + ".root";
+	signal[350] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_" + selection + "_lowM_SUSYGluGluToBBHToBB_NarrowWidth_M-350_TuneCUETP8M1_13TeV-pythia8" + mssm_normTanB + ".root";
+	signal[400] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_" + selection + "_lowM_SUSYGluGluToBBHToBB_NarrowWidth_M-400_TuneCUETP8M1_13TeV-pythia8" + mssm_normTanB + ".root";
+	signal[500] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_" + selection + "_lowM_SUSYGluGluToBBHToBB_NarrowWidth_M-500_TuneCUETP8M1_13TeV-pythia8" + mssm_normTanB + ".root";
+	signal[600] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_" + selection + "_lowM_SUSYGluGluToBBHToBB_NarrowWidth_M-600_TuneCUETP8M1_13TeV-pythia8" + mssm_normTanB + ".root";
+	signal[700] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_" + selection + "_lowM_SUSYGluGluToBBHToBB_NarrowWidth_M-700_TuneCUETP8M1_13TeV-pythia8" + mssm_normTanB + ".root";
+	signal[900] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_" + selection + "_lowM_SUSYGluGluToBBHToBB_NarrowWidth_M-900_TuneCUETP8M1_13TeV-pythia8" + mssm_normTanB + ".root";
+	signal[1100] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_" + selection + "_lowM_SUSYGluGluToBBHToBB_NarrowWidth_M-1100_TuneCUETP8M1_13TeV-pythia8" + mssm_normTanB + ".root";
+	signal[1300] = "/src/Analysis/MssmHbb/output/MssmHbbSignal_" + selection + "_lowM_SUSYGluGluToBBHToBB_NarrowWidth_M-1300_TuneCUETP8M1_13TeV-pythia8" + mssm_normTanB + ".root";
 /**/
-  const int rebin = 1;
+  int rebin = 1;
   const int verbosity = 1;
-  const double min = 0;
-  const double max = 1700;
+  double min = 0;
+  double max = 1700;
   std::string histo_name = "templates/bbH_Mbb_VIS";
   std::string histo_name_240 = "bbH_Mbb";
   //List of shape uncertainties
-  std::vector<std::string> shape_unc = {"JER","JES","PtEff"};
+  std::vector<std::string> shape_unc = {"JES","JER","PtEff","SFb"};//{};//
   map<string,int> colors;
   colors["Up"] = 4;
   colors["Down"] = 2;
@@ -86,21 +95,28 @@ int main(int argc, char* argv[]) {
   std::string model = "doublegausexp";
   RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
   for(const auto & mass : signal){
+
+	  std::cout<<"***************************************"<<std::endl;
+	  std::cout<<"*************** M = "<<mass.first<<"***************"<<std::endl;
+	  std::cout<<"***************************************"<<std::endl;
 	  TFile f((cmsswBase + mass.second).c_str(),"read");
-	  std::string name = cmsswBase + "/src/Analysis/MssmHbb/output/" + "mass_point_" + std::to_string(mass.first);
-	  std::string hname = histo_name;
+	  std::string name = cmsswBase + "/src/Analysis/MssmHbb/output/" + "ReReco_signal_M-" + std::to_string(mass.first) + mssm_normTanB;
+	  boost::filesystem::remove_all(name); // clean dir
+	  std::string hname =  histo_name_240; //histo_name;//
 	  //Central value
-	  TH1D* hSignal = (TH1D*) f.Get(histo_name.c_str());
-	  if(hSignal == nullptr) throw std::logic_error("Wrong histo name: " + histo_name + " has been provided");
-	  hSignal->Rebin(rebin);
-	  ab::FitContainer fitter(hSignal,name,"signal");
-	  fitter.fitRangeMin(min);
-	  fitter.fitRangeMax(max);
-	  fitter.verbosity(verbosity - 1);
+	  TH1D* hSignal = (TH1D*) f.Get(hname.c_str());
+	  if(hSignal == nullptr) throw std::logic_error("Wrong histo name: " + hname + " has been provided");
 	  if(mass.first == 200 || mass.first > 500){
 		  model = "bukin";
 	  }
-	  else model =  "doublegausexp";
+	  else model =  "doublegausexp";//"doublegausexp";//
+	  hSignal->Rebin(rebin);
+	  ab::FitContainer fitter(hSignal,name,"signal");
+	  min = hSignal->GetXaxis()->GetXmin();
+	  max = hSignal->GetXaxis()->GetXmax();
+	  fitter.fitRangeMin(min);
+	  fitter.fitRangeMax(max);
+	  fitter.verbosity(verbosity - 1);
 	  fitter.setModel(ab::FitContainer::Type::signal,model);
 	  RooWorkspace& wC = fitter.getWorkspace();
 	  std::unique_ptr<RooFitResult> Signalfit = fitter.FitSignal(model);
@@ -111,16 +127,26 @@ int main(int argc, char* argv[]) {
 	  fitter.Write();
 	  //Syst variation
 	  for(const auto & syst : shape_unc){
+		  std::cout<<"***************************************"<<std::endl;
+		  std::cout<<"***************"<<syst<<"***************"<<std::endl;
+		  std::cout<<"***************************************"<<std::endl;
 		for(const auto & s : sign){
-               	hname = "templates/" + histo_name_240 + "_" + CMS + "_" + syst + "_VIS_" + energy + s;
-               	TH1D* hSignal_syst = (TH1D*) f.Get(hname.c_str());
-               	if(hSignal_syst == nullptr) throw std::logic_error("Wrong histo name: " + hname + " has been provided");
-               	hSignal_syst->Rebin(rebin);
-               	ab::FitContainer fit_syst(hSignal_syst,name + "/" + syst + "_" + s,"signal");
-               	fit_syst.verbosity(verbosity - 1);
-               	fit_syst.setModel(ab::FitContainer::Type::signal,model);
-               	RooWorkspace& w = fit_syst.getWorkspace();
-               	setParameters(w,wC);
+			  std::cout<<"***************************************"<<std::endl;
+			  std::cout<<"***************"<<syst<<" : "<<s<<"***************"<<std::endl;
+			  std::cout<<"***************************************"<<std::endl;
+
+			  hname = histo_name_240 + "_" + CMS + "_" + syst + "_" + energy + s;
+//			  hname = "templates/" + histo_name_240 + "_" + CMS + "_" + syst + "_VIS_" + energy + s;
+			  TH1D* hSignal_syst = (TH1D*) f.Get(hname.c_str());
+			  if(hSignal_syst == nullptr) throw std::logic_error("Wrong histo name: " + hname + " has been provided");
+			  hSignal_syst->Rebin(rebin);
+			  ab::FitContainer fit_syst(hSignal_syst,name + "/" + syst + "_" + s,"signal");
+			  fit_syst.fitRangeMin(min);
+			  fit_syst.fitRangeMax(max);
+			  fit_syst.verbosity(verbosity - 1);
+			  fit_syst.setModel(ab::FitContainer::Type::signal,model);
+			  RooWorkspace& w = fit_syst.getWorkspace();
+			  setParameters(w,wC);
           	  if(syst == "JER") {
           		  if(model == "bukin"){
           			  fixParameters("Xp",w,wC);
@@ -160,6 +186,16 @@ int main(int argc, char* argv[]) {
           			fixParameters("tail_shift",w,wC);
           		  }
           	  }
+          	  else if (syst == "SFb"){
+          		  if(model == "bukin"){
+          			  fixParameters("Xp",w,wC);
+          			fixParameters("sigp",w,wC);
+          		  }
+          		  else{
+          			fixParameters("tail_shift",w,wC);
+          			fixParameters("mean",w,wC);
+          		  }
+          	  }
                	std::unique_ptr<RooFitResult> Signalfit_syst = fit_syst.FitSignal(model);
 
                	//Write signal normalisation
@@ -193,7 +229,7 @@ void drawSystFits(const int & mass,const std::string &syst, const std::string &o
 	RooPlot& frame = *(x.frame());
 	RooAbsPdf& PdfCentral = *(wCentral.pdf("signal"));
 	RooAbsData& dataC = *wCentral.data("signal_container");
-	dataC.plotOn(&frame,RooFit::MarkerSize(0.8),RooFit::MarkerColor(kBlack),RooFit::LineColor(kBlack),RooFit::Name("Central"));
+	dataC.plotOn(&frame,RooFit::MarkerSize(1.2),RooFit::MarkerStyle(20),RooFit::MarkerColor(kBlack),RooFit::LineColor(kBlack),RooFit::Name("Central"));
 	PdfCentral.plotOn(&frame,RooFit::Name("central_curve"),RooFit::LineColor(kBlack),RooFit::Normalization(dataC.sumEntries("1","fit_range"),RooAbsReal::NumEvent));
 
 	//down:
@@ -201,7 +237,7 @@ void drawSystFits(const int & mass,const std::string &syst, const std::string &o
 	RooWorkspace& wDown = *( (RooWorkspace*) fDown.Get("workspace"));
 	RooAbsPdf& PdfDown = *(wDown.pdf("signal"));
 	RooAbsData& dataDown = *wDown.data("signal_container");
-	dataDown.plotOn(&frame,RooFit::MarkerSize(0.8),RooFit::MarkerColor(kRed),RooFit::LineColor(kRed),RooFit::Name("Down"));
+	dataDown.plotOn(&frame,RooFit::MarkerSize(1.2),RooFit::MarkerStyle(20),RooFit::MarkerColor(kRed),RooFit::LineColor(kRed),RooFit::Name("Down"));
 	PdfDown.plotOn(&frame,RooFit::LineColor(kRed),RooFit::Name("Down_curve"),RooFit::Normalization(dataDown.sumEntries("1","fit_range"),RooAbsReal::NumEvent));
 
 	//up
@@ -209,7 +245,7 @@ void drawSystFits(const int & mass,const std::string &syst, const std::string &o
 	RooWorkspace& wUp = *( (RooWorkspace*) fUp.Get("workspace"));
 	RooAbsPdf& PdfUp = *(wUp.pdf("signal"));
 	RooAbsData& dataUp = *wUp.data("signal_container");
-	dataUp.plotOn(&frame,RooFit::MarkerSize(0.8),RooFit::MarkerColor(kBlue),RooFit::LineColor(kBlue),RooFit::Name("Up"));
+	dataUp.plotOn(&frame,RooFit::MarkerSize(1.2),RooFit::MarkerStyle(20),RooFit::MarkerColor(kBlue),RooFit::LineColor(kBlue),RooFit::Name("Up"));
 	PdfUp.plotOn(&frame,RooFit::LineColor(kBlue),RooFit::Name("Up_curve"),RooFit::Normalization(dataUp.sumEntries("1","fit_range"),RooAbsReal::NumEvent));
 
 //	TPad pad1("pad1","",0.,0.35,1,1);
@@ -219,17 +255,20 @@ void drawSystFits(const int & mass,const std::string &syst, const std::string &o
 //	pad1.Draw();
 //	pad1.cd();
 	double xmin = 0.6,ymin = 0.6,xmax = 0.9,ymax = 0.85;
-	if(mass > 900) {
+	if(mass > 900 || mass == 500) {
 		xmin = 0.25; ymin = 0.6 ; xmax = 0.45 ; ymax = 0.85;
 	}
 	TLegend leg(xmin,ymin,xmax,ymax);
 	leg.SetBorderSize(0);
 	leg.SetLineColor(0);
+	frame.SetTitle("");
 	frame.Draw();
 	leg.AddEntry(frame.findObject("Central"),"Central","pl");
 	leg.AddEntry(frame.findObject("Down"),("-2#sigma variation " + syst).c_str(),"pl");
 	leg.AddEntry(frame.findObject("Up"),("+2#sigma variation " + syst).c_str(),"pl");
 	leg.Draw();
+
+	style.drawStandardTitle();
 
 //	c.cd();
 //	TPad pad2("pad2","",0.,0.21,1,0.35);
@@ -240,7 +279,7 @@ void drawSystFits(const int & mass,const std::string &syst, const std::string &o
 //	pad2.Draw();
 //	pad2.cd();
 
-	c.Print( (output + "/plots/" + syst + ".png").c_str());
+	c.Print( (output + "/plots/" + syst + ".pdf").c_str());
 }
 
 void plotShapeParameters(const int & mass,const vector<string> &syst, const std::string &folder, const vector<string>& parameters){
@@ -256,15 +295,15 @@ void plotShapeParameters(const int & mass,const vector<string> &syst, const std:
 		RooWorkspace& wUp = *( (RooWorkspace*) fUp.Get("workspace"));
 
 		TCanvas c(("c" + s).c_str(),"c",1000,800);
-		TH1F hUp("hUp",(s + ";Shape parameters;Pull (#theta_{up/dn} - #theta_{0})/#sigma_{#theta_{0}}").c_str(),parameters.size(),0,10);
+		TH1F hUp("hUp",(";Shape parameters;Pulls, (#theta_{up/dn} - #theta_{0})/#sigma_{#theta_{0}}"),parameters.size(),0,10);
 		TH1F hDn("hDn","hDn",parameters.size(),0,10);
 		hDn.SetCanExtend(TH1::kAllAxes);
 		hUp.SetCanExtend(TH1::kAllAxes);
 		hUp.SetStats(0);
-		hUp.SetMarkerStyle(21);
+		hUp.SetMarkerStyle(20);
 		hDn.SetMarkerColor(kRed);
 		hDn.SetLineColor(kRed);
-		hDn.SetMarkerStyle(21);
+		hDn.SetMarkerStyle(20);
 		hUp.SetMarkerColor(kBlue);
 		hUp.SetLineColor(kBlue);
 		hUp.GetYaxis()->SetRangeUser(-5.,5.);
@@ -294,9 +333,10 @@ void plotShapeParameters(const int & mass,const vector<string> &syst, const std:
 		TLegend leg(xmin,ymin,xmax,ymax);
 		leg.SetBorderSize(0);
 		leg.SetLineColor(0);
-		leg.AddEntry(&hUp,"Up","pl");
-		leg.AddEntry(&hDn,"Down","pl");
+		leg.AddEntry(&hUp,(s + " Up").c_str(),"pl");
+		leg.AddEntry(&hDn,(s + " Down").c_str(),"pl");
 		leg.Draw();
+		style.drawStandardTitle();
 
 		c.Print( (folder + "/plots/delta" + s + ".pdf").c_str() );
 	}

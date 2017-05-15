@@ -92,7 +92,7 @@ void TriggerAccepts::Fill(const edm::Event& event, const edm::EventSetup & setup
    {
       for (size_t i = 0; i < paths_.size() ; ++i )
       {
-         if ( hlt_config_.triggerName(j).find(paths_[i]) == 0 )
+         if ( hlt_config_.triggerName(j).find(paths_[i]) == 0 && triggers.accept(j) )
          {
             psl1_[i] = 1.;
             pshlt_[i] = 1.;
@@ -109,6 +109,7 @@ void TriggerAccepts::Fill(const edm::Event& event, const edm::EventSetup & setup
 #endif            
             }
             if ( triggers.accept(j) ) accept_[i] = true;
+
          }
       }
    }

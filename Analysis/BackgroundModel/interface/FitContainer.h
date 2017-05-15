@@ -36,6 +36,8 @@
 #include "Analysis/BackgroundModel/interface/TreeContainer.h"
 #include "Analysis/BackgroundModel/interface/ParamModifier.h"
 #include "Analysis/BackgroundModel/interface/ProbabilityDensityFunctions.h"
+#include "Analysis/BackgroundModel/interface/RooFitQuality.h"
+#include "Analysis/Tools/interface/RooFitUtils.h"
 
 
 namespace analysis {
@@ -54,7 +56,8 @@ namespace analysis {
 
       FitContainer(const TH1* data, const TH1* signal, const TH1* background,
 		   const std::string& outputDir = defaultOutputDir_);
-      FitContainer(const TH1* data, const std::string& outputDir = defaultOutputDir_, const std::string & type = "background");
+      FitContainer(const TH1* data, const std::string& outputDir = defaultOutputDir_, const std::string & type = "data");
+//      FitContainer(const TH1* data, const std::string& outputDir = defaultOutputDir_);
       FitContainer(TTree& data, const std::string& outputDir = defaultOutputDir_);
       FitContainer(const HistContainer& container,
 		   const std::string& outputDir = defaultOutputDir_);
@@ -63,8 +66,7 @@ namespace analysis {
       virtual ~FitContainer();
       void initialize();
 
-//      FitContainer(const FitContainer&) = default;
-      FitContainer(const FitContainer& cont);
+      FitContainer(const FitContainer&) = default;
       FitContainer& operator=(const FitContainer&) = default;
       FitContainer(FitContainer&&) = default;
       FitContainer& operator=(FitContainer&&) = default;
@@ -72,21 +74,19 @@ namespace analysis {
       FitContainer& verbosity(int level);
       FitContainer& fitRangeMin(float min);
       FitContainer& fitRangeMax(float max);
+      FitContainer& setNBins(int nbins);
       RooWorkspace& getWorkspace();
 
       void setModel(const Type& type, const std::string& model);
       void setModel(const Type& type, const std::string& model,
                     const std::vector<ParamModifier>& modifiers);
-      std::unique_ptr<RooFitResult> backgroundOnlyFit(const std::string& model);
-      std::unique_ptr<RooFitResult> FitSignal(const std::string & model);
+      std::unique_ptr<RooFitResult> backgroundOnlyFit(const std::string& model, const bool& plot_params = 0);
+      std::unique_ptr<RooFitResult> FitSignal(const std::string & model, const bool& plot_params = 0);
 
       void profileModel(const Type& type);
       void showModels() const;
       void Import(const RooAbsArg& inArg);
       void Write();
-	float getChi2BkgOnly() const;
-	int getNdfBkgOnly() const;
-	float getNormChi2BkgOnly() const;
 
     private:
 
@@ -94,9 +94,7 @@ namespace analysis {
       FitContainer(const std::string& outputDir);
 
       // methods to set the fit model
-      static std::unique_ptr<RooArgList>
-      getCoefficients_(const int numCoeffs, const std::string& name);
-      double getPeakStart_(const Type& type, double max);
+      double getPeakStart_(const Type& type,const double& max);
       double getPeakStart_(const Type& type);
       double getMaxPosition_(const RooAbsData& data);
 
@@ -106,10 +104,6 @@ namespace analysis {
       std::string getOutputPath_(const std::string& subdirectory = "");
       int getNonZeroBins_(const RooAbsData& data);
       int getBlindedBins_(const RooAbsData& data, double blind_lowEdge, double blind_highEdge);
-      double chiSquare_(const RooAbsData& data, const RooCurve& fit);
-      double chiSquare_(const RooAbsData& data, const RooCurve& fit, double blind_LowEdge, double blind_HighEdge, int nFitParam);
-      // chiSquare by CA
-      double chiSquare_CA(const RooPlot& frame, const char* curvename, const char* histname, int nFitParam, double blind_lowEdge, double blind_highEdge);
       bool applyModifiers_(RooAbsPdf& pdf,
                            const std::vector<ParamModifier>& modifiers);
       void makeLog_(const RooFitResult& fitResult);
@@ -140,32 +134,22 @@ namespace analysis {
       std::string bkg_;
       float fitRangeMin_;
       float fitRangeMax_;
-      TTree bkgOnlyFit_ {};
+      TTree bkgOnlyFit_;
       float chi2BkgOnly_;
       float normChi2BkgOnly_;
       int ndfBkgOnly_;
-      double covMatrix_[100];
-      double eigenVector_[100];
+      double covMatrix_[400];
+      double eigenVector_[400];
       int nbins_;
+      float lumi_;
+      float obs_;
     };
 
     inline void FitContainer::Import(const RooAbsArg& inArg){ workspace_.import(inArg);}
     inline void FitContainer::Write(){ if(!written_) { workspace_.writeToFile(outRootFileName_.c_str()); written_ = true;}   }
     inline RooWorkspace& FitContainer::getWorkspace() {return workspace_;};
 
-inline float FitContainer::getChi2BkgOnly() const {
-	return chi2BkgOnly_;
-}
-
-inline int FitContainer::getNdfBkgOnly() const {
-	return ndfBkgOnly_;
-}
-
-inline float FitContainer::getNormChi2BkgOnly() const {
-	return normChi2BkgOnly_;
-}
-
-}
+  }
 }
 
 #endif  // Analysis_BackgroundModel_FitContainer_h

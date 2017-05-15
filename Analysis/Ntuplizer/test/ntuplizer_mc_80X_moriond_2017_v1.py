@@ -31,19 +31,18 @@ process.TFileService = cms.Service("TFileService",
 from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import updatedPatJetCorrFactors
 process.slimmedJetsCorrFactorsReapplyJEC = updatedPatJetCorrFactors.clone(
   src = cms.InputTag("slimmedJets","","PAT"),
-  levels = ['L1FastJet', 
-            'L2Relative', 
+  levels = ['L1FastJet',
+            'L2Relative',
             'L3Absolute'],
   payload = 'AK4PFchs' ) # Make sure to choose the appropriate levels and payload here!
 
 
 process.slimmedJetsPuppiCorrFactorsReapplyJEC = updatedPatJetCorrFactors.clone(
   src = cms.InputTag("slimmedJetsPuppi","","PAT"),
-  levels = ['L1FastJet', 
-            'L2Relative', 
+  levels = ['L1FastJet',
+            'L2Relative',
             'L3Absolute'],
   payload = 'AK4PFPuppi' ) # Make sure to choose the appropriate levels and payload here!
-  
 
 from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import updatedPatJets
 process.slimmedJetsReapplyJEC = updatedPatJets.clone(
@@ -67,6 +66,26 @@ process.primaryVertexFilter = cms.EDFilter("VertexSelector",
    src = cms.InputTag("offlineSlimmedPrimaryVertices"), # primary vertex collection name
    cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2"), # ndof>thr=4 corresponds to sum(track_weigths) > (thr+3)/2 = 3.5 so typically 4 good tracks
    filter = cms.bool(True),   # otherwise it won't filter the events, just produce an empty vertex collection.
+)
+
+## ===========    JET N FILTER  ==============
+process.jetCounterFilter = cms.EDFilter("CandViewCountFilter",
+    src = cms.InputTag("slimmedJetsPuppiReapplyJEC"), # new slimmed Jets
+    minNumber = cms.uint32(2),
+    )
+
+## ============ KINEMATIC JET FILTER ===============
+process.jetKinematicFilter = cms.EDFilter("kinematicJetFilter",
+    src = cms.InputTag("slimmedJetsPuppiReapplyJEC"),
+    pt = cms.vdouble(80.,80.),
+    eta = cms.vdouble(3.,3.),
+)
+
+## ============ BTAG JET FILTER ===============
+process.jetBTagFilter = cms.EDFilter("btagJetFilter",
+    src = cms.InputTag("slimmedJetsPuppiReapplyJEC"),
+    algo = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
+    btag = cms.vdouble(0.5,0.5),
 )
 
 ## ============  THE NTUPLIZER!!!  ===============
@@ -132,7 +151,7 @@ process.MssmHbb     = cms.EDAnalyzer("Ntuplizer",
                                         ),
     TriggerResults  = cms.VInputTag(cms.InputTag("TriggerResults","","HLT")),
     TriggerPaths    = cms.vstring  (
-    ## I recommend using the version number explicitly to be able to compare 
+    ## I recommend using the version number explicitly to be able to compare
     ## however for production one has to be careful that all versions are included.
     ## Thinking of a better solution...
                                   'HLT_DoubleJetsC100_DoubleBTagCSV_p014_DoublePFJetsC100MaxDeta1p6_v',
@@ -221,7 +240,7 @@ process.p = cms.Path(
 
 
 readFiles = cms.untracked.vstring()
-secFiles = cms.untracked.vstring() 
+secFiles = cms.untracked.vstring()
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 readFiles.extend( [
        '/store/mc/RunIISummer16MiniAODv2/QCD_Pt_170to300_TuneCUETP8M1_13TeV_pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1/50000/02D7719D-01B5-E611-A239-A0000420FE80.root',
@@ -230,4 +249,3 @@ readFiles.extend( [
 
 secFiles.extend( [
                ] )
-

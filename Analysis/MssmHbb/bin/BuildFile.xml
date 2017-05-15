@@ -1,5 +1,7 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
+<use name="CondFormats/BTauObjects"/>
+<use name="CondTools/BTau"/>
 <use name="root"/>
 <use name="rootmath"/>
 <use name="rootgraphics"/>
@@ -13,6 +15,39 @@
 <flags   LDFLAGS="-lCore -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lz -pthread -lm -ldl -lboost_program_options -rdynamic "/>
 <bin   name="AllInOneTool" file="AllInOneTool.cpp" />
 <bin   name="FitSignalModel" file="FitSignalModel.cc" />
-<bin   name="PlotLimit" file="PlotLimit.C" />
 <bin   name="prepParamWorkspace" file="prepParamWorkspace.cpp" />
 <bin   name="fitter" file="fitter.cpp" />
+<bin   name="mssm_2hdm_comp" file="../macros/2HDM/mssm_2hdm_comp.cpp" />
+<bin   name="thdm_tanB_vs_mA" file="../macros/2HDM/thdm_tanB_vs_mA.cpp" />
+<bin   name="thdm_sinB_A" file="../macros/2HDM/thdm_sinB_A.cpp" />
+<bin   name="thdm_BRs_f_mA_tanB" file="../macros/2HDM/thdm_BRs_f_mA_tanB.cpp" />
+<bin   name="thdm_BRs_f_sinB_A_tanB" file="../macros/2HDM/thdm_BRs_f_sinB_A_tanB.cpp" />
+<bin   name="Unitarity_Stability_Perturbativity" file="../macros/2HDM/Unitarity_Stability_Perturbativity2.cpp" />
+<bin   name="A_GxBR" file="../macros/2HDM/types_comparison/A_GxBR.cpp" />
+<bin   name="A_BR" file="../macros/2HDM/types_comparison/A_BR.cpp" />
+#<bin   name="signalEfficiencyStudy" file="signalEfficiencyStudy.cpp" />
+<bin   name="HbbLimits_test" file="../test/HbbLimits_test.cpp" />
+#<bin   name="PlotLimit" file="PlotLimit.C" />
+<bin   name="mssm_2hdm_xsection" file="../macros/2HDM/mssm_2hdm_xsection.cpp" />
+<bin   name="SFb_comparison"  file = "../macros/BTag_performance/SFb_comparison.cpp" />
+<bin   name="mssm_xs_uncertainty" file="../macros/results_interpretation/MSSM/uncertainties/mssm_xs_uncertainty.cpp" />
+<bin   name="fitbbnb" file="../test/FitBBnB.cpp" />
+<bin   name="Bias_study_binned" file="../macros/test_chayanit/Bias_study_binned.C" ></bin>
+<bin   name="addSignalBias" file="addSignalBias.cpp" > </bin>
+<bin   name="normToTanB30"  file="../macros/signal/normToTanB30.cpp"></bin>
+<bin   name="CheckCombLimits7p8" file="../macros/signal/8TeV/CheckCombLimits7p8.cpp"></bin>
+<bin   name="normPDFsToTanB30"  file="../macros/signal/normPDFsToTanB30.cpp"></bin>
+
+#Limits
+<bin   name="plotTanBetaLimits" 		file="../macros/limits/plotTanBetaLimits.cpp"></bin>
+<bin   name="Plot2HDM_cosBA_tanB" 		file="../macros/limits/Plot2HDM_cosBA_tanB.cpp"></bin>
+<bin   name="Plot2HDM_mA_tanB" 			file="../macros/limits/Plot2HDM_mA_tanB.cpp"></bin>
+<bin   name="Plot2HDM_2D" 				file="../macros/limits/Plot2HDM_2D.cpp"></bin>
+
+#data vs mc
+<bin   name="FlavourContamination"		file="../macros/FlavourContamination_2b.cpp"></bin>
+
+#Background and Bias
+<bin   name="Bias_study_binned"         file="Bias_study_binned.cpp"></bin>
+<bin   name="FitBG_study"				file="FitBG_study.cpp"></bin>
+<bin   name="FitTestDraw"				file="../macros/Background/FitTest.cpp"></bin>

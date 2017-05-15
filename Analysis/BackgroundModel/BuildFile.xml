@@ -1,14 +1,19 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
+<use name="CondFormats/BTauObjects"/>
+<use name="CondTools/BTau"/>
 <use name="root"/>
 <use name="rootmath"/>
 <use name="rootgraphics"/>
-<use name="roofit"/>
 <use name="boost" />
-
+<use name="roofit" />
+<use name="Analysis/Tools"/>
+<use name="boost_program_options" />
 <export>
   <lib name="1"/>
 </export>
-
+<export>
+  <lib name="1"/>
+</export>
 <flags CPPDEFINES="_GLIBXX_DEBUG_PEDANTIC=1"/>
 <flags CXXFLAGS="-Werror -Wextra -Wall -Wpointer-arith -Wcast-align -Wwrite-strings -Wcast-qual -Wunreachable-code -Winit-self -ftrapv"/>

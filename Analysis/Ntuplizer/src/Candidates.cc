@@ -54,6 +54,8 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include "JetMETCorrections/Modules/interface/JetResolution.h"
+
 #include "TTree.h"
 
 
@@ -335,8 +337,6 @@ void Candidates<T>::Kinematics()
             jerSFUp_[n]       = -1;
             jerSFDown_[n]     = -1;
          }         
-         
-         
       }
       if ( is_pfjet_ )
       {
@@ -493,7 +493,6 @@ void Candidates<T>::Fill(const edm::Event& event, const edm::EventSetup& setup)
       rho_ = *(rhoHandler.product());
             
    }
-      
    Fill(event);
 }
 

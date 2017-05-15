@@ -33,7 +33,7 @@
 
 #include "Analysis/MssmHbb/interface/Weights.h"
 #include "Analysis/MssmHbb/interface/Histograms.h"
-#include "Analysis/MssmHbb/interface/BTagCalibrationStandalone.h"
+#include "Analysis/MssmHbb/interface/BTagScaleFactor.h"
 #include "Analysis/MssmHbb/interface/utilLib.h"
 
 #include "Analysis/MssmHbb/interface/CutFlow.h"
@@ -41,7 +41,6 @@
 
 //TODO: Add template arguments to unique_ptr depending on the TH type
 typedef std::unique_ptr<TFile> pTFile;
-typedef std::unique_ptr<BTagCalibrationReader> pSFReader;
 
 namespace analysis{
 	namespace mssmhbb{
@@ -72,28 +71,13 @@ namespace analysis{
         // virtual method that create histogrmas
         virtual void makeHistograms(const int &size = 100);
         //Create standart output file name
-        void SetupStandardOutputFile(const std::string & outputFileName = "");
+        virtual void SetupStandardOutputFile(const std::string & outputFileName = "");
         void createOutputFile(const std::string &name );
 
         const virtual bool OnlineSelection(const analysis::tools::Jet &fLeadOfflineJet,const analysis::tools::Jet &sLeadOfflineJet);
 
         //write histograms and close the output file.
         virtual void writeHistograms();
-
-        struct ScaleFactor{
-        	ScaleFactor() : central(0), up(0), down (0), flavour(-100) {};
-        	ScaleFactor(const double & centr, const double & upper, const double & lower, const int & flav) :
-        		central(centr),
-        		up(upper),
-        		down(lower),
-				flavour(flav) {};
-        	~ScaleFactor(){};
-        	void clear(){central = -100, up = -100, down = -100, flavour = -100;}
-        	double 	central{};
-        	double 	up{};
-        	double 	down{};
-        	int		flavour{};
-        };
 
         //Return std::vector that contains names of all trigger objects
         std::vector<std::string> getTriggerObjectNames();
@@ -134,6 +118,10 @@ namespace analysis{
 //        const virtual bool leadingJetSelection(const int & iJet, const tools::Jet & Jet);
         const virtual bool leadingJetSelection(const std::shared_ptr<tools::Collection<tools::Jet> > & offlineJets);
 
+//        Method to combine BTag SFs from different jets:
+        virtual void combineBTagSFs(const std::array<BTagScaleFactor::ScaleFactor,3>& sf);
+        virtual void combineBTagSFs(const std::array< std::vector<BTagScaleFactor::ScaleFactor> , 3 >& sf, const std::vector<double>& lumis, const double& lumi_tot);
+
         void Ht(const double & Ht);
         const double & Ht();
 
@@ -155,6 +143,7 @@ namespace analysis{
         double mHat_ = 0;
 
         std::unique_ptr<Weights> pWeight_;
+        BTagScaleFactor BTagLib_;
         std::map<std::string,TH1D *>  hCorrections1D_;
         std::map<std::string,TH2D *>  hCorrections2D_;
         //Signal xsections
@@ -163,13 +152,9 @@ namespace analysis{
 	private:
 
         std::map<std::string,pTFile> fCorrections_;
-        std::map<std::string,pSFReader > SFb_;
-        std::unique_ptr<BTagCalibration> BTagCalibrationLib_;
 
         double Ht__{};
 
-        //Scale Factors calculation
-        const ScaleFactor calculateBTagSF(const tools::Jet & jet,const int & op);
         //mHat calculation
         const double mHat();
         //Setup xsections

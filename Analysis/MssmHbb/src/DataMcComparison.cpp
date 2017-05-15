@@ -6,6 +6,9 @@
  */
 
 #include "Analysis/MssmHbb/interface/DataMcComparison.h"
+#include <boost/filesystem.hpp>
+
+namespace fs = boost::filesystem ;
 
 using namespace analysis;
 using namespace analysis::tools;
@@ -19,24 +22,24 @@ DataMcComparison::DataMcComparison(const std::string & inputFilelist, const doub
 	nJets_ = njets;
 	JESshift_ = 0;
 	JERshift_ = 0;
-	if(lowM){
-		triggerLogicName_ = "HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v";
-		triggerObjectName_ = {"hltL1sL1DoubleJetC100","hltDoubleJetsC100","hltDoublePFJetsC100","hltDoubleBTagCSV0p9","hltDoublePFJetsC100MaxDeta1p6"};
-		pt1_ = 100.; pt2_ = 100.; pt3_ = 40;
-		eta1_ = 2.2; eta2_ = 2.2; eta3_ = 2.2;
-        	btag1_ = 0.8; btag2_ = 0.8; btag3_ = 0.8;
-		btagOP1_ = 1; btagOP2_ = 1; btagOP3_ = 1;
-		dR_ = 1; dEta_ = 1.55; mHat_ = 0.7;
-	}
-	else {
-		triggerLogicName_ = "HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v";
-		triggerObjectName_ = {"hltL1sL1DoubleJetC100","hltDoubleJetsC100","hltDoubleBTagCSV0p85","hltDoublePFJetsC160"};
-		pt1_ = 160.; pt2_ = 160.; pt3_ = 40;
-                eta1_ = 2.2; eta2_ = 2.2; eta3_ = 2.2;
-                btag1_ = 0.8; btag2_ = 0.8; btag3_ = 0.8;
-                btagOP1_ = 1; btagOP2_ = 1; btagOP3_ = 1;
-                dR_ = 1; dEta_ = 100.; mHat_ = 0.7;
-	}
+    if(lowM){
+    	triggerLogicName_ = "HLT_DoubleJetsC100_DoubleBTagCSV_p014_DoublePFJetsC100MaxDeta1p6_v";
+    	triggerObjectName_ = {"hltL1sDoubleJetC100","hltDoubleJetsC100","hltBTagCaloCSVp014DoubleWithMatching","hltDoublePFJetsC100","hltDoublePFJetsC100MaxDeta1p6"};
+    	pt1_ = 100.; pt2_ = 100.; pt3_ = 40;
+    	eta1_ = 2.2; eta2_ = 2.2; eta3_ = 2.2;
+    	btag1_ = 0.8484; btag2_ = 0.8484; btag3_ = 0.8484;
+    	btagOP1_ = 1; btagOP2_ = 1; btagOP3_ = 1;
+    	dR_ = 1; dEta_ = 1.55; mHat_ = 0.7;
+    }
+    else {
+    	triggerLogicName_ = "HLT_DoubleJetsC100_DoubleBTagCSV_p026_DoublePFJetsC160_v";
+    	triggerObjectName_ = {"hltL1sDoubleJetC100","hltDoubleJetsC100","hltBTagCaloCSVp026DoubleWithMatching","hltDoublePFJetsC160"};
+    	pt1_ = 160.; pt2_ = 160.; pt3_ = 40;
+    	eta1_ = 2.2; eta2_ = 2.2; eta3_ = 2.2;
+    	btag1_ = 0.8484; btag2_ = 0.8484; btag3_ = 0.8484;
+    	btagOP1_ = 1; btagOP2_ = 1; btagOP3_ = 1;
+    	dR_ = 1; dEta_ = 100.; mHat_ = 0.7;
+    }
 }
 
 DataMcComparison::~DataMcComparison() {
@@ -136,6 +139,16 @@ void DataMcComparison::fillHistograms(const std::shared_ptr<Collection<Jet> > &o
 			variation = "down";
 			syst_weight = weight/weight_["SFl_central"] * weight_["SFl_down"];
 			histoToFill(syst,variation,syst_weight);
+
+			//Online BTag
+			syst = "_OnlBTag_";
+			variation = "up";
+			syst_weight = weight/weight_["BTagEff_central"] * weight_["BTagEff_up"];
+			histoToFill(syst,variation,syst_weight);
+
+			variation = "down";
+			syst_weight = weight/weight_["BTagEff_central"] * weight_["BTagEff_down"];
+			histoToFill(syst,variation,syst_weight);
 		}
 	}
 	else if (JESshift_ < 0 && JERshift_ == 0){
@@ -172,7 +185,7 @@ void DataMcComparison::runAnalysis(const std::string &json, const std::string &o
 	this->setupAnalysis(json);
 	std::cout<<"Total number of events: "<<this->size()<<std::endl;
 	this->makeHistograms(size);
-	if(isMC()){
+/*	if(isMC()){
 		for(int i = 0; i < 3 ; ++i){
 		JERshift_ = 0;
 		if(i==0) JESshift_ = 0;
@@ -196,7 +209,7 @@ void DataMcComparison::runAnalysis(const std::string &json, const std::string &o
 			this->applySelection();
 		}
 	}
-	else
+	else */
 		this->applySelection();
 
 	this->writeHistograms();
@@ -219,9 +232,10 @@ const double DataMcComparison::assignWeight(){
 	std::string file_name = outputFile_->GetName();
 	if(isMC()) {
 		weight = weight_["PtEff_central"] * weight_["PU_central"] * weight_["SFb_central"] * weight_["SFl_central"];
-//		if(file_name.find("madgraphMLM") != std::string::npos){
-			weight = weight * weight_["Ht"];
-//		}
+		weight *= weight_["BTagEff_central"];
+		if(file_name.find("madgraphMLM") != std::string::npos){
+//			weight = weight * weight_["Ht"];
+		}
 	}
 	return weight;
 }
@@ -246,7 +260,7 @@ void DataMcComparison::histoToFill(const std::string & syst, const std::string &
 	(histo_.getHisto())["jet_b_btag_cmva2"+syst+variation]->Fill(jet2_.btag("btag_csvmva"),weight);
 
 	(histo_.getHisto())["jet_b_deta12"+syst+variation]->Fill(jet1_.eta() - jet2_.eta(),weight);
-	(histo_.getHisto())["jet_b_dphi12"+syst+variation]->Fill(jet1_.phi() - jet2_.phi(),weight);
+	(histo_.getHisto())["jet_b_dphi12"+syst+variation]->Fill(  acos(cos(jet1_.phi() - jet2_.phi())) ,weight);
 
 	(histo_.getHisto())["jet_b_dR12"+syst+variation]->Fill(jet1_.deltaR(jet2_),weight);
 
@@ -267,8 +281,8 @@ void DataMcComparison::histoToFill(const std::string & syst, const std::string &
 		(histo_.getHisto())["jet_b_dR13"+syst+variation]->Fill(jet1_.deltaR(jet3_),weight);
 		(histo_.getHisto())["jet_b_deta13"+syst+variation]->Fill(jet1_.eta()-jet3_.eta(),weight);
 		(histo_.getHisto())["jet_b_deta23"+syst+variation]->Fill(jet2_.eta()-jet3_.eta(),weight);
-		(histo_.getHisto())["jet_b_dphi13"+syst+variation]->Fill(jet1_.phi() - jet3_.phi(),weight);
-		(histo_.getHisto())["jet_b_dphi23"+syst+variation]->Fill(jet2_.phi() - jet3_.phi(),weight);
+		(histo_.getHisto())["jet_b_dphi13"+syst+variation]->Fill( acos(cos(jet1_.phi() - jet3_.phi())),weight);
+		(histo_.getHisto())["jet_b_dphi23"+syst+variation]->Fill( acos(cos(jet2_.phi() - jet3_.phi())),weight);
 
 	}
 
@@ -399,4 +413,22 @@ void DataMcComparison::writeHistograms(){
 		outputFile_->cd("");
 	}
 	outputFile_->Close();
+}
+
+void DataMcComparison::SetupStandardOutputFile(const std::string & outputFileName){
+
+		//get the full file name and path from the Tree
+		std::string fullName = fs::basename(inputFilelist_);
+		std::string outputName = baseOutputName_;
+		if(outputFileName != "") outputName+="_"+outputFileName;
+		if(lowM_) outputName += "_lowM_";
+		else {outputName += "_highM_";}
+
+
+		outputName += fullName;// + ".root";
+		this->createOutputFile(outputName);
+//	else{
+//		this->createOutputFile(outputFileName);
+//	}
+
 }

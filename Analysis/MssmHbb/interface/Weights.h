@@ -9,6 +9,7 @@
 #define MSSMHBB_SRC_WEIGHTS_H_
 
 #include <iostream>
+#include <utility>
 
 class Weights {
 
@@ -27,6 +28,9 @@ public:
 	//Systematics for pT trigger efficiency:
 	double PtTriggerEfficiency(const double &pt, const double &eta);
 
+	//Systematics for pT trigger efficiency:
+	std::pair<double,double> BTagTriggerEfficiency(const double &pt, const double& lumi_data);
+
 	// 2D Pt trigger Efficiency weight
 	double TwoDPtWeight(TH2 *histo, const double &pt1, const double &pt2);
 
@@ -38,7 +42,7 @@ public:
 	double BTagWeight(TH2 * pt_eta, const double & pt, const double & eta);
 
 	// PileUp weight
-	double PileUpWeight(TH1 * data, TH1 * mc, const double &NTruePileUpMC);
+	double PileUpWeight(TH1& data, TH1& mc, const double & NTruePileUpMC);
 	double PileUpWeight(TH1 * data, const double & N_mc, const double &NTruePileUpMC);
 //	double PileUpWeight(TH1 * data, TH1 * mc);																	// Could be used after the first call
 
@@ -47,6 +51,11 @@ public:
 
 	// Luminosity normalisation
 	double LumiWeight(const double & data_lumi, const double & mc_lumi);
+
+	//Experimental weights
+	double dRWeight(const double& dR);
+	double M12Weight(const double& m12);
+	double Ht_bbxWeight(TH1& h, const double& Ht);
 
 private:
 	const bool lowM_;

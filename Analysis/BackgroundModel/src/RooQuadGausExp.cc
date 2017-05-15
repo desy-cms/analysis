@@ -76,6 +76,7 @@ double RooQuadGausExp::evaluate() const {
 	double resultR = gR;
 	double norm    = w;
 	double exp = norm*TMath::Exp(-aexp);
+//	double exp = norm*TMath::Exp(-aexp*aexp*0.5);
 
 	double result = resultL;
 	if (x_>mean_)

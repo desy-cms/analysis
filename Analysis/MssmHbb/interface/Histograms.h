@@ -27,6 +27,7 @@
 		virtual ~Histograms();
 
 		void Make(const int &size = 100, const bool & lowM = true);
+		void MakeM12Templates(const std::size_t& nbins = 75, const double& xmin = 200, const double& xmax = 1700);
 
 //        struct Systematics{
 //			Systematics() : central(0), up(0), down (0) {};

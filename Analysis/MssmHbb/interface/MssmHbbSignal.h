@@ -42,9 +42,11 @@ namespace analysis{
 				//Overwrite writeHistograms method
 				void writeHistograms();
 				//Overwrite runner
-				void runAnalysis(const std::string &json, const std::string &output = "", const int &size = 100);
+				void runAnalysis(const std::string &json, const std::string &output = "", const bool& subranges = true);
 				//Calculate Signal Efficiency
 				void signalEfficiency();
+				// Make M12 templates according to the Mass point (2016 analysis)
+				void makeM12Templates(const bool& subranges);
 
 
 			protected:

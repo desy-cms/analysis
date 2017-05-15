@@ -194,12 +194,12 @@ void MssmHbb::cleanVariables(){
 		qc_ = 0;
 
                 mHat_ = -100;
-                if(isSignalMc()) {
-                double p_prot = 13000. /2.;
-                double p1 = this->pdf().x.first * p_prot;
-                double p2 = this->pdf().x.second * p_prot;
-                mHat_ = std::sqrt((p1+p2)*(p1+p2) - (p1-p2)*(p1-p2));
-                }
+//                if(isSignalMc()) {
+//                double p_prot = 13000. /2.;
+//                double p1 = this->pdf().x.first * p_prot;
+//                double p2 = this->pdf().x.second * p_prot;
+//                mHat_ = std::sqrt((p1+p2)*(p1+p2) - (p1-p2)*(p1-p2));
+//                }
 	}
 }
 
