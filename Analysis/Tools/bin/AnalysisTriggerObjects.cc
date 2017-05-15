@@ -44,14 +44,14 @@ int main(int argc, char * argv[])
    // Get cross section
    analysis.crossSections("MssmHbbTrigger/Metadata/CrossSections");
    
-   double crossSection = analysis.crossSection();
+   //double crossSection = analysis.crossSection();
    
    // Analysis of events
    std::cout << "This analysis has " << analysis.size() << " events" << std::endl;
    
    int nSelected = 0;
    int nTotal = genFilter.filtered;
-   float genFilterEfficiency = genFilter.efficiency;
+   //float genFilterEfficiency = genFilter.efficiency;
    for ( int i = 0 ; i < analysis.size() ; ++i )
    {
       analysis.event(i);
