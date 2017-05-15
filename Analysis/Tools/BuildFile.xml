@@ -1,6 +1,7 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="root"/>
+<use name="roofit"/>
 <use name="rootmath"/>
 <use name="rootgraphics"/>
 <use name="boost" />
