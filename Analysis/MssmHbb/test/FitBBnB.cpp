@@ -25,9 +25,9 @@ int main(int argc, char **argv) {
 	style.set(PRIVATE);
 
 	const string cmsswBase = gSystem->Getenv("CMSSW_BASE");
-	const string selection = "bbx_ReReco_35673fb_M12Rew_lowM_Run2016.root";
+	const string selection = "bbx_ReReco_35673fb_lowM_Run2016.root";
 	string output_name = "../test/test_bg_fit";
-	bool rew = true;
+	bool rew = false;
 	TFile f( (cmsswBase + "/src/Analysis/MssmHbb/output/" + selection).c_str(),"read");
 	string histo_name = "general/diJet_m";
 
