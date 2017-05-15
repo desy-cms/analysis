@@ -363,19 +363,23 @@ int corelation(){
 	TwoDEff_Num->SaveAs("../pictures/TriggerPerformance_2DEff_PF80_PF100_LowM.pdf");
 //	TwoDEff_Num->Write();
 
-
+*/
 	auto dEtaCan = new TCanvas("dEtaCan","dEta Trig Eff",1000,800);
 	style.standardTitle(PRIVATE);
 
-	TH1D *dEtaEff = (TH1D*) fDataLowM->Get("TriggerEfficiencies/KinTrigEff_1D_PF60_PF100_dEta");
+	TH1D *dEtaEff_Num = (TH1D*) fDataLowM->Get("TriggerEfficiencies/KinTrigEff_Num_1D_PF60_PF100_dEta");
+	TH1D *dEtaEff_Den = (TH1D*) fDataLowM->Get("TriggerEfficiencies/KinTrigEff_Den_1D_PF60_PF100_dEta");
+        TEfficiency *dEtaEff = new TEfficiency(*dEtaEff_Num,*dEtaEff_Den);
+//	TH1D *dEtaEff = (TH1D*) fDataLowM->Get("TriggerEfficiencies/KinTrigEff_1D_PF60_PF100_dEta");
+	dEtaEff->Draw("AP");
 	dEtaEff->SetMarkerStyle(20);
 
-	TF1 *fitEta = new TF1("fitEta",finaleFunction,0,2.5,4);
-	fitEta-> SetParameters(-1.15698e+02,1.59862e+00,9.93479e-02,-4.49790e+01);
-	auto ratiodEta = (TH1D*) ratio.DrawRatio(dEtaEff,fitEta,"Fit:",dEtaCan);
-	ratiodEta->Draw();
-	dEtaCan->SaveAs("../pictures/TriggerPerformance_dEtaEff_lowM.pdf");
-
+//	TF1 *fitEta = new TF1("fitEta",finaleFunction,0,2.5,4);
+//	fitEta-> SetParameters(-1.15698e+02,1.59862e+00,9.93479e-02,-4.49790e+01);
+//	auto ratiodEta = (TH1D*) ratio.DrawRatio(dEtaEff,fitEta,"Fit:",dEtaCan);
+//	ratiodEta->Draw();
+	dEtaCan->SaveAs("../pictures/TriggerPerformance/dEtaEff_lowM.pdf");
+/*
 
 
 	//............................	HIGH M ....................................
