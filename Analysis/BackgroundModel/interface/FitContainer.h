@@ -37,6 +37,7 @@
 #include "Analysis/BackgroundModel/interface/ParamModifier.h"
 #include "Analysis/BackgroundModel/interface/ProbabilityDensityFunctions.h"
 #include "Analysis/BackgroundModel/interface/RooFitQuality.h"
+#include "Analysis/Tools/interface/RooFitUtils.h"
 
 
 namespace analysis {
@@ -93,9 +94,7 @@ namespace analysis {
       FitContainer(const std::string& outputDir);
 
       // methods to set the fit model
-      static std::unique_ptr<RooArgList>
-      getCoefficients_(const int numCoeffs, const std::string& name);
-      double getPeakStart_(const Type& type, double max);
+      double getPeakStart_(const Type& type,const double& max);
       double getPeakStart_(const Type& type);
       double getMaxPosition_(const RooAbsData& data);
 
@@ -105,10 +104,6 @@ namespace analysis {
       std::string getOutputPath_(const std::string& subdirectory = "");
       int getNonZeroBins_(const RooAbsData& data);
       int getBlindedBins_(const RooAbsData& data, double blind_lowEdge, double blind_highEdge);
-      double chiSquare_(const RooAbsData& data, const RooCurve& fit);
-      double chiSquare_(const RooAbsData& data, const RooCurve& fit, double blind_LowEdge, double blind_HighEdge, int nFitParam);
-      // chiSquare by CA
-      double chiSquare_CA(const RooPlot& frame, const char* curvename, const char* histname, int nFitParam, double blind_lowEdge, double blind_highEdge);
       bool applyModifiers_(RooAbsPdf& pdf,
                            const std::vector<ParamModifier>& modifiers);
       void makeLog_(const RooFitResult& fitResult);

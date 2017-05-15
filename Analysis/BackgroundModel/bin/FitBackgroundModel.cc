@@ -52,10 +52,9 @@ int main(int argc, char* argv[]) {
      "[constant,] [floating]\"")
     ;
   po::variables_map vm;
+//  po::store(po::command_line_parser( argc, argv ).options(cmdLineOptions).run(), vm);
   po::store(po::command_line_parser(argc, argv).options(cmdLineOptions)
             .allow_unregistered().run(), vm);
-  po::notify(vm);
-
 
   // now add required options
   po::options_description requiredOptions("Required arguments");
@@ -67,10 +66,13 @@ int main(int argc, char* argv[]) {
     ;
   po::store(po::command_line_parser(argc, argv).options(requiredOptions)
             .allow_unregistered().run(), vm);
+//  po::store(po::command_line_parser(argc, argv).options(requiredOptions).run(), vm);
 
 
   po::options_description allOptions("Allowed arguments");
   allOptions.add(cmdLineOptions).add(requiredOptions);
+
+  po::notify(vm);
 
   // check for help flag before checking for required options
   if (vm.count("help")) {

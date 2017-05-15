@@ -1,9 +1,23 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="CondFormats/BTauObjects"/>
+<use name="CondTools/BTau"/>
+<use name="root"/>
+<use name="rootmath"/>
+<use name="rootgraphics"/>
+<use name="roofit" />
+<use name="boost" />
+<use name="Analysis/Tools" />
+<use name="Analysis/MssmHbb" />
+<use name="Analysis/BackgroundModel" />
+<export>
+  <lib name="1"/>
+</export>
 <flags CPPDEFINES="_GLIBXX_DEBUG_PEDANTIC=1"/>
 <flags CXXFLAGS="-Werror -Wextra -Wall -Wpointer-arith -Wcast-align -Wwrite-strings -Wcast-qual -Wunreachable-code -Winit-self -ftrapv"/>
-
-<use name="boost_program_options" />
-<use name="Analysis/BackgroundModel" />
+<flags   LDFLAGS="-lCore -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lz -pthread -lm -ldl -lboost_program_options -rdynamic "/>
 
 <bin name="FitBackgroundModel" file="FitBackgroundModel.cc" />
 <bin name="CreateInput_13TeV" file="CreateInput_13TeV.cc" />
 <bin name="Prob" file="ProbabilityDensityFunctions_test.C" />
+<bin name="FTest"file="../test/FTest_test.cpp" />

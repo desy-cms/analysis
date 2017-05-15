@@ -249,7 +249,7 @@ void FitContainer::initialize() {
   gSystem->Exec((std::string("rm -f "+workspaceDir_+"*").c_str()));
 
   // set range used for normalization of the pdf and a default fit range:
-  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
+  auto& mbb = *GetFromRooWorkspace<RooRealVar>(workspace_, mbb_);
   mbb.setRange(fullRangeId_.c_str(), mbb.getMin(), mbb.getMax());
   mbb.setRange(fitRangeId_.c_str(), fitRangeMin_, fitRangeMax_);
 
@@ -261,7 +261,7 @@ void FitContainer::initialize() {
   // set fit bins
   mbb.setBins(nbins_);
   // plot the input data:
-  RooAbsData& data = *workspace_.data(data_.c_str());
+  auto& data = *GetFromRooWorkspace<RooAbsData>(workspace_,data_);
   std::unique_ptr<RooPlot> frame(mbb.frame());
   data.plotOn(frame.get(),RooFit::DataError(RooAbsData::Auto));
   TCanvas canvas("canvas", "", 600, 600);
@@ -275,6 +275,7 @@ void FitContainer::initialize() {
   frame->Draw();
   canvas.SaveAs((plotDir_+"input_data_log.pdf").c_str());
   // initialize background-only fit result tree:
+  //TODO: why TTree and TTree branches should be members of the class? Cna this be avoid?
   bkgOnlyFit_.Branch("chi2", &chi2BkgOnly_, "chi2/F");
   bkgOnlyFit_.Branch("normChi2", &normChi2BkgOnly_, "normChi2/F");
   bkgOnlyFit_.Branch("ndf", &ndfBkgOnly_, "ndf/I");
@@ -309,51 +310,40 @@ void FitContainer::setModel(const Type& type, const std::string& name,
 }
 
 std::unique_ptr<RooFitResult> FitContainer::FitSignal(const std::string & name, const bool& plot_params) {
+	/*
+	 * Method to fit signal templates
+	 */
 	if(!initialized_) initialize();
+	auto &Pdf 		= *GetFromRooWorkspace<RooAbsPdf>(workspace_,toString(Type::signal));
+	auto &data 	= *GetFromRooWorkspace<RooAbsData>(workspace_,signal_);
+	auto &mbb		= *GetFromRooWorkspace<RooRealVar>(workspace_, mbb_);
+	RooFit::SumW2Error(kTRUE);
 
-	RooAbsPdf& Pdf = *(workspace_.pdf(toString(Type::signal).c_str()));
-	if(&Pdf == nullptr){
-		throw std::logic_error("No signal model has been set.");
-	}
-	RooAbsData &signal = *workspace_.data(signal_.c_str());
-	RooRealVar& mbb = *workspace_.var(mbb_.c_str());
+	//class-helper
+	RooFitQuality fit_quality;
 
-	// Split Range for blinded data and perform simultaneous fit by CA
-	std::unique_ptr<RooFitResult> fitResult(Pdf.fitTo(signal,
-//			RooFit::NumCPU(9),
+	// Split Range for blinded data and perform simultaneous fit
+	std::unique_ptr<RooFitResult> fitResult(Pdf.fitTo(data,
 			RooFit::Save(),
 			RooFit::PrintLevel(verbosity_),
-//			RooFit::Range(fitSplRangeId_.c_str()),
 			RooFit::SumW2Error(kTRUE),
-//			RooFit::SplitRange()
-//			RooFit::Minimizer("Minuit2"),
 			RooFit::InitialHesse(kTRUE)
-//			RooFit::Minos(kTRUE)
 	));
 
-	  std::cout << "\nconstant parameters:" << std::endl;
-	  fitResult->constPars().Print("v");
-	  std::cout << "\nfloating parameters (init):" << std::endl;
-	  fitResult->floatParsInit().Print("v");
-	  std::cout << "\nfloating parameters (final):" << std::endl;
-	  fitResult->floatParsFinal().Print("v");
-	  //Create log file:
-	  makeLog_(*fitResult);
+	//INformation about pre- post-fit parametrs
+	fit_quality.PrintParametersInfo(*fitResult);
+	//Create log file:
+	makeLog_(*fitResult);
 
 	  // Top frame
 	  std::unique_ptr<RooPlot> frame(mbb.frame());
-	  signal.plotOn(frame.get(), RooFit::MarkerSize(0.8), RooFit::Name("data_points"));
+	  data.plotOn(frame.get(), RooFit::MarkerSize(0.8), RooFit::Name("data_points"));
 	  Pdf.plotOn(frame.get(),
-	  	     //RooFit::VisualizeError(*fitResult,1,kFALSE),
-	               //RooFit::DrawOption("L"),
 	               RooFit::LineColor(kRed),
-	               //RooFit::LineWidth(2),
-	  	     //RooFit::LineStyle(kDashed),
-	  	     //RooFit::FillColor(kOrange),
 	               RooFit::Name("signal_curve"),
 	               RooFit::NormRange(fullRangeId_.c_str()),
 	               RooFit::Range(fitRangeId_.c_str()),
-	               RooFit::Normalization(signal.sumEntries("1", fitRangeId_.c_str()),
+	               RooFit::Normalization(data.sumEntries("1", fitRangeId_.c_str()),
 	                                     RooAbsReal::NumEvent));
 	  if(plot_params){
 		  double par_xmin = 0.65, par_xmax = 0.9, par_ymax = 0.6;
@@ -374,7 +364,7 @@ std::unique_ptr<RooFitResult> FitContainer::FitSignal(const std::string & name, 
 	    ////////////////////////////////////////////////////////////////////////////////
 	    //////////////////////// ChiSquare by Roofit ///////////////////////////////////
 	    ////////////////////////////////////////////////////////////////////////////////
-	    ndfBkgOnly_ = getNonZeroBins_(signal) - nPars;
+	    ndfBkgOnly_ = getNonZeroBins_(data) - nPars;
 	    normChi2BkgOnly_ = frame->chiSquare("signal_curve", "data_points", nPars); //chi^2 from RooFit (RooPlot::chiSquare())
 	    std::cout<<"ROOFIT: Chi^2/Ndf = "<<normChi2BkgOnly_<<std::endl;
 	    //chi2BkgOnly_ = normChi2BkgOnly_ * ndfBkgOnly_;
@@ -384,13 +374,13 @@ std::unique_ptr<RooFitResult> FitContainer::FitSignal(const std::string & name, 
 	    ////////////////////////////////////////////////////////////////////////////////
 	    ////////////////////////ChiSquare by Chayanit///////////////////////////////////
 	    ////////////////////////////////////////////////////////////////////////////////
-//	    else {
-	    ndfBkgOnly_ = getNonZeroBins_(signal) - nPars - getBlindedBins_(signal,blind_lowEdge_,blind_highEdge_); // excluded blinded region
-	    normChi2BkgOnly_ = chiSquare_CA(*frame, "signal_curve", "data_points", nPars, blind_lowEdge_, blind_highEdge_);
-	  	chi2BkgOnly_ = normChi2BkgOnly_ * ndfBkgOnly_;
+	    Chi2Ndf chi2ndf = fit_quality.chiSquare(*frame, "signal_curve", "data_points", nPars, blind_lowEdge_, blind_highEdge_);
+	    ndfBkgOnly_ 		= chi2ndf.ndf;
+	    chi2BkgOnly_ 		= chi2ndf.chi2;
+	    normChi2BkgOnly_ 	= chi2BkgOnly_/ndfBkgOnly_;
 	  	bkgOnlyFit_.Fill();
-//	    }
-	    std::string chi2str(Form("%.1f/%d = %.1f", chi2BkgOnly_,
+
+	  	std::string chi2str(Form("%.1f/%d = %.1f", chi2BkgOnly_,
 	  		 	   ndfBkgOnly_, normChi2BkgOnly_));
 	    std::cout << "\nNormalized chi^2: " << chi2str << std::endl;
 
@@ -492,44 +482,26 @@ std::unique_ptr<RooFitResult> FitContainer::FitSignal(const std::string & name, 
 std::unique_ptr<RooFitResult> FitContainer::backgroundOnlyFit(const std::string& name, const bool& plot_params) {
   if (!initialized_) initialize();
 
-  RooAbsPdf& bkg = *(workspace_.pdf(toString(Type::background).c_str()));
-  if (&bkg == nullptr) {
-    throw std::logic_error("No background model has been set.");
-  }
+	auto &Pdf 		= *GetFromRooWorkspace<RooAbsPdf>(workspace_,toString(Type::background));
+	auto &data	 	= *GetFromRooWorkspace<RooAbsData>(workspace_,data_);
+	auto &mbb		= *GetFromRooWorkspace<RooRealVar>(workspace_, mbb_);
+	RooFit::SumW2Error(kTRUE);
 
-  // get the objects from the workspace:
-  RooAbsData& data = *workspace_.data(data_.c_str());
-  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  RooFit::SumW2Error(kTRUE);
-
-  //RooDataHist datahist("data_curve","data_curve", mbb, data);  
-
-  //std::unique_ptr<RooFitResult>
-  //  fitResult(bkg.fitTo(data,
-  //  fitResult(bkg.chi2FitTo(datahist,
-  //                      RooFit::Save(),
-  //                      RooFit::PrintLevel(verbosity_),
-                        //RooFit::SumW2Error(kTRUE),
-  //                      RooFit::Range(fitRangeId_.c_str())
-  //			));
+	//class-helper
+	RooFitQuality fit_quality;
 
   // Split Range for blinded data and perform simultaneous fit by CA
   std::unique_ptr<RooFitResult>
-    fitResult(bkg.fitTo(data,
-                        RooFit::Save(),
-                        RooFit::PrintLevel(verbosity_),
-			//RooFit::SumW2Error(kTRUE),
-                        RooFit::Range(fitSplRangeId_.c_str()),
-                        RooFit::SplitRange()
-                        //RooFit::InitialHesse(kTRUE)
-                        ));
+    fitResult(Pdf.fitTo(data,
+			RooFit::Save(),
+			RooFit::PrintLevel(verbosity_),
+			RooFit::Range(fitRangeLowId_.c_str()),
+//			RooFit::Range(fitSplRangeId_.c_str()),
+			RooFit::SplitRange()
+  //RooFit::InitialHesse(kTRUE)
+    ));
 
-  std::cout << "\nconstant parameters:" << std::endl;
-  fitResult->constPars().Print("v");
-  std::cout << "\nfloating parameters (init):" << std::endl;
-  fitResult->floatParsInit().Print("v");
-  std::cout << "\nfloating parameters (final):" << std::endl;
-  fitResult->floatParsFinal().Print("v");
+  fit_quality.PrintParametersInfo(*fitResult);
 
   // Top frame
   std::unique_ptr<RooPlot> frame(mbb.frame());
@@ -537,7 +509,7 @@ std::unique_ptr<RooFitResult> FitContainer::backgroundOnlyFit(const std::string&
 	     RooFit::MarkerSize(0.8),	//0.8 for lowM
 	     //RooFit::DataError(RooAbsData::Auto), 
 	     RooFit::Name("data_curve"));
-  bkg.plotOn(frame.get(),
+  Pdf.plotOn(frame.get(),
 	     //RooFit::VisualizeError(*fitResult,1,kFALSE),
              //RooFit::DrawOption("L"),
              RooFit::LineColor(kRed),
@@ -553,7 +525,7 @@ std::unique_ptr<RooFitResult> FitContainer::backgroundOnlyFit(const std::string&
   if(plot_params){
 	  double par_xmin = 0.65, par_xmax = 0.9, par_ymax = 0.6;
 //	  par_xmin = 0.2; par_xmax = 0.45; par_ymax = 0.9;
-	  bkg.paramOn(frame.get(),RooFit::Layout(par_xmin,par_xmax,par_ymax));//0.98-pad1->GetRightMargin(),0.83-pad1->GetTopMargin()));
+	  Pdf.paramOn(frame.get(),RooFit::Layout(par_xmin,par_xmax,par_ymax));//0.98-pad1->GetRightMargin(),0.83-pad1->GetTopMargin()));
 	  frame->getAttText()->SetTextSize(0.03);
   }
 
@@ -564,7 +536,7 @@ std::unique_ptr<RooFitResult> FitContainer::backgroundOnlyFit(const std::string&
   //generation of the new data! Please don't mix different purposes in a single class.
   //
   // Creat Asimov data for combine tool
-  RooDataSet* asimov = bkg.generate(mbb, obs_);
+  RooDataSet* asimov = Pdf.generate(mbb, obs_);
   asimov->SetName("data_obs");
   workspace_.import(*asimov); 
  
@@ -578,7 +550,9 @@ std::unique_ptr<RooFitResult> FitContainer::backgroundOnlyFit(const std::string&
   ////////////////////////////////////////////////////////////////////////////////
   //////////////////////// ChiSquare by Roofit ///////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  if (!splitrange_) {	
+  Chi2Ndf chi2ndf;
+  if (!splitrange_) {
+	  //TODO: implement method(reload existed one in RooFitQuality)
   	ndfBkgOnly_ = getNonZeroBins_(data) - nPars;
   	normChi2BkgOnly_ = frame->chiSquare("background_curve", "data_curve", nPars); //chi^2 from RooFit (RooPlot::chiSquare())
   	chi2BkgOnly_ = normChi2BkgOnly_ * ndfBkgOnly_;
@@ -601,10 +575,11 @@ std::unique_ptr<RooFitResult> FitContainer::backgroundOnlyFit(const std::string&
   ////////////////////////ChiSquare by Chayanit///////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
   else {
-  	ndfBkgOnly_ = getNonZeroBins_(data) - nPars - getBlindedBins_(data,blind_lowEdge_,blind_highEdge_); // excluded blinded region
-  	normChi2BkgOnly_ = chiSquare_CA(*frame, "background_curve", "data_curve", nPars, blind_lowEdge_, blind_highEdge_);
-	chi2BkgOnly_ = normChi2BkgOnly_ * ndfBkgOnly_;
-	bkgOnlyFit_.Fill();
+    chi2ndf = fit_quality.chiSquare(*frame, "background_curve", "data_curve", nPars, blind_lowEdge_, blind_highEdge_);
+    ndfBkgOnly_ 		= chi2ndf.ndf;
+    chi2BkgOnly_ 		= chi2ndf.chi2;
+    normChi2BkgOnly_ 	= chi2BkgOnly_/ndfBkgOnly_;
+  	bkgOnlyFit_.Fill();
   }
   std::string chi2str(Form("%.1f/%d = %.1f", chi2BkgOnly_,
 		 	   ndfBkgOnly_, normChi2BkgOnly_));
@@ -855,123 +830,6 @@ int FitContainer::getBlindedBins_(const RooAbsData& data, double blind_lowEdge, 
   return blindedBins;
 }
 
-
-double FitContainer::chiSquare_(const RooAbsData& data, const RooCurve& fit) {
-  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  std::unique_ptr<TH1> hist(data.createHistogram(mbb_.c_str(), mbb));
-  double chi2 = 0.0;
-  double avgBinSize = hist->GetXaxis()->GetXmax() - hist->GetXaxis()->GetXmin();
-  avgBinSize /= hist->GetNbinsX();
-  for (int i = 1; i <= hist->GetNbinsX(); ++i) {
-    double center = hist->GetBinCenter(i);
-    double content = hist->GetBinContent(i);
-    if (content > 0.0 && center > fitRangeMin_ && center < fitRangeMax_) {
-      double densityCorrection = avgBinSize/hist->GetBinWidth(i);
-      double model = fit.interpolate(center);
-      double dataPoint = content*densityCorrection;
-      double pull = (dataPoint - model)/hist->GetBinError(i)/densityCorrection;
-//      std::cout << "chi^2 at bin " << i << " : " << pull*pull << std::endl;
-      chi2 += pull*pull;
-    }
-  }
-  return chi2;
-}
-
-
-double FitContainer::chiSquare_(const RooAbsData& data, const RooCurve& fit, double blind_lowEdge, double blind_highEdge, int nFitParam) {
-  RooRealVar& mbb = *workspace_.var(mbb_.c_str());
-  std::unique_ptr<TH1> hist(data.createHistogram(mbb_.c_str(), mbb));
-  double chi2 = 0.0;
-  double avgBinSize = hist->GetXaxis()->GetXmax() - hist->GetXaxis()->GetXmin();
-  avgBinSize /= hist->GetNbinsX();
-  int nbin = 0;
-
-  std::cout << "blind_lowEdge  = " << blind_lowEdge  << std::endl;
-  std::cout << "blind_highEdge = " << blind_highEdge << std::endl;
-
-  for (int i = 1; i <= hist->GetNbinsX(); ++i) {
-    double center = hist->GetBinCenter(i);  	// x value
-    double content = hist->GetBinContent(i);	// y value
-    if (content > 0.0 && center > fitRangeMin_ && center < fitRangeMax_ ) {
-//      std::cout << "center = " << center << std::endl;
-      double densityCorrection = avgBinSize/hist->GetBinWidth(i);
-      double model = fit.interpolate(center);
-      double dataPoint = content*densityCorrection;
-      double pull = (dataPoint - model)/hist->GetBinError(i)/densityCorrection;
-//      std::cout << "pull^2 at bin " << i << " : " << pull*pull << std::endl;
-      chi2 += pull*pull;
-      nbin++;
-    }
-  }
-  std::cout << "chi^2 = " << chi2 << std::endl;
-  std::cout << "nbin  = " << nbin << std::endl;
-  std::cout << "chi^2/ndf = " << chi2 / (nbin-nFitParam) << std::endl;
-  return chi2 / (nbin-nFitParam);
-}
-
-
- 
-double FitContainer::chiSquare_CA(const RooPlot& frame, const char* curvename, const char* histname, int nFitParam, double blind_lowEdge, double blind_highEdge)
-{
-  // Find curve object
-  RooCurve* curve = (RooCurve*) frame.findObject(curvename,RooCurve::Class());  
-  if (!curve) {
-  	std::cout << "RooPlot::chiSquare(" << curvename << ") cannot find curve" << std::endl;
-  	return -1.;
-  }
-  // Find histogram object
-  RooHist* hist = (RooHist*) frame.findObject(histname,RooHist::Class());
-  if (!hist) {
-  	std::cout << "RooPlot::chiSquare(" << histname << ") cannot find histogram" << std::endl;
-  	return -1.;
-  }
-
-  int np = hist->GetN();
-  double x,y,eyl,eyh,exl,exh;
-   
-  // Find starting and ending bin of histogram based on range of RooCurve
-  double xstart,xstop; 
-  curve->GetPoint(0,xstart,y);
-  curve->GetPoint(curve->GetN()-1,xstop,y);
-
-  std::cout << "xstart = " << xstart << std::endl;
-  std::cout << "xstop  = " << xstop << std::endl;
- 
-  int nbin = 0;
-  double chisq = 0;
-  for(int i = 0; i < np; i++){
-
- 	// Retrieve histogram contents
-	hist->GetPoint(i,x,y);
-    	// Check if point is in range of curve
-   	if (x < xstart || x > xstop) continue ;
-	// Chece if point is in blinded region
-	if (x > blind_lowEdge && x < blind_highEdge) continue;
-
-	eyl = hist->GetEYlow()[i] ;
-	eyh = hist->GetEYhigh()[i] ;
-	exl = hist->GetEXlow()[i] ;
-	exh = hist->GetEXhigh()[i] ;
-
-        //std::cout << "x at bin " << i << " : " << x << " +/- " << exh << std::endl;
-	// Integrate function over this bin
-	double avg = curve->average(x-exl,x+exh);
-
-	// Add pull^2 to chisq
-	if (y!=0) {      
-		double pull = (y>avg) ? ((y-avg)/eyl) : ((y-avg)/eyh) ;
-		std::cout << "chi^2 at bin " << i << " : " << pull*pull << std::endl;
-		chisq += pull*pull ;
-		nbin++;
-	}
-  }
-  std::cout << "chisq = " << chisq << std::endl;
-  std::cout << "ndof  = " << nbin-nFitParam << std::endl;
-
-  return chisq / (nbin-nFitParam);
-}
-
-
 bool FitContainer::applyModifiers_(RooAbsPdf& pdf,
                                    const std::vector<ParamModifier>& modifiers) {
   bool modified = false;
@@ -1003,27 +861,18 @@ bool FitContainer::applyModifiers_(RooAbsPdf& pdf,
   return modified;
 }
 
-
-std::unique_ptr<RooArgList>
-FitContainer::getCoefficients_(const int numCoeffs, const std::string& name) {
-  std::unique_ptr<RooArgList> coefficients
-    (new RooArgList((name+"_coefficients").c_str()));
-  for (int c = 0; c < numCoeffs; ++c) {
-    std::string id(Form((name+"_coefficient_%02d").c_str(), c));
-    std::unique_ptr<RooRealVar> coefficient
-      (new RooRealVar(id.c_str(), id.c_str(), 0.0, 10.0));
-    coefficients->addClone(*coefficient);
-  }
-  return coefficients;
-}
-
 double FitContainer::getPeakStart_(const Type& type) {
   RooRealVar& mbb = *workspace_.var(mbb_.c_str());
   return getPeakStart_(type, mbb.getMax());
 }
 
 
-double FitContainer::getPeakStart_(const Type& type, double max) {
+double FitContainer::getPeakStart_(const Type& type,const double& max) {
+	/*
+	 * Method to get estimated position of the peak.
+	 * BG - max bin content OR (max + min)/2
+	 * Signal - max bin content
+	 */
   RooRealVar& mbb = *workspace_.var(mbb_.c_str());
   double peakStart = (mbb.getMin() + max) / 2.0;
   switch (type) {
@@ -1046,6 +895,9 @@ double FitContainer::getPeakStart_(const Type& type, double max) {
 
 
 double FitContainer::getMaxPosition_(const RooAbsData& data) {
+	/*
+	 * Method to return x of the bin with a max content
+	 */
   RooRealVar& mbb = *workspace_.var(mbb_.c_str());
   std::unique_ptr<TH1> hist(data.createHistogram(mbb_.c_str(), mbb));
   int maximumBin = hist->GetMaximumBin();
