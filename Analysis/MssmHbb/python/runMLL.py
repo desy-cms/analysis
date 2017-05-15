@@ -71,13 +71,13 @@ def createCleanDir(dir_name):
 if __name__ == '__main__':
 
     #working directory with datacards and stored output:
-    datacard_folder = '/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_8_0_20_patch1/src/Analysis/MssmHbb/datacards/201704/04/mll_forBias/'
+    datacard_folder = '/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_8_0_20_patch1/src/Analysis/MssmHbb/datacards/201705/15/mll_forBias/'
     checkInput(datacard_folder)
     os.chdir(datacard_folder)
     #list of mass points
     mass = ['300','350','400','500','600','700','900','1100','1300']
     #combine preferences to be added
-    combine_add = '--freezeNuisanceGroups signal --expectSignal=0 --freezeNuisances CMS_bkgd_qcd_13TeV'
+    combine_add = '--freezeNuisanceGroups signal --expectSignal=0'# --freezeNuisances CMS_bkgd_qcd_13TeV'
     for m in mass:
         dir_path =  datacard_folder + '/mll_M-' + m
         data_card = 'hbb_mbb' + m + '_mssm-13TeV.txt'
@@ -86,7 +86,7 @@ if __name__ == '__main__':
         #copy data card to the corresponded dir:
         copyDatacardToDir(data_card,dir_path)
         #adjust combine command
-        if m == '300' or m == '350':
+        if m == '300' or m == '350':# or m == '500':
             combine = 'combine -M MaxLikelihoodFit -t -1 --rMin=-10 --rMax=20 --robustFit 1 --minimizerAlgoForMinos Minuit2,Migrad --cminFallbackAlgo "Minuit2,Minimize,0:0.1" --cminOldRobustMinimize 0 -v 5'
         elif m == '400':
             combine = 'combine -M MaxLikelihoodFit -t -1 --rMin=-10 --rMax=20 --robustFit 1 -v 5'

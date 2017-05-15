@@ -42,18 +42,29 @@ def InformationAboutBias(log_file,mass,bias):
     PrintInformation(r,dr_up,dr_dn,mass,bias)
 
 if __name__ == '__main__':
-    #bias from @chayanit for each mass point
-    bias = {'300': 1.,
-            '350' : 1.,
-            '400' : 1.,
-            '500' : 1.,
-            '600' : 0.28,
-            '700' : -0.07,
-            '900' : -0.14,
-            '1100': -0.59,
-            '1300': -0.19}
+    #bias from @Bias test for each mass point
+    #SuperDijet-2 results for sr1
+#     bias = {'300' : 0.4,
+#             '350' : 1.06,
+#             '400' : -0.86,
+#             '500' : 0.21,
+#             '600' : 0.21,
+#             '700' : -0.12,
+#             '900' : -0.17,
+#             '1100': -0.25,
+#             '1300': -0.17} 
+    # Bernstein-8 results for sr1
+    bias = {'300' : 0.14,
+            '350' : 0.15,
+            '400' : -0.01,
+            '500' : 0.68,
+            '600' : 0.21,
+            '700' : -0.12,
+            '900' : -0.17,
+            '1100': -0.25,
+            '1300': -0.17}
     #folder with mll fits
-    input_folder = '/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_8_0_20_patch1/src/Analysis/MssmHbb/datacards/201704/04/mll_forBias/'
+    input_folder = '/afs/desy.de/user/s/shevchen/cms/cmssw-analysis/CMSSW_8_0_20_patch1/src/Analysis/MssmHbb/datacards/201705/15/mll_forBias/'
     #log filies with output of MLL
     log_files = [input_folder + 'mll_M-' + m + '/log_' + m + '.o' for m in bias]
     #loop over the mass points

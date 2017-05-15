@@ -35,6 +35,27 @@ def SetupDics(mass, model):
              1100:'1.024',
              1300:'1.024'}
     
+    #Bias error for SuperDiJet-2
+#     bias = {300: '2.82359',
+#             350: '4.3794377',
+#             400: '-1.9990915',
+#             500: '0.3496101',
+#             600: '0.195367725',
+#             700: '-0.06933306',
+#             900: '-0.061285',
+#             1100:'-0.0741005',
+#             1300:'-0.050357485'}
+    #Bias error for Bernstein-8
+    bias = {300: '0.9882565',
+            350: '0.61973175',
+            400: '-0.02324525',
+            500: '1.1320708',
+            600: '0.195367725',
+            700: '-0.06933306',
+            900: '-0.061285',
+            1100:'-0.0741005',
+            1300:'-0.050357485'}
+    
     if 'indep' in model:
         for key in pdfas.keys():
             pdfas[key] = ''
@@ -62,7 +83,7 @@ def SetupDics(mass, model):
                          'SHAPE_BG4'    : 'par4           flatParam',
                          'SHAPE_BG5'    : 'slope_novoeff  flatParam',#'',#'slope_novoeff  flatParam',#
                          'SHAPE_BG6'    : 'turnon_novoeff flatParam',
-                         'BIAS_ERR'     :  '7.058975'},#''},#'turnon_novoeff flatParam'},#
+                         'BIAS_ERR'     :  bias.get(300)},#''},#'turnon_novoeff flatParam'},#
                   350 : {'OBSERVATION' : obs_sub_r1,
                          'SIGNAL_SHAPE_WS' : signal_path + 'ReReco_signal_M-350/workspace/signal_workspace.root',
                          'BG_SHAPE_WS' : signal_path   + 'ReReco_bg_fit/sr1/background_workspace_TurnOnFix_5000bins.root',
@@ -79,7 +100,7 @@ def SetupDics(mass, model):
                          'SHAPE_BG4'    : 'par4           flatParam',
                          'SHAPE_BG5'    : 'slope_novoeff  flatParam',#'',#'slope_novoeff  flatParam',
                          'SHAPE_BG6'    : 'turnon_novoeff flatParam',
-                         'BIAS_ERR'     :  '4.131545'},#''},#'turnon_novoeff flatParam'},
+                         'BIAS_ERR'     :  bias.get(350)},#''},#'turnon_novoeff flatParam'},
                   400 : {'OBSERVATION' : obs_sub_r1, 
                          'SIGNAL_SHAPE_WS' : signal_path + 'ReReco_signal_M-400/workspace/signal_workspace.root', 
                          'BG_SHAPE_WS' : signal_path + 'ReReco_bg_fit/sr1/background_workspace_TurnOnFix_5000bins.root',
@@ -96,7 +117,7 @@ def SetupDics(mass, model):
                          'SHAPE_BG4'    : 'par4           flatParam',
                          'SHAPE_BG5'    : 'slope_novoeff  flatParam',#'',#'slope_novoeff  flatParam',
                          'SHAPE_BG6'    : 'turnon_novoeff flatParam',
-                         'BIAS_ERR'     :  '2.324525'},#''},#'turnon_novoeff flatParam'},
+                         'BIAS_ERR'     :  bias.get(400)},#''},#'turnon_novoeff flatParam'},
                   500 : {'OBSERVATION' : obs_sub_r1, 
                          'SIGNAL_SHAPE_WS' : signal_path + 'ReReco_signal_M-500/workspace/signal_workspace.root', 
                          'BG_SHAPE_WS' : signal_path + 'ReReco_bg_fit/sr1/background_workspace_TurnOnFix_5000bins.root',
@@ -113,7 +134,7 @@ def SetupDics(mass, model):
                          'SHAPE_BG4'    : 'par4           flatParam',
                          'SHAPE_BG5'    : 'slope_novoeff  flatParam',#'',#'slope_novoeff  flatParam',
                          'SHAPE_BG6'    : 'turnon_novoeff flatParam',
-                         'BIAS_ERR'     :  '1.66481'},#''},#'turnon_novoeff flatParam'},
+                         'BIAS_ERR'     :  bias.get(500)},#''},#'turnon_novoeff flatParam'},
                   600 : {'OBSERVATION' : obs_sub_r2, 
                          'SIGNAL_SHAPE_WS' : signal_path + 'ReReco_signal_M-600/workspace/signal_workspace.root', 
                          'BG_SHAPE_WS' : signal_path + 'ReReco_bg_fit/sr2/background_workspace_5000bins.root',
@@ -130,7 +151,7 @@ def SetupDics(mass, model):
                          'SHAPE_BG4'    : '',
                          'SHAPE_BG5'    : '',
                          'SHAPE_BG6'    : '',
-                         'BIAS_ERR'     :  '0.2604903'},
+                         'BIAS_ERR'     :  bias.get(600)},
                   700 : {'OBSERVATION' : obs_sub_r2, 
                          'SIGNAL_SHAPE_WS' : signal_path + 'ReReco_signal_M-700/workspace/signal_workspace.root', 
                          'BG_SHAPE_WS' : signal_path + 'ReReco_bg_fit/sr2/background_workspace_5000bins.root',
@@ -147,7 +168,7 @@ def SetupDics(mass, model):
                          'SHAPE_BG4'    : '',
                          'SHAPE_BG5'    : '',
                          'SHAPE_BG6'    : '',
-                         'BIAS_ERR'     :  '0.040444285'},
+                         'BIAS_ERR'     :  bias.get(700)},
                   900 : {'OBSERVATION' : obs_sub_r2, 
                          'SIGNAL_SHAPE_WS' : signal_path + 'ReReco_signal_M-900/workspace/signal_workspace.root', 
                          'BG_SHAPE_WS' : signal_path + 'ReReco_bg_fit/sr2/background_workspace_5000bins.root',
@@ -164,7 +185,7 @@ def SetupDics(mass, model):
                          'SHAPE_BG4'    : '',
                          'SHAPE_BG5'    : '',
                          'SHAPE_BG6'    : '',
-                         'BIAS_ERR'     : '0.05047'},
+                         'BIAS_ERR'     : bias.get(900)},
                   1100: {'OBSERVATION' : obs_sub_r3, 
                          'SIGNAL_SHAPE_WS' : signal_path + 'ReReco_signal_M-1100/workspace/signal_workspace.root', 
                          'BG_SHAPE_WS' : signal_path + 'ReReco_bg_fit/sr3/background_workspace_5000bins.root',
@@ -181,7 +202,7 @@ def SetupDics(mass, model):
                          'SHAPE_BG4'    : '',
                          'SHAPE_BG5'    : '',
                          'SHAPE_BG6'    : '',
-                         'BIAS_ERR'     : '0.17487718'},
+                         'BIAS_ERR'     : bias.get(1100)},
                   1300: {'OBSERVATION' : obs_sub_r3, 
                          'SIGNAL_SHAPE_WS' : signal_path + 'ReReco_signal_M-1300/workspace/signal_workspace.root', 
                          'BG_SHAPE_WS' : signal_path + 'ReReco_bg_fit/sr3/background_workspace_5000bins.root', 
@@ -198,7 +219,7 @@ def SetupDics(mass, model):
                          'SHAPE_BG4'    : '',
                          'SHAPE_BG5'    : '',
                          'SHAPE_BG6'    : '',
-                         'BIAS_ERR'     : '0.056281895'}}
+                         'BIAS_ERR'     : bias.get(1300)}}
     
     if dictionary[mass] != None:
         return dictionary[mass]
@@ -268,13 +289,13 @@ if __name__ == '__main__':
     CMSSW_BASE = os.environ['CMSSW_BASE']
     add_path ='/src/Analysis/MssmHbb/datacards/'
     
-    model = 'indep'
-    selection = '201705/15/mll_fotBias/'
+    model = 'mssm'
+    selection = '201705/15/Asymptotic/mssm/Bernstein8_Bias/'
     path_to_dir = ( CMSSW_BASE + add_path + selection )
     # Make dir if it doesn't exist
     MakeDir(path_to_dir)
 
-    basename_of_template = 'parametric_datacard_template.txt'
+    basename_of_template = 'bias_parametric_datacard_template.txt'
     path_to_template = CMSSW_BASE + add_path + basename_of_template
 
     masses = [300,350,400,500,600,700,900,1100,1300]
