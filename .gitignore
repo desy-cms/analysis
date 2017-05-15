@@ -9,7 +9,11 @@ __init__.py
 *.DS_Store
 *._.DS_Store
 *.log
+*.o
 *.cproject
+*.project
+*.pydevproject
+*.pydevproject
 *.png
 Analysis/*/python/__init__.py
 Analysis/Tools/test/crab_proj*
