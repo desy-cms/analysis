@@ -135,7 +135,7 @@ void X750Search::applySelection(){
 		    	if(!signalMC_) {
 		    		weight_["Lumi"] 			=pWeight_->LumiWeight(dataLumi_,this->luminosity());
 		    	}
-		    	else weight_["Lumi"] 			=pWeight_->LumiWeight(dataLumi_,this->numberFilteredGenEvents()/xsection_[returnMassPoint()]);
+//		    	else weight_["Lumi"] 			=pWeight_->LumiWeight(dataLumi_,this->numberFilteredGenEvents()/xsection_[returnMassPoint()]);
 		    	weight_["Ht"]       		= pWeight_->HtWeight(hCorrections1D_["hHtWeight"],Ht);
 
 		    }
@@ -145,11 +145,11 @@ void X750Search::applySelection(){
 
 		}
 			double nGenMHat = 0;
-		(histo_.getHisto())["TotalNumberOfGenEvents"] -> Fill(this->numberGenEvents());
+//		(histo_.getHisto())["TotalNumberOfGenEvents"] -> Fill(this->numberGenEvents());
 		(histo_.getHisto())["NumberOfFilteredEvents"] -> Fill(this->size());
 		if(signalMC_) {
 			(histo_.getHisto())["xsection"] -> Fill(xsection_[returnMassPoint()]);
-			nGenMHat = this->numberFilteredGenEvents() * weight_["Lumi"];
+//			nGenMHat = this->numberFilteredGenEvents() * weight_["Lumi"];
 			(histo_.getHisto())["NumberOfGenEvents_afterMHat"] -> Fill(nGenMHat);
 		}
 		else (histo_.getHisto())["xsection"] -> Fill(this->crossSection());
